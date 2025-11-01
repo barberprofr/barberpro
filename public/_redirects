@@ -1,0 +1,5 @@
+# Laisse passer les appels API vers la fonction Netlify
+/api/*    /.netlify/functions/api/:splat    200
+
+# Puis, pour toutes les autres routes (frontend SPA)
+ /*       /index.html    200
