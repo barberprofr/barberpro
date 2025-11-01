@@ -918,21 +918,25 @@ export const recoverAdminCode: RequestHandler = async (req, res) => {
 
     console.log(`🔍 Recherche de compte pour récupération code admin: ${e}`);
     
-    // Même logique de recherche que pour recoverAdminPassword
+    // RECHERCHE ROBUSTE EN BASE DE DONNÉES
     let foundSalonId: string | null = null;
     let foundSettings: ISettings | null = null;
 
-    // 1. Chercher dans le cache
-    const cachedSalonId = emailToSalonId.get(e);
-    if (cachedSalonId) {
-      const settings = await getSettings(cachedSalonId);
-      if (settings.adminEmail && settings.adminEmail.toLowerCase() === e) {
-        foundSalonId = cachedSalonId;
-        foundSettings = settings;
+    // 1. Recherche dans tous les salons
+    const allSettings = await Settings.find({});
+    console.log(`📊 Recherche parmi ${allSettings.length} salons`);
+    
+    for (const setting of allSettings) {
+      if (setting.adminEmail && setting.adminEmail.toLowerCase() === e) {
+        foundSalonId = setting.salonId;
+        foundSettings = setting;
+        console.log(`✅ Salon trouvé: ${foundSalonId}`);
+        emailToSalonId.set(e, foundSalonId);
+        break;
       }
     }
 
-    // 2. Si pas trouvé, chercher en base
+    // 2. Recherche alternative
     if (!foundSalonId) {
       const settings = await Settings.findOne({ 
         adminEmail: { $regex: new RegExp(`^${e}$`, 'i') } 
@@ -941,12 +945,18 @@ export const recoverAdminCode: RequestHandler = async (req, res) => {
       if (settings) {
         foundSalonId = settings.salonId;
         foundSettings = settings;
+        console.log(`✅ Salon trouvé avec recherche alternative: ${foundSalonId}`);
         emailToSalonId.set(e, foundSalonId);
       }
     }
 
     if (!foundSalonId || !foundSettings) {
       console.log(`❌ Aucun compte trouvé pour: ${e}`);
+      console.log(`📊 Salons disponibles:`, allSettings.map(s => ({
+        salonId: s.salonId,
+        adminEmail: s.adminEmail,
+        hasEmail: !!s.adminEmail
+      })));
       return res.status(401).json({ error: "Aucun compte trouvé avec cet email" });
     }
 
@@ -954,19 +964,19 @@ export const recoverAdminCode: RequestHandler = async (req, res) => {
       return res.status(400).json({ error: "Aucun email de récupération configuré" });
     }
     
+    // Vérification exacte de l'email
     if (foundSettings.adminEmail.toLowerCase() !== e) {
+      console.log(`❌ Email mismatch: ${e} vs ${foundSettings.adminEmail}`);
       return res.status(401).json({ error: "Email non reconnu" });
     }
     
-    // Générer un code à 6 chiffres
+    // Génération et envoi du code
     const code = String(Math.floor(100000 + Math.random() * 900000));
     
-    // Sauvegarder le code
     foundSettings.resetCode = code;
     foundSettings.resetExpiresAt = Date.now() + 10 * 60 * 1000;
     await foundSettings.save();
     
-    // Envoyer l'email
     const salonName = foundSettings.salonName || 'Votre Salon';
     const emailed = await EmailService.sendAdminCodeRecovery(e, code, salonName);
     
@@ -1015,47 +1025,115 @@ export const verifyAdminCodeRecovery: RequestHandler = async (req, res) => {
       return res.status(400).json({ error: "Le code admin ne peut pas être 'admin'" });
     }
 
-    const salonId = emailToSalonId.get(e);
-    if (!salonId) {
+    console.log(`🔍 Recherche de compte pour vérification code: ${e}`);
+
+    // RECHERCHE DIRECTE EN BASE DE DONNÉES - CORRECTION
+    let foundSalonId: string | null = null;
+    let foundSettings: ISettings | null = null;
+
+    // 1. D'abord chercher dans le cache (peut être vide sur Netlify)
+    const cachedSalonId = emailToSalonId.get(e);
+    if (cachedSalonId) {
+      console.log(`📋 Trouvé dans cache: ${cachedSalonId}`);
+      const settings = await getSettings(cachedSalonId);
+      if (settings.adminEmail && settings.adminEmail.toLowerCase() === e) {
+        foundSalonId = cachedSalonId;
+        foundSettings = settings;
+      }
+    }
+
+    // 2. Recherche directe en base de données (IMPORTANT pour Netlify)
+    if (!foundSalonId) {
+      console.log(`🔍 Recherche en base de données pour: ${e}`);
+      
+      // Rechercher TOUS les settings avec cet email
+      const allSettings = await Settings.find({});
+      console.log(`📊 Nombre total de salons en base: ${allSettings.length}`);
+      
+      for (const setting of allSettings) {
+        if (setting.adminEmail && setting.adminEmail.toLowerCase() === e) {
+          foundSalonId = setting.salonId;
+          foundSettings = setting;
+          console.log(`✅ Salon trouvé en base: ${foundSalonId}`);
+          
+          // Mettre à jour le cache pour les prochains appels
+          emailToSalonId.set(e, foundSalonId);
+          break;
+        }
+      }
+    }
+
+    // 3. Recherche alternative avec regex (plus permissive)
+    if (!foundSalonId) {
+      console.log(`🔍 Recherche alternative avec regex pour: ${e}`);
+      const settings = await Settings.findOne({ 
+        adminEmail: { $regex: new RegExp(`^${e}$`, 'i') } 
+      });
+      
+      if (settings) {
+        foundSalonId = settings.salonId;
+        foundSettings = settings;
+        console.log(`✅ Salon trouvé avec recherche regex: ${foundSalonId}`);
+        emailToSalonId.set(e, foundSalonId);
+      }
+    }
+
+    if (!foundSalonId || !foundSettings) {
+      console.log(`❌ Aucun compte trouvé pour: ${e}`);
+      console.log(`📊 État du cache emailToSalonId:`, Array.from(emailToSalonId.entries()));
       return res.status(401).json({ error: "Aucun compte trouvé avec cet email" });
     }
 
-    const settings = await getSettings(salonId);
-    
-    if (!settings.adminEmail) {
+    // Vérifications supplémentaires
+    if (!foundSettings.adminEmail) {
+      console.log(`❌ Aucun email admin configuré pour: ${foundSalonId}`);
       return res.status(400).json({ error: "Aucun email de récupération configuré" });
     }
     
-    if (settings.adminEmail.toLowerCase() !== e) {
+    // Vérification case-insensitive de l'email
+    const storedEmail = foundSettings.adminEmail.toLowerCase();
+    const providedEmail = e.toLowerCase();
+    
+    if (storedEmail !== providedEmail) {
+      console.log(`❌ Email non reconnu: ${providedEmail} vs ${storedEmail}`);
       return res.status(401).json({ error: "Email non reconnu" });
     }
     
-    if (!settings.resetCode || !settings.resetExpiresAt || Date.now() > settings.resetExpiresAt) {
-      return res.status(400).json({ error: "Code expiré ou invalide" });
+    // Vérification du code de réinitialisation
+    if (!foundSettings.resetCode || !foundSettings.resetExpiresAt) {
+      console.log(`❌ Aucun code de réinitialisation pour: ${foundSalonId}`);
+      return res.status(400).json({ error: "Code de réinitialisation non trouvé" });
     }
     
-    if (settings.resetCode !== c) {
+    if (Date.now() > foundSettings.resetExpiresAt) {
+      console.log(`❌ Code expiré pour: ${foundSalonId}`);
+      return res.status(400).json({ error: "Code expiré" });
+    }
+    
+    if (foundSettings.resetCode !== c) {
+      console.log(`❌ Code incorrect: ${c} vs ${foundSettings.resetCode}`);
       return res.status(401).json({ error: "Code de vérification incorrect" });
     }
     
-    // ⭐️ CORRECTION : Mettre à jour adminCodeHash (code admin)
-    settings.adminCodeHash = sha256(newCode);
-    settings.resetCode = null;
-    settings.resetExpiresAt = 0;
-    settings.adminToken = makeToken();
+    // Mise à jour du code admin
+    console.log(`✅ Code admin valide, mise à jour pour: ${e}`);
+    foundSettings.adminCodeHash = sha256(newCode);
+    foundSettings.resetCode = null;
+    foundSettings.resetExpiresAt = 0;
+    foundSettings.adminToken = makeToken();
     
-    await settings.save();
+    await foundSettings.save();
     
-    console.log(`✅ Code admin réinitialisé pour: ${e}`);
+    console.log(`✅ Code admin réinitialisé avec succès pour: ${e}`);
     
     return res.json({ 
-      token: settings.adminToken, 
-      salonId,
+      token: foundSettings.adminToken, 
+      salonId: foundSalonId,
       message: "Code admin réinitialisé avec succès" 
     });
     
   } catch (error) {
-    console.error('Error in admin code recovery verify:', error);
+    console.error('❌ Error in admin code recovery verify:', error);
     res.status(500).json({ error: "Erreur serveur lors de la réinitialisation du code admin" });
   }
 };
