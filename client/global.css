@@ -1,0 +1,187 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /**
+   * Tailwind CSS theme
+   * tailwind.config.ts expects the following color variables to be expressed as HSL values.
+   * A different format will require also updating the theme in tailwind.config.ts.
+  */
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+
+    --primary: 210 98% 53%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 210 100% 97%;
+    --secondary-foreground: 210 50% 26%;
+
+    --muted: 210 30% 96%;
+    --muted-foreground: 240 5% 35%;
+
+    --accent: 210 100% 95%;
+    --accent-foreground: 210 50% 24%;
+
+    --destructive: 0 72% 52%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 240 6% 90%;
+    --input: 240 6% 90%;
+    --ring: 210 98% 53%;
+
+    --radius: 0.5rem;
+
+    --sidebar-background: 0 0% 98%;
+
+    --sidebar-foreground: 240 5.3% 26.1%;
+
+    --sidebar-primary: 240 5.9% 10%;
+
+    --sidebar-primary-foreground: 0 0% 98%;
+
+    --sidebar-accent: 240 4.8% 95.9%;
+
+    --sidebar-accent-foreground: 240 5.9% 10%;
+
+    --sidebar-border: 220 13% 91%;
+
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    --background: 20 6% 8%;
+    --foreground: 0 0% 100%;
+
+    --card: 24 6% 20%;
+    --card-foreground: 0 0% 100%;
+
+    --popover: 24 6% 10%;
+    --popover-foreground: 0 0% 100%;
+
+    --primary: 210 98% 53%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 258 30% 18%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 258 20% 15%;
+    --muted-foreground: 0 0% 70%;
+
+    --accent: 258 60% 22%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 70% 36%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 258 20% 18%;
+    --input: 258 20% 18%;
+    --ring: 210 98% 53%;
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 210 98% 53%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 258 25% 20%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 258 25% 20%;
+    --sidebar-ring: 258 90% 66%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+
+  input[type="date"],
+  input[type="datetime-local"],
+  input[type="month"],
+  input[type="time"],
+  input[type="week"] {
+    color-scheme: dark;
+  }
+
+  input[type="date"]::-webkit-calendar-picker-indicator,
+  input[type="datetime-local"]::-webkit-calendar-picker-indicator,
+  input[type="month"]::-webkit-calendar-picker-indicator,
+  input[type="time"]::-webkit-calendar-picker-indicator,
+  input[type="week"]::-webkit-calendar-picker-indicator {
+    filter: brightness(0) invert(1);
+    opacity: 1;
+  }
+
+  input[type="date"]::-webkit-calendar-picker-indicator:hover,
+  input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover,
+  input[type="month"]::-webkit-calendar-picker-indicator:hover,
+  input[type="time"]::-webkit-calendar-picker-indicator:hover,
+  input[type="week"]::-webkit-calendar-picker-indicator:hover {
+    filter: brightness(0) invert(1);
+  }
+
+}
+
+@layer utilities {
+  .bg-rainbow {
+    background-image: linear-gradient(135deg,
+      #7c3aed 0%,   /* violet-600 */
+      #6366f1 14%,  /* indigo-500 */
+      #0ea5e9 28%,  /* sky-500 */
+      #10b981 42%,  /* emerald-500 */
+      #f59e0b 57%,  /* amber-500 */
+      #ef4444 71%,  /* red-500 */
+      #ec4899 85%,  /* pink-500 */
+      #f472b6 100%  /* pink-400 */
+    );
+  }
+
+  .no-spinner::-webkit-outer-spin-button,
+  .no-spinner::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  .no-spinner[type="number"] {
+    -moz-appearance: textfield;
+  }
+
+  .elegant-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(56, 189, 248, 0.7) transparent;
+  }
+
+  .elegant-scrollbar::-webkit-scrollbar {
+    width: 10px;
+  }
+
+  .elegant-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+    margin: 5px 0;
+  }
+
+  .elegant-scrollbar::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, rgba(56, 189, 248, 0.8) 0%, rgba(16, 185, 129, 0.6) 100%);
+    border-radius: 20px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+    transition: all 0.3s ease;
+  }
+
+  .elegant-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, rgba(56, 189, 248, 1) 0%, rgba(16, 185, 129, 0.8) 100%);
+    background-clip: content-box;
+    border: 1px solid transparent;
+  }
+}

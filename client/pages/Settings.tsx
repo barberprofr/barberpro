@@ -1,0 +1,2127 @@
+import SharedLayout from "@/components/SharedLayout";
+import { apiPath } from "@/lib/api";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { PasswordInput } from "@/components/ui/password-input";
+import { Button } from "@/components/ui/button";
+import ClientsExport from "@/components/Salon/ClientsExport";
+import ServicesManager from "@/components/Salon/ServicesManager";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
+import { useToast } from "@/hooks/use-toast";
+import { useAdminUpdateCode, useAdminVerifyCode, useAddStylist, useConfig, useUpdateConfig, useDashboardSummary, usePointsUsageReport, useStylists, useStylistBreakdown, useRevenueByDay, useRevenueByMonth, useDeleteStylist, useSetStylistCommission, useAdminRecoverCode, useAdminRecoverCodeVerify, useServices, useAddService, useDeleteService } from "@/lib/api";
+import type { SummaryPayments, MethodKey, Stylist, PointsUsageGroup, DashboardSummary, Service } from "@/lib/api";
+import { cn } from "@/lib/utils";
+import { useState, useEffect, useMemo } from "react";
+import { CreditCard, Coins, FileText, ChevronDown, CalendarDays, Sun, Scissors, UserRound, TrendingUp, Crown, Search } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+import { motion } from "framer-motion";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
+
+const eur = new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" });
+
+interface PaymentSummaryMeta {
+  key: MethodKey;
+  label: string;
+  icon: LucideIcon;
+  badgeClasses: string;
+  iconClasses: string;
+}
+
+const PAYMENT_METHOD_META: PaymentSummaryMeta[] = [
+  {
+    key: "card",
+    label: "Carte",
+    icon: CreditCard,
+    badgeClasses: "border border-indigo-500/40 bg-indigo-500/10",
+    iconClasses: "text-indigo-300",
+  },
+  {
+    key: "check",
+    label: "Chèque",
+    icon: FileText,
+    badgeClasses: "border border-amber-500/40 bg-amber-500/10",
+    iconClasses: "text-amber-300",
+  },
+  {
+    key: "cash",
+    label: "Espèces",
+    icon: Coins,
+    badgeClasses: "border border-emerald-500/40 bg-emerald-500/10",
+    iconClasses: "text-emerald-300",
+  },
+];
+
+const STYLIST_COMMISSION_CHOICES = [0, ...Array.from({ length: 41 }, (_, index) => 20 + index)];
+
+type PaymentSummaryItem = PaymentSummaryMeta & { amount: number; count: number };
+
+function PaymentSummaryGrid({ items }: { items: PaymentSummaryItem[] }) {
+  if (!items.length) return null;
+  return (
+    <div className="mt-3 grid gap-2 sm:grid-cols-3">
+      {items.map((item) => (
+        <div key={item.key} className="flex items-center justify-between rounded-lg border border-white/10 bg-white/5 px-2.5 py-1">
+          <div className="flex items-center gap-1.5">
+            <span className={`inline-flex h-5 w-5 items-center justify-center rounded-full ${item.badgeClasses}`}>
+              <item.icon className={`h-2.5 w-2.5 ${item.iconClasses}`} />
+            </span>
+            <div className="leading-none">
+              <div className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">{item.label}</div>
+              <div className="text-[9px] text-muted-foreground">{item.count} prest.</div>
+            </div>
+          </div>
+          <span className="text-[11px] font-semibold">{eur.format(item.amount)}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+interface PointsUsageScopeSectionProps {
+  title: string;
+  emptyLabel: string;
+  groups: PointsUsageGroup[];
+  variant?: "default" | "month";
+}
+
+function formatContact(value?: string | null) {
+  return value && value.trim().length > 0 ? value : "Non renseigné";
+}
+
+function PointsUsageScopeSection({ title, emptyLabel, groups, variant = "default" }: PointsUsageScopeSectionProps) {
+  const totalPoints = groups.reduce((sum, group) => sum + group.totalPoints, 0);
+  const containerClasses = variant === "month"
+    ? "rounded-3xl border border-white/10 bg-gradient-to-br from-[#0f172a]/85 via-[#1e1b4b]/70 to-[#0ea5e9]/35 p-4 space-y-4 shadow-[0_28px_60px_rgba(15,23,42,0.45)] backdrop-blur"
+    : "rounded-2xl border border-white/10 bg-slate-950/40 p-3 space-y-3";
+  const itemClasses = variant === "month"
+    ? "rounded-2xl border border-white/12 bg-white/10 backdrop-blur-lg transition hover:border-white/35"
+    : "rounded-xl border border-white/10 bg-slate-900/40";
+  const triggerClasses = variant === "month"
+    ? "px-4 py-3 text-sm font-semibold text-slate-100"
+    : "px-3 py-2 text-sm font-semibold";
+  const pillClasses = variant === "month"
+    ? "inline-flex items-center gap-2 rounded-full border border-white/50 bg-gradient-to-r from-white/20 to-white/10 backdrop-blur-sm px-3.5 py-1.5 text-[11px] font-semibold text-white shadow-[0_8px_16px_rgba(255,255,255,0.1),inset_0_1px_1px_rgba(255,255,255,0.3)]"
+    : "inline-flex items-center gap-2 rounded-full border border-emerald-400/50 bg-gradient-to-r from-emerald-500/20 to-emerald-400/10 backdrop-blur-sm px-3 py-1.5 text-xs font-semibold text-emerald-100 shadow-[0_8px_16px_rgba(16,185,129,0.15),inset_0_1px_1px_rgba(255,255,255,0.2)]";
+  const entryClasses = variant === "month"
+    ? "space-y-2 rounded-2xl border border-white/20 bg-white/10 backdrop-blur-xl p-4 text-xs text-slate-100 shadow-[0_18px_45px_rgba(15,23,42,0.3),inset_0_1px_1px_rgba(255,255,255,0.1)]"
+    : "space-y-2 rounded-xl border border-white/15 bg-white/8 backdrop-blur-lg p-3 text-xs text-slate-100 shadow-[0_8px_24px_rgba(15,23,42,0.2)]";
+  const pointsBadgeClasses = variant === "month"
+    ? "inline-flex items-center rounded-full border border-white/40 bg-gradient-to-r from-white/15 to-white/8 backdrop-blur-sm px-2.5 py-1 text-[10px] font-semibold text-white shadow-[0_6px_12px_rgba(255,255,255,0.08),inset_0_1px_1px_rgba(255,255,255,0.2)]"
+    : "inline-flex items-center rounded-full border border-emerald-400/40 bg-gradient-to-r from-emerald-500/15 to-emerald-400/5 backdrop-blur-sm px-2.5 py-1 text-[10px] font-semibold text-emerald-200 shadow-[0_6px_12px_rgba(16,185,129,0.1),inset_0_1px_1px_rgba(255,255,255,0.15)]";
+  return (
+    <div className={containerClasses}>
+      <div className="flex items-center justify-between">
+        <h4 className="text-sm font-semibold text-slate-100">{title}</h4>
+        {totalPoints > 0 && <span className="text-xs font-semibold text-primary/80">{totalPoints} pts</span>}
+      </div>
+      {groups.length === 0 ? (
+        <p className="text-xs text-muted-foreground">{emptyLabel}</p>
+      ) : (
+        <Accordion type="multiple" className="space-y-2">
+          {groups.map((group) => (
+            <AccordionItem key={group.stylistId} value={group.stylistId} className={itemClasses}>
+              <AccordionTrigger className={triggerClasses}>
+                <div className="flex w-full items-center justify-between gap-3">
+                  <span className={pillClasses}>
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-300" />
+                    {group.stylistName}
+                  </span>
+                  <span className="text-xs text-primary/80">{group.totalPoints} pts</span>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="px-0 pb-0">
+                <div className="space-y-2 px-3 pb-3">
+                  {group.entries.map((entry) => {
+                    const firstName = entry.firstName?.trim() || entry.clientName;
+                    const lastName = entry.lastName?.trim();
+                    const displayLastName = lastName && lastName.length > 0 ? lastName : "�����";
+                    return (
+                      <div key={entry.id} className={entryClasses}>
+                        <div className="flex items-center justify-between">
+                          <span className="font-semibold text-slate-100">{firstName}</span>
+                          <span className={pointsBadgeClasses}>{entry.points} pts</span>
+                        </div>
+                        <div className="grid gap-1 text-[11px] text-muted-foreground sm:grid-cols-2">
+                          <span className="font-medium text-slate-200">Nom: <span className="font-normal text-slate-300">{displayLastName}</span></span>
+                          <span className="font-medium text-slate-200">Téléphone: <span className="font-normal text-slate-300">{formatContact(entry.phone)}</span></span>
+                          <span className="font-medium text-slate-200">Email: <span className="font-normal text-slate-300">{formatContact(entry.email)}</span></span>
+                          <span className="font-medium text-slate-200">Horodatage: <span className="font-normal text-slate-300">{new Date(entry.timestamp).toLocaleString("fr-FR", { timeZone: "Europe/Paris" })}</span></span>
+                        </div>
+                        <p className="text-[11px] text-muted-foreground">Motif: {entry.reason}</p>
+                      </div>
+                    );
+                  })}
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          ))}
+        </Accordion>
+      )}
+    </div>
+  );
+}
+
+function parisDateString(at: Date = new Date()) {
+  const parts = new Intl.DateTimeFormat("fr-FR", {
+    timeZone: "Europe/Paris",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(at);
+  const get = (type: string) => parts.find((p) => p.type === type)?.value || "";
+  return `${get("year")}-${get("month")}-${get("day")}`;
+}
+
+function parisDateTimeLocalString(at: Date = new Date()) {
+  const parts = new Intl.DateTimeFormat("fr-FR", {
+    timeZone: "Europe/Paris",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  }).formatToParts(at);
+  const get = (type: string) => parts.find((p) => p.type === type)?.value || "";
+  const hour = (get("hour") || "00").padStart(2, "0");
+  const minute = (get("minute") || "00").padStart(2, "0");
+  const second = (get("second") || "00").padStart(2, "0");
+  return `${get("year")}-${get("month")}-${get("day")}T${hour}:${minute}:${second}`;
+}
+
+function describeParisDateTime(local: string) {
+  if (!local.includes("T")) return "";
+  const [date, time] = local.split("T");
+  const [year, month, day] = date.split("-").map(Number);
+  const [hour, minute] = time.split(":").map(Number);
+  if ([year, month, day, hour, minute].some((n) => Number.isNaN(n))) return "";
+  const ref = new Date(Date.UTC(year, month - 1, day, 12, 0));
+  const dateLabel = ref.toLocaleDateString("fr-FR", {
+    timeZone: "Europe/Paris",
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+  return `${dateLabel} à ${String(hour).padStart(2, "0")}h${String(minute).padStart(2, "0")}`;
+}
+
+function formatParisClockTime(local: string) {
+  if (!local.includes("T")) return "";
+  const timePart = local.split("T")[1] ?? "";
+  const [hour = "00", minute = "00", second = "00"] = timePart.split(":");
+  return [hour, minute, second].map((segment) => segment.padStart(2, "0")).join(":");
+}
+
+function getParisTimeZoneLabel(at: Date = new Date()): string {
+  // Create two dates with the same UTC timestamp but in different time zones
+  const utcFormatter = new Intl.DateTimeFormat("en-US", {
+    timeZone: "UTC",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  });
+
+  const parisFormatter = new Intl.DateTimeFormat("en-US", {
+    timeZone: "Europe/Paris",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  });
+
+  const utcStr = utcFormatter.format(at);
+  const parisStr = parisFormatter.format(at);
+
+  const utcTime = utcStr.split(", ")[1];
+  const parisTime = parisStr.split(", ")[1];
+
+  const [utcHour, utcMin] = utcTime.split(":").map(Number);
+  const [parisHour, parisMin] = parisTime.split(":").map(Number);
+
+  const utcTotal = utcHour * 60 + utcMin;
+  const parisTotal = parisHour * 60 + parisMin;
+
+  let offsetMinutes = parisTotal - utcTotal;
+  // Handle day boundaries
+  if (offsetMinutes > 12 * 60) {
+    offsetMinutes -= 24 * 60;
+  } else if (offsetMinutes < -12 * 60) {
+    offsetMinutes += 24 * 60;
+  }
+
+  const offsetHours = offsetMinutes / 60;
+
+  // Return the appropriate label
+  // +1 = CET (Heure d'hiver)
+  // +2 = CEST (Heure d'été)
+  if (offsetHours === 1) {
+    return "CET (UTC+1) - Heure d'hiver";
+  } else if (offsetHours === 2) {
+    return "CEST (UTC+2) - Heure d'été";
+  }
+  return `UTC${offsetHours > 0 ? "+" : ""}${offsetHours}`;
+}
+
+function formatSelectedDayLabel(day: string) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(day)) return "—";
+  const [year, month, dayNum] = day.split("-").map(Number);
+  if ([year, month, dayNum].some((n) => Number.isNaN(n)) || month < 1 || month > 12 || dayNum < 1 || dayNum > 31) return "���";
+  const ref = new Date(Date.UTC(year, month - 1, dayNum, 12, 0, 0));
+  const label = ref.toLocaleDateString("fr-FR", { timeZone: "Europe/Paris", weekday: "long", year: "numeric", month: "long", day: "numeric" });
+  return label.charAt(0).toUpperCase() + label.slice(1);
+}
+
+function formatSelectedMonthLabel(month: string) {
+  if (!/^\d{4}-\d{2}$/.test(month)) return "—";
+  const [year, monthNum] = month.split("-").map(Number);
+  if ([year, monthNum].some((n) => Number.isNaN(n)) || monthNum < 1 || monthNum > 12) return "—";
+  const ref = new Date(Date.UTC(year, monthNum - 1, 1, 12, 0, 0));
+  const label = ref.toLocaleDateString("fr-FR", { timeZone: "Europe/Paris", month: "long", year: "numeric" });
+  return label.charAt(0).toUpperCase() + label.slice(1);
+}
+
+interface ParisClockState {
+  iso: string;
+  label: string;
+  time: string;
+  timeZone: string;
+}
+
+function createParisClock(): ParisClockState {
+  const iso = parisDateTimeLocalString();
+  return {
+    iso,
+    label: describeParisDateTime(iso),
+    time: formatParisClockTime(iso),
+    timeZone: getParisTimeZoneLabel(),
+  };
+}
+
+function StylistMonthly({ id, commissionPct }: { id: string; commissionPct: number }) {
+  const now = new Date();
+  const defMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+  const [month, setMonth] = useState<string>(defMonth); // YYYY-MM
+  const dateStr = `${month}-01`;
+  const { data } = useStylistBreakdown(id, dateStr);
+  const m = data?.monthly;
+  const prestationM = (data as any)?.prestationMonthly;
+  const total = m?.total;
+  const prestationTotal = prestationM?.total;
+  const monthlyProductCount = (data as any)?.monthlyProductCount ?? 0;
+  const salary = (prestationTotal?.amount || 0) * (commissionPct ?? 0) / 100;
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center gap-2 text-sm">
+        <span className="text-muted-foreground">Mois</span>
+        <input type="month" value={month} onChange={(e) => setMonth(e.target.value)} className="border rounded px-2 py-1 bg-gray-900 border-gray-700 text-gray-100" />
+      </div>
+      <div className="rounded-3xl border border-white/10 bg-slate-950/50 p-4 shadow-inner text-sm space-y-3">
+        <div className="flex items-center justify-between text-slate-100">
+          <span className="font-semibold">CA du mois</span>
+          <span className="text-base font-bold">{eur.format(total?.amount || 0)}</span>
+        </div>
+        <div className="flex items-center justify-between text-slate-100">
+          <span className="font-semibold">Salaire ({commissionPct}%)</span>
+          <span className="text-base font-bold">{eur.format(salary)}</span>
+        </div>
+        <div className="text-xs text-slate-300">{prestationTotal?.count || 0} prestation{(prestationTotal?.count ?? 0) > 1 ? "s" : ""}{monthlyProductCount ? `, ${monthlyProductCount} produit${monthlyProductCount > 1 ? "s" : ""}` : ""}</div>
+      </div>
+      <div className="grid grid-cols-4 text-sm border rounded-md overflow-hidden">
+        <div className="bg-white/12 px-3 py-2"></div>
+        <div className="bg-white/12 px-3 py-2"><span className="inline-flex items-center px-2 py-0.5 rounded-full border-2 border-emerald-300 bg-emerald-100/30 text-emerald-100 text-xs font-semibold">Espèces</span></div>
+        <div className="bg-white/12 px-3 py-2"><span className="inline-flex items-center px-2 py-0.5 rounded-full border-2 border-amber-300 bg-amber-100/30 text-amber-100 text-xs font-semibold">Chèque</span></div>
+        <div className="bg-white/12 px-3 py-2"><span className="inline-flex items-center px-2 py-0.5 rounded-full border-2 border-indigo-300 bg-indigo-100/30 text-indigo-100 text-xs font-semibold">Carte</span></div>
+        <div className="px-3 py-2 font-bold">Mois</div>
+        <div className="px-3 py-2">{eur.format(m?.methods.cash.amount || 0)}</div>
+        <div className="px-3 py-2">{eur.format(m?.methods.check.amount || 0)}</div>
+        <div className="px-3 py-2">{eur.format(m?.methods.card.amount || 0)}</div>
+      </div>
+    </div>
+  );
+}
+
+function StylistDaily({ id, date, commissionPct }: { id: string; date?: string; commissionPct: number }) {
+  const { data } = useStylistBreakdown(id, date);
+  const d = data?.daily;
+  const prestationD = (data as any)?.prestationDaily;
+  const total = d?.total;
+  const prestationTotal = prestationD?.total;
+  const dailyProductCount = (data as any)?.dailyProductCount ?? 0;
+  const salary = (prestationTotal?.amount || 0) * (commissionPct ?? 0) / 100;
+  return (
+    <div className="rounded-3xl border border-white/10 bg-slate-950/50 p-4 shadow-inner text-sm space-y-4">
+      <div className="space-y-3">
+        <div className="flex items-center justify-between text-slate-100">
+          <span className="text-lg font-black tracking-wide">CA du jour</span>
+          <span className="text-2xl font-black tracking-wide">{eur.format(total?.amount || 0)}</span>
+        </div>
+        <div className="text-xs text-slate-300">{prestationTotal?.count || 0} prestation{(prestationTotal?.count ?? 0) > 1 ? "s" : ""}{dailyProductCount ? `, ${dailyProductCount} produit${dailyProductCount > 1 ? "s" : ""}` : ""}</div>
+      </div>
+      <div className="rounded-2xl border border-white/10 bg-slate-900/40 overflow-hidden">
+        <div className="grid grid-cols-4 text-sm bg-white/5">
+          <div className="px-3 py-2" aria-hidden="true" />
+          <div className="px-3 py-2"><span className="inline-flex items-center px-2 py-0.5 rounded-full border-2 border-emerald-300 bg-emerald-50 text-emerald-900 text-xs font-semibold">Espèces</span></div>
+          <div className="px-3 py-2"><span className="inline-flex items-center px-2 py-0.5 rounded-full border-2 border-amber-300 bg-amber-50 text-amber-900 text-xs font-semibold">Chèque</span></div>
+          <div className="px-3 py-2"><span className="inline-flex items-center px-2 py-0.5 rounded-full border-2 border-indigo-300 bg-indigo-50 text-indigo-900 text-xs font-semibold">Carte</span></div>
+        </div>
+        <div className="grid grid-cols-4 text-sm border-t border-white/10">
+          <div className="px-3 py-3" aria-hidden="true" />
+          <div className="px-3 py-3">{eur.format(d?.methods.cash.amount || 0)}</div>
+          <div className="px-3 py-3">{eur.format(d?.methods.check.amount || 0)}</div>
+          <div className="px-3 py-3">{eur.format(d?.methods.card.amount || 0)}</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function StylistEncaissements({ id, date }: { id: string; date?: string }) {
+  const { data } = useStylistBreakdown(id, date);
+  const entries = data?.dailyEntries || [];
+  const fmt = (ts: number) => new Date(ts).toLocaleTimeString("fr-FR", { timeZone: "Europe/Paris", hour: "2-digit", minute: "2-digit" });
+  return (
+    <div className="text-sm border border-gray-700 rounded-md overflow-hidden">
+      <div className="grid grid-cols-3 bg-gray-800 text-gray-100 px-3 py-2 font-medium">
+        <div>Heure</div>
+        <div>Mode</div>
+        <div>Montant</div>
+      </div>
+      {entries.length === 0 ? (
+        <div className="px-3 py-2 text-muted-foreground">Aucun encaissement pour ce jour</div>
+      ) : entries.map((e, i) => (
+        <div key={i} className="grid grid-cols-3 px-3 py-2 border-t border-gray-700">
+          <div>{fmt(e.timestamp)}</div>
+          <div><span className={"inline-flex items-center px-2 py-0.5 rounded-full border-2 text-xs font-semibold " + (e.paymentMethod === "cash" ? "border-emerald-300 bg-emerald-50 text-emerald-900" : e.paymentMethod === "check" ? "border-amber-300 bg-amber-50 text-amber-900" : "border-indigo-300 bg-indigo-50 text-indigo-900")}>{({ cash: "Espèces", check: "Chèque", card: "Carte" } as const)[e.paymentMethod]}</span></div>
+          <div className="flex items-center justify-between">{eur.format(e.amount)} <span className="text-xs text-white/60">{e.kind === "prestation" ? "prestation" : "produit"}</span></div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function StylistDailySection({ id, commissionPct }: { id: string; commissionPct: number }) {
+  const [date, setDate] = useState<string>(() => parisDateString());
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center gap-2 text-sm">
+        <span className="text-muted-foreground">Date</span>
+        <input type="date" className="border rounded px-2 py-1 bg-gray-900 border-gray-700 text-gray-100" value={date} onChange={(e) => setDate(e.target.value)} />
+        <Button variant="outline" size="sm" onClick={() => setDate(parisDateString())}>Aujourd'hui</Button>
+      </div>
+      <StylistDaily id={id} date={date} commissionPct={commissionPct} />
+      <StylistEncaissements id={id} date={date} />
+    </div>
+  );
+}
+
+function StylistTotals({ id, commissionPct }: { id: string; commissionPct: number }) {
+  const { data } = useStylistBreakdown(id);
+  const d = data?.daily?.total;
+  const m = data?.monthly?.total;
+  const prestationD = (data as any)?.prestationDaily?.total;
+  const prestationM = (data as any)?.prestationMonthly?.total;
+  const dailyProductCount = (data as any)?.dailyProductCount ?? 0;
+  const monthlyProductCount = (data as any)?.monthlyProductCount ?? 0;
+  const salaryAmount = (prestationD?.amount || 0) * (commissionPct ?? 0) / 100;
+  const salaryMonth = (prestationM?.amount || 0) * (commissionPct ?? 0) / 100;
+  return (
+    <div className="grid grid-cols-2 gap-2 text-sm">
+      <div className="rounded-3xl border border-white/10 bg-slate-950/50 p-4 shadow-inner text-sm space-y-3">
+        <div className="text-xs text-slate-300 text-center whitespace-nowrap overflow-hidden text-ellipsis min-h-[20px]">
+          Total jour
+          <span className="ml-1 italic text-slate-400">— {new Date().toLocaleDateString("fr-FR", { timeZone: "Europe/Paris", weekday: "long", year: "numeric", month: "long", day: "2-digit" })}</span>
+        </div>
+        <div className="text-[10px] uppercase tracking-wide text-primary text-center">CA Jour</div>
+        <div className="text-3xl font-extrabold leading-tight text-center text-slate-100">{eur.format(d?.amount || 0)}</div>
+        <div className="text-base font-semibold text-center text-slate-100 whitespace-nowrap overflow-hidden text-ellipsis min-h-[20px]">Salaire {eur.format(salaryAmount)}</div>
+        <div className="text-xs text-slate-300 text-center">{prestationD?.count || 0} prest.{dailyProductCount ? `, ${dailyProductCount} prod.` : ""}</div>
+      </div>
+      <div className="rounded-3xl border border-white/10 bg-slate-950/50 p-4 shadow-inner text-sm space-y-3">
+        <div className="text-xs text-slate-300 text-center whitespace-nowrap overflow-hidden text-ellipsis min-h-[20px]">
+          Total mois
+          <span className="ml-1 italic text-slate-400">— {new Date().toLocaleDateString("fr-FR", { timeZone: "Europe/Paris", year: "numeric", month: "long" })}</span>
+        </div>
+        <div className="text-[10px] uppercase tracking-wide text-primary text-center">CA Mois</div>
+        <div className="text-3xl font-extrabold leading-tight text-center text-slate-100">{eur.format(m?.amount || 0)}</div>
+        <div className="text-base font-semibold text-center text-slate-100 whitespace-nowrap overflow-hidden text-ellipsis min-h-[20px]">
+          Salaire mois {eur.format(salaryMonth)}
+        </div>
+        <div className="text-xs text-slate-300 text-center">{prestationM?.count || 0} prest.{monthlyProductCount ? `, ${monthlyProductCount} prod.` : ""}</div>
+      </div>
+    </div>
+  );
+}
+
+function RevenueBySingleDay({ summary }: { summary?: DashboardSummary }) {
+  const todayParis = useMemo(() => parisDateString(), []);
+  const [selectedDate, setSelectedDate] = useState(todayParis);
+  const [open, setOpen] = useState(false);
+
+  const targetYear = Number(selectedDate.slice(0, 4));
+  const targetMonth = Number(selectedDate.slice(5, 7));
+  const { data } = useRevenueByDay(targetYear, targetMonth);
+  const days = data?.days ?? [];
+
+  useEffect(() => {
+    if (!days.length) return;
+    if (!days.some((d) => d.date === selectedDate)) {
+      const fallback = [...days].reverse().find((d) => d.amount > 0) ?? days[days.length - 1];
+      if (fallback && fallback.date !== selectedDate) {
+        setSelectedDate(fallback.date);
+      }
+    }
+  }, [days, selectedDate]);
+
+  const dayEntry = days.find((d) => d.date === selectedDate);
+  const amount = dayEntry?.amount ?? 0;
+  const count = dayEntry?.count ?? 0;
+  const productCount = (dayEntry as any)?.productCount ?? 0;
+  const salary = dayEntry?.salary ?? 0;
+  const netAfterSalary = Math.max(0, amount - salary);
+
+  const paymentSource = dayEntry?.methods
+    ?? (selectedDate === todayParis && summary?.dailyPayments?.methods ? summary.dailyPayments.methods : null);
+  const paymentSummary = paymentSource
+    ? PAYMENT_METHOD_META.map((item) => ({
+      ...item,
+      amount: paymentSource[item.key]?.amount ?? 0,
+      count: paymentSource[item.key]?.count ?? 0,
+    }))
+    : [];
+
+  const formattedDate = useMemo(() => {
+    try {
+      return new Intl.DateTimeFormat("fr-FR", { dateStyle: "full" }).format(new Date(`${selectedDate}T12:00:00`));
+    } catch {
+      return selectedDate;
+    }
+  }, [selectedDate]);
+
+  return (
+    <div>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <Popover open={open} onOpenChange={setOpen}>
+          <PopoverTrigger asChild>
+            <button
+              className="relative overflow-hidden rounded-xl border border-indigo-400/40 bg-gradient-to-r from-indigo-600 via-blue-600 to-cyan-500 px-4 py-2 text-left font-semibold text-white shadow-lg transition-transform duration-200 hover:scale-[1.02] hover:shadow-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300"
+            >
+              <span className="relative z-10">Voir le détail du {formattedDate}</span>
+              <span className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.4),_transparent_60%)]" />
+            </button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto max-w-2xl rounded-xl border border-white/14 bg-gradient-to-br from-[#0f172a]/95 via-[#1e1b4b]/90 to-[#0ea5e9]/30 p-3 space-y-2.5 shadow-[0_20px_50px_rgba(8,15,40,0.6)]" align="start" sideOffset={8}>
+            <div className="space-y-3">
+              <div className="rounded-2xl border-2 border-primary/40 bg-primary/10 px-4 py-3 text-center">
+                <div className="text-xs uppercase tracking-wide text-primary">Total journée</div>
+                <div className="text-4xl font-extrabold">{eur.format(amount)}</div>
+                <div className="text-xs text-muted-foreground">{count} prestation{count > 1 ? "s" : ""}{productCount ? `, ${productCount} produit${productCount > 1 ? "s" : ""}` : ""}</div>
+                <div className="mt-1 text-[11px] font-semibold text-emerald-300 whitespace-nowrap">
+                  Benefice net: {eur.format(netAfterSalary)}
+                </div>
+              </div>
+              {paymentSummary.length ? (
+                <PaymentSummaryGrid items={paymentSummary} />
+              ) : (
+                <p className="text-xs text-muted-foreground">Répartition par mode non disponible pour cette journée.</p>
+              )}
+              <div className="flex items-center justify-center gap-2 text-xs">
+                <a className="px-2 py-1 rounded border hover:bg-accent" href={"/api" + apiPath(`/reports/by-day.csv?year=${targetYear}&month=${targetMonth}`)}>Export CSV</a>
+                <a className="px-2 py-1 rounded border hover:bg-accent" href={"/api" + apiPath(`/reports/by-day.pdf?year=${targetYear}&month=${targetMonth}`)}>Export PDF</a>
+              </div>
+            </div>
+            <div className="grid grid-cols-3 bg-white/12 px-3 py-2 font-medium text-white/80 rounded">
+              <div>Date</div>
+              <div>Montant</div>
+              <div>Détails</div>
+            </div>
+            <div className="max-h-48 overflow-y-auto space-y-1">
+              {days.map((d) => {
+                const isSelected = d.date === selectedDate;
+                return (
+                  <div
+                    key={d.date}
+                    className={cn(
+                      "grid grid-cols-3 px-3 py-2 border-t transition-colors text-sm",
+                      isSelected ? "bg-white/20 text-white" : "bg-transparent"
+                    )}
+                  >
+                    <div>{d.date}</div>
+                    <div>{eur.format(d.amount)}</div>
+                    <div>{d.count} prest.{(d as any).productCount ? `, ${(d as any).productCount} prod.` : ""}</div>
+                  </div>
+                );
+              })}
+            </div>
+          </PopoverContent>
+        </Popover>
+        <div className="flex items-center gap-2 text-sm">
+          <span className="text-muted-foreground">Jour</span>
+          <input
+            type="date"
+            max={todayParis}
+            className="border rounded px-2 py-1 bg-gray-900 border-gray-700 text-gray-100"
+            value={selectedDate}
+            onChange={(event) => {
+              const value = event.target.value;
+              if (value) setSelectedDate(value);
+            }}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function BestDaysOfMonth() {
+  const current = new Date();
+  const currentYear = current.getFullYear();
+  const currentMonth = current.getMonth() + 1;
+  const [year, setYear] = useState(currentYear);
+  const [month, setMonth] = useState(currentMonth);
+  const { data } = useRevenueByDay(year, month);
+  const { data: stylistsData } = useStylists();
+  const days = data?.days ?? [];
+  const monthLabels = [
+    "janvier", "février", "mars", "avril", "mai", "juin",
+    "juillet", "août", "septembre", "octobre", "novembre", "décembre"
+  ];
+  const endYear = 2095;
+  const years = Array.from({ length: Math.max(0, endYear - currentYear + 1) }, (_, i) => currentYear + i);
+
+  const bestStylist = stylistsData && stylistsData.length > 0
+    ? stylistsData.reduce((max, stylist) => {
+      const maxAmount = max.stats?.monthlyAmount ?? 0;
+      const stylistAmount = stylist.stats?.monthlyAmount ?? 0;
+      return stylistAmount > maxAmount ? stylist : max;
+    })
+    : null;
+
+  const chartData = days.map((day) => {
+    const dateObj = new Date(`${day.date}T12:00:00Z`);
+    const dayName = dateObj.toLocaleDateString("fr-FR", { timeZone: "Europe/Paris", weekday: "short" });
+    const dayNum = day.date.split("-")[2];
+    return {
+      date: `${dayName} ${dayNum}`,
+      CA: day.amount,
+      prestations: day.count,
+      productCount: (day as any).productCount ?? 0,
+      fullDate: day.date,
+    };
+  });
+
+  return (
+    <motion.div
+      className="space-y-4"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+    >
+      <div className="flex items-center gap-2 flex-wrap">
+        <span className="text-muted-foreground text-sm">Mois</span>
+        <select
+          className="border rounded px-2 py-1 bg-gray-900 border-gray-700 text-gray-100 text-sm"
+          value={month}
+          onChange={(e) => setMonth(Number(e.target.value))}
+        >
+          {monthLabels.map((label, idx) => (
+            <option key={label} value={idx + 1}>{label}</option>
+          ))}
+        </select>
+        <span className="text-muted-foreground text-sm">Année</span>
+        <select
+          className="border rounded px-2 py-1 bg-gray-900 border-gray-700 text-gray-100 text-sm"
+          value={year}
+          onChange={(e) => setYear(Number(e.target.value))}
+        >
+          {years.map((y) => (
+            <option key={y} value={y}>{y}</option>
+          ))}
+        </select>
+      </div>
+
+      {bestStylist && (bestStylist.stats?.monthlyAmount ?? 0) > 0 && (
+        <motion.div
+          className="rounded-2xl border border-amber-400/50 bg-gradient-to-br from-amber-500/20 to-amber-400/10 p-4 backdrop-blur-sm"
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.4 }}
+        >
+          <div className="flex items-center gap-4">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-amber-500/30">
+              <Crown className="h-6 w-6 text-amber-300" />
+            </div>
+            <div className="flex-1">
+              <div className="text-xs font-semibold uppercase tracking-wider text-amber-200/80">Meilleur coiffeur du mois</div>
+              <div className="text-lg font-bold text-amber-100">{bestStylist.name}</div>
+              <div className="text-sm font-semibold text-amber-200">{eur.format(bestStylist.stats?.monthlyAmount ?? 0)}</div>
+            </div>
+          </div>
+        </motion.div>
+      )}
+
+      {days.length === 0 ? (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+          className="rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-center text-sm text-muted-foreground"
+        >
+          Aucune donnée disponible pour cette période
+        </motion.div>
+      ) : (
+        <motion.div
+          className="rounded-2xl border border-white/15 bg-gradient-to-br from-slate-900/60 via-slate-800/40 to-slate-900/60 p-4 backdrop-blur-sm"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <ResponsiveContainer width="100%" height={350}>
+            <BarChart
+              data={chartData}
+              margin={{ top: 20, right: 30, left: 0, bottom: 60 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+              <XAxis
+                dataKey="date"
+                stroke="rgba(255,255,255,0.5)"
+                style={{ fontSize: "11px" }}
+                angle={-45}
+                textAnchor="end"
+                height={100}
+                interval={0}
+              />
+              <YAxis stroke="rgba(255,255,255,0.5)" style={{ fontSize: "12px" }} />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: "rgba(15, 23, 42, 0.95)",
+                  border: "1px solid rgba(255,255,255,0.2)",
+                  borderRadius: "8px",
+                  color: "#fff",
+                }}
+                formatter={(value) => [eur.format(value as number), "CA"]}
+                labelFormatter={(label) => `${label}`}
+              />
+              <Legend wrapperStyle={{ color: "rgba(255,255,255,0.7)" }} />
+              <Bar
+                dataKey="CA"
+                fill="url(#colorCA)"
+                radius={[8, 8, 0, 0]}
+                animationDuration={1200}
+              />
+              <defs>
+                <linearGradient id="colorCA" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#22c55e" stopOpacity={0.9} />
+                  <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.7} />
+                </linearGradient>
+              </defs>
+            </BarChart>
+          </ResponsiveContainer>
+        </motion.div>
+      )}
+    </motion.div>
+  );
+}
+
+function RevenueByDay({ fallbackMonthly, stylists, defaultCommissionPct }: { fallbackMonthly?: SummaryPayments; stylists?: Stylist[]; defaultCommissionPct?: number }) {
+  const current = new Date();
+  const currentYear = current.getFullYear();
+  const currentMonth = current.getMonth() + 1; // 1-12
+  const [year, setYear] = useState(currentYear);
+  const [month, setMonth] = useState(currentMonth);
+  const { data } = useRevenueByDay(year, month);
+  const [open, setOpen] = useState(false);
+  const endYear = 2095;
+  const years = Array.from({ length: Math.max(0, endYear - currentYear + 1) }, (_, i) => currentYear + i);
+  const monthLabels = [
+    "janvier", "février", "mars", "avril", "mai", "juin",
+    "juillet", "ao��t", "septembre", "octobre", "novembre", "d����cembre"
+  ];
+  const days = data?.days ?? [];
+  const monthlyTotalAmount = data?.total?.amount ?? fallbackMonthly?.total?.amount ?? days.reduce((sum, d) => sum + d.amount, 0);
+  const monthlyTotalCount = data?.total?.count ?? fallbackMonthly?.total?.count ?? days.reduce((sum, d) => sum + d.count, 0);
+  const monthlyProductCount = days.reduce((sum, d) => sum + ((d as any).productCount ?? 0), 0);
+  const stylistsList = stylists ?? [];
+  const commissionFallback = typeof defaultCommissionPct === "number" ? defaultCommissionPct : 0;
+  const salaryFromStylists = stylistsList.reduce((sum, stylist) => {
+    const pct = typeof stylist.commissionPct === "number" ? stylist.commissionPct : commissionFallback;
+    const amount = stylist.stats?.monthlyAmount ?? 0;
+    return sum + (amount * pct) / 100;
+  }, 0);
+  const stylistVolume = stylistsList.reduce((sum, stylist) => sum + (stylist.stats?.monthlyAmount ?? 0), 0);
+  const fallbackSalary = salaryFromStylists + Math.max(0, monthlyTotalAmount - stylistVolume) * (commissionFallback / 100);
+  const estimatedSalaryTotal = typeof data?.salaryTotal === "number" ? data.salaryTotal : fallbackSalary;
+  const netAfterSalary = Math.max(0, monthlyTotalAmount - estimatedSalaryTotal);
+  const methods = data?.methods ?? fallbackMonthly?.methods ?? null;
+  const paymentSummary: PaymentSummaryItem[] = methods
+    ? PAYMENT_METHOD_META.map((item) => ({
+      ...item,
+      amount: methods[item.key]?.amount ?? 0,
+      count: methods[item.key]?.count ?? 0,
+    }))
+    : [];
+  return (
+    <div>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <Popover open={open} onOpenChange={setOpen}>
+          <PopoverTrigger asChild>
+            <button
+              className="relative overflow-hidden rounded-xl border border-indigo-400/40 bg-gradient-to-r from-indigo-600 via-blue-600 to-cyan-500 px-4 py-2 text-left font-semibold text-white shadow-lg transition-transform duration-200 hover:scale-[1.02] hover:shadow-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300"
+            >
+              <span className="relative z-10">Voir le détail (mois {monthLabels[month - 1]} {year})</span>
+              <span className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.4),_transparent_60%)]" />
+            </button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto max-w-2xl rounded-xl border border-white/14 bg-gradient-to-br from-[#0f172a]/95 via-[#1e1b4b]/90 to-[#0ea5e9]/30 p-3 space-y-2.5 shadow-[0_20px_50px_rgba(8,15,40,0.6)]" align="start" sideOffset={8}>
+            <div className="space-y-3">
+              <div className="rounded-2xl border-2 border-primary/40 bg-primary/10 px-4 py-3 text-center">
+                <div className="text-xs uppercase tracking-wide text-primary">Total mois</div>
+                <div className="text-4xl font-extrabold">{eur.format(monthlyTotalAmount)}</div>
+                <div className="text-xs text-muted-foreground">{monthlyTotalCount} prestation{monthlyTotalCount > 1 ? "s" : ""}{monthlyProductCount ? `, ${monthlyProductCount} produit${monthlyProductCount > 1 ? "s" : ""}` : ""}</div>
+                <div className="mt-1 text-[11px] font-semibold text-emerald-300 whitespace-nowrap">
+                  Benefice net: {eur.format(netAfterSalary)}
+                </div>
+              </div>
+              <PaymentSummaryGrid items={paymentSummary} />
+              <div className="flex items-center justify-center gap-2 text-xs">
+                <a className="px-2 py-1 rounded border hover:bg-accent" href={"/api" + apiPath(`/reports/by-day.csv?year=${year}&month=${month}`)}>Export CSV</a>
+                <a className="px-2 py-1 rounded border hover:bg-accent" href={"/api" + apiPath(`/reports/by-day.pdf?year=${year}&month=${month}`)}>Export PDF</a>
+              </div>
+            </div>
+            <div className="grid grid-cols-3 bg-white/12 px-3 py-2 font-medium text-white/80 rounded">
+              <div>Date</div>
+              <div>Montant</div>
+              <div>Détails</div>
+            </div>
+            <div className="max-h-48 overflow-y-auto space-y-1">
+              {days.map((d) => (
+                <div key={d.date} className="grid grid-cols-3 px-3 py-2 border-t text-sm">
+                  <div>{d.date}</div>
+                  <div>{eur.format(d.amount)}</div>
+                  <div>{d.count} prest.{(d as any).productCount ? `, ${(d as any).productCount} prod.` : ""}</div>
+                </div>
+              ))}
+            </div>
+          </PopoverContent>
+        </Popover>
+        <div className="flex items-center gap-2 text-sm">
+          <span className="text-muted-foreground">Mois</span>
+          <select
+            className="border rounded px-2 py-1 bg-gray-900 border-gray-700 text-gray-100"
+            value={month}
+            onChange={(e) => setMonth(Number(e.target.value))}
+          >
+            {monthLabels.map((label, idx) => (
+              <option key={label} value={idx + 1}>{label}</option>
+            ))}
+          </select>
+          <span className="text-muted-foreground">Année</span>
+          <select
+            className="border rounded px-2 py-1 bg-gray-900 border-gray-700 text-gray-100"
+            value={year}
+            onChange={(e) => setYear(Number(e.target.value))}
+          >
+            {years.map((y) => (
+              <option key={y} value={y}>{y}</option>
+            ))}
+          </select>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function RevenueByMonth() {
+  const currentYear = new Date().getFullYear();
+  const [year, setYear] = useState(currentYear);
+  const { data } = useRevenueByMonth(year);
+  const [open, setOpen] = useState(false);
+  const endYear = 2095;
+  const years = Array.from({ length: Math.max(0, endYear - currentYear + 1) }, (_, i) => currentYear + i);
+  const monthsData = data?.months ?? [];
+  const reducedAmount = monthsData.reduce((sum, m) => sum + m.amount, 0);
+  const reducedCount = monthsData.reduce((sum, m) => sum + m.count, 0);
+  const yearlyTotalAmount = data?.total?.amount ?? reducedAmount;
+  const yearlyTotalCount = data?.total?.count ?? reducedCount;
+  const yearlyProductCount = (data as any)?.yearlyProductCount ?? 0;
+  const methods = data?.methods ?? null;
+  const paymentSummary: PaymentSummaryItem[] = methods
+    ? PAYMENT_METHOD_META.map((item) => ({
+      ...item,
+      amount: methods[item.key]?.amount ?? 0,
+      count: methods[item.key]?.count ?? 0,
+    }))
+    : [];
+  const yearlySalaryTotal = typeof data?.salaryTotal === "number"
+    ? data.salaryTotal
+    : monthsData.reduce((sum, m) => sum + (m.salary ?? 0), 0);
+  const netAfterSalary = Math.max(0, yearlyTotalAmount - yearlySalaryTotal);
+  return (
+    <div>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <Popover open={open} onOpenChange={setOpen}>
+          <PopoverTrigger asChild>
+            <button
+              className="relative overflow-hidden rounded-xl border border-indigo-400/40 bg-gradient-to-r from-indigo-600 via-blue-600 to-cyan-500 px-4 py-2 text-left font-semibold text-white shadow-lg transition-transform duration-200 hover:scale-[1.02] hover:shadow-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300"
+            >
+              <span className="relative z-10">Voir le détail (année {year})</span>
+              <span className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.4),_transparent_60%)]" />
+            </button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto max-w-2xl rounded-xl border border-white/14 bg-gradient-to-br from-[#0f172a]/95 via-[#1e1b4b]/90 to-[#0ea5e9]/30 p-3 space-y-2.5 shadow-[0_20px_50px_rgba(8,15,40,0.6)]" align="start" sideOffset={8}>
+            <div className="space-y-3">
+              <div className="rounded-2xl border-2 border-primary/40 bg-primary/10 px-4 py-3 text-center">
+                <div className="text-xs uppercase tracking-wide text-primary">Total année</div>
+                <div className="text-4xl font-extrabold">{eur.format(yearlyTotalAmount)}</div>
+                <div className="text-xs text-muted-foreground">{yearlyTotalCount} prestation{yearlyTotalCount > 1 ? "s" : ""}{yearlyProductCount ? `, ${yearlyProductCount} produit${yearlyProductCount > 1 ? "s" : ""}` : ""}</div>
+                <div className="mt-1 text-[11px] font-semibold text-emerald-300 whitespace-nowrap">Benefice net: {eur.format(netAfterSalary)}</div>
+              </div>
+              <PaymentSummaryGrid items={paymentSummary} />
+              <div className="flex items-center justify-center gap-2 text-xs">
+                <a className="px-2 py-1 rounded border hover:bg-accent" href={"/api" + apiPath(`/reports/by-month.csv?year=${year}`)}>Export CSV</a>
+                <a className="px-2 py-1 rounded border hover:bg-accent" href={"/api" + apiPath(`/reports/by-month.pdf?year=${year}`)}>Export PDF</a>
+              </div>
+            </div>
+            <div className="grid grid-cols-3 bg-white/12 px-3 py-2 font-medium text-white/80 rounded">
+              <div>Mois</div>
+              <div>Montant</div>
+              <div>Détails</div>
+            </div>
+            <div className="max-h-48 overflow-y-auto space-y-1">
+              {data?.months.map((m) => (
+                <div key={m.month} className="grid grid-cols-3 px-3 py-2 border-t text-sm">
+                  <div>{m.month}</div>
+                  <div>{eur.format(m.amount)}</div>
+                  <div>{m.count} prest.{(m as any).productCount ? `, ${(m as any).productCount} prod.` : ""}</div>
+                </div>
+              ))}
+            </div>
+          </PopoverContent>
+        </Popover>
+        <div className="flex items-center gap-2 text-sm">
+          <span className="text-muted-foreground">Année</span>
+          <select
+            className="border rounded px-2 py-1 bg-gray-900 border-gray-700 text-gray-100"
+            value={year}
+            onChange={(e) => setYear(Number(e.target.value))}
+          >
+            {years.map((y) => (
+              <option key={y} value={y}>{y}</option>
+            ))}
+          </select>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function Settings() {
+  const { data: config } = useConfig();
+  const updateAdminCode = useAdminUpdateCode();
+  const verifyAdminCode = useAdminVerifyCode();
+  const recoverCodeHook = useAdminRecoverCode();
+  const verifyRecoverCode = useAdminRecoverCodeVerify();
+  const [recoverCode, setRecoverCode] = useState("");
+  const [recoverNew, setRecoverNew] = useState("");
+  const addStylist = useAddStylist();
+  const { isSuccess: addStylistSuccess, reset: resetAddStylist } = addStylist;
+  const { data: summary } = useDashboardSummary();
+  const { data: stylists } = useStylists();
+  const defaultParisDate = useMemo(() => parisDateString(), []);
+  const [pointsDay, setPointsDay] = useState(defaultParisDate);
+  const [pointsMonth, setPointsMonth] = useState(() => defaultParisDate.slice(0, 7));
+  const [hasOpenedDayUsage, setHasOpenedDayUsage] = useState(false);
+  const [isDayUsageVisible, setIsDayUsageVisible] = useState(false);
+  const [isMonthUsageVisible, setIsMonthUsageVisible] = useState(false);
+  const { data: pointsUsage, isLoading: pointsUsageLoading, isError: pointsUsageError } = usePointsUsageReport(pointsDay, pointsMonth);
+  const selectedDayLabel = formatSelectedDayLabel(pointsDay);
+  const selectedMonthLabel = formatSelectedMonthLabel(pointsMonth);
+  const daySectionTitle = selectedDayLabel === "—" ? "Jour sélectionné" : `Points utilis��s le ${selectedDayLabel}`;
+  const monthSectionTitle = selectedMonthLabel === "����" ? "Mois sélectionné" : `Points utilisés en ${selectedMonthLabel}`;
+  const dayEmptyLabel = selectedDayLabel === "—" ? "Sélectionnez un jour pour voir l’utilisation des points." : `Aucun point utilisé le ${selectedDayLabel}.`;
+  const monthEmptyLabel = selectedMonthLabel === "����" ? "Sélectionnez un mois pour voir l’utilisation des points." : `Aucun point utilisé en ${selectedMonthLabel}.`;
+  const todayParis = parisDateString();
+  const currentParisMonth = todayParis.slice(0, 7);
+  const delStylist = useDeleteStylist();
+  const updateStylist = useSetStylistCommission();
+  const [password, setPassword] = useState("");
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [adminEmail, setAdminEmail] = useState("");
+  const [emailFieldName, setEmailFieldName] = useState(() => `manual_email_${Math.random().toString(36).slice(2, 8)}`);
+  const [emailFocus, setEmailFocus] = useState(false);
+  const adminEmailTrimmed = (adminEmail || "").trim();
+  const adminEmailRequired = !config?.adminEmail;
+  const adminEmailValid = adminEmailTrimmed ? /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(adminEmailTrimmed) : !adminEmailRequired;
+  const [stylistName, setStylistName] = useState("");
+  const [commissionPct, setCommissionPct] = useState("");
+  const [loyaltyPct, setLoyaltyPct] = useState("" + (typeof config?.loyaltyPercentDefault === "number" ? config.loyaltyPercentDefault : 5));
+  const [pointsRedeemDefaultStr, setPointsRedeemDefaultStr] = useState("" + (typeof config?.pointsRedeemDefault === "number" ? config.pointsRedeemDefault : 10));
+  const [loginCode, setLoginCode] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [confirmAdminEmail, setConfirmAdminEmail] = useState("");
+  const [adminUnlocked, setAdminUnlocked] = useState(false);
+  useEffect(() => { if (adminUnlocked) { setAdminEmail(""); } }, [adminUnlocked]);
+  const [loginError, setLoginError] = useState<string>("");
+  const [commissionDefaultStr, setCommissionDefaultStr] = useState("" + (typeof config?.commissionDefault === "number" ? config.commissionDefault : 50));
+  const [parisClock, setParisClock] = useState<ParisClockState>(() => createParisClock());
+  const [adminSaveMsg, setAdminSaveMsg] = useState("");
+  const [adminSaveErr, setAdminSaveErr] = useState("");
+  useEffect(() => {
+    setEmailFieldName(`manual_email_${Math.random().toString(36).slice(2, 8)}`);
+  }, [adminUnlocked, adminSaveMsg]);
+  useEffect(() => {
+    if (typeof config?.pointsRedeemDefault === "number") {
+      setPointsRedeemDefaultStr(String(config.pointsRedeemDefault));
+    }
+  }, [config?.pointsRedeemDefault]);
+  useEffect(() => {
+    setParisClock(createParisClock());
+    const id = window.setInterval(() => {
+      setParisClock(createParisClock());
+    }, 1_000);
+    return () => window.clearInterval(id);
+  }, []);
+  const { hourAngle, minuteAngle, secondAngle } = useMemo(() => {
+    const [h, m, s] = (parisClock.time ?? "").split(":").map((part) => Number(part));
+    if ([h, m, s].some((value) => Number.isNaN(value))) {
+      return { hourAngle: 0, minuteAngle: 0, secondAngle: 0 };
+    }
+    const hourAngleCalc = ((h % 12) + m / 60 + s / 3600) * 30;
+    const minuteAngleCalc = (m + s / 60) * 6;
+    const secondAngleCalc = s * 6;
+    return { hourAngle: hourAngleCalc, minuteAngle: minuteAngleCalc, secondAngle: secondAngleCalc };
+  }, [parisClock.time]);
+  const minuteTickAngles = useMemo(() => Array.from({ length: 60 }, (_, idx) => idx * 6).filter((angle) => angle % 30 !== 0), []);
+  const hourTickAngles = useMemo(() => Array.from({ length: 12 }, (_, idx) => idx * 30), []);
+  const [commissionEdit, setCommissionEdit] = useState<Record<string, string>>({});
+  const [recoverOpen, setRecoverOpen] = useState(false);
+  const [isAdminSectionOpen, setIsAdminSectionOpen] = useState(false);
+  const [recoverEmail, setRecoverEmail] = useState("");
+  const [recoverMsg, setRecoverMsg] = useState("");
+  const [recoverErr, setRecoverErr] = useState("");
+  useEffect(() => {
+    if (!config) return;
+    if (!config.adminCodeSet || !config.adminEmail) {
+      setIsAdminSectionOpen(true);
+    }
+  }, [config]);
+  useEffect(() => {
+    if (!addStylistSuccess) return;
+    setAccordionValue("");
+    const timeout = window.setTimeout(() => resetAddStylist(), 0);
+    return () => window.clearTimeout(timeout);
+  }, [addStylistSuccess, resetAddStylist]);
+  useEffect(() => {
+    if (!isAdminSectionOpen) {
+      setRecoverOpen(false);
+      setRecoverMsg("");
+      setRecoverErr("");
+    }
+  }, [isAdminSectionOpen]);
+  const [manageStylistId, setManageStylistId] = useState<string>("");
+  const newAdminCode = password.trim();
+  const currentAdminCode = currentPassword.trim();
+  const adminCodeAlreadySet = !!config?.adminCodeSet;
+  const newAdminCodeValid = newAdminCode.length >= 4 && newAdminCode.toLowerCase() !== "admin";
+  const currentAdminCodeValid = !adminCodeAlreadySet || currentAdminCode.length >= 4;
+  const canSaveAdminCode = newAdminCodeValid && currentAdminCodeValid && adminEmailValid;
+  const handleAdminUnlock = () => {
+    const code = loginCode.trim();
+    if (code.length < 4 || verifyAdminCode.isPending) return;
+    verifyAdminCode.mutate(
+      { code },
+      {
+        onSuccess: () => {
+          setAdminUnlocked(true);
+          setLoginCode("");
+          setLoginError("");
+          setCurrentPassword("");
+          setPassword("");
+          setAdminEmail("");
+          setAdminSaveMsg("");
+          setAdminSaveErr("");
+        },
+        onError: async (err: any) => {
+          try {
+            const raw = typeof err?.message === "string" ? err.message : "";
+            const parsed = (() => { try { return JSON.parse(raw); } catch { return null; } })();
+            setLoginError(parsed?.error || raw || "Code invalide");
+          } catch {
+            setLoginError("Code invalide");
+          }
+        }
+      }
+    );
+  };
+  const [manageName, setManageName] = useState<string>("");
+  const updateConfig = useUpdateConfig();
+  const { toast } = useToast();
+  const [salonNameDraft, setSalonNameDraft] = useState("");
+  const [accordionValue, setAccordionValue] = useState<string>("");
+  const [bestDaysAccordionValue, setBestDaysAccordionValue] = useState<string>("");
+  const [servicesAccordionValue, setServicesAccordionValue] = useState<string>("");
+  const [openStylistId, setOpenStylistId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (bestDaysAccordionValue === "") {
+      setTimeout(() => {
+        setAccordionValue("");
+      }, 50);
+    }
+  }, [bestDaysAccordionValue]);
+  const [openDaily, setOpenDaily] = useState<Record<string, boolean>>({});
+  const [openMonthly, setOpenMonthly] = useState<Record<string, boolean>>({});
+
+  const handleSalonNameSave = () => {
+    const trimmed = salonNameDraft.trim();
+    if (!trimmed || trimmed === (config?.salonName ?? "") || updateConfig.isPending) {
+      return;
+    }
+    updateConfig.mutate(
+      { salonName: trimmed },
+      {
+        onSuccess: () => {
+          setSalonNameDraft(trimmed);
+          toast({
+            title: "Nom du salon enregistré",
+            description: trimmed,
+          });
+        },
+        onError: () => {
+          toast({
+            title: "Échec de la mise à jour",
+            description: "Impossible d'enregistrer le nom du salon",
+            variant: "destructive",
+          });
+        },
+      }
+    );
+  };
+
+  const adminShellClasses = "relative overflow-hidden rounded-2xl border border-white/12 bg-[linear-gradient(135deg,rgba(9,14,30,0.88)0%,rgba(76,29,149,0.58)45%,rgba(16,185,129,0.35)100%)] p-3 shadow-[0_22px_60px_rgba(8,15,40,0.42)] backdrop-blur-2xl space-y-2.5";
+  const glassPanelClasses = "relative overflow-hidden rounded-2xl border border-white/10 bg-[linear-gradient(145deg,rgba(15,23,42,0.76)0%,rgba(30,41,59,0.68)45%,rgba(12,74,110,0.58)100%)] p-2.5 shadow-[0_18px_48px_rgba(8,15,40,0.35)] backdrop-blur-xl";
+  const pillHeadingClasses = "inline-flex items-center gap-1.5 rounded-full border border-white/18 bg-white/15 px-2.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.2em] text-white/80 shadow-[0_6px_18px_rgba(79,70,229,0.32)]";
+  const badgeSoftClasses = "inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/12 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-white/80 shadow-[0_8px_20px_rgba(15,23,42,0.36)]";
+  const inputShellClasses = "group relative flex items-center gap-1.5 rounded-xl border border-white/12 bg-white/10 px-2 py-1.5 shadow-[0_12px_28px_rgba(8,15,40,0.34)] backdrop-blur-xl";
+  const inputFieldClasses = "h-9 rounded-xl border border-white/15 bg-white/12 text-white placeholder:text-white/60 focus-visible:ring-2 focus-visible:ring-emerald-300/80 focus-visible:ring-offset-0";
+  const adminInputClasses = cn(inputFieldClasses, "bg-slate-950/80 border-white/25 text-white caret-emerald-200 placeholder:text-white/65 shadow-[0_14px_36px_rgba(14,165,233,0.32)]");
+  const selectTriggerClasses = "min-w-[4.5rem] rounded-xl border border-white/15 bg-white/12 text-left text-white shadow-[0_12px_28px_rgba(59,130,246,0.28)] focus-visible:ring-2 focus-visible:ring-sky-300/70";
+  const gradientButtonClasses = "relative inline-flex items-center justify-center gap-1.5 overflow-hidden rounded-xl border border-white/18 bg-[linear-gradient(135deg,rgba(14,116,144,0.82)0%,rgba(16,185,129,0.6)40%,rgba(132,204,22,0.5)100%)] px-3 py-1.5 text-sm font-semibold text-white shadow-[0_16px_46px_rgba(16,185,129,0.4)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_24px_60px_rgba(16,185,129,0.48)] focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300/80";
+  const addStylistButtonClasses = cn(
+    gradientButtonClasses,
+    "min-h-10 px-4 bg-[linear-gradient(135deg,#1e3a8a 0%,#1e40af 45%,#2563eb 100%)] border-white/55 shadow-[0_30px_86px_rgba(37,99,235,0.45)] text-[0.95rem] tracking-[0.22em] uppercase"
+  );
+  // Sync commission input with default commission from config on first load
+  if (commissionPct === "" && typeof config?.commissionDefault === "number") {
+    const bounded = Math.min(60, Math.max(20, config.commissionDefault));
+    setCommissionPct(String(bounded));
+  }
+  useEffect(() => {
+    if (!manageStylistId) {
+      setManageName("");
+      return;
+    }
+    if (!stylists) return;
+    const stylist = stylists.find(st => st.id === manageStylistId) as any;
+    if (stylist) {
+      setManageName(stylist.name ?? "");
+    } else {
+      setManageName("");
+    }
+  }, [manageStylistId, stylists]);
+
+  useEffect(() => {
+    if (typeof config?.commissionDefault === "number") {
+      setCommissionDefaultStr(String(config.commissionDefault));
+    }
+  }, [config?.commissionDefault]);
+
+  useEffect(() => {
+    if (typeof config?.salonName === "string") {
+      setSalonNameDraft(config.salonName);
+    }
+  }, [config?.salonName]);
+
+  if (!adminUnlocked) {
+    const adminCodeNotSet = !config?.adminCodeSet;
+    return (
+      <SharedLayout>
+        <div className="mx-auto max-w-sm space-y-3 px-3 pb-10 sm:px-0">
+          <Card className="relative overflow-hidden rounded-[22px] border border-white/14 bg-[linear-gradient(145deg,rgba(7,12,30,0.88)0%,rgba(67,56,202,0.66)45%,rgba(16,185,129,0.4)100%)] shadow-[0_28px_82px_rgba(8,15,40,0.5)] backdrop-blur-3xl">
+            <span className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.25),transparent_60%)] opacity-80" />
+            <CardHeader className="relative z-10 flex flex-col space-y-2 p-4 pb-2.5 text-white">
+              <span className="inline-flex w-fit items-center gap-1.5 rounded-full border border-amber-400/50 bg-gradient-to-r from-amber-500/20 to-amber-400/10 px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-amber-100 shadow-[0_10px_24px_rgba(217,119,6,0.25),inset_0_1px_1px_rgba(255,255,255,0.2)]">🔒 Sécurité</span>
+              <CardTitle className="text-2xl font-black tracking-tight text-white drop-shadow-[0_10px_22px_rgba(15,23,42,0.5)]">{adminCodeNotSet ? "Créer votre code admin" : "Déverrouiller les paramètres"}</CardTitle>
+              <p className="text-[11px] leading-relaxed text-white/65">{adminCodeNotSet ? "Créez un code administrateur pour sécuriser l'accès à vos paramètres." : "Entrez votre code administrateur ou utilisez la procédure de récupération."}</p>
+            </CardHeader>
+            <CardContent className="relative z-10 space-y-2.5 p-4 pt-0 text-slate-100">
+              {adminCodeNotSet ? (
+                <>
+                  <div className="text-xs text-white/70">Créez un code admin (min 4 caractères) et confirmez vos informations.</div>
+                  <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                    <PasswordInput value={password} onChange={(e) => { setPassword(e.target.value); setAdminSaveErr(""); }} placeholder="Nouveau code admin" className={cn(adminInputClasses, "h-11 px-4 text-base")} />
+                    <PasswordInput value={confirmPassword} onChange={(e) => { setConfirmPassword(e.target.value); setAdminSaveErr(""); }} placeholder="Confirmer le code admin" className={cn(adminInputClasses, "h-11 px-4 text-base")} />
+                    <Input key={`admin-email-create-${adminSaveMsg ? '1' : '0'}`} type="text" inputMode="email" autoComplete="off" autoCapitalize="off" autoCorrect="off" spellCheck={false} placeholder="Email (obligatoire)" value={adminEmail} onChange={(e) => setAdminEmail(e.target.value)} className={cn(adminInputClasses, "h-11 px-4 text-base")} />
+                    <Input type="text" inputMode="email" autoComplete="off" autoCapitalize="off" autoCorrect="off" spellCheck={false} placeholder="Confirmer l'email" value={confirmAdminEmail} onChange={(e) => setConfirmAdminEmail(e.target.value)} className={cn(adminInputClasses, "h-11 px-4 text-base")} />
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <Button className="relative overflow-hidden rounded-xl border border-white/18 bg-[linear-gradient(135deg,rgba(37,99,235,0.85)0%,rgba(14,165,233,0.72)45%,rgba(16,185,129,0.55)100%)] px-3 py-1.5 text-xs font-semibold text-white shadow-[0_22px_58px_rgba(14,165,233,0.42)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_28px_76px_rgba(14,165,233,0.5)] focus-visible:ring-2 focus-visible:ring-cyan-300/70" onClick={() => { if (newAdminCodeValid && adminEmailValid && password === confirmPassword && adminEmail === confirmAdminEmail) { updateAdminCode.mutate({ newCode: newAdminCode, email: adminEmailTrimmed || undefined }, { onSuccess: () => { setAdminSaveMsg("Code admin créé"); setAdminSaveErr(""); setPassword(""); setConfirmPassword(""); setAdminEmail(""); setConfirmAdminEmail(""); setAdminUnlocked(true); }, onError: async (e: any) => { try { const msg = typeof e?.message === "string" ? e.message : "Erreur"; const p = (() => { try { return JSON.parse(msg); } catch { return null; } })(); setAdminSaveErr(p?.error || msg); } catch { setAdminSaveErr("Erreur d'enregistrement"); } setAdminSaveMsg(""); } }); } }} disabled={!newAdminCodeValid || !adminEmailValid || password !== confirmPassword || adminEmail !== confirmAdminEmail || updateAdminCode.isPending}>Créer</Button>
+                  </div>
+                  {!newAdminCodeValid && password && <p className="text-xs text-destructive">Code admin invalide (min 4 caractères)</p>}
+                  {password && confirmPassword && password !== confirmPassword && <p className="text-xs text-destructive">Les codes admin ne correspondent pas</p>}
+                  {!adminEmailValid && adminEmail && <p className="text-xs text-destructive">Email invalide</p>}
+                  {adminEmail && confirmAdminEmail && adminEmail !== confirmAdminEmail && <p className="text-xs text-destructive">Les emails ne correspondent pas</p>}
+                  {adminSaveMsg && <span className="text-xs font-semibold text-emerald-200">{adminSaveMsg}</span>}
+                  {adminSaveErr && <span className="text-xs font-semibold text-rose-200">{adminSaveErr}</span>}
+                </>
+              ) : (
+                <>
+                  <div className="text-xs text-white/70">Code admin requis pour accéder aux paramètres.</div>
+                  <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+                    <PasswordInput value={loginCode} onChange={(e) => { setLoginCode(e.target.value); setLoginError(""); }} onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleAdminUnlock(); } }} placeholder="Code admin" />
+                    <div className="sm:col-span-2 flex items-center gap-1.5">
+                      <Button className="relative overflow-hidden rounded-xl border border-white/18 bg-[linear-gradient(135deg,rgba(37,99,235,0.85)0%,rgba(14,165,233,0.72)45%,rgba(16,185,129,0.55)100%)] px-3 py-1.5 text-xs font-semibold text-white shadow-[0_22px_58px_rgba(14,165,233,0.42)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_28px_76px_rgba(14,165,233,0.5)] focus-visible:ring-2 focus-visible:ring-cyan-300/70" onClick={handleAdminUnlock} disabled={!loginCode || loginCode.trim().length < 4 || verifyAdminCode.isPending}>Entrer</Button>
+                      {loginError && (<div className="text-[11px] text-rose-200">{loginError}</div>)}
+                    </div>
+                  </div>
+                  <div className="pt-1.5">
+                    <button type="button" className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/75 underline decoration-white/35 underline-offset-4 transition hover:text-white" onClick={() => { setRecoverOpen(v => !v); setRecoverMsg(""); setRecoverErr(""); setRecoverEmail(""); }}>Recuperer mon code</button>
+                    {recoverOpen && (
+                      <div className="mt-2.5 space-y-2.5">
+                        <div className="flex flex-col gap-1.5 rounded-xl border border-white/14 bg-white/10 p-2.5 shadow-[0_14px_38px_rgba(8,15,40,0.4)] backdrop-blur-xl sm:flex-row sm:items-center">
+                          <Input type="email" className="flex-1 border-white/10 bg-white/10 text-white placeholder:text-white/60" placeholder="Votre email de récupération" value={recoverEmail} onChange={(e) => setRecoverEmail(e.target.value)} />
+                          <Button variant="outline" className="rounded-xl border-white/28 bg-white/15 px-3 py-1.5 text-xs text-white hover:bg-white/22" onClick={() => recoverCodeHook.mutate((recoverEmail || "").trim(), {
+                            onSuccess: (d: any) => {
+                              setRecoverMsg(d?.emailed ? "Email envoyé" : "Code envoyé");
+                              setRecoverErr("");
+                            },
+                            onError: async (e: any) => {
+                              try {
+                                const msg = typeof e?.message === 'string' ? e.message : 'Erreur';
+                                const p = (() => { try { return JSON.parse(msg); } catch { return null; } })();
+                                setRecoverErr(p?.error || msg);
+                              } catch {
+                                setRecoverErr('Erreur');
+                              }
+                              setRecoverMsg("");
+                            }
+                          })} disabled={!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test((recoverEmail || "").trim())}>Envoyer le code</Button>
+                        </div>
+                        <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-3">
+                          <Input type="text" className="rounded-xl border-white/10 bg-white/10 text-white placeholder:text-white/60" placeholder="Code reçu par email" value={recoverCode || ""} onChange={(e) => setRecoverCode(e.target.value)} />
+                          <PasswordInput placeholder="Nouveau code (min 4)" value={recoverNew || ""} onChange={(e) => setRecoverNew(e.target.value)} className="rounded-xl border-white/10 bg-white/10 text-white placeholder:text-white/60" />
+                          <Button className="rounded-xl border-white/18 bg-[linear-gradient(135deg,rgba(244,114,182,0.84)0%,rgba(167,139,250,0.7)50%,rgba(59,130,246,0.64)100%)] px-3 py-1.5 text-xs text-white shadow-[0_20px_50px_rgba(168,85,247,0.42)]" onClick={() => verifyRecoverCode.mutate({
+                            email: (recoverEmail || "").trim(),
+                            code: (recoverCode || "").trim(),
+                            newAdminCode: (recoverNew || "").trim()
+                          }, {
+                            onSuccess: () => {
+                              setRecoverMsg("Code changé, vous êtes connecté");
+                              setRecoverErr("");
+                              setAdminUnlocked(true);
+                              setCurrentPassword("");
+                              setPassword("");
+                              setLoginCode("");
+                            },
+                            onError: async (e: any) => {
+                              try {
+                                const msg = typeof e?.message === 'string' ? e.message : 'Erreur';
+                                const p = (() => { try { return JSON.parse(msg); } catch { return null; } })();
+                                setRecoverErr(p?.error || msg);
+                              } catch {
+                                setRecoverErr('Erreur');
+                              }
+                            }
+                          })} disabled={!recoverCode || !recoverNew || (recoverNew || "").trim().length < 4}>Valider</Button>
+                        </div>
+                      </div>
+                    )}
+                    {recoverMsg && <div className="mt-2 text-[11px] font-semibold text-emerald-200">{recoverMsg}</div>}
+                    {recoverErr && <div className="mt-2 text-[11px] font-semibold text-rose-200">{recoverErr}</div>}
+                  </div>
+                </>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </SharedLayout>
+    );
+  }
+
+  return (
+    <SharedLayout>
+      <div className="mx-auto max-w-2xl space-y-3 px-3 pb-8 lg:px-0 relative">
+        <div className="pointer-events-none fixed inset-0 bg-[linear-gradient(135deg,rgba(15,23,42,0.9)0%,rgba(30,20,60,0.8)25%,rgba(20,25,50,0.85)50%,rgba(15,30,40,0.8)75%,rgba(10,20,35,0.9)100%)] -z-10" />
+        <Card className="relative overflow-hidden rounded-[24px] border border-white/25 bg-gradient-to-br from-white/12 via-white/6 to-white/3 backdrop-blur-3xl shadow-[0_32px_96px_rgba(8,15,40,0.4),0_0_40px_rgba(79,70,229,0.15)]">
+          <span className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.25),transparent_65%)] opacity-70" />
+          <CardHeader className="relative z-10 flex flex-col space-y-2 p-4 pb-2.5 text-white">
+            <span className="inline-flex w-fit items-center gap-1.5 rounded-full border border-emerald-400/50 bg-gradient-to-r from-emerald-500/20 to-emerald-400/10 px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-emerald-100 shadow-[0_10px_24px_rgba(16,185,129,0.3),inset_0_1px_1px_rgba(255,255,255,0.2)]">🔐 Espace administration</span>
+            <CardTitle className="text-2xl font-black tracking-tight text-white drop-shadow-[0_10px_24px_rgba(15,23,42,0.5)]">Paramètres du salon</CardTitle>
+          </CardHeader>
+          <CardContent className="relative z-10 space-y-2.5 p-4 pt-0 text-slate-100">
+            <div className={cn(adminShellClasses, "space-y-2.5")}>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsAdminSectionOpen((prev) => {
+                    const next = !prev;
+                    if (!next) {
+                      setRecoverOpen(false);
+                      setRecoverMsg("");
+                      setRecoverErr("");
+                      setRecoverEmail("");
+                    }
+                    return next;
+                  });
+                }}
+                aria-expanded={isAdminSectionOpen}
+                aria-controls="settings-admin-section"
+                className={cn(
+                  "group relative flex w-full items-center justify-between overflow-hidden rounded-xl border border-white/20 bg-gradient-to-r from-white/10 via-white/5 to-transparent backdrop-blur-xl px-4 py-3 text-sm font-semibold text-white shadow-[0_18px_54px_rgba(79,70,229,0.2)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_24px_68px_rgba(79,70,229,0.35)] hover:from-white/15 hover:via-white/8 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-300/80",
+                  isAdminSectionOpen && "border-emerald-300/50 shadow-[0_26px_70px_rgba(16,185,129,0.3)] from-emerald-500/10 via-emerald-400/5"
+                )}
+              >
+                <span className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(129,140,248,0.42),transparent_58%)] opacity-80 transition-opacity duration-300 group-hover:opacity-100" />
+                <span className="relative z-10 text-sm font-bold tracking-wide">Création du code admin et récupérer le code admin</span>
+                <ChevronDown className={cn("relative z-10 h-4 w-4 transition-transform duration-200", isAdminSectionOpen ? "rotate-180" : "")} />
+              </button>
+              {isAdminSectionOpen ? (
+                <div id="settings-admin-section" className="space-y-1.5">
+                  {(!config?.adminEmail) && (
+                    <div className="relative overflow-hidden rounded-xl border border-amber-200/45 bg-[linear-gradient(135deg,rgba(253,230,138,0.25)0%,rgba(252,211,77,0.2)45%,rgba(167,139,250,0.25)100%)] px-3 py-2 text-xs font-semibold text-amber-100 shadow-[0_14px_34px_rgba(253,230,138,0.3)]">
+                      <span className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(250,204,21,0.32),transparent_52%)] opacity-80" />
+                      <span className="relative z-10">Déverrouillé avec le code par défaut. Merci de personnaliser votre code et d’indiquer un email de récupération.</span>
+                    </div>
+                  )}
+                  <div className="sr-only" aria-hidden="true">
+                    <input type="text" name="email" autoComplete="email" tabIndex={-1} />
+                    <input type="password" name="password" autoComplete="new-password" tabIndex={-1} />
+                  </div>
+                  <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+                    <PasswordInput name="admin_code_current" autoComplete="off" placeholder={adminCodeAlreadySet ? "Code admin actuel" : "Définir un code admin"} value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} className={cn(adminInputClasses, "h-11 px-4 text-base")} />
+                    <PasswordInput name="admin_code_new" autoComplete="off" placeholder="Nouveau code admin (min 4)" value={password} onChange={(e) => setPassword(e.target.value)} className={cn(adminInputClasses, "h-11 px-4 text-base")} />
+                    <div className="space-y-0.5">
+                      <Input key={`admin-email-${adminUnlocked ? '1' : '0'}-${adminSaveMsg ? '1' : '0'}`} type="text" inputMode="email" name={emailFieldName} autoComplete="off" autoCapitalize="off" autoCorrect="off" spellCheck={false} placeholder={adminEmailRequired ? "Email (obligatoire)" : "Email (optionnel)"} value={adminEmail} onChange={(e) => setAdminEmail(e.target.value)} readOnly={!emailFocus} onFocus={() => setEmailFocus(true)} className={cn(adminInputClasses, "h-11 px-4 text-base")} />
+                      {!adminEmailValid && <span className="text-xs text-destructive">Email invalide</span>}
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    <Button
+                      className={gradientButtonClasses}
+                      onClick={() => {
+                        if (!canSaveAdminCode) return;
+                        updateAdminCode.mutate({ newCode: newAdminCode, currentCode: currentAdminCode || undefined, email: adminEmailTrimmed || undefined }, {
+                          onSuccess: () => { setAdminSaveMsg("Code admin mis à jour"); setAdminSaveErr(""); setCurrentPassword(""); setPassword(""); if (!adminEmailRequired) setAdminEmail(""); },
+                          onError: async (e: any) => {
+                            try {
+                              const msg = typeof e?.message === "string" ? e.message : "Erreur d’enregistrement";
+                              const parsed = (() => { try { return JSON.parse(msg); } catch { return null; } })();
+                              setAdminSaveErr(parsed?.error || msg);
+                            } catch { setAdminSaveErr("Erreur d’enregistrement"); }
+                            setAdminSaveMsg("");
+                          }
+                        });
+                      }}
+                      disabled={!canSaveAdminCode || updateAdminCode.isPending}
+                    >
+                      Enregistrer
+                    </Button>
+                    {adminSaveMsg && <span className="text-xs font-semibold text-emerald-200">{adminSaveMsg}</span>}
+                    {adminSaveErr && <span className="text-xs font-semibold text-rose-200">{adminSaveErr}</span>}
+                    <button
+                      type="button"
+                      style={{ textDecoration: "none" }}
+                      className="ml-auto inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/12 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-white/75 transition hover:bg-white/20"
+                      onClick={() => { setRecoverOpen((v) => !v); setRecoverMsg(""); setRecoverErr(""); setRecoverEmail(""); }}
+                    >
+                      Recuperer mon code
+                    </button>
+                  </div>
+                  {recoverOpen && (
+                    <div className="space-y-1.5 rounded-xl border border-white/14 bg-white/8 p-2 shadow-[0_14px_32px_rgba(8,15,40,0.38)] backdrop-blur-xl">
+                      <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center">
+                        <Input type="email" className={cn(inputFieldClasses, "flex-1 border-white/12 bg-white/12")} placeholder="Votre email de récupération" value={recoverEmail} onChange={(e) => setRecoverEmail(e.target.value)} />
+                        <Button variant="outline" className="rounded-xl border-white/24 bg-white/15 px-3 py-1.5 text-xs text-white hover:bg-white/22" onClick={() => recoverCodeHook.mutate((recoverEmail || "").trim(), {
+                          onSuccess: (d: any) => {
+                            setRecoverMsg(d?.emailed ? "Email envoyé" : "Code envoyé");
+                            setRecoverErr("");
+                          },
+                          onError: async (e: any) => {
+                            try {
+                              const msg = typeof e?.message === 'string' ? e.message : 'Erreur';
+                              const p = (() => { try { return JSON.parse(msg); } catch { return null; } })();
+                              setRecoverErr(p?.error || msg);
+                            } catch {
+                              setRecoverErr('Erreur');
+                            }
+                            setRecoverMsg("");
+                          }
+                        })} disabled={!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test((recoverEmail || "").trim())}>Recuperer</Button>
+                      </div>
+                      {recoverMsg && <span className="text-[11px] font-semibold text-emerald-200">{recoverMsg}</span>}
+                      {recoverErr && <span className="text-[11px] font-semibold text-rose-200">{recoverErr}</span>}
+                    </div>
+                  )}
+                </div>
+              ) : null}
+            </div>
+
+            <div className={cn(glassPanelClasses, "space-y-2.5 text-xs")}>
+              <div className={pillHeadingClasses}>Aperçu des paramètres actuels</div>
+              <dl className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-y-1.5 gap-x-3 text-sm">
+                <dt className="font-semibold text-white/80">Points de fidélité</dt>
+                <dd className="text-right text-base font-black text-white drop-shadow-[0_10px_25px_rgba(16,185,129,0.45)]">{config?.loyaltyPercentDefault ?? 0}%</dd>
+                <dt className="font-semibold text-white/80">Rémunération par défaut</dt>
+                <dd className="text-right text-base font-black text-white drop-shadow-[0_10px_25px_rgba(59,130,246,0.45)]">{config?.commissionDefault ?? 50}%</dd>
+                <dt className="font-semibold text-white/80">Points à déduire</dt>
+                <dd className="text-right text-base font-black text-white drop-shadow-[0_10px_25px_rgba(249,115,22,0.45)]">{config?.pointsRedeemDefault ?? 0} pts</dd>
+              </dl>
+            </div>
+
+            <div className={cn(glassPanelClasses, "space-y-2.5 text-xs")}>
+              <div className={pillHeadingClasses}>Heure</div>
+              <div className="rounded-2xl border border-white/12 bg-white/10 p-2.5 shadow-[0_16px_42px_rgba(15,23,42,0.42)] backdrop-blur-xl space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <div className="text-[10px] font-semibold uppercase tracking-[0.3em] text-white/70">Heure (Europe/Paris)</div>
+                  <div className="text-[9px] font-semibold uppercase tracking-[0.2em] text-white/60">{parisClock.timeZone}</div>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="relative flex items-center gap-3">
+                    <svg
+                      className="h-20 w-20 text-slate-100 drop-shadow-[0_8px_18px_rgba(15,23,42,0.45)]"
+                      viewBox="0 0 64 64"
+                      role="img"
+                      aria-hidden="true"
+                    >
+                      <defs>
+                        <radialGradient id="parisClockGradient" cx="50%" cy="36%" r="70%">
+                          <stop offset="0%" stopColor="rgba(248,250,252,0.98)" />
+                          <stop offset="55%" stopColor="rgba(203,213,225,0.45)" />
+                          <stop offset="100%" stopColor="rgba(15,23,42,0.85)" />
+                        </radialGradient>
+                      </defs>
+                      <g>
+                        <circle cx="32" cy="32" r="30" fill="url(#parisClockGradient)" stroke="rgba(148,163,184,0.45)" strokeWidth="1.5" />
+                        <circle cx="32" cy="32" r="26" fill="rgba(15,23,42,0.3)" stroke="rgba(148,163,184,0.35)" strokeWidth="1" />
+                        {minuteTickAngles.map((angle) => (
+                          <line
+                            key={`minute-${angle}`}
+                            x1="32"
+                            y1="6"
+                            x2="32"
+                            y2="9"
+                            stroke="rgba(148,163,184,0.5)"
+                            strokeWidth="1"
+                            strokeLinecap="round"
+                            transform={`rotate(${angle} 32 32)`}
+                          />
+                        ))}
+                        {hourTickAngles.map((angle) => (
+                          <line
+                            key={`hour-${angle}`}
+                            x1="32"
+                            y1="5"
+                            x2="32"
+                            y2="12"
+                            stroke="rgba(248,250,252,0.9)"
+                            strokeWidth="2.4"
+                            strokeLinecap="round"
+                            transform={`rotate(${angle} 32 32)`}
+                          />
+                        ))}
+                        <text x="32" y="17" textAnchor="middle" fontSize="6" fill="rgba(148,163,184,0.75)" fontFamily="'Inter', sans-serif">12</text>
+                        <text x="51" y="35" textAnchor="middle" fontSize="6" fill="rgba(148,163,184,0.75)" fontFamily="'Inter', sans-serif">3</text>
+                        <text x="32" y="54" textAnchor="middle" fontSize="6" fill="rgba(148,163,184,0.75)" fontFamily="'Inter', sans-serif">6</text>
+                        <text x="13" y="35" textAnchor="middle" fontSize="6" fill="rgba(148,163,184,0.75)" fontFamily="'Inter', sans-serif">9</text>
+                        <line
+                          x1="32"
+                          y1="32"
+                          x2="32"
+                          y2="20"
+                          stroke="rgba(248,250,252,0.95)"
+                          strokeWidth="3.2"
+                          strokeLinecap="round"
+                          transform={`rotate(${hourAngle} 32 32)`}
+                        />
+                        <line
+                          x1="32"
+                          y1="32"
+                          x2="32"
+                          y2="14"
+                          stroke="rgba(236,241,255,0.9)"
+                          strokeWidth="2.2"
+                          strokeLinecap="round"
+                          transform={`rotate(${minuteAngle} 32 32)`}
+                        />
+                        <line
+                          x1="32"
+                          y1="34"
+                          x2="32"
+                          y2="9"
+                          stroke="#f87171"
+                          strokeWidth="1.3"
+                          strokeLinecap="round"
+                          transform={`rotate(${secondAngle} 32 32)`}
+                        />
+                        <circle cx="32" cy="32" r="3" fill="#f87171" stroke="rgba(248,250,252,0.9)" strokeWidth="0.9" />
+                        <circle cx="32" cy="32" r="1.5" fill="rgba(248,250,252,0.95)" />
+                      </g>
+                    </svg>
+                    <span className="sr-only">{parisClock.time}</span>
+                    <span className="text-[10px] font-semibold uppercase tracking-[0.28em] text-white/70">Horloge analogique</span>
+                  </div>
+                  <span className="text-[10px] font-semibold uppercase tracking-[0.28em] text-white/60">Temps réel</span>
+                </div>
+                <div className="text-[11px] font-medium text-white/75">{parisClock.label}</div>
+                <div className="text-[10px] text-white/65">Horodatage: {parisClock.iso}</div>
+              </div>
+            </div>
+
+            <Accordion
+              type="single"
+              collapsible
+              value={accordionValue}
+              onValueChange={(val) => {
+                const next = val ?? "";
+                setAccordionValue(next);
+                if (next !== "points-usage") {
+                  setHasOpenedDayUsage(false);
+                  setIsDayUsageVisible(false);
+                  setIsMonthUsageVisible(false);
+                }
+                if (next !== "coiff-ca") {
+                  setOpenStylistId(null);
+                  setOpenDaily({});
+                  setOpenMonthly({});
+                }
+                if (next !== "add-stylist") {
+                  setManageStylistId("");
+                  setManageName("");
+                }
+              }}
+              className="space-y-2.5"
+            >
+              <AccordionItem value="settings-config" className="border-none">
+                <div className={cn(glassPanelClasses, "space-y-0 overflow-hidden p-2 sm:p-3 bg-[linear-gradient(145deg,rgba(79,70,229,0.6)30%,rgba(16,185,129,0.45)100%)]")}
+                >
+                  <AccordionTrigger className="flex w-full items-center justify-between rounded-xl border-2 border-emerald-400/60 bg-[linear-gradient(135deg,rgba(16,185,129,0.25)0%,rgba(79,70,229,0.2)100%)] px-4 py-4 text-left text-base font-bold text-emerald-50 shadow-[0_16px_42px_rgba(16,185,129,0.35)] transition hover:no-underline hover:border-emerald-300 hover:bg-[linear-gradient(135deg,rgba(16,185,129,0.35)0%,rgba(79,70,229,0.28)100%)]">
+                    <span className={cn("inline-flex items-center gap-2 rounded-full border border-emerald-300/70 bg-emerald-500/20 px-4 py-2 text-sm font-bold uppercase tracking-[0.15em] text-emerald-100")}>
+                      <span className="h-2 w-2 rounded-full bg-emerald-300 animate-pulse" />
+                      Réglages de paramètres
+                    </span>
+                  </AccordionTrigger>
+                  <AccordionContent className="px-3 pb-3 pt-2">
+                    <div className="grid gap-3 text-[11px] sm:grid-cols-2 xl:grid-cols-4">
+                      <div className={cn(inputShellClasses, "col-span-full flex-col items-start gap-2 border-white/14 bg-slate-950/70 sm:col-span-2 xl:col-span-2")}
+                      >
+                        <span className="font-semibold text-white/80">Modifier le nom du salon</span>
+                        <div className="flex w-full flex-col gap-1.5 sm:flex-row sm:items-center sm:gap-2">
+                          <Input
+                            className={cn(inputFieldClasses, "h-9 w-full bg-slate-950/85 text-sm font-semibold text-white caret-emerald-200 placeholder:text-white/65")}
+                            type="text"
+                            value={salonNameDraft}
+                            maxLength={80}
+                            onChange={(e) => setSalonNameDraft(e.target.value)}
+                          />
+                          <Button
+                            size="sm"
+                            className="h-8 rounded-lg border border-white/20 bg-[linear-gradient(135deg,rgba(59,130,246,0.8)0%,rgba(129,140,248,0.68)50%,rgba(16,185,129,0.55)100%)] px-3 text-[9px] font-bold uppercase tracking-[0.2em] text-white shadow-[0_14px_36px_rgba(59,130,246,0.38)]"
+                            disabled={!salonNameDraft.trim() || salonNameDraft.trim() === (config?.salonName ?? "") || updateConfig.isPending}
+                            onClick={handleSalonNameSave}
+                          >
+                            Enregistrer
+                          </Button>
+                        </div>
+                      </div>
+                      <div className={cn(inputShellClasses, "justify-between border-white/14 bg-slate-950/70")}
+                      >
+                        <span className="font-semibold text-white/80">Points de fidélité (%)</span>
+                        <div className="flex items-center gap-1.5">
+                          <Input
+                            className={cn(inputFieldClasses, "h-9 w-20 bg-slate-950/85 text-sm font-semibold text-white caret-emerald-200 placeholder:text-white/65")}
+                            type="text"
+                            inputMode="numeric"
+                            pattern="[0-9]*"
+                            value={loyaltyPct}
+                            onWheelCapture={(e) => e.preventDefault()}
+                            onKeyDown={(e) => { if (["ArrowUp", "ArrowDown", "PageUp", "PageDown"].includes(e.key)) e.preventDefault(); }}
+                            onChange={(e) => setLoyaltyPct(e.target.value.replace(/[^0-9]/g, ""))}
+                          />
+                          <Button
+                            size="sm"
+                            className="h-8 rounded-lg border border-white/20 bg-[linear-gradient(135deg,rgba(16,185,129,0.82)0%,rgba(59,130,246,0.64)100%)] px-2.5 text-[9px] font-bold uppercase tracking-[0.2em] text-white shadow-[0_14px_36px_rgba(16,185,129,0.4)]"
+                            onClick={() => updateConfig.mutate({ loyaltyPercentDefault: Math.max(0, Math.min(100, Number(loyaltyPct) || 0)) })}
+                          >
+                            OK
+                          </Button>
+                        </div>
+                      </div>
+                      <div className={cn(inputShellClasses, "justify-between border-white/14 bg-slate-950/70")}
+                      >
+                        <span className="font-semibold text-white/80">Rémunération par défaut (%)</span>
+                        <div className="flex items-center gap-1.5">
+                          <Input
+                            className={cn(inputFieldClasses, "h-9 w-20 bg-slate-950/85 text-sm font-semibold text-white caret-emerald-200 placeholder:text-white/65")}
+                            type="text"
+                            inputMode="numeric"
+                            pattern="[0-9]*"
+                            value={commissionDefaultStr}
+                            onWheelCapture={(e) => e.preventDefault()}
+                            onKeyDown={(e) => { if (["ArrowUp", "ArrowDown", "PageUp", "PageDown"].includes(e.key)) e.preventDefault(); }}
+                            onChange={(e) => setCommissionDefaultStr(e.target.value.replace(/[^0-9]/g, ""))}
+                          />
+                          <Button
+                            size="sm"
+                            className="h-8 rounded-lg border border-white/20 bg-[linear-gradient(135deg,rgba(79,70,229,0.8)0%,rgba(147,197,253,0.62)100%)] px-2.5 text-[9px] font-bold uppercase tracking-[0.2em] text-white shadow-[0_14px_36px_rgba(79,70,229,0.38)]"
+                            onClick={() => updateConfig.mutate({ commissionDefault: Math.max(0, Math.min(100, Number(commissionDefaultStr) || 0)) })}
+                          >
+                            OK
+                          </Button>
+                        </div>
+                      </div>
+                      <div className={cn(inputShellClasses, "justify-between border-white/14 bg-slate-950/70")}
+                      >
+                        <span className="font-semibold text-white/80">Points à déduire (pts)</span>
+                        <div className="flex items-center gap-1.5">
+                          <Input
+                            className={cn(inputFieldClasses, "h-9 w-24 bg-slate-950/85 text-sm font-semibold text-white caret-emerald-200 placeholder:text-white/65")}
+                            type="text"
+                            inputMode="numeric"
+                            pattern="[0-9]*"
+                            value={pointsRedeemDefaultStr}
+                            onWheelCapture={(e) => e.preventDefault()}
+                            onKeyDown={(e) => { if (["ArrowUp", "ArrowDown", "PageUp", "PageDown"].includes(e.key)) e.preventDefault(); }}
+                            onChange={(e) => setPointsRedeemDefaultStr(e.target.value.replace(/[^0-9]/g, ""))}
+                          />
+                          <Button
+                            size="sm"
+                            className="h-8 rounded-lg border border-white/20 bg-[linear-gradient(135deg,rgba(249,115,22,0.8)0%,rgba(244,114,182,0.62)100%)] px-2.5 text-[9px] font-bold uppercase tracking-[0.2em] text-white shadow-[0_14px_36px_rgba(249,115,22,0.36)]"
+                            onClick={() => {
+                              const parsed = Math.max(0, Math.min(1_000_000, Number(pointsRedeemDefaultStr) || 0));
+                              setPointsRedeemDefaultStr(String(parsed));
+                              updateConfig.mutate({ pointsRedeemDefault: parsed });
+                            }}
+                          >
+                            OK
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                    <div className={cn(glassPanelClasses, "p-6 space-y-0")}>
+                      <div className="space-y-6">
+                        <Accordion type="single" collapsible value={bestDaysAccordionValue} onValueChange={(val) => {
+                          setBestDaysAccordionValue(val ?? "");
+                          if (val === "") {
+                            setTimeout(() => {
+                              setAccordionValue("");
+                            }, 100);
+                          }
+                        }}>
+                          <AccordionItem value="best-days-stats" className="border-0">
+                            <AccordionTrigger className="flex items-center gap-2 py-0 hover:no-underline">
+                              <span className="inline-flex items-center gap-2 rounded-full border border-purple-300/70 bg-purple-500/20 px-4 py-2 text-sm font-bold uppercase tracking-[0.15em] text-purple-100">
+                                <span className="h-2.5 w-2.5 rounded-full bg-purple-300 animate-pulse" />
+                                <TrendingUp className="h-5 w-5" />
+                                Statistiques meilleurs jours du mois
+                              </span>
+                            </AccordionTrigger>
+                            <AccordionContent className="border-0 pb-0 pt-6">
+                              <BestDaysOfMonth />
+                            </AccordionContent>
+                          </AccordionItem>
+                        </Accordion>
+                      </div>
+                    </div>
+                  </AccordionContent>
+                </div>
+              </AccordionItem>
+            </Accordion>
+
+            <div className={cn(glassPanelClasses, "space-y-3 bg-[linear-gradient(145deg,rgba(8,15,40,0.88)0%,rgba(16,185,129,0.45)100%)]")}>
+              <div className={pillHeadingClasses}>Chiffre d’affaires (jour)</div>
+              <div className="grid gap-2 sm:grid-cols-3">
+                <div className="relative overflow-hidden rounded-xl border border-white/18 bg-white/12 p-3 shadow-[0_16px_44px_rgba(16,185,129,0.28)]">
+                  <span className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(16,185,129,0.28),transparent_58%)] opacity-80" />
+                  <div className="relative z-10 text-[10px] font-semibold uppercase tracking-[0.2em] text-white/70">CA aujourd’hui</div>
+                  <div className="relative z-10 text-2xl font-black tracking-tight text-white drop-shadow-[0_16px_38px_rgba(16,185,129,0.4)]">{eur.format(summary?.dailyAmount ?? 0)}</div>
+                </div>
+                <div className="relative overflow-hidden rounded-xl border border-white/18 bg-white/12 p-3 shadow-[0_16px_44px_rgba(56,189,248,0.28)]">
+                  <span className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.28),transparent_58%)] opacity-80" />
+                  <div className="relative z-10 text-[10px] font-semibold uppercase tracking-[0.2em] text-white/70">Prestations (jour)</div>
+                  <div className="relative z-10 text-2xl font-black tracking-tight text-white drop-shadow-[0_16px_38px_rgba(56,189,248,0.3)]">{summary?.dailyCount ?? 0}</div>
+                </div>
+                <div className="relative overflow-hidden rounded-xl border border-white/18 bg-white/12 p-3 shadow-[0_16px_44px_rgba(168,85,247,0.28)]">
+                  <span className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(168,85,247,0.28),transparent_58%)] opacity-80" />
+                  <div className="relative z-10 text-[10px] font-semibold uppercase tracking-[0.2em] text-white/70">Produits (jour)</div>
+                  <div className="relative z-10 text-2xl font-black tracking-tight text-white drop-shadow-[0_16px_38px_rgba(168,85,247,0.3)]">{(summary as any)?.dailyProductCount ?? 0}</div>
+                </div>
+              </div>
+              <div className="grid gap-2.5 text-xs sm:grid-cols-3">
+                <div className="relative overflow-hidden rounded-xl border border-emerald-300/35 bg-emerald-400/12 p-2.5 shadow-[0_14px_34px_rgba(16,185,129,0.28)]">
+                  <span className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(16,185,129,0.3),transparent_58%)] opacity-80" />
+                  <div className="relative z-10 text-[9px] font-semibold uppercase tracking-[0.2em] text-emerald-100">Espèces</div>
+                  <div className="relative z-10 text-base font-semibold text-white">{eur.format(summary?.dailyPayments.methods.cash.amount || 0)}</div>
+                  <div className="relative z-10 text-[9px] font-semibold uppercase tracking-[0.2em] text-emerald-100/80">{summary?.dailyPayments.methods.cash.count || 0} prest.</div>
+                </div>
+                <div className="relative overflow-hidden rounded-xl border border-amber-300/50 bg-amber-400/16 p-2.5 shadow-[0_14px_34px_rgba(253,186,116,0.28)]">
+                  <span className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(253,186,116,0.28),transparent_58%)] opacity-80" />
+                  <div className="relative z-10 text-[9px] font-semibold uppercase tracking-[0.2em] text-amber-100">Chèque</div>
+                  <div className="relative z-10 text-base font-semibold text-white">{eur.format(summary?.dailyPayments.methods.check.amount || 0)}</div>
+                  <div className="relative z-10 text-[9px] font-semibold uppercase tracking-[0.2em] text-amber-100/85">{summary?.dailyPayments.methods.check.count || 0} prest.</div>
+                </div>
+                <div className="relative overflow-hidden rounded-xl border border-indigo-300/50 bg-indigo-400/16 p-2.5 shadow-[0_14px_34px_rgba(129,140,248,0.28)]">
+                  <span className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(129,140,248,0.28),transparent_58%)] opacity-80" />
+                  <div className="relative z-10 text-[9px] font-semibold uppercase tracking-[0.2em] text-indigo-100">Carte</div>
+                  <div className="relative z-10 text-base font-semibold text-white">{eur.format(summary?.dailyPayments.methods.card.amount || 0)}</div>
+                  <div className="relative z-10 text-[9px] font-semibold uppercase tracking-[0.2em] text-indigo-100/85">{summary?.dailyPayments.methods.card.count || 0} prest.</div>
+                </div>
+              </div>
+            </div>
+
+            <Accordion
+              type="single"
+              collapsible
+              value={accordionValue}
+              onValueChange={(val) => {
+                const next = val ?? "";
+                setAccordionValue(next);
+                if (next !== "points-usage") {
+                  setHasOpenedDayUsage(false);
+                  setIsDayUsageVisible(false);
+                  setIsMonthUsageVisible(false);
+                }
+                if (next !== "coiff-ca") {
+                  setOpenStylistId(null);
+                  setOpenDaily({});
+                  setOpenMonthly({});
+                }
+                if (next !== "add-stylist") {
+                  setManageStylistId("");
+                  setManageName("");
+                }
+              }}
+              className="space-y-2.5"
+            >
+              <AccordionItem value="exports-marketing">
+                <div className={cn(glassPanelClasses, "space-y-2.5 bg-[linear-gradient(145deg,rgba(8,15,40,0.88)0%,rgba(79,70,229,0.5)55%,rgba(14,165,233,0.38)100%)]")}>
+                  <AccordionTrigger className="flex w-full items-center justify-between rounded-xl border border-white/18 bg-white/12 px-3 py-1.5 text-xs font-semibold text-white shadow-[0_14px_32px_rgba(79,70,229,0.3)] transition hover:no-underline">
+                    <span>Exports fichier clients</span>
+                  </AccordionTrigger>
+                  <AccordionContent className="pt-3 text-sm text-white/80">
+                    <ClientsExport />
+                  </AccordionContent>
+                </div>
+              </AccordionItem>
+              <AccordionItem value="coiff-ca">
+                <div className={cn(glassPanelClasses, "space-y-3.5 px-3 py-4 bg-[linear-gradient(145deg,rgba(8,15,40,0.88)0%,rgba(79,70,229,0.5)55%,rgba(14,165,233,0.38)100%)]")}>
+                  <AccordionTrigger className="flex w-full items-center justify-center rounded-xl border border-white/20 bg-[linear-gradient(135deg,rgba(124,58,237,0.82)0%,rgba(244,114,182,0.65)100%)] px-5 py-3 text-sm font-semibold text-white shadow-[0_16px_42px_rgba(168,85,247,0.38)] transition hover:no-underline">
+                    Chiffre d’affaires coiffeur
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <div className="space-y-2.5">
+                      {stylists?.map((s) => {
+                        const stylistCommissionPct = typeof (s as any).commissionPct === "number" ? (s as any).commissionPct : (config?.commissionDefault ?? 0);
+                        return (
+                          <div key={s.id} className="rounded-2xl border border-white/14 bg-white/8 p-2.5 shadow-[0_18px_48px_rgba(8,15,40,0.38)] backdrop-blur-xl">
+                            <div className="flex flex-wrap items-center justify-between gap-2.5">
+                              <div className="flex items-center gap-2">
+                                <Popover open={openStylistId === s.id} onOpenChange={(open) => setOpenStylistId(open ? s.id : null)}>
+                                  <PopoverTrigger asChild>
+                                    <button
+                                      className="group relative flex items-center justify-center gap-2 overflow-hidden rounded-xl border border-white/22 bg-[linear-gradient(135deg,rgba(79,70,229,0.52)0%,rgba(14,165,233,0.42)100%)] px-3 py-1.5 text-xs font-semibold text-white shadow-[0_14px_36px_rgba(59,130,246,0.3)] transition-all duration-300 hover:-translate-y-0.5"
+                                    >
+                                      <span className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(79,70,229,0.35),transparent_55%)] opacity-80 transition-opacity duration-300 group-hover:opacity-100" />
+                                      <span className="relative z-10 inline-flex items-center gap-1.5 text-xs font-semibold">
+                                        <span className={cn(badgeSoftClasses, "border-white/25 bg-white/15 px-2 py-0.5 text-sm font-bold text-white")}>{s.name}</span>
+                                      </span>
+                                      <span className="relative z-10 text-[9px] font-semibold uppercase tracking-[0.2em] text-white/80">
+                                        Voir
+                                      </span>
+                                    </button>
+                                  </PopoverTrigger>
+                                  <PopoverContent className="w-auto rounded-xl border border-white/14 bg-gradient-to-br from-[#0f172a]/95 via-[#1e1b4b]/90 to-[#0ea5e9]/30 p-3 space-y-2.5 shadow-[0_20px_50px_rgba(8,15,40,0.6)]" align="start" sideOffset={8}>
+                                    <StylistTotals id={s.id} commissionPct={stylistCommissionPct} />
+                                    <div className="flex flex-wrap items-center gap-1.5 text-[11px]">
+                                      <a className="inline-flex items-center gap-1.5 rounded-lg border border-white/20 bg-white/12 px-2 py-0.5 font-semibold uppercase tracking-[0.16em] text-white/80 transition hover:bg-white/18" href={"/api" + apiPath(`/reports/stylists/${s.id}.csv`)}>CSV</a>
+                                      <a className="inline-flex items-center gap-1.5 rounded-lg border border-white/20 bg-white/12 px-2 py-0.5 font-semibold uppercase tracking-[0.16em] text-white/80 transition hover:bg-white/18" href={"/api" + apiPath(`/reports/stylists/${s.id}.pdf`)}>PDF</a>
+                                    </div>
+                                  </PopoverContent>
+                                </Popover>
+                                <Popover open={openDaily[s.id]} onOpenChange={(open) => { setOpenDaily(m => ({ ...m, [s.id]: open })); setOpenMonthly(m => ({ ...m, [s.id]: false })); }}>
+                                  <PopoverTrigger asChild>
+                                    <button
+                                      className="inline-flex items-center rounded-xl border border-white/20 bg-[linear-gradient(135deg,rgba(14,165,233,0.82)0%,rgba(16,185,129,0.62)100%)] px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-white shadow-[0_14px_36px_rgba(14,165,233,0.3)] hover:-translate-y-0.5 hover:opacity-95"
+                                    >
+                                      Journalier
+                                    </button>
+                                  </PopoverTrigger>
+                                  <PopoverContent className="w-auto rounded-xl border border-white/14 bg-gradient-to-br from-[#0f172a]/95 via-[#1e1b4b]/90 to-[#0ea5e9]/30 p-3 space-y-2.5 shadow-[0_20px_50px_rgba(8,15,40,0.6)]" align="start" sideOffset={8}>
+                                    <div className="max-h-96 overflow-y-auto">
+                                      <StylistDailySection id={s.id} commissionPct={stylistCommissionPct} />
+                                    </div>
+                                  </PopoverContent>
+                                </Popover>
+                                <Popover open={openMonthly[s.id]} onOpenChange={(open) => { setOpenMonthly(m => ({ ...m, [s.id]: open })); setOpenDaily(m => ({ ...m, [s.id]: false })); }}>
+                                  <PopoverTrigger asChild>
+                                    <button
+                                      className="inline-flex items-center rounded-xl border border-white/20 bg-[linear-gradient(135deg,rgba(236,72,153,0.82)0%,rgba(124,58,237,0.66)100%)] px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-white shadow-[0_14px_36px_rgba(236,72,153,0.3)] hover:-translate-y-0.5 hover:opacity-95"
+                                    >
+                                      Mensuel
+                                    </button>
+                                  </PopoverTrigger>
+                                  <PopoverContent className="w-auto rounded-xl border border-white/14 bg-gradient-to-br from-[#0f172a]/95 via-[#1e1b4b]/90 to-[#0ea5e9]/30 p-3 space-y-2.5 shadow-[0_20px_50px_rgba(8,15,40,0.6)]" align="start" sideOffset={8}>
+                                    <StylistMonthly id={s.id} commissionPct={stylistCommissionPct} />
+                                  </PopoverContent>
+                                </Popover>
+                              </div>
+                              <div className="flex items-center gap-1.5 text-[11px] text-white/70">
+                                <span className={cn(badgeSoftClasses, "border-white/25 bg-white/15 px-2 py-0.5 text-white/75")}>Rémunération</span>
+                                <span className="text-sm font-semibold text-white">{String(stylistCommissionPct)}%</span>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </AccordionContent>
+                </div>
+              </AccordionItem>
+
+              <AccordionItem value="daily">
+                <div className={cn(glassPanelClasses, "space-y-3.5 px-3 py-4 bg-[linear-gradient(145deg,rgba(8,15,40,0.88)0%,rgba(56,189,248,0.4)55%,rgba(16,185,129,0.4)100%)]")}>
+                  <AccordionTrigger className="flex w-full items-center justify-center rounded-xl border border-white/20 bg-[linear-gradient(135deg,rgba(56,189,248,0.82)0%,rgba(16,185,129,0.65)100%)] px-5 py-3 text-sm font-semibold text-white shadow-[0_16px_42px_rgba(56,189,248,0.34)] transition hover:no-underline">
+                    Chiffre d’affaires (jour)
+                  </AccordionTrigger>
+                  <AccordionContent className="text-white/80">
+                    <RevenueBySingleDay summary={summary} />
+                  </AccordionContent>
+                </div>
+              </AccordionItem>
+
+              <AccordionItem value="monthly">
+                <div className={cn(glassPanelClasses, "space-y-3.5 px-3 py-4 bg-[linear-gradient(145deg,rgba(8,15,40,0.88)0%,rgba(236,72,153,0.45)55%,rgba(59,130,246,0.4)100%)]")}>
+                  <AccordionTrigger className="flex w-full items-center justify-center rounded-xl border border-white/20 bg-[linear-gradient(135deg,rgba(236,72,153,0.82)0%,rgba(124,58,237,0.66)100%)] px-5 py-3 text-sm font-semibold text-white shadow-[0_16px_42px_rgba(236,72,153,0.38)] transition hover:no-underline">
+                    Chiffre d’affaires (mois)
+                  </AccordionTrigger>
+                  <AccordionContent className="text-white/80">
+                    <RevenueByDay
+                      fallbackMonthly={summary?.monthlyPayments}
+                      stylists={stylists}
+                      defaultCommissionPct={typeof config?.commissionDefault === "number" ? config.commissionDefault : undefined}
+                    />
+                  </AccordionContent>
+                </div>
+              </AccordionItem>
+
+
+              <AccordionItem value="year">
+                <div className={cn(glassPanelClasses, "space-y-3.5 px-3 py-4 bg-[linear-gradient(145deg,rgba(8,15,40,0.9)0%,rgba(244,114,182,0.45)55%,rgba(249,115,22,0.4)100%)]")}>
+                  <AccordionTrigger className="flex w-full items-center justify-center rounded-xl border border-white/20 bg-[linear-gradient(135deg,rgba(249,115,22,0.82)0%,rgba(244,114,182,0.64)100%)] px-5 py-3 text-sm font-semibold text-white shadow-[0_16px_42px_rgba(249,115,22,0.38)] transition hover:no-underline">
+                    Chiffre d’affaires (année)
+                  </AccordionTrigger>
+                  <AccordionContent className="text-white/80">
+                    <RevenueByMonth />
+                  </AccordionContent>
+                </div>
+              </AccordionItem>
+
+              <AccordionItem value="points-usage">
+                <div className={cn(glassPanelClasses, "space-y-2 bg-[linear-gradient(145deg,rgba(8,15,40,0.9)0%,rgba(14,165,233,0.42)55%,rgba(56,189,248,0.32)100%)]")}>
+                  <AccordionTrigger className="flex w-full items-center justify-center rounded-xl border border-white/20 bg-[linear-gradient(135deg,rgba(14,165,233,0.78)0%,rgba(16,185,129,0.6)100%)] px-3.5 py-1.5 text-sm font-semibold text-white shadow-[0_14px_38px_rgba(16,185,129,0.36)] transition hover:no-underline">
+                    Utilisation des points
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <div className="space-y-1.5">
+                      <div className="grid gap-2 sm:grid-cols-2">
+                        <div className="space-y-1">
+                          <label className="text-[10px] font-semibold uppercase tracking-wide text-white/75">Jour</label>
+                          <div className="group relative">
+                            <div className="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-r from-[#f97316]/35 via-[#fb7185]/25 to-[#6366f1]/20 opacity-60 transition duration-300 group-hover:opacity-90 group-focus-within:opacity-100" />
+                            <Input
+                              type="date"
+                              value={pointsDay}
+                              max={todayParis}
+                              className="relative z-10 h-9 rounded-lg border border-transparent bg-slate-950/70 pl-9 pr-3 text-xs font-semibold tracking-wide text-slate-100 shadow-[0_12px_28px_rgba(249,115,22,0.22)] transition focus-visible:ring focus-visible:ring-[#f97316]/80 focus-visible:ring-offset-0"
+                              onClick={() => {
+                                setHasOpenedDayUsage(true);
+                                setIsMonthUsageVisible(false);
+                                setIsDayUsageVisible(prev => !prev);
+                              }}
+                              onKeyDown={(event) => {
+                                if (event.key === "Enter" || event.key === " ") {
+                                  event.preventDefault();
+                                  setHasOpenedDayUsage(true);
+                                  setIsMonthUsageVisible(false);
+                                  setIsDayUsageVisible(prev => !prev);
+                                }
+                                if (event.key === "Escape") {
+                                  event.preventDefault();
+                                  setIsDayUsageVisible(false);
+                                }
+                              }}
+                              onChange={(e) => {
+                                const value = e.target.value;
+                                if (value && value !== pointsDay) {
+                                  setPointsDay(value);
+                                  setHasOpenedDayUsage(true);
+                                  setIsDayUsageVisible(true);
+                                  setIsMonthUsageVisible(false);
+                                }
+                              }}
+                            />
+                            <Search className="pointer-events-none absolute left-2.5 top-1/2 h-5 w-5 -translate-y-1/2 text-white drop-shadow-[0_6px_16px_rgba(255,255,255,0.6)]" />
+                          </div>
+                          <p className="text-[10px] text-muted-foreground">{selectedDayLabel}</p>
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-[10px] font-semibold uppercase tracking-wide text-white/75">Mois</label>
+                          <div className="group relative">
+                            <div className="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-r from-[#7c6dff]/35 via-[#4f46e5]/25 to-[#06b6d4]/25 opacity-60 transition duration-300 group-hover:opacity-90 group-focus-within:opacity-100" />
+                            <Input
+                              type="month"
+                              value={pointsMonth}
+                              max={currentParisMonth}
+                              className="relative z-10 h-9 rounded-lg border border-transparent bg-slate-950/70 pl-9 pr-3 text-xs font-semibold tracking-wide text-slate-100 shadow-[0_12px_28px_rgba(79,70,229,0.22)] transition focus-visible:ring focus-visible:ring-[#8c7cff]/80 focus-visible:ring-offset-0"
+                              onClick={() => {
+                                if (isMonthUsageVisible) {
+                                  setHasOpenedDayUsage(false);
+                                  setIsDayUsageVisible(false);
+                                  setIsMonthUsageVisible(false);
+                                } else {
+                                  setHasOpenedDayUsage(false);
+                                  setIsDayUsageVisible(false);
+                                  setIsMonthUsageVisible(true);
+                                }
+                              }}
+                              onKeyDown={(event) => {
+                                if (event.key === "Enter" || event.key === " ") {
+                                  event.preventDefault();
+                                  if (isMonthUsageVisible) {
+                                    setHasOpenedDayUsage(false);
+                                    setIsDayUsageVisible(false);
+                                    setIsMonthUsageVisible(false);
+                                  } else {
+                                    setHasOpenedDayUsage(false);
+                                    setIsDayUsageVisible(false);
+                                    setIsMonthUsageVisible(true);
+                                  }
+                                }
+                              }}
+                              onChange={(e) => {
+                                const value = e.target.value;
+                                if (value) {
+                                  setPointsMonth(value);
+                                  setHasOpenedDayUsage(false);
+                                  setIsDayUsageVisible(false);
+                                  setIsMonthUsageVisible(true);
+                                }
+                              }}
+                            />
+                            <Search className="pointer-events-none absolute left-2.5 top-1/2 h-5 w-5 -translate-y-1/2 text-white drop-shadow-[0_6px_16px_rgba(255,255,255,0.6)]" />
+                          </div>
+                          <p className="text-[10px] text-muted-foreground">{selectedMonthLabel}</p>
+                        </div>
+                      </div>
+                      {pointsUsageLoading && (
+                        <p className="text-[10px] text-muted-foreground">Chargement des données…</p>
+                      )}
+                      {!pointsUsageLoading && pointsUsageError && (
+                        <p className="text-[10px] text-destructive">
+                          Impossible de récupérer les utilisations de points.
+                        </p>
+                      )}
+                      {!pointsUsageLoading && !pointsUsageError && (
+                        <>
+                          <div
+                            className={cn(
+                              "overflow-hidden transition-all duration-300 ease-out",
+                              hasOpenedDayUsage
+                                ? isDayUsageVisible
+                                  ? "max-h-[480px] opacity-100"
+                                  : "max-h-0 opacity-0"
+                                : "max-h-0 opacity-0"
+                            )}
+                          >
+                            {hasOpenedDayUsage && (
+                              <div className={cn("pt-2", !isDayUsageVisible && "pointer-events-none")}>
+                                <PointsUsageScopeSection
+                                  title={daySectionTitle}
+                                  emptyLabel={dayEmptyLabel}
+                                  groups={pointsUsage?.daily ?? []}
+                                  variant="month"
+                                />
+                              </div>
+                            )}
+                          </div>
+                          <div
+                            className={cn(
+                              "overflow-hidden transition-all duration-300 ease-out",
+                              isMonthUsageVisible ? "max-h-[480px] opacity-100" : "max-h-0 opacity-0"
+                            )}
+                          >
+                            {isMonthUsageVisible && (
+                              <div className="pt-2">
+                                <PointsUsageScopeSection
+                                  title={monthSectionTitle}
+                                  emptyLabel={monthEmptyLabel}
+                                  groups={pointsUsage?.monthly ?? []}
+                                  variant="month"
+                                />
+                              </div>
+                            )}
+                          </div>
+                          {pointsUsage?.generatedAt ? (
+                            <p className="text-[9px] uppercase tracking-wide text-muted-foreground">
+                              Actualisé le {new Date(pointsUsage.generatedAt).toLocaleString("fr-FR", { timeZone: "Europe/Paris", day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" })}
+                            </p>
+                          ) : null}
+                        </>
+                      )}
+                    </div>
+                  </AccordionContent>
+                </div>
+              </AccordionItem>
+
+              <ServicesManager
+                accordionValue={servicesAccordionValue}
+                onAccordionChange={setServicesAccordionValue}
+                onCloseParent={() => setAccordionValue("")}
+              />
+
+              <AccordionItem value="add-stylist">
+                <div className={cn(glassPanelClasses, "space-y-3.5 px-4 py-4 bg-[linear-gradient(145deg,rgba(8,15,40,0.9)0%,rgba(30,58,138,0.35)60%,rgba(37,99,235,0.25)100%)]")}>
+                  <AccordionTrigger className="relative flex items-center justify-center rounded-full border-2 border-blue-600 bg-black/30 w-24 h-24 mx-auto text-sm font-semibold uppercase tracking-[0.2em] text-white shadow-[0_0_15px_rgba(59,130,246,0.5),0_0_30px_rgba(30,58,138,0.3)] transition-all duration-300 overflow-hidden hover:scale-110 hover:border-blue-400 hover:shadow-[0_0_25px_rgba(59,130,246,0.8),0_0_50px_rgba(30,58,138,0.6),0_0_75px_rgba(59,130,246,0.4)] group">
+                    <span className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(59,130,246,0.2),transparent_70%)] group-hover:bg-[radial-gradient(circle_at_center,rgba(59,130,246,0.4),transparent_60%)] transition-all duration-300" />
+                    <span className="pointer-events-none absolute -inset-0.5 rounded-full border border-blue-500/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300 animate-pulse" />
+                    <span className="relative z-10 text-center px-2 flex flex-col items-center gap-2">
+                      <UserRound className="w-7 h-7 text-blue-300" />
+                      <span className="text-sm font-semibold leading-snug tracking-wide text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.4)]">Ajouter un<br className="hidden" /> <span className="inline">coiffeur</span></span>
+                    </span>
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <div className="space-y-3.5">
+                      <div className="flex flex-wrap gap-3">
+                        <div className="flex-1 min-w-[14rem]">
+                          <Input
+                            placeholder="Nom du coiffeur"
+                            value={stylistName}
+                            onChange={(e) => setStylistName(e.target.value)}
+                            className={cn(inputFieldClasses, "h-10 w-full bg-slate-950/70 px-4 text-base font-semibold text-white caret-emerald-200 placeholder:text-white/60")}
+                          />
+                        </div>
+                        <Select
+                          value={commissionPct || undefined}
+                          onValueChange={(value) => setCommissionPct(value)}
+                        >
+                          <SelectTrigger className={cn(selectTriggerClasses, "h-10 max-w-[6.5rem] bg-slate-950/70 px-3.5 text-xs font-semibold text-white uppercase tracking-[0.22em]")}>
+                            <SelectValue placeholder="%" />
+                          </SelectTrigger>
+                          <SelectContent className="w-[6.5rem] max-h-48 overflow-y-auto rounded-xl border border-emerald-300/50 bg-slate-950/95 text-slate-100">
+                            {STYLIST_COMMISSION_CHOICES.map((choice) => (
+                              <SelectItem key={choice} value={String(choice)}>
+                                {choice} %
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <Button
+                          className={addStylistButtonClasses}
+                          disabled={!stylistName.trim() || !commissionPct}
+                          aria-label="Ajouter un coiffeur"
+                          onClick={() => {
+                            const trimmed = stylistName.trim();
+                            if (!trimmed || !commissionPct) return;
+                            const pctValue = Math.max(0, Math.min(60, Number(commissionPct) || 0));
+                            addStylist.mutate({ name: trimmed, commissionPct: pctValue }, {
+                              onSuccess: () => {
+                                setStylistName("");
+                                setCommissionPct("");
+                                setAccordionValue("");
+                              },
+                            });
+                          }}
+                        >
+                          Ajouter
+                        </Button>
+                      </div>
+                      <div className="h-px bg-white/25" />
+                      <div className="space-y-2.5">
+                        <div className="text-sm font-semibold text-white/85">Gérer un coiffeur</div>
+                        <div className="flex flex-wrap items-center gap-2.5">
+                          <select
+                            className={cn(
+                              "h-10 rounded-2xl border px-3 text-sm font-semibold transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300/70",
+                              manageStylistId
+                                ? "border-emerald-300/70 bg-emerald-400/20 text-emerald-100 shadow-[0_14px_34px_rgba(16,185,129,0.3)]"
+                                : "border-white/18 bg-slate-950/70 text-white"
+                            )}
+                            value={manageStylistId}
+                            onChange={(e) => setManageStylistId(e.target.value)}
+                          >
+                            <option value="">Sélectionner</option>
+                            {stylists?.map((s) => (
+                              <option key={s.id} value={s.id}>{s.name}</option>
+                            ))}
+                          </select>
+                          <Input
+                            className={cn(inputFieldClasses, "flex-1 min-w-[160px] bg-slate-950/70 text-sm font-semibold text-white caret-emerald-200 placeholder:text-white/60")}
+                            placeholder="Nom du coiffeur"
+                            value={manageName}
+                            onChange={(e) => setManageName(e.target.value)}
+                            disabled={!manageStylistId}
+                          />
+                          <Button
+                            className={cn(gradientButtonClasses, "min-h-10 px-4")}
+                            disabled={!manageStylistId || !manageName.trim()}
+                            onClick={() => {
+                              if (!manageStylistId) return;
+                              const trimmedName = manageName.trim();
+                              if (!trimmedName) return;
+                              updateStylist.mutate({ id: manageStylistId, name: trimmedName }, {
+                                onSuccess: () => {
+                                  setManageStylistId("");
+                                  setManageName("");
+                                  setAccordionValue("");
+                                }
+                              });
+                            }}
+                          >
+                            Enregistrer
+                          </Button>
+                          <Button
+                            disabled={!manageStylistId}
+                            className="min-h-10 rounded-2xl border border-white/25 bg-[linear-gradient(135deg,rgba(239,68,68,0.82)0%,rgba(250,204,21,0.62)100%)] px-3.5 text-xs font-semibold uppercase tracking-[0.22em] text-white shadow-[0_20px_52px_rgba(239,68,68,0.38)]"
+                            onClick={() => {
+                              if (!manageStylistId) return;
+                              const s = stylists?.find(st => st.id === manageStylistId);
+                              if (!s) return;
+                              if (!confirm(`Supprimer ${s.name} ?`)) return;
+                              if (!confirm("Confirmer la suppression ?")) return;
+                              delStylist.mutate(manageStylistId, { onSuccess: () => { setManageStylistId(""); setManageName(""); setAccordionValue(""); } });
+                            }}
+                          >
+                            Supprimer
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </AccordionContent>
+                </div>
+              </AccordionItem>
+            </Accordion>
+          </CardContent>
+        </Card>
+      </div>
+    </SharedLayout>
+  );
+}
