@@ -524,6 +524,11 @@ export const getConfig: RequestHandler = async (req, res) => {
       salonPostalCode: settings.salonPostalCode,
       salonCity: settings.salonCity,
       salonPhone: settings.salonPhone,
+      // Subscription status (if using Stripe)
+      stripeCustomerId: settings.stripeCustomerId ?? null,
+      stripeSubscriptionId: settings.stripeSubscriptionId ?? null,
+      subscriptionStatus: settings.subscriptionStatus ?? null,
+      subscriptionCurrentPeriodEnd: settings.subscriptionCurrentPeriodEnd ?? null,
     });
   } catch (error) {
     console.error('Error getting config:', error);

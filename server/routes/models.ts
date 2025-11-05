@@ -96,6 +96,11 @@ export interface ISettings extends Document {
   paymentModes: PaymentMethod[];
   commissionDefault: number;
   pointsRedeemDefault: number;
+  // Payment / subscription fields
+  stripeCustomerId?: string | null;
+  stripeSubscriptionId?: string | null;
+  subscriptionStatus?: string | null;
+  subscriptionCurrentPeriodEnd?: number | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -222,6 +227,12 @@ const SettingsSchema = new Schema({
   }],
   commissionDefault: { type: Number, default: 50, min: 0, max: 100 },
   pointsRedeemDefault: { type: Number, default: 10, min: 0 }
+  ,
+  // Subscription management (optional, for Stripe integration)
+  stripeCustomerId: { type: String, default: null },
+  stripeSubscriptionId: { type: String, default: null },
+  subscriptionStatus: { type: String, default: null },
+  subscriptionCurrentPeriodEnd: { type: Number, default: null }
 }, {
   timestamps: true,
   

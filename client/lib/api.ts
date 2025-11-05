@@ -475,6 +475,16 @@ export function useAdminLogin() {
   });
 }
 
+// Create a Stripe Checkout session for subscription
+export async function createCheckoutSession() {
+  const res = await apiFetch("/api/create-checkout-session", { method: "POST" });
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(text || "Failed to create checkout session");
+  }
+  return res.json() as Promise<{ url?: string; id?: string }>;
+}
+
 export function useAdminRecover() {
   return useMutation({
     mutationFn: async (email: string) => {

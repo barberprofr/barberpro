@@ -1,7 +1,8 @@
 import type { PropsWithChildren } from "react";
+import { useEffect, useState } from "react";
 import { Home, Users, Settings, Scissors, LogOut, HelpCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useConfig } from "@/lib/api";
+import { useConfig, createCheckoutSession } from "@/lib/api";
 import AuthGate from "./auth/AuthGate";
 import { setAdminToken } from "@/lib/admin";
 import { useQueryClient } from "@tanstack/react-query";
@@ -15,6 +16,16 @@ export default function SharedLayout({ children }: PropsWithChildren) {
   const { data: config } = useConfig();
   const qc = useQueryClient();
   const locked = !config?.isAdmin;
+  const [showSubPrompt, setShowSubPrompt] = useState(false);
+
+  useEffect(() => {
+    // Show subscription prompt when user is admin but subscription not active
+    if (config?.isAdmin && config?.subscriptionStatus !== "active") {
+      setShowSubPrompt(true);
+    } else {
+      setShowSubPrompt(false);
+    }
+  }, [config]);
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-950 via-sky-800 to-amber-700">
       {!locked && (
@@ -59,6 +70,36 @@ export default function SharedLayout({ children }: PropsWithChildren) {
           </motion.div>
         </AnimatePresence>
       </main>
+      {/* Simple subscription prompt modal */}
+      {showSubPrompt && (
+        <div className="fixed inset-0 z-50 grid place-items-center bg-black/60">
+          <div className="w-full max-w-lg rounded-xl bg-white p-6 text-slate-900 shadow-lg">
+            <h3 className="text-lg font-semibold">Abonnement requis</h3>
+            <p className="mt-2 text-sm text-slate-700">Pour accéder à toutes les fonctionnalités, veuillez activer l'abonnement à 25€ / mois.</p>
+            <div className="mt-4 flex gap-2 justify-end">
+              <button className="px-3 py-2 rounded-md border" onClick={() => setShowSubPrompt(false)}>Fermer</button>
+              <button
+                className="px-4 py-2 rounded-md bg-primary text-white"
+                onClick={async () => {
+                  try {
+                    const data = await createCheckoutSession();
+                    if (data?.url) {
+                      window.location.assign(data.url);
+                    } else {
+                      alert("Impossible de créer la session de paiement");
+                    }
+                  } catch (err: any) {
+                    console.error(err);
+                    alert(err?.message || "Erreur lors de la création du paiement");
+                  }
+                }}
+              >
+                S'abonner — 25€/mois
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       <nav
         className="fixed bottom-0 inset-x-0 z-50 h-[90px] border-t border-amber-200 bg-gradient-to-r from-sky-100 to-amber-100 text-slate-900 shadow-[0_-8px_32px_rgba(15,23,42,0.45)]"
       >

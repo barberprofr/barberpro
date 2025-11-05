@@ -26,6 +26,7 @@
     "express": "^5.1.0",
     "mongoose": "^8.19.2",
     "pdf-lib": "^1.17.1",
+    "stripe": "^19.2.0",
     "zod": "^3.25.76"
   },
   "devDependencies": {

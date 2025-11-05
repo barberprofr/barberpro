@@ -29,6 +29,20 @@ export function createServer() {
     ],
     exposedHeaders: ["Content-Disposition"],
   }));
+  // Stripe webhooks require the raw body; mount the webhook route with raw parser before json body parser
+  // We'll import the webhook handler and mount it below
+  import("./routes/payment").then((mod) => {
+    // Mount webhook route with raw body parser
+    app.post("/api/webhook", express.raw({ type: "application/json" }), (req, res) => {
+      // attach rawBody for handler convenience
+      (req as any).rawBody = req.body;
+      return (mod.webhookHandler as any)(req, res, () => undefined);
+    });
+    // mount other payment routes
+    app.post("/api/create-checkout-session", mod.createCheckoutSession);
+    app.post("/api/create-portal-session", mod.createPortalSession);
+  }).catch((err)=>{ console.error("Failed to load payment routes:", err); });
+
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
 

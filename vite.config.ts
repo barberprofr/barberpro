@@ -15,11 +15,17 @@ export default defineConfig(({ mode }) => ({
   },
   build: {
     outDir: "dist/spa",
-    rollupOptions: {
-      input: {
-        main: path.resolve(__dirname, 'index.html'),
-      },
-    },
+    chunkSizeWarningLimit: 2000,
+    output: {
+      // Optimisation des chunks pour la production
+      manualChunks: {
+        'react-vendor': ['react', 'react-dom'],
+        'state-management': ['@tanstack/react-query'],
+        'ui-vendor': ['framer-motion', 'lucide-react'],
+        'charts-vendor': ['recharts'],
+        'utils-vendor': ['clsx', 'tailwind-merge', 'date-fns']
+      }
+    }
   },
   plugins: [react(), expressPlugin()],
   resolve: {
