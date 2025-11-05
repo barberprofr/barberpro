@@ -41,6 +41,10 @@ export function createServer() {
     // mount other payment routes
     app.post("/api/create-checkout-session", mod.createCheckoutSession);
     app.post("/api/create-portal-session", mod.createPortalSession);
+    
+    // mount payment routes in multi-salon namespace
+    app.post("/api/salons/:salonId/create-checkout-session", mod.createCheckoutSession);
+    app.post("/api/salons/:salonId/create-portal-session", mod.createPortalSession);
   }).catch((err)=>{ console.error("Failed to load payment routes:", err); });
 
   app.use(express.json());
