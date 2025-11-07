@@ -16,7 +16,9 @@ export default function SharedLayout({ children }: PropsWithChildren) {
   const current = location.pathname;
   const { data: config, refetch } = useConfig();
   const qc = useQueryClient();
-  const locked = !config?.isAdmin;
+  // Lock access if not admin OR if admin but subscription not active
+  const locked = !config?.isAdmin || (config?.isAdmin && config?.subscriptionStatus !== "active");
+  const hasActiveSubscription = config?.isAdmin && config?.subscriptionStatus === "active";
   const [showSubPrompt, setShowSubPrompt] = useState(false);
   const retryTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -81,15 +83,16 @@ export default function SharedLayout({ children }: PropsWithChildren) {
 
   useEffect(() => {
     // Show subscription prompt when user is admin but subscription not active
+    // The popup must stay visible until payment is completed
     if (config?.isAdmin && config?.subscriptionStatus !== "active") {
       setShowSubPrompt(true);
-    } else {
+    } else if (hasActiveSubscription) {
       setShowSubPrompt(false);
     }
-  }, [config]);
+  }, [config, hasActiveSubscription]);
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-950 via-sky-800 to-amber-700">
-      {!locked && (
+      {hasActiveSubscription && (
         <header className="sticky top-0 z-10 bg-background/80 backdrop-blur border-b">
           <div className="container flex items-center justify-between py-3">
             <Link to="/app" className="flex items-center gap-2">
@@ -131,16 +134,20 @@ export default function SharedLayout({ children }: PropsWithChildren) {
           </motion.div>
         </AnimatePresence>
       </main>
-      {/* Simple subscription prompt modal */}
+      {/* Subscription prompt modal - blocks access until payment is completed */}
       {showSubPrompt && (
-        <div className="fixed inset-0 z-50 grid place-items-center bg-black/60">
-          <div className="w-full max-w-lg rounded-xl bg-white p-6 text-slate-900 shadow-lg">
-            <h3 className="text-lg font-semibold">Abonnement requis</h3>
-            <p className="mt-2 text-sm text-slate-700">Pour accéder à toutes les fonctionnalités, veuillez activer l'abonnement à 25€ / mois.</p>
-            <div className="mt-4 flex gap-2 justify-end">
-              <button className="px-3 py-2 rounded-md border" onClick={() => setShowSubPrompt(false)}>Fermer</button>
+        <div className="fixed inset-0 z-50 grid place-items-center bg-black/80 backdrop-blur-sm">
+          <div className="w-full max-w-lg rounded-xl bg-white p-6 text-slate-900 shadow-2xl">
+            <h3 className="text-xl font-semibold mb-2">Abonnement requis</h3>
+            <p className="mt-2 text-sm text-slate-700">
+              Pour accéder à l'application, vous devez activer votre abonnement à 25€ / mois.
+            </p>
+            <p className="mt-2 text-xs text-slate-500">
+              Le paiement est sécurisé via Stripe. Vous serez redirigé vers la page de paiement.
+            </p>
+            <div className="mt-6 flex gap-2 justify-end">
               <button
-                className="px-4 py-2 rounded-md bg-primary text-white"
+                className="px-6 py-2.5 rounded-md bg-primary text-white font-medium hover:bg-primary/90 transition-colors"
                 onClick={async () => {
                   try {
                     const data = await createCheckoutSession();
@@ -161,6 +168,7 @@ export default function SharedLayout({ children }: PropsWithChildren) {
           </div>
         </div>
       )}
+      {hasActiveSubscription && (
       <nav
         className="fixed bottom-0 inset-x-0 z-50 h-[90px] border-t border-amber-200 bg-gradient-to-r from-sky-100 to-amber-100 text-slate-900 shadow-[0_-8px_32px_rgba(15,23,42,0.45)]"
       >
@@ -222,6 +230,7 @@ export default function SharedLayout({ children }: PropsWithChildren) {
           </Popover>
         </div>
       </nav>
+      )}
     </div>
   );
 }

@@ -395,7 +395,7 @@ export function useConfig() {
     queryFn: async () => {
       const res = await apiFetch("/api/config", { headers: { "x-admin-token": getAdminToken() || "" } });
       if (!res.ok) throw new Error("Failed to load config");
-      return res.json() as Promise<{ loyaltyPercentDefault: number; paymentModes: MethodKey[]; commissionDefault: number; pointsRedeemDefault: number; adminSet: boolean; adminCodeSet: boolean; isAdmin: boolean; adminEmail: string | null; salonName: string | null; salonAddress: string | null; salonPostalCode: string | null; salonCity: string | null; salonPhone: string | null }>;
+      return res.json() as Promise<{ loyaltyPercentDefault: number; paymentModes: MethodKey[]; commissionDefault: number; pointsRedeemDefault: number; adminSet: boolean; adminCodeSet: boolean; isAdmin: boolean; adminEmail: string | null; salonName: string | null; salonAddress: string | null; salonPostalCode: string | null; salonCity: string | null; salonPhone: string | null; subscriptionStatus: string | null; stripeCustomerId: string | null; stripeSubscriptionId: string | null; subscriptionCurrentPeriodEnd: number | null }>;
     }
   });
 }

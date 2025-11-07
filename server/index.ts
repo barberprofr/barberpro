@@ -4,6 +4,7 @@ import cors from "cors";
 import { handleDemo } from "./routes/demo";
 import { connectDatabase } from './db';
 import { addClient, addStylist, adminLogin, createPrestation, createProduct, listProducts, exportSummaryCSV, exportSummaryPDF, getConfig, getStylistBreakdown, listClients, listStylists, pointsUsageReport, redeemPoints, reportByDay, reportByMonth, setAdminPassword, setStylistCommission, summaryReport, updateConfig, deleteStylist, deleteClient, recoverAdminPassword, recoverAdminVerify, exportStylistCSV, exportStylistPDF, exportByDayCSV, exportByDayPDF, exportByMonthCSV, exportByMonthPDF, setupAdminAccount, verifyAdminCode, updateStylist, listServices, addService, deleteService, listProductTypes, addProductType, deleteProductType, recoverAdminCode, verifyAdminCodeRecovery } from "./routes/salon";
+import { createCheckoutSession, createPortalSession, webhookHandler } from "./routes/payment";
 
 export function createServer() {
   const app = express();
@@ -30,28 +31,26 @@ export function createServer() {
     exposedHeaders: ["Content-Disposition"],
   }));
   // Stripe webhooks require the raw body; mount the webhook route with raw parser before json body parser
-  // We'll import the webhook handler and mount it below
-  import("./routes/payment").then((mod) => {
-    // Mount webhook route with raw body parser
-    const webhookMiddleware = express.raw({ type: "application/json" });
-    const webhookHandler = (req: any, res: any) => {
-      console.log('🎯 Webhook called at path:', req.path);
-      // attach rawBody for handler convenience
-      req.rawBody = req.body;
-      return (mod.webhookHandler as any)(req, res, () => undefined);
-    };
+  // Mount webhook route with raw body parser
+  const webhookMiddleware = express.raw({ type: "application/json" });
+  const webhookHandlerWrapper = (req: any, res: any, next: any) => {
+    console.log('🎯 Webhook called at path:', req.path);
+    // attach rawBody for handler convenience
+    req.rawBody = req.body;
+    return webhookHandler(req, res, next);
+  };
 
-    // Mount webhook route for both paths
-    app.post("/api/webhook", webhookMiddleware, webhookHandler);
-    app.post("/.netlify/functions/api/webhook", webhookMiddleware, webhookHandler);
-    // mount other payment routes
-    app.post("/api/create-checkout-session", mod.createCheckoutSession);
-    app.post("/api/create-portal-session", mod.createPortalSession);
-    
-    // mount payment routes in multi-salon namespace
-    app.post("/api/salons/:salonId/create-checkout-session", mod.createCheckoutSession);
-    app.post("/api/salons/:salonId/create-portal-session", mod.createPortalSession);
-  }).catch((err)=>{ console.error("Failed to load payment routes:", err); });
+  // Mount webhook route for both paths
+  app.post("/api/webhook", webhookMiddleware, webhookHandlerWrapper);
+  app.post("/.netlify/functions/api/webhook", webhookMiddleware, webhookHandlerWrapper);
+  
+  // mount other payment routes
+  app.post("/api/create-checkout-session", createCheckoutSession);
+  app.post("/api/create-portal-session", createPortalSession);
+  
+  // mount payment routes in multi-salon namespace
+  app.post("/api/salons/:salonId/create-checkout-session", createCheckoutSession);
+  app.post("/api/salons/:salonId/create-portal-session", createPortalSession);
 
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
