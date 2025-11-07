@@ -2,7 +2,7 @@ import type { PropsWithChildren } from "react";
 import { useEffect, useState, useRef } from "react";
 import { Home, Users, Settings, Scissors, LogOut, HelpCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useConfig, createCheckoutSession } from "@/lib/api";
+import { useConfig, createCheckoutSession, checkSubscriptionStatus } from "@/lib/api";
 import AuthGate from "./auth/AuthGate";
 import { setAdminToken } from "@/lib/admin";
 import { useQueryClient } from "@tanstack/react-query";
@@ -33,18 +33,37 @@ export default function SharedLayout({ children }: PropsWithChildren) {
       const newSearch = params.toString();
       navigate(`${location.pathname}${newSearch ? `?${newSearch}` : ""}`, { replace: true });
       
-      // Refresh config to get updated subscription status
-      // The webhook might take a few seconds, so we invalidate and refetch
-      qc.invalidateQueries({ queryKey: ["config"] });
-      refetch();
+      // Check subscription status directly with Stripe (more reliable than waiting for webhook)
+      const verifySubscription = async () => {
+        try {
+          await checkSubscriptionStatus();
+          // Invalidate and refetch config to get updated status
+          qc.invalidateQueries({ queryKey: ["config"] });
+          await refetch();
+        } catch (err) {
+          console.error("Error checking subscription status:", err);
+        }
+      };
       
-      // Retry a few times in case the webhook hasn't processed yet
+      // Check immediately, then retry a few times
+      verifySubscription();
+      
+      // Retry a few times in case the subscription isn't immediately available
       let attempts = 0;
       const maxAttempts = 5;
       const retryDelay = 2000; // 2 seconds
       
       const checkSubscription = async () => {
         attempts++;
+        
+        // Check with Stripe first
+        try {
+          await verifySubscription();
+        } catch (err) {
+          console.error("Error verifying subscription:", err);
+        }
+        
+        // Then check if config is updated
         const result = await refetch();
         const updatedConfig = result.data;
         
@@ -63,7 +82,7 @@ export default function SharedLayout({ children }: PropsWithChildren) {
         }
       };
       
-      // Start checking after a short delay to give the webhook time
+      // Start checking after a short delay
       retryTimeoutRef.current = setTimeout(checkSubscription, 1000);
     } else if (checkoutStatus === "cancel") {
       // Just remove the cancel parameter

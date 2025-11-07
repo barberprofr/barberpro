@@ -4,7 +4,7 @@ import cors from "cors";
 import { handleDemo } from "./routes/demo";
 import { connectDatabase } from './db';
 import { addClient, addStylist, adminLogin, createPrestation, createProduct, listProducts, exportSummaryCSV, exportSummaryPDF, getConfig, getStylistBreakdown, listClients, listStylists, pointsUsageReport, redeemPoints, reportByDay, reportByMonth, setAdminPassword, setStylistCommission, summaryReport, updateConfig, deleteStylist, deleteClient, recoverAdminPassword, recoverAdminVerify, exportStylistCSV, exportStylistPDF, exportByDayCSV, exportByDayPDF, exportByMonthCSV, exportByMonthPDF, setupAdminAccount, verifyAdminCode, updateStylist, listServices, addService, deleteService, listProductTypes, addProductType, deleteProductType, recoverAdminCode, verifyAdminCodeRecovery } from "./routes/salon";
-import { createCheckoutSession, createPortalSession, webhookHandler } from "./routes/payment";
+import { createCheckoutSession, createPortalSession, webhookHandler, checkSubscriptionStatus } from "./routes/payment";
 
 export function createServer() {
   const app = express();
@@ -47,10 +47,12 @@ export function createServer() {
   // mount other payment routes
   app.post("/api/create-checkout-session", createCheckoutSession);
   app.post("/api/create-portal-session", createPortalSession);
+  app.get("/api/check-subscription-status", checkSubscriptionStatus);
   
   // mount payment routes in multi-salon namespace
   app.post("/api/salons/:salonId/create-checkout-session", createCheckoutSession);
   app.post("/api/salons/:salonId/create-portal-session", createPortalSession);
+  app.get("/api/salons/:salonId/check-subscription-status", checkSubscriptionStatus);
 
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));

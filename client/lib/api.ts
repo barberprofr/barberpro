@@ -485,6 +485,16 @@ export async function createCheckoutSession() {
   return res.json() as Promise<{ url?: string; id?: string }>;
 }
 
+// Check subscription status manually (useful after payment)
+export async function checkSubscriptionStatus() {
+  const res = await apiFetch("/api/check-subscription-status", { method: "GET" });
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(text || "Failed to check subscription status");
+  }
+  return res.json() as Promise<{ subscriptionStatus: string | null; subscriptionCurrentPeriodEnd: number | null; updated: boolean }>;
+}
+
 export function useAdminRecover() {
   return useMutation({
     mutationFn: async (email: string) => {
