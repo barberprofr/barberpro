@@ -33,11 +33,17 @@ export function createServer() {
   // We'll import the webhook handler and mount it below
   import("./routes/payment").then((mod) => {
     // Mount webhook route with raw body parser
-    app.post("/api/webhook", express.raw({ type: "application/json" }), (req, res) => {
+    const webhookMiddleware = express.raw({ type: "application/json" });
+    const webhookHandler = (req: any, res: any) => {
+      console.log('🎯 Webhook called at path:', req.path);
       // attach rawBody for handler convenience
-      (req as any).rawBody = req.body;
+      req.rawBody = req.body;
       return (mod.webhookHandler as any)(req, res, () => undefined);
-    });
+    };
+
+    // Mount webhook route for both paths
+    app.post("/api/webhook", webhookMiddleware, webhookHandler);
+    app.post("/.netlify/functions/api/webhook", webhookMiddleware, webhookHandler);
     // mount other payment routes
     app.post("/api/create-checkout-session", mod.createCheckoutSession);
     app.post("/api/create-portal-session", mod.createPortalSession);

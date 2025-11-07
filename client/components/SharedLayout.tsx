@@ -1,22 +1,83 @@
 import type { PropsWithChildren } from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Home, Users, Settings, Scissors, LogOut, HelpCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useConfig, createCheckoutSession } from "@/lib/api";
 import AuthGate from "./auth/AuthGate";
 import { setAdminToken } from "@/lib/admin";
 import { useQueryClient } from "@tanstack/react-query";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { AnimatePresence, motion } from "framer-motion";
 
 export default function SharedLayout({ children }: PropsWithChildren) {
   const location = useLocation();
+  const navigate = useNavigate();
   const current = location.pathname;
-  const { data: config } = useConfig();
+  const { data: config, refetch } = useConfig();
   const qc = useQueryClient();
   const locked = !config?.isAdmin;
   const [showSubPrompt, setShowSubPrompt] = useState(false);
+  const retryTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Handle checkout success/cancel from Stripe
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const checkoutStatus = params.get("checkout");
+    
+    if (checkoutStatus === "success") {
+      // Remove the checkout parameter from URL immediately
+      params.delete("checkout");
+      const newSearch = params.toString();
+      navigate(`${location.pathname}${newSearch ? `?${newSearch}` : ""}`, { replace: true });
+      
+      // Refresh config to get updated subscription status
+      // The webhook might take a few seconds, so we invalidate and refetch
+      qc.invalidateQueries({ queryKey: ["config"] });
+      refetch();
+      
+      // Retry a few times in case the webhook hasn't processed yet
+      let attempts = 0;
+      const maxAttempts = 5;
+      const retryDelay = 2000; // 2 seconds
+      
+      const checkSubscription = async () => {
+        attempts++;
+        const result = await refetch();
+        const updatedConfig = result.data;
+        
+        // If subscription is now active, stop retrying
+        if (updatedConfig?.subscriptionStatus === "active") {
+          if (retryTimeoutRef.current) {
+            clearTimeout(retryTimeoutRef.current);
+            retryTimeoutRef.current = null;
+          }
+          return;
+        }
+        
+        // If subscription is still not active and we haven't reached max attempts, retry
+        if (attempts < maxAttempts) {
+          retryTimeoutRef.current = setTimeout(checkSubscription, retryDelay);
+        }
+      };
+      
+      // Start checking after a short delay to give the webhook time
+      retryTimeoutRef.current = setTimeout(checkSubscription, 1000);
+    } else if (checkoutStatus === "cancel") {
+      // Just remove the cancel parameter
+      params.delete("checkout");
+      const newSearch = params.toString();
+      navigate(`${location.pathname}${newSearch ? `?${newSearch}` : ""}`, { replace: true });
+    }
+    
+    // Cleanup timeout on unmount
+    return () => {
+      if (retryTimeoutRef.current) {
+        clearTimeout(retryTimeoutRef.current);
+        retryTimeoutRef.current = null;
+      }
+    };
+  }, [location.search, location.pathname, navigate, refetch, qc]);
 
   useEffect(() => {
     // Show subscription prompt when user is admin but subscription not active

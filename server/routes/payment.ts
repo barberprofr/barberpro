@@ -98,12 +98,24 @@ export const webhookHandler: RequestHandler = async (req, res) => {
       const customerId = session.customer;
       const subscriptionId = session.subscription;
       const salonId = session.metadata?.salonId ?? "main";
+      
+      console.log('📦 Webhook: checkout.session.completed', {
+        customerId,
+        subscriptionId,
+        salonId,
+        session: JSON.stringify(session)
+      });
+
       const settings = await Settings.findOne({ salonId });
       if (settings) {
+        console.log('✅ Found settings for salonId:', salonId);
         settings.stripeCustomerId = customerId ?? settings.stripeCustomerId;
         settings.stripeSubscriptionId = subscriptionId ?? settings.stripeSubscriptionId;
         settings.subscriptionStatus = "active";
         await settings.save();
+        console.log('💾 Updated settings with subscription info');
+      } else {
+        console.error('❌ No settings found for salonId:', salonId);
       }
     }
 
