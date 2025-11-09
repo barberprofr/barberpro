@@ -11,8 +11,12 @@ import NotFound from "./pages/NotFound";
 import Clients from "./pages/Clients";
 import Settings from "./pages/Settings";
 import Login from "./pages/Login";
+import { registerServiceWorker } from "@/lib/pwa";
 
 const queryClient = new QueryClient();
+
+// Enregistrer le Service Worker pour la PWA
+registerServiceWorker();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
