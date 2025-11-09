@@ -9,6 +9,7 @@ import { Loader2, Scissors } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { normalizeSalonId, setSelectedSalon, addKnownSalon } from "@/lib/salon";
 import { useToast } from "@/hooks/use-toast";
+import { useQueryClient } from "@tanstack/react-query";
 
 type AuthMode = "login" | "signup" | "recover-ask" | "recover-verify";
 
@@ -286,6 +287,7 @@ function Signup({ onSwitchLogin }: { onSwitchLogin: () => void }) {
 function Login({ onSwitchSignup, onRecover }: { onSwitchSignup: () => void; onRecover: () => void }) {
   const login = useAdminLogin();
   const navigate = useNavigate();
+  const qc = useQueryClient();
   const [email, setEmail] = useState("");
   const [pwd, setPwd] = useState("");
   const [loginError, setLoginError] = useState("");
@@ -310,12 +312,21 @@ function Login({ onSwitchSignup, onRecover }: { onSwitchSignup: () => void; onRe
           onClick={()=> can && login.mutate(
             { email, password: pwd },
             {
-              onSuccess: (data: any) => {
+              onSuccess: async (data: any) => {
                 if (data?.salonId) {
                   addKnownSalon(data.salonId);
                   setSelectedSalon(data.salonId);
                 }
-                navigate("/app");
+                // Attendre que la query config soit refetchée et mise à jour avant de naviguer
+                // Cela évite le problème de double clic où config?.isAdmin n'est pas encore mis à jour
+                try {
+                  await qc.refetchQueries({ queryKey: ["config"], type: "active" });
+                  navigate("/app");
+                } catch (error) {
+                  // En cas d'erreur, naviguer quand même après un court délai
+                  console.error("Error refetching config:", error);
+                  setTimeout(() => navigate("/app"), 500);
+                }
               },
               onError: async (err: any) => {
                 try {
