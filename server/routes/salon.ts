@@ -1819,9 +1819,11 @@ export const exportSummaryPDF: RequestHandler = async (req, res) => {
     drawSection("Aujourd'hui", all.daily);
     drawSection("Ce mois-ci", all.monthly);
     const bytes = await pdf.save();
+    const buffer = Buffer.from(bytes);
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader("Content-Disposition", "attachment; filename=rapport-ca.pdf");
-    res.send(Buffer.from(bytes));
+    res.setHeader("Content-Length", buffer.length);
+    res.end(buffer);
   } catch (error) {
     console.error('Error exporting summary PDF:', error);
     res.status(500).json({ error: "Erreur serveur" });
@@ -1893,9 +1895,11 @@ export const exportStylistPDF: RequestHandler = async (req, res) => {
     drawSection("Aujourd'hui", data.daily);
     drawSection("Ce mois-ci", data.monthly);
     const bytes = await pdf.save();
+    const buffer = Buffer.from(bytes);
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader("Content-Disposition", `attachment; filename=rapport-coiffeur-${s.name.replace(/[^a-z0-9-]+/gi,'_')}.pdf`);
-    res.send(Buffer.from(bytes));
+    res.setHeader("Content-Length", buffer.length);
+    res.end(buffer);
   } catch (error) {
     console.error('Error exporting stylist PDF:', error);
     res.status(500).json({ error: "Erreur serveur" });
@@ -2199,9 +2203,11 @@ export const exportByDayPDF: RequestHandler = async (req, res) => {
       drawRow([iso, String(v.count), v.amount.toFixed(2)]);
     }
     const bytes = await pdf.save();
+    const buffer = Buffer.from(bytes);
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader("Content-Disposition", `attachment; filename=rapport-mensuel-${year}-${String(monthIdx+1).padStart(2,'0')}.pdf`);
-    res.send(Buffer.from(bytes));
+    res.setHeader("Content-Length", buffer.length);
+    res.end(buffer);
   } catch (error) {
     console.error('Error exporting by day PDF:', error);
     res.status(500).json({ error: "Erreur serveur" });
@@ -2297,9 +2303,11 @@ export const exportByMonthPDF: RequestHandler = async (req, res) => {
       drawRow([label, String(v.count), v.amount.toFixed(2)]);
     }
     const bytes = await pdf.save();
+    const buffer = Buffer.from(bytes);
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader("Content-Disposition", `attachment; filename=rapport-annuel-${year}.pdf`);
-    res.send(Buffer.from(bytes));
+    res.setHeader("Content-Length", buffer.length);
+    res.end(buffer);
   } catch (error) {
     console.error('Error exporting by month PDF:', error);
     res.status(500).json({ error: "Erreur serveur" });
