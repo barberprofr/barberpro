@@ -8,6 +8,7 @@ import { useAdminLogin, useAdminRecover, useAdminRecoverVerify, useAdminSetupAcc
 import { Loader2, Scissors } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { normalizeSalonId, setSelectedSalon, addKnownSalon } from "@/lib/salon";
+import { useToast } from "@/hooks/use-toast";
 
 type AuthMode = "login" | "signup" | "recover-ask" | "recover-verify";
 
@@ -35,7 +36,7 @@ export default function AuthGate() {
 
 function Signup({ onSwitchLogin }: { onSwitchLogin: () => void }) {
   const setup = useAdminSetupAccount();
-  const navigate = useNavigate();
+  const { toast } = useToast();
   const [email, setEmail] = useState("");
   const [emailConfirm, setEmailConfirm] = useState("");
   const [pwd, setPwdVal] = useState("");
@@ -221,7 +222,11 @@ function Signup({ onSwitchLogin }: { onSwitchLogin: () => void }) {
             disabled={!can || setup.isPending}
             onClick={()=> {
               if (!can) return;
-              const newSalonId = normalizeSalonId(salonName.trim());
+              // Générer un salonId unique en combinant le nom normalisé avec un identifiant unique
+              // Cela permet à plusieurs salons d'avoir le même nom
+              const normalizedName = normalizeSalonId(salonName.trim());
+              const uniqueId = Math.random().toString(36).slice(2, 8); // 6 caractères aléatoires
+              const newSalonId = `${normalizedName}-${uniqueId}`;
               setup.mutate(
                 {
                   salonId: newSalonId,
@@ -237,7 +242,14 @@ function Signup({ onSwitchLogin }: { onSwitchLogin: () => void }) {
                   onSuccess: () => {
                     addKnownSalon(newSalonId);
                     setSelectedSalon(newSalonId);
-                    navigate("/app");
+                    toast({
+                      title: "Compte créé avec succès",
+                      description: "Votre compte a été créé. Vous pouvez maintenant vous connecter.",
+                    });
+                    // Basculer vers le formulaire de login après un court délai pour que l'utilisateur voie le toast
+                    setTimeout(() => {
+                      onSwitchLogin();
+                    }, 1500);
                   },
                   onError: async (err: any) => {
                     try {

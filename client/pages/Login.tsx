@@ -5,7 +5,13 @@ import { useConfig } from "@/lib/api";
 export default function Login() {
   const { data: config, isLoading } = useConfig();
   const isAdmin = !!config?.isAdmin;
-  const hasActiveSubscription = config?.subscriptionStatus === "active";
+  // Helper function to check if subscription is valid
+  const isSubscriptionValid = (status: string | null | undefined): boolean => {
+    if (!status) return false;
+    const validStatuses = ["active", "trialing", "paid"];
+    return validStatuses.includes(status.toLowerCase());
+  };
+  const hasActiveSubscription = isSubscriptionValid(config?.subscriptionStatus);
 
   if (isLoading) {
     return <SharedLayout />;

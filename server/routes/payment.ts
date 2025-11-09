@@ -4,6 +4,15 @@ import { Settings } from "./models";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", { apiVersion: "2022-11-15" });
 
+// Helper function to check if a subscription status is valid (paid and active)
+function isSubscriptionActive(status: string | null | undefined): boolean {
+  if (!status) return false;
+  // Stripe subscription statuses: active, trialing are valid
+  // We also accept "paid" as a valid status (in case of custom handling)
+  const validStatuses = ["active", "trialing", "paid"];
+  return validStatuses.includes(status.toLowerCase());
+}
+
 // Create a Checkout Session for subscriptions
 export const createCheckoutSession: RequestHandler = async (req, res) => {
   try {
@@ -69,8 +78,8 @@ export const checkSubscriptionStatus: RequestHandler = async (req, res) => {
       if (storedId.startsWith("in_")) {
         try {
           console.log("Detected invoice ID, retrieving invoice to get subscription ID");
-          const invoice = await stripe.invoices.retrieve(storedId);
-          subscriptionId = invoice.subscription as string | null;
+          const invoice = await stripe.invoices.retrieve(storedId) as any;
+          subscriptionId = (typeof invoice.subscription === 'string' ? invoice.subscription : invoice.subscription?.id) || null;
           
           if (subscriptionId) {
             console.log("Found subscription ID from invoice:", subscriptionId);
@@ -93,7 +102,7 @@ export const checkSubscriptionStatus: RequestHandler = async (req, res) => {
       try {
         subscription = await stripe.subscriptions.retrieve(subscriptionId);
         const status = subscription.status;
-        const currentPeriodEnd = subscription.current_period_end ? Number(subscription.current_period_end) * 1000 : null;
+        const currentPeriodEnd = (subscription as any).current_period_end ? Number((subscription as any).current_period_end) * 1000 : null;
 
         settings.stripeSubscriptionId = subscription.id;
         settings.subscriptionStatus = status;
@@ -135,7 +144,7 @@ export const checkSubscriptionStatus: RequestHandler = async (req, res) => {
 
         if (subscription) {
           const status = subscription.status;
-          const currentPeriodEnd = subscription.current_period_end ? Number(subscription.current_period_end) * 1000 : null;
+          const currentPeriodEnd = (subscription as any).current_period_end ? Number((subscription as any).current_period_end) * 1000 : null;
 
           settings.stripeSubscriptionId = subscription.id;
           settings.subscriptionStatus = status;
@@ -290,22 +299,101 @@ export const webhookHandler: RequestHandler = async (req, res) => {
       }
     }
 
-    if (type === "invoice.payment_succeeded" || type === "customer.subscription.updated") {
-      const sub = data;
-      const subscriptionId = sub.id || sub.subscription?.id;
-      const customerId = sub.customer;
-      const status = sub.status ?? (data?.status);
-      const currentPeriodEnd = (sub.current_period_end ? Number(sub.current_period_end) * 1000 : (sub.currentPeriodEnd ? Number(sub.currentPeriodEnd) : null));
+    if (type === "invoice.payment_succeeded") {
+      const invoice = data as any;
+      const subscriptionId = typeof invoice.subscription === 'string' ? invoice.subscription : invoice.subscription?.id;
+      const customerId = typeof invoice.customer === 'string' ? invoice.customer : invoice.customer?.id;
+      
+      console.log('💰 Webhook: invoice.payment_succeeded', {
+        invoiceId: invoice.id,
+        subscriptionId,
+        customerId
+      });
+
+      // Try to locate settings by stripeCustomerId or by subscription metadata
+      let settings = null;
+      if (customerId) {
+        settings = await Settings.findOne({ stripeCustomerId: customerId });
+      }
+      
+      // If we have a subscription ID, retrieve it to get the actual status
+      if (settings && subscriptionId) {
+        try {
+          const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+          const status = subscription.status;
+          const currentPeriodEnd = (subscription as any).current_period_end ? Number((subscription as any).current_period_end) * 1000 : null;
+
+          settings.stripeSubscriptionId = subscription.id;
+          settings.subscriptionStatus = status; // Should be "active" after successful payment
+          if (currentPeriodEnd) settings.subscriptionCurrentPeriodEnd = currentPeriodEnd;
+          await settings.save();
+          
+          console.log('✅ Updated subscription after invoice payment:', {
+            subscriptionId: subscription.id,
+            status,
+            currentPeriodEnd
+          });
+        } catch (err: any) {
+          console.error('Error retrieving subscription in invoice.payment_succeeded:', err?.message || err);
+          // Fallback: set status to active if we can't retrieve subscription
+          settings.subscriptionStatus = "active";
+          await settings.save();
+        }
+      } else if (settings) {
+        // If we have settings but no subscription ID, try to find it
+        console.log('⚠️ Invoice payment succeeded but no subscription ID found, searching by customer');
+        try {
+          const subscriptions = await stripe.subscriptions.list({
+            customer: customerId as string,
+            limit: 1,
+            status: "active"
+          });
+          
+          if (subscriptions.data.length > 0) {
+            const subscription = subscriptions.data[0];
+            const currentPeriodEnd = (subscription as any).current_period_end ? Number((subscription as any).current_period_end) * 1000 : null;
+            settings.stripeSubscriptionId = subscription.id;
+            settings.subscriptionStatus = subscription.status;
+            if (currentPeriodEnd) settings.subscriptionCurrentPeriodEnd = currentPeriodEnd;
+            await settings.save();
+          }
+        } catch (err: any) {
+          console.error('Error finding subscription:', err?.message || err);
+        }
+      }
+    }
+
+    if (type === "customer.subscription.updated") {
+      const sub = data as any;
+      const subscriptionId = sub.id;
+      const customerId = typeof sub.customer === 'string' ? sub.customer : sub.customer?.id;
+      const status = sub.status;
+      const currentPeriodEnd = sub.current_period_end ? Number(sub.current_period_end) * 1000 : null;
+
+      console.log('🔄 Webhook: customer.subscription.updated', {
+        subscriptionId,
+        customerId,
+        status
+      });
 
       // Try to locate settings by stripeCustomerId or by metadata
       let settings = null;
       if (customerId) settings = await Settings.findOne({ stripeCustomerId: customerId });
-      if (!settings && sub.metadata && sub.metadata.salonId) settings = await Settings.findOne({ salonId: sub.metadata.salonId });
+      if (!settings && sub.metadata && sub.metadata.salonId) {
+        settings = await Settings.findOne({ salonId: sub.metadata.salonId });
+      }
+      
       if (settings) {
         settings.stripeSubscriptionId = subscriptionId ?? settings.stripeSubscriptionId;
         settings.subscriptionStatus = status ?? settings.subscriptionStatus;
         if (currentPeriodEnd) settings.subscriptionCurrentPeriodEnd = currentPeriodEnd;
         await settings.save();
+        
+        console.log('✅ Updated subscription status:', {
+          subscriptionId,
+          status,
+          currentPeriodEnd
+        });
       }
     }
 

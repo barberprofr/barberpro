@@ -16,9 +16,18 @@ export default function SharedLayout({ children }: PropsWithChildren) {
   const current = location.pathname;
   const { data: config, refetch } = useConfig();
   const qc = useQueryClient();
-  // Lock access if not admin OR if admin but subscription not active
-  const locked = !config?.isAdmin || (config?.isAdmin && config?.subscriptionStatus !== "active");
-  const hasActiveSubscription = config?.isAdmin && config?.subscriptionStatus === "active";
+  
+  // Helper function to check if subscription is valid
+  // Accepts "active", "trialing", and "paid" as valid statuses
+  const isSubscriptionValid = (status: string | null | undefined): boolean => {
+    if (!status) return false;
+    const validStatuses = ["active", "trialing", "paid"];
+    return validStatuses.includes(status.toLowerCase());
+  };
+
+  // Lock access if not admin OR if admin but subscription not valid
+  const locked = !config?.isAdmin || (config?.isAdmin && !isSubscriptionValid(config?.subscriptionStatus));
+  const hasActiveSubscription = config?.isAdmin && isSubscriptionValid(config?.subscriptionStatus);
   const [showSubPrompt, setShowSubPrompt] = useState(false);
   const retryTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -67,8 +76,10 @@ export default function SharedLayout({ children }: PropsWithChildren) {
         const result = await refetch();
         const updatedConfig = result.data;
         
-        // If subscription is now active, stop retrying
-        if (updatedConfig?.subscriptionStatus === "active") {
+        // If subscription is now valid, stop retrying
+        const isValid = updatedConfig?.subscriptionStatus ? 
+          ["active", "trialing", "paid"].includes(updatedConfig.subscriptionStatus.toLowerCase()) : false;
+        if (isValid) {
           if (retryTimeoutRef.current) {
             clearTimeout(retryTimeoutRef.current);
             retryTimeoutRef.current = null;
@@ -101,9 +112,9 @@ export default function SharedLayout({ children }: PropsWithChildren) {
   }, [location.search, location.pathname, navigate, refetch, qc]);
 
   useEffect(() => {
-    // Show subscription prompt when user is admin but subscription not active
+    // Show subscription prompt when user is admin but subscription not valid
     // The popup must stay visible until payment is completed
-    if (config?.isAdmin && config?.subscriptionStatus !== "active") {
+    if (config?.isAdmin && !isSubscriptionValid(config?.subscriptionStatus)) {
       setShowSubPrompt(true);
     } else if (hasActiveSubscription) {
       setShowSubPrompt(false);
