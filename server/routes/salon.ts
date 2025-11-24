@@ -16,6 +16,11 @@ import { connectDatabase } from "../db.ts";
 // Email -> SalonId mapping pour la récupération de compte
 const emailToSalonId = new Map<string, string>();
 
+// ⭐️ RÉINTÉGRATION : Système de période d'essai
+const parsedTrialDays = Number(process.env.SUBSCRIPTION_TRIAL_DAYS ?? "1");
+const TRIAL_DURATION_DAYS = Number.isFinite(parsedTrialDays) ? Math.max(0, parsedTrialDays) : 1;
+const TRIAL_DURATION_MS = TRIAL_DURATION_DAYS * 24 * 60 * 60 * 1000;
+
 // Parser manuel pour Netlify Functions - CORRIGÉ
 async function parseRequestBody(req: any): Promise<any> {
   return new Promise((resolve, reject) => {
@@ -111,12 +116,12 @@ async function getSettings(salonId: string): Promise<ISettings> {
     });
     await settings.save();
   }
-  
+
   if (settings.pointsRedeemDefault === 100) {
     settings.pointsRedeemDefault = 10;
     await settings.save();
   }
-  
+
   return settings;
 }
 
@@ -213,7 +218,7 @@ function splitNameParts(fullName: string | null | undefined) {
 async function aggregateForStylist(stylistId: string, salonId: string) {
   const now = Date.now();
   const todayStart = startOfDayParis(now);
-  
+
   const [prestations, products, redemptions] = await Promise.all([
     Prestation.find({ salonId, stylistId }),
     Product.find({ salonId, stylistId }),
@@ -293,10 +298,40 @@ function makeScope() {
   };
 }
 
+async function getOrCreateAnonymousClient(salonId: string): Promise<IClient> {
+  const anonymousId = `anonymous_${salonId}`;
+
+  // Check if client exists first
+  const existingClient = await Client.findOne({ id: anonymousId, salonId });
+  if (existingClient) {
+    return existingClient;
+  }
+
+  try {
+    const client = await Client.create({
+      id: anonymousId,
+      name: "Client Anonyme",
+      points: 0,
+      email: null,
+      phone: null,
+      lastVisitAt: null,
+      salonId,
+    });
+    return client;
+  } catch (error: any) {
+    // Handle race condition where another request created the client concurrently
+    if (error.code === 11000) {
+      const client = await Client.findOne({ id: anonymousId, salonId });
+      if (client) return client;
+    }
+    throw error;
+  }
+}
+
 async function aggregateByPayment(salonId: string, stylistId: string, refNowMs: number = Date.now()) {
   const now = refNowMs;
   const todayStart = startOfDayParis(now);
-  
+
   const [prestations, products] = await Promise.all([
     Prestation.find({ salonId, stylistId }),
     Product.find({ salonId, stylistId })
@@ -306,8 +341,8 @@ async function aggregateByPayment(salonId: string, stylistId: string, refNowMs: 
   const monthly = makeScope();
   const prestationDaily = makeScope();
   const prestationMonthly = makeScope();
-  const dailyEntries: { amount: number; paymentMethod: PaymentMethod; timestamp: number; kind: "prestation" | "produit" }[] = [];
-  
+  const dailyEntries: { amount: number; paymentMethod: PaymentMethod; timestamp: number; kind: "prestation" | "produit"; name?: string }[] = [];
+
   for (const p of prestations) {
     const inc = (scope: ReturnType<typeof makeScope>) => {
       scope.total.amount += p.amount;
@@ -315,11 +350,17 @@ async function aggregateByPayment(salonId: string, stylistId: string, refNowMs: 
       scope.methods[p.paymentMethod].amount += p.amount;
       scope.methods[p.paymentMethod].count += 1;
     };
-    
+
     if (startOfDayParis(p.timestamp) === todayStart) {
       inc(daily);
       inc(prestationDaily);
-      dailyEntries.push({ amount: p.amount, paymentMethod: p.paymentMethod, timestamp: p.timestamp, kind: "prestation" });
+      dailyEntries.push({
+        amount: p.amount,
+        paymentMethod: p.paymentMethod,
+        timestamp: p.timestamp,
+        kind: "prestation",
+        name: p.serviceName
+      });
     }
     if (isSameMonthParis(p.timestamp, now)) {
       inc(monthly);
@@ -332,19 +373,25 @@ async function aggregateByPayment(salonId: string, stylistId: string, refNowMs: 
       scope.total.amount += prod.amount;
       scope.methods[prod.paymentMethod].amount += prod.amount;
     };
-    
+
     if (startOfDayParis(prod.timestamp) === todayStart) {
       incAmount(daily);
-      dailyEntries.push({ amount: prod.amount, paymentMethod: prod.paymentMethod, timestamp: prod.timestamp, kind: "produit" });
+      dailyEntries.push({
+        amount: prod.amount,
+        paymentMethod: prod.paymentMethod,
+        timestamp: prod.timestamp,
+        kind: "produit",
+        name: prod.productName
+      });
     }
     if (isSameMonthParis(prod.timestamp, now)) incAmount(monthly);
   }
 
-  dailyEntries.sort((a,b) => b.timestamp - a.timestamp);
+  dailyEntries.sort((a, b) => b.timestamp - a.timestamp);
 
   let dailyProductCount = 0;
   let monthlyProductCount = 0;
-  
+
   for (const prod of products) {
     if (startOfDayParis(prod.timestamp) === todayStart) {
       dailyProductCount++;
@@ -360,7 +407,7 @@ async function aggregateByPayment(salonId: string, stylistId: string, refNowMs: 
 async function aggregateAllPayments(salonId: string) {
   const now = Date.now();
   const todayStart = startOfDayParis(now);
-  
+
   const [prestations, products] = await Promise.all([
     Prestation.find({ salonId }),
     Product.find({ salonId })
@@ -376,7 +423,7 @@ async function aggregateAllPayments(salonId: string) {
       scope.methods[p.paymentMethod].amount += p.amount;
       scope.methods[p.paymentMethod].count += 1;
     };
-    
+
     if (startOfDayParis(p.timestamp) === todayStart) inc(daily);
     if (isSameMonthParis(p.timestamp, now)) inc(monthly);
   }
@@ -386,7 +433,7 @@ async function aggregateAllPayments(salonId: string) {
       scope.total.amount += prod.amount;
       scope.methods[prod.paymentMethod].amount += prod.amount;
     };
-    
+
     if (startOfDayParis(prod.timestamp) === todayStart) incAmount(daily);
     if (isSameMonthParis(prod.timestamp, now)) incAmount(monthly);
   }
@@ -443,11 +490,11 @@ async function collectPointsUsage(salonId: string, options: { dayRef: number; mo
   for (const usage of redemptions) {
     const stylist = stylistMap.get(usage.stylistId);
     if (!stylist) continue;
-    
+
     const client = clientMap.get(usage.clientId) || null;
     const clientName = client?.name?.trim() || "Client inconnu";
     const { firstName, lastName } = splitNameParts(client?.name ?? "");
-    
+
     const entry: PointsUsageEntry = {
       id: usage.id,
       clientId: usage.clientId,
@@ -489,14 +536,14 @@ export const listStylists: RequestHandler = async (req, res) => {
   try {
     const salonId = getSalonId(req);
     const stylists = await Stylist.find({ salonId });
-    
+
     const stylistsWithStats = await Promise.all(
       stylists.map(async (s) => ({
         ...s.toObject(),
         stats: await aggregateForStylist(s.id, salonId)
       }))
     );
-    
+
     res.json({ stylists: stylistsWithStats });
   } catch (error) {
     console.error('Error listing stylists:', error);
@@ -509,7 +556,42 @@ export const getConfig: RequestHandler = async (req, res) => {
     const salonId = getSalonId(req);
     const settings = await getSettings(salonId);
     const admin = await isAdmin(req);
-    
+    const now = Date.now();
+    let mutated = false;
+
+    // ⭐️ RÉINTÉGRATION : Logique de gestion du trial
+    if (TRIAL_DURATION_MS > 0) {
+      const hasStripeSubscription = Boolean(settings.stripeSubscriptionId && settings.stripeSubscriptionId.startsWith("sub_"));
+      const trialEndsAt = typeof settings.trialEndsAt === "number" ? settings.trialEndsAt : null;
+      const trialActive = Boolean(trialEndsAt && trialEndsAt > now);
+
+      if (!hasStripeSubscription && trialActive) {
+        if (settings.subscriptionStatus !== "trialing") {
+          settings.subscriptionStatus = "trialing";
+          mutated = true;
+        }
+        if (settings.subscriptionCurrentPeriodEnd !== trialEndsAt) {
+          settings.subscriptionCurrentPeriodEnd = trialEndsAt;
+          mutated = true;
+        }
+      }
+
+      if (!hasStripeSubscription && !trialActive && trialEndsAt) {
+        if (settings.subscriptionStatus === "trialing" || !settings.subscriptionStatus) {
+          settings.subscriptionStatus = "trial_expired";
+          mutated = true;
+        }
+        if (settings.subscriptionCurrentPeriodEnd !== trialEndsAt) {
+          settings.subscriptionCurrentPeriodEnd = trialEndsAt;
+          mutated = true;
+        }
+      }
+    }
+
+    if (mutated) {
+      await settings.save();
+    }
+
     res.json({
       loyaltyPercentDefault: settings.loyaltyPercentDefault,
       paymentModes: settings.paymentModes,
@@ -529,6 +611,9 @@ export const getConfig: RequestHandler = async (req, res) => {
       stripeSubscriptionId: settings.stripeSubscriptionId ?? null,
       subscriptionStatus: settings.subscriptionStatus ?? null,
       subscriptionCurrentPeriodEnd: settings.subscriptionCurrentPeriodEnd ?? null,
+      // ⭐️ RÉINTÉGRATION : Champs de trial
+      trialStartedAt: settings.trialStartedAt ?? null,
+      trialEndsAt: settings.trialEndsAt ?? null,
     });
   } catch (error) {
     console.error('Error getting config:', error);
@@ -550,7 +635,7 @@ export const setupAdminAccount: RequestHandler = async (req, res) => {
       salonCity?: string;
       salonPhone?: string;
     };
-    
+
     const loginPassword = (password ?? "").toString().trim();
     const code = (adminCode ?? "").toString().trim();
     const emailValue = (email ?? "").toString().trim().toLowerCase();
@@ -584,7 +669,7 @@ export const setupAdminAccount: RequestHandler = async (req, res) => {
       return res.status(400).json({ error: "ce salon a déjà un compte configuré" });
     }
 
-    const updates = {
+    const updates: any = {
       loginPasswordHash: sha256(loginPassword),
       adminCodeHash: code ? sha256(code) : null,
       adminEmail: emailValue,
@@ -595,6 +680,19 @@ export const setupAdminAccount: RequestHandler = async (req, res) => {
       salonPhone: phone,
       adminToken: makeToken(),
     };
+
+    // ⭐️ RÉINTÉGRATION : Initialisation du trial
+    if (TRIAL_DURATION_MS > 0) {
+      const now = Date.now();
+      const trialEndsAt = now + TRIAL_DURATION_MS;
+      updates.trialStartedAt = now;
+      updates.trialEndsAt = trialEndsAt;
+      updates.subscriptionStatus = "trialing";
+      updates.subscriptionCurrentPeriodEnd = trialEndsAt;
+    } else {
+      updates.trialStartedAt = null;
+      updates.trialEndsAt = null;
+    }
 
     const settings = await Settings.findOneAndUpdate(
       { salonId },
@@ -685,23 +783,23 @@ export const setAdminPassword: RequestHandler = async (req, res) => {
       currentPassword?: string;
       email?: string;
     };
-    
+
     if (!settings.loginPasswordHash) {
       return res.status(400).json({ error: "Compte non configuré" });
     }
-    
+
     const newCode = (password ?? "").toString().trim();
     const currentCode = (currentPassword ?? "").toString().trim();
     const nextEmail = (email ?? "").toString().trim().toLowerCase();
-    
+
     if (!newCode || newCode.length < 4) {
       return res.status(400).json({ error: "Le code admin doit contenir au moins 4 caractères" });
     }
-    
+
     if (newCode.toLowerCase() === "admin") {
       return res.status(400).json({ error: "Le code admin ne peut pas être 'admin'" });
     }
-    
+
     // Vérifier le mot de passe actuel (loginPasswordHash)
     if (settings.adminCodeHash) {
       if (!currentCode) {
@@ -711,28 +809,28 @@ export const setAdminPassword: RequestHandler = async (req, res) => {
         return res.status(401).json({ error: "Code actuel incorrect" });
       }
     }
-    
+
     if (!settings.adminEmail && !nextEmail) {
       return res.status(400).json({ error: "Email requis" });
     }
-    
+
     if (nextEmail) {
       if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(nextEmail)) {
         return res.status(400).json({ error: "Adresse email valide requise" });
       }
       settings.adminEmail = nextEmail;
     }
-    
+
     // Mettre à jour adminCodeHash (code admin) et loginPasswordHash (mot de passe connexion)
     settings.adminCodeHash = sha256(newCode);
     // Si vous voulez aussi changer le mot de passe de connexion :
     // settings.loginPasswordHash = sha256(newCode); 
-    
+
     settings.adminToken = makeToken();
     await settings.save();
-    
+
     res.json({ token: settings.adminToken, salonId });
-    
+
   } catch (error) {
     console.error('Error setting admin password:', error);
     res.status(500).json({ error: "Erreur serveur" });
@@ -758,13 +856,13 @@ export const recoverAdminPassword: RequestHandler = async (req, res) => {
     const body = await parseRequestBody(req);
     const { email } = body as { email?: string };
     const e = (email ?? "").toString().trim().toLowerCase();
-    
+
     if (!e || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e)) {
       return res.status(400).json({ error: "Adresse email valide requise" });
     }
 
     console.log(`🔍 Recherche de compte pour email: ${e}`);
-    
+
     // Rechercher dans tous les salons l'email correspondant
     let foundSalonId: string | null = null;
     let foundSettings: ISettings | null = null;
@@ -783,15 +881,15 @@ export const recoverAdminPassword: RequestHandler = async (req, res) => {
     // 2. Si pas trouvé dans cache, chercher dans la base de données
     if (!foundSalonId) {
       console.log(`🔍 Recherche en base de données pour: ${e}`);
-      const settings = await Settings.findOne({ 
-        adminEmail: { $regex: new RegExp(`^${e}$`, 'i') } 
+      const settings = await Settings.findOne({
+        adminEmail: { $regex: new RegExp(`^${e}$`, 'i') }
       });
-      
+
       if (settings) {
         foundSalonId = settings.salonId;
         foundSettings = settings;
         console.log(`✅ Trouvé en base: ${foundSalonId}`);
-        
+
         // Mettre à jour le cache pour la prochaine fois
         emailToSalonId.set(e, foundSalonId);
       }
@@ -807,39 +905,39 @@ export const recoverAdminPassword: RequestHandler = async (req, res) => {
       console.log(`❌ Aucun email admin configuré pour: ${foundSalonId}`);
       return res.status(400).json({ error: "Aucun email de récupération configuré" });
     }
-    
+
     // Vérifier la correspondance exacte de l'email (case insensitive)
     if (foundSettings.adminEmail.toLowerCase() !== e) {
       console.log(`❌ Email non reconnu: ${e} vs ${foundSettings.adminEmail}`);
       return res.status(401).json({ error: "Email non reconnu" });
     }
-    
+
     // Générer un code à 6 chiffres
     const code = String(Math.floor(100000 + Math.random() * 900000));
-    
+
     // Sauvegarder le code et la date d'expiration
     foundSettings.resetCode = code;
     foundSettings.resetExpiresAt = Date.now() + 10 * 60 * 1000; // 10 minutes
     await foundSettings.save();
-    
+
     // Envoyer l'email avec SendGrid
     const salonName = foundSettings.salonName || 'Votre Salon';
     const emailed = await EmailService.sendPasswordResetCode(e, code, salonName);
-    
+
     if (emailed) {
       console.log(`✅ Code de récupération envoyé à: ${e} (salon: ${foundSalonId})`);
-      return res.json({ 
-        ok: true, 
+      return res.json({
+        ok: true,
         message: "Code de récupération envoyé par email",
-        emailed: true 
+        emailed: true
       });
     } else {
       console.error(`❌ Échec envoi email à: ${e}`);
-      return res.status(500).json({ 
-        error: "Erreur lors de l'envoi de l'email. Veuillez réessayer." 
+      return res.status(500).json({
+        error: "Erreur lors de l'envoi de l'email. Veuillez réessayer."
       });
     }
-    
+
   } catch (error) {
     console.error('Error recovering admin password:', error);
     res.status(500).json({ error: "Erreur serveur" });
@@ -853,15 +951,15 @@ export const recoverAdminVerify: RequestHandler = async (req, res) => {
     const e = (email ?? "").toString().trim().toLowerCase();
     const c = (code ?? "").toString().trim();
     const pwd = (newPassword ?? "").toString().trim();
-    
+
     if (!e || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e)) {
       return res.status(400).json({ error: "Adresse email valide requise" });
     }
-    
+
     if (!pwd || pwd.length < 4) {
       return res.status(400).json({ error: "Le mot de passe doit contenir au moins 4 caractères" });
     }
-    
+
     if (pwd.toLowerCase() === "admin") {
       return res.status(400).json({ error: "Le mot de passe ne peut pas être 'admin'" });
     }
@@ -872,39 +970,39 @@ export const recoverAdminVerify: RequestHandler = async (req, res) => {
     }
 
     const settings = await getSettings(salonId);
-    
+
     if (!settings.adminEmail) {
       return res.status(400).json({ error: "Aucun email de récupération configuré" });
     }
-    
+
     if (settings.adminEmail.toLowerCase() !== e) {
       return res.status(401).json({ error: "Email non reconnu" });
     }
-    
+
     if (!settings.resetCode || !settings.resetExpiresAt || Date.now() > settings.resetExpiresAt) {
       return res.status(400).json({ error: "Code expiré ou invalide" });
     }
-    
+
     if (settings.resetCode !== c) {
       return res.status(401).json({ error: "Code incorrect" });
     }
-    
+
     // ⭐️ CORRECTION ICI : Mettre à jour loginPasswordHash au lieu de adminCodeHash
     settings.loginPasswordHash = sha256(pwd); // Mot de passe de connexion
     settings.resetCode = null;
     settings.resetExpiresAt = 0;
     settings.adminToken = makeToken();
-    
+
     await settings.save();
-    
+
     console.log(`✅ Mot de passe réinitialisé pour: ${e}`);
-    
-    return res.json({ 
-      token: settings.adminToken, 
+
+    return res.json({
+      token: settings.adminToken,
       salonId,
-      message: "Mot de passe réinitialisé avec succès" 
+      message: "Mot de passe réinitialisé avec succès"
     });
-    
+
   } catch (error) {
     console.error('Error in recover admin verify:', error);
     res.status(500).json({ error: "Erreur serveur lors de la réinitialisation" });
@@ -916,13 +1014,13 @@ export const recoverAdminCode: RequestHandler = async (req, res) => {
     const body = await parseRequestBody(req);
     const { email } = body as { email?: string };
     const e = (email ?? "").toString().trim().toLowerCase();
-    
+
     if (!e || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e)) {
       return res.status(400).json({ error: "Adresse email valide requise" });
     }
 
     console.log(`🔍 Recherche de compte pour récupération code admin: ${e}`);
-    
+
     // RECHERCHE ROBUSTE EN BASE DE DONNÉES
     let foundSalonId: string | null = null;
     let foundSettings: ISettings | null = null;
@@ -930,7 +1028,7 @@ export const recoverAdminCode: RequestHandler = async (req, res) => {
     // 1. Recherche dans tous les salons
     const allSettings = await Settings.find({});
     console.log(`📊 Recherche parmi ${allSettings.length} salons`);
-    
+
     for (const setting of allSettings) {
       if (setting.adminEmail && setting.adminEmail.toLowerCase() === e) {
         foundSalonId = setting.salonId;
@@ -943,10 +1041,10 @@ export const recoverAdminCode: RequestHandler = async (req, res) => {
 
     // 2. Recherche alternative
     if (!foundSalonId) {
-      const settings = await Settings.findOne({ 
-        adminEmail: { $regex: new RegExp(`^${e}$`, 'i') } 
+      const settings = await Settings.findOne({
+        adminEmail: { $regex: new RegExp(`^${e}$`, 'i') }
       });
-      
+
       if (settings) {
         foundSalonId = settings.salonId;
         foundSettings = settings;
@@ -968,37 +1066,37 @@ export const recoverAdminCode: RequestHandler = async (req, res) => {
     if (!foundSettings.adminEmail) {
       return res.status(400).json({ error: "Aucun email de récupération configuré" });
     }
-    
+
     // Vérification exacte de l'email
     if (foundSettings.adminEmail.toLowerCase() !== e) {
       console.log(`❌ Email mismatch: ${e} vs ${foundSettings.adminEmail}`);
       return res.status(401).json({ error: "Email non reconnu" });
     }
-    
+
     // Génération et envoi du code
     const code = String(Math.floor(100000 + Math.random() * 900000));
-    
+
     foundSettings.resetCode = code;
     foundSettings.resetExpiresAt = Date.now() + 10 * 60 * 1000;
     await foundSettings.save();
-    
+
     const salonName = foundSettings.salonName || 'Votre Salon';
     const emailed = await EmailService.sendAdminCodeRecovery(e, code, salonName);
-    
+
     if (emailed) {
       console.log(`✅ Code admin de récupération envoyé à: ${e} (salon: ${foundSalonId})`);
-      return res.json({ 
-        ok: true, 
+      return res.json({
+        ok: true,
         message: "Code de récupération du code admin envoyé par email",
-        emailed: true 
+        emailed: true
       });
     } else {
       console.error(`❌ Échec envoi email à: ${e}`);
-      return res.status(500).json({ 
-        error: "Erreur lors de l'envoi de l'email. Veuillez réessayer." 
+      return res.status(500).json({
+        error: "Erreur lors de l'envoi de l'email. Veuillez réessayer."
       });
     }
-    
+
   } catch (error) {
     console.error('Error recovering admin code:', error);
     res.status(500).json({ error: "Erreur serveur" });
@@ -1008,24 +1106,24 @@ export const recoverAdminCode: RequestHandler = async (req, res) => {
 export const verifyAdminCodeRecovery: RequestHandler = async (req, res) => {
   try {
     const body = await parseRequestBody(req);
-    const { email, code, newAdminCode } = body as { 
-      email?: string; 
-      code?: string; 
+    const { email, code, newAdminCode } = body as {
+      email?: string;
+      code?: string;
       newAdminCode?: string;
     };
-    
+
     const e = (email ?? "").toString().trim().toLowerCase();
     const c = (code ?? "").toString().trim();
     const newCode = (newAdminCode ?? "").toString().trim();
-    
+
     if (!e || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e)) {
       return res.status(400).json({ error: "Adresse email valide requise" });
     }
-    
+
     if (!newCode || newCode.length < 4) {
       return res.status(400).json({ error: "Le code admin doit contenir au moins 4 caractères" });
     }
-    
+
     if (newCode.toLowerCase() === "admin") {
       return res.status(400).json({ error: "Le code admin ne peut pas être 'admin'" });
     }
@@ -1050,17 +1148,17 @@ export const verifyAdminCodeRecovery: RequestHandler = async (req, res) => {
     // 2. Recherche directe en base de données (IMPORTANT pour Netlify)
     if (!foundSalonId) {
       console.log(`🔍 Recherche en base de données pour: ${e}`);
-      
+
       // Rechercher TOUS les settings avec cet email
       const allSettings = await Settings.find({});
       console.log(`📊 Nombre total de salons en base: ${allSettings.length}`);
-      
+
       for (const setting of allSettings) {
         if (setting.adminEmail && setting.adminEmail.toLowerCase() === e) {
           foundSalonId = setting.salonId;
           foundSettings = setting;
           console.log(`✅ Salon trouvé en base: ${foundSalonId}`);
-          
+
           // Mettre à jour le cache pour les prochains appels
           emailToSalonId.set(e, foundSalonId);
           break;
@@ -1071,10 +1169,10 @@ export const verifyAdminCodeRecovery: RequestHandler = async (req, res) => {
     // 3. Recherche alternative avec regex (plus permissive)
     if (!foundSalonId) {
       console.log(`🔍 Recherche alternative avec regex pour: ${e}`);
-      const settings = await Settings.findOne({ 
-        adminEmail: { $regex: new RegExp(`^${e}$`, 'i') } 
+      const settings = await Settings.findOne({
+        adminEmail: { $regex: new RegExp(`^${e}$`, 'i') }
       });
-      
+
       if (settings) {
         foundSalonId = settings.salonId;
         foundSettings = settings;
@@ -1094,49 +1192,49 @@ export const verifyAdminCodeRecovery: RequestHandler = async (req, res) => {
       console.log(`❌ Aucun email admin configuré pour: ${foundSalonId}`);
       return res.status(400).json({ error: "Aucun email de récupération configuré" });
     }
-    
+
     // Vérification case-insensitive de l'email
     const storedEmail = foundSettings.adminEmail.toLowerCase();
     const providedEmail = e.toLowerCase();
-    
+
     if (storedEmail !== providedEmail) {
       console.log(`❌ Email non reconnu: ${providedEmail} vs ${storedEmail}`);
       return res.status(401).json({ error: "Email non reconnu" });
     }
-    
+
     // Vérification du code de réinitialisation
     if (!foundSettings.resetCode || !foundSettings.resetExpiresAt) {
       console.log(`❌ Aucun code de réinitialisation pour: ${foundSalonId}`);
       return res.status(400).json({ error: "Code de réinitialisation non trouvé" });
     }
-    
+
     if (Date.now() > foundSettings.resetExpiresAt) {
       console.log(`❌ Code expiré pour: ${foundSalonId}`);
       return res.status(400).json({ error: "Code expiré" });
     }
-    
+
     if (foundSettings.resetCode !== c) {
       console.log(`❌ Code incorrect: ${c} vs ${foundSettings.resetCode}`);
       return res.status(401).json({ error: "Code de vérification incorrect" });
     }
-    
+
     // Mise à jour du code admin
     console.log(`✅ Code admin valide, mise à jour pour: ${e}`);
     foundSettings.adminCodeHash = sha256(newCode);
     foundSettings.resetCode = null;
     foundSettings.resetExpiresAt = 0;
     foundSettings.adminToken = makeToken();
-    
+
     await foundSettings.save();
-    
+
     console.log(`✅ Code admin réinitialisé avec succès pour: ${e}`);
-    
-    return res.json({ 
-      token: foundSettings.adminToken, 
+
+    return res.json({
+      token: foundSettings.adminToken,
       salonId: foundSalonId,
-      message: "Code admin réinitialisé avec succès" 
+      message: "Code admin réinitialisé avec succès"
     });
-    
+
   } catch (error) {
     console.error('❌ Error in admin code recovery verify:', error);
     res.status(500).json({ error: "Erreur serveur lors de la réinitialisation du code admin" });
@@ -1155,9 +1253,9 @@ export const updateConfig: RequestHandler = async (req, res) => {
       pointsRedeemDefault?: number;
       salonName?: string | null;
     };
-    
+
     const updates: any = {};
-    
+
     if (typeof loyaltyPercentDefault === "number") updates.loyaltyPercentDefault = Math.max(0, Math.min(100, loyaltyPercentDefault));
     if (Array.isArray(paymentModes) && paymentModes.length) updates.paymentModes = paymentModes;
     if (typeof commissionDefault === "number") updates.commissionDefault = Math.max(0, Math.min(100, commissionDefault));
@@ -1172,7 +1270,7 @@ export const updateConfig: RequestHandler = async (req, res) => {
         updates.salonName = null;
       }
     }
-    
+
     await Settings.findOneAndUpdate({ salonId }, { $set: updates });
     res.json({ ok: true });
   } catch (error) {
@@ -1187,9 +1285,9 @@ export const addStylist: RequestHandler = async (req, res) => {
     const salonId = getSalonId(req);
     const settings = await getSettings(salonId);
     const { name, commissionPct } = body as { name?: string; commissionPct?: number };
-    
+
     if (!name) return res.status(400).json({ error: "name is required" });
-    
+
     const id = `s-${name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-${Math.random().toString(36).slice(2, 6)}`;
     const stylist = new Stylist({
       id,
@@ -1197,7 +1295,7 @@ export const addStylist: RequestHandler = async (req, res) => {
       commissionPct: typeof commissionPct === "number" ? commissionPct : settings.commissionDefault,
       salonId
     });
-    
+
     await stylist.save();
     res.status(201).json({ stylist });
   } catch (error) {
@@ -1210,10 +1308,10 @@ export const listClients: RequestHandler = async (req, res) => {
   try {
     const salonId = getSalonId(req);
     const clients = await Client.find({ salonId });
-    
+
     const lastVisits = new Map<string, number>();
     const prestations = await Prestation.find({ salonId });
-    
+
     for (const prestation of prestations) {
       if (!prestation.clientId) continue;
       const current = lastVisits.get(prestation.clientId);
@@ -1221,12 +1319,12 @@ export const listClients: RequestHandler = async (req, res) => {
         lastVisits.set(prestation.clientId, prestation.timestamp);
       }
     }
-    
+
     const clientsWithLastVisit = clients.map(client => ({
       ...client.toObject(),
       lastVisitAt: lastVisits.get(client.id) ?? null,
     }));
-    
+
     res.json({ clients: clientsWithLastVisit });
   } catch (error) {
     console.error('Error listing clients:', error);
@@ -1239,7 +1337,7 @@ export const addClient: RequestHandler = async (req, res) => {
     const body = await parseRequestBody(req);
     const salonId = getSalonId(req);
     const { name, email, phone } = body as { name?: string; email?: string; phone?: string };
-    
+
     if (!name) return res.status(400).json({ error: "name is required" });
 
     const trimmedEmail = typeof email === "string" ? email.trim().toLowerCase() : "";
@@ -1263,7 +1361,7 @@ export const addClient: RequestHandler = async (req, res) => {
       lastVisitAt: null,
       salonId
     });
-    
+
     await client.save();
     res.status(201).json({ client });
   } catch (error) {
@@ -1277,54 +1375,68 @@ export const createPrestation: RequestHandler = async (req, res) => {
     const body = await parseRequestBody(req);
     const salonId = getSalonId(req);
     const settings = await getSettings(salonId);
-    const { stylistId, clientId, amount, paymentMethod, timestamp, pointsPercent } = body as {
+    const { stylistId, clientId, amount, paymentMethod, timestamp, pointsPercent, serviceName, serviceId } = body as {
       stylistId?: string;
       clientId?: string;
       amount?: number;
       paymentMethod?: PaymentMethod;
       timestamp?: number;
       pointsPercent?: number;
+      serviceName?: string;
+      serviceId?: string;
     };
-    
+
     if (!stylistId || typeof amount !== "number" || !paymentMethod) {
       return res.status(400).json({ error: "stylistId, amount and paymentMethod are required" });
     }
 
     const stylist = await Stylist.findOne({ id: stylistId, salonId });
     if (!stylist) return res.status(404).json({ error: "stylist not found" });
-    
-    if (clientId) {
-      const client = await Client.findOne({ id: clientId, salonId });
-      if (!client) return res.status(404).json({ error: "client not found" });
+
+    // Resolve clientId – if none provided, use anonymous; if provided but not found, also fallback to anonymous
+    let finalClientId = clientId;
+    if (!finalClientId) {
+      const anonymousClient = await getOrCreateAnonymousClient(salonId);
+      finalClientId = anonymousClient.id;
+    } else {
+      const client = await Client.findOne({ id: finalClientId, salonId });
+      if (!client) {
+        // fallback to anonymous client when the supplied id does not exist
+        const anonymousClient = await getOrCreateAnonymousClient(salonId);
+        finalClientId = anonymousClient.id;
+      }
     }
 
     const ts = typeof timestamp === "number" ? timestamp : Date.now();
     const pct = typeof pointsPercent === "number" ? pointsPercent : (settings.loyaltyPercentDefault ?? 5);
-    const points = Math.round((amount * pct) / 100);
-    
+    const points = 1; // Fixed 1 point per prestation
+
     const prestation = new Prestation({
       id: `p-${Math.random().toString(36).slice(2)}`,
       stylistId,
-      clientId,
+      clientId: finalClientId,
       amount,
       paymentMethod,
       timestamp: ts,
       pointsPercent: pct,
       pointsAwarded: points,
+      serviceName,
+      serviceId,
       salonId
     });
-    
+
     await prestation.save();
 
-    if (clientId) {
+    // Only award points if not anonymous client
+    if (finalClientId && finalClientId !== "anonymous") {
       await Client.findOneAndUpdate(
-        { id: clientId, salonId },
+        { id: finalClientId, salonId },
         { $inc: { points } }
       );
     }
 
     const stylistStats = await aggregateForStylist(stylistId, salonId);
-    const client = clientId ? await Client.findOne({ id: clientId, salonId }) : undefined;
+    const client = finalClientId ? await Client.findOne({ id: finalClientId, salonId }) : undefined;
 
     res.status(201).json({ prestation, stylistStats, client });
   } catch (error) {
@@ -1337,13 +1449,13 @@ export const redeemPoints: RequestHandler = async (req, res) => {
   try {
     const body = await parseRequestBody(req);
     const salonId = getSalonId(req);
-    const { clientId, points, reason, stylistId } = body as { 
-      clientId?: string; 
-      points?: number; 
-      reason?: string; 
-      stylistId?: string 
+    const { clientId, points, reason, stylistId } = body as {
+      clientId?: string;
+      points?: number;
+      reason?: string;
+      stylistId?: string
     };
-    
+
     if (!clientId || typeof points !== "number" || points <= 0) {
       return res.status(400).json({ error: "clientId and positive points required" });
     }
@@ -1422,11 +1534,11 @@ export const summaryReport: RequestHandler = async (req, res) => {
     const all = await aggregateAllPayments(salonId);
     const now = Date.now();
     const todayStart = startOfDayParis(now);
-    
+
     const products = await Product.find({ salonId });
     let dailyProductCount = 0;
     let monthlyProductCount = 0;
-    
+
     for (const prod of products) {
       if (startOfDayParis(prod.timestamp) === todayStart) {
         dailyProductCount++;
@@ -1435,9 +1547,9 @@ export const summaryReport: RequestHandler = async (req, res) => {
         monthlyProductCount++;
       }
     }
-    
+
     const prestations = await Prestation.find({ salonId }).sort({ timestamp: -1 }).limit(10);
-    
+
     res.json({
       dailyAmount: all.daily.total.amount,
       dailyCount: all.daily.total.count,
@@ -1459,19 +1571,19 @@ export const getStylistBreakdown: RequestHandler = async (req, res) => {
   try {
     const salonId = getSalonId(req);
     const { id } = req.params as { id: string };
-    
+
     const stylist = await Stylist.findOne({ id, salonId });
     if (!stylist) return res.status(404).json({ error: "stylist not found" });
-    
+
     const q = req.query as any;
     const dateStr = typeof q.date === "string" ? q.date : undefined;
     let ref = Date.now();
-    
+
     if (dateStr && /^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
-      const [y,m,d] = dateStr.split("-").map(Number);
-      ref = Date.UTC(y, (m-1), d, 12, 0, 0);
+      const [y, m, d] = dateStr.split("-").map(Number);
+      ref = Date.UTC(y, (m - 1), d, 12, 0, 0);
     }
-    
+
     const data = await aggregateByPayment(salonId, id, ref);
     res.json(data);
   } catch (error) {
@@ -1483,19 +1595,19 @@ export const getStylistBreakdown: RequestHandler = async (req, res) => {
 export const setStylistCommission: RequestHandler = async (req, res) => {
   try {
     if (!(await requireAdmin(req, res))) return;
-    
+
     const body = await parseRequestBody(req);
     const salonId = getSalonId(req);
     const { id } = req.params as { id: string };
     const { commissionPct } = body as { commissionPct?: number };
-    
+
     const stylist = await Stylist.findOne({ id, salonId });
     if (!stylist) return res.status(404).json({ error: "stylist not found" });
     if (typeof commissionPct !== "number") return res.status(400).json({ error: "commissionPct required" });
-    
+
     stylist.commissionPct = clampCommission(commissionPct);
     await stylist.save();
-    
+
     res.json({ stylist });
   } catch (error) {
     console.error('Error setting stylist commission:', error);
@@ -1506,18 +1618,18 @@ export const setStylistCommission: RequestHandler = async (req, res) => {
 export const updateStylist: RequestHandler = async (req, res) => {
   try {
     if (!(await requireAdmin(req, res))) return;
-    
+
     const body = await parseRequestBody(req);
     const salonId = getSalonId(req);
     const { id } = req.params as { id: string };
     const { name, commissionPct } = body as { name?: string; commissionPct?: number };
-    
+
     const stylist = await Stylist.findOne({ id, salonId });
     if (!stylist) return res.status(404).json({ error: "stylist not found" });
     if (name === undefined && commissionPct === undefined) {
       return res.status(400).json({ error: "no updates provided" });
     }
-    
+
     const updates: any = {};
     if (typeof name === "string") {
       const trimmed = name.trim();
@@ -1527,10 +1639,10 @@ export const updateStylist: RequestHandler = async (req, res) => {
     if (typeof commissionPct === "number") {
       updates.commissionPct = clampCommission(commissionPct);
     }
-    
+
     await Stylist.findOneAndUpdate({ id, salonId }, { $set: updates });
     const updatedStylist = await Stylist.findOne({ id, salonId });
-    
+
     res.json({ stylist: updatedStylist });
   } catch (error) {
     console.error('Error updating stylist:', error);
@@ -1542,12 +1654,12 @@ export const deleteStylist: RequestHandler = async (req, res) => {
   try {
     const salonId = getSalonId(req);
     const { id } = req.params as { id: string };
-    
+
     const result = await Stylist.deleteOne({ id, salonId });
     if (result.deletedCount === 0) {
       return res.status(404).json({ error: "stylist not found" });
     }
-    
+
     res.json({ ok: true });
   } catch (error) {
     console.error('Error deleting stylist:', error);
@@ -1558,20 +1670,20 @@ export const deleteStylist: RequestHandler = async (req, res) => {
 export const deleteClient: RequestHandler = async (req, res) => {
   try {
     if (!(await requireAdmin(req, res))) return;
-    
+
     const salonId = getSalonId(req);
     const { id } = req.params as { id: string };
-    
+
     const result = await Client.deleteOne({ id, salonId });
     if (result.deletedCount === 0) {
       return res.status(404).json({ error: "client not found" });
     }
-    
+
     await Prestation.updateMany(
       { clientId: id, salonId },
       { $unset: { clientId: "" } }
     );
-    
+
     res.json({ ok: true });
   } catch (error) {
     console.error('Error deleting client:', error);
@@ -1593,7 +1705,7 @@ export const listServices: RequestHandler = async (req, res) => {
 export const addService: RequestHandler = async (req, res) => {
   try {
     if (!(await requireAdmin(req, res))) return;
-    
+
     const body = await parseRequestBody(req);
     const salonId = getSalonId(req);
     const { name, price, description } = body as { name: string; price: number; description?: string };
@@ -1625,7 +1737,7 @@ export const addService: RequestHandler = async (req, res) => {
 export const deleteService: RequestHandler = async (req, res) => {
   try {
     if (!(await requireAdmin(req, res))) return;
-    
+
     const salonId = getSalonId(req);
     const { id } = req.params as { id: string };
 
@@ -1655,7 +1767,7 @@ export const listProductTypes: RequestHandler = async (req, res) => {
 export const addProductType: RequestHandler = async (req, res) => {
   try {
     if (!(await requireAdmin(req, res))) return;
-    
+
     const body = await parseRequestBody(req);
     const salonId = getSalonId(req);
     const { name, price, description } = body as { name: string; price: number; description?: string };
@@ -1687,7 +1799,7 @@ export const addProductType: RequestHandler = async (req, res) => {
 export const deleteProductType: RequestHandler = async (req, res) => {
   try {
     if (!(await requireAdmin(req, res))) return;
-    
+
     const salonId = getSalonId(req);
     const { id } = req.params as { id: string };
 
@@ -1707,42 +1819,44 @@ export const createProduct: RequestHandler = async (req, res) => {
   try {
     const body = await parseRequestBody(req);
     const salonId = getSalonId(req);
-    const { stylistId, clientId, amount, paymentMethod, timestamp } = body as {
+    const { stylistId, clientId, amount, paymentMethod, timestamp, productName, productTypeId } = body as {
       stylistId?: string;
       clientId?: string;
       amount?: number;
       paymentMethod?: PaymentMethod;
       timestamp?: number;
+      productName?: string;
+      productTypeId?: string;
     };
-    
+
     if (!stylistId || typeof amount !== "number" || !paymentMethod) {
       return res.status(400).json({ error: "stylistId, amount and paymentMethod are required" });
     }
 
     const stylist = await Stylist.findOne({ id: stylistId, salonId });
     if (!stylist) return res.status(404).json({ error: "stylist not found" });
-    
-    if (clientId) {
-      const client = await Client.findOne({ id: clientId, salonId });
-      if (!client) return res.status(404).json({ error: "client not found" });
-    }
+
+    // For products, clientId is optional – use it if provided, otherwise leave undefined
+    const finalClientId = clientId;
 
     const ts = typeof timestamp === "number" ? timestamp : Date.now();
-    
+
     const product = new Product({
       id: `prod-${Math.random().toString(36).slice(2)}`,
       stylistId,
-      clientId,
+      clientId: finalClientId,
       amount,
       paymentMethod,
       timestamp: ts,
+      productName,
+      productTypeId,
       salonId
     });
-    
+
     await product.save();
 
     const stylistStats = await aggregateForStylist(stylistId, salonId);
-    const client = clientId ? await Client.findOne({ id: clientId, salonId }) : undefined;
+    const client = finalClientId ? await Client.findOne({ id: finalClientId, salonId }) : undefined;
 
     res.status(201).json({ product, stylistStats, client });
   } catch (error) {
@@ -1768,14 +1882,14 @@ export const exportSummaryCSV: RequestHandler = async (req, res) => {
     const salonId = getSalonId(req);
     const all = await aggregateAllPayments(salonId);
     const rows: string[] = [];
-    rows.push(["periode","mode","nombre","montant_eur"].join(","));
-    const emit = (period: string, method: PaymentMethod, r: {amount:number;count:number}) => {
+    rows.push(["periode", "mode", "nombre", "montant_eur"].join(","));
+    const emit = (period: string, method: PaymentMethod, r: { amount: number; count: number }) => {
       rows.push([period, method, String(r.count), r.amount.toFixed(2)].join(","));
     };
-    (Object.keys(all.daily.methods) as PaymentMethod[]).forEach((m)=>emit("jour", m, all.daily.methods[m]));
-    rows.push(["jour","total", String(all.daily.total.count), all.daily.total.amount.toFixed(2)].join(","));
-    (Object.keys(all.monthly.methods) as PaymentMethod[]).forEach((m)=>emit("mois", m, all.monthly.methods[m]));
-    rows.push(["mois","total", String(all.monthly.total.count), all.monthly.total.amount.toFixed(2)].join(","));
+    (Object.keys(all.daily.methods) as PaymentMethod[]).forEach((m) => emit("jour", m, all.daily.methods[m]));
+    rows.push(["jour", "total", String(all.daily.total.count), all.daily.total.amount.toFixed(2)].join(","));
+    (Object.keys(all.monthly.methods) as PaymentMethod[]).forEach((m) => emit("mois", m, all.monthly.methods[m]));
+    rows.push(["mois", "total", String(all.monthly.total.count), all.monthly.total.amount.toFixed(2)].join(","));
     const csv = rows.join("\n");
     res.setHeader("Content-Type", "text/csv; charset=utf-8");
     res.setHeader("Content-Disposition", "attachment; filename=rapport-ca.csv");
@@ -1795,21 +1909,21 @@ export const exportSummaryPDF: RequestHandler = async (req, res) => {
     const page = pdf.addPage([595.28, 841.89]);
     const font = await pdf.embedFont(StandardFonts.Helvetica);
     let y = 800;
-    page.drawText(sanitizePdfText("Rapport CA - Modes de paiement"), { x: 40, y, size: 18, font, color: rgb(0.2,0.2,0.2) });
+    page.drawText(sanitizePdfText("Rapport CA - Modes de paiement"), { x: 40, y, size: 18, font, color: rgb(0.2, 0.2, 0.2) });
     y -= 30;
     const drawSection = (label: string, scope: ReturnType<typeof makeScope>) => {
       page.drawText(sanitizePdfText(label), { x: 40, y, size: 14, font });
       y -= 20;
       const headers = ["Mode", "Nombre", "Montant (EUR)"];
-      const methods: [string, {amount:number;count:number}][] = [
+      const methods: [string, { amount: number; count: number }][] = [
         ["Especes", scope.methods.cash],
         ["Cheque", scope.methods.check],
         ["Carte", scope.methods.card],
       ];
       const rows = methods.concat([["Total", scope.total] as any]);
-      const startX = 40; const colW = [200,120,160];
-      const drawRow = (vals: string[], bold=false) => {
-        vals.forEach((v, i) => page.drawText(sanitizePdfText(v), { x: startX + colW.slice(0,i).reduce((a,b)=>a+b,0), y, size: 11, font, color: rgb(0,0,0) }));
+      const startX = 40; const colW = [200, 120, 160];
+      const drawRow = (vals: string[], bold = false) => {
+        vals.forEach((v, i) => page.drawText(sanitizePdfText(v), { x: startX + colW.slice(0, i).reduce((a, b) => a + b, 0), y, size: 11, font, color: rgb(0, 0, 0) }));
         y -= 16;
       };
       drawRow(headers, true);
@@ -1819,11 +1933,9 @@ export const exportSummaryPDF: RequestHandler = async (req, res) => {
     drawSection("Aujourd'hui", all.daily);
     drawSection("Ce mois-ci", all.monthly);
     const bytes = await pdf.save();
-    const buffer = Buffer.from(bytes);
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader("Content-Disposition", "attachment; filename=rapport-ca.pdf");
-    res.setHeader("Content-Length", buffer.length);
-    res.end(buffer);
+    res.send(Buffer.from(bytes));
   } catch (error) {
     console.error('Error exporting summary PDF:', error);
     res.status(500).json({ error: "Erreur serveur" });
@@ -1838,17 +1950,17 @@ export const exportStylistCSV: RequestHandler = async (req, res) => {
     if (!s) return res.status(404).json({ error: "stylist not found" });
     const data = await aggregateByPayment(salonId, id);
     const rows: string[] = [];
-    rows.push(["coiffeur","periode","mode","nombre","montant_eur"].join(","));
-    const emit = (period: string, method: PaymentMethod, r: {amount:number;count:number}) => {
+    rows.push(["coiffeur", "periode", "mode", "nombre", "montant_eur"].join(","));
+    const emit = (period: string, method: PaymentMethod, r: { amount: number; count: number }) => {
       rows.push([s.name, period, method, String(r.count), r.amount.toFixed(2)].join(","));
     };
-    (Object.keys(data.daily.methods) as PaymentMethod[]).forEach((m)=>emit("jour", m, data.daily.methods[m]));
-    rows.push([s.name, "jour","total", String(data.daily.total.count), data.daily.total.amount.toFixed(2)].join(","));
-    (Object.keys(data.monthly.methods) as PaymentMethod[]).forEach((m)=>emit("mois", m, data.monthly.methods[m]));
-    rows.push([s.name, "mois","total", String(data.monthly.total.count), data.monthly.total.amount.toFixed(2)].join(","));
+    (Object.keys(data.daily.methods) as PaymentMethod[]).forEach((m) => emit("jour", m, data.daily.methods[m]));
+    rows.push([s.name, "jour", "total", String(data.daily.total.count), data.daily.total.amount.toFixed(2)].join(","));
+    (Object.keys(data.monthly.methods) as PaymentMethod[]).forEach((m) => emit("mois", m, data.monthly.methods[m]));
+    rows.push([s.name, "mois", "total", String(data.monthly.total.count), data.monthly.total.amount.toFixed(2)].join(","));
     const csv = rows.join("\n");
     res.setHeader("Content-Type", "text/csv; charset=utf-8");
-    res.setHeader("Content-Disposition", `attachment; filename=rapport-coiffeur-${s.name.replace(/[^a-z0-9-]+/gi,'_')}.csv`);
+    res.setHeader("Content-Disposition", `attachment; filename=rapport-coiffeur-${s.name.replace(/[^a-z0-9-]+/gi, '_')}.csv`);
     res.send(csv);
   } catch (error) {
     console.error('Error exporting stylist CSV:', error);
@@ -1868,26 +1980,26 @@ export const exportStylistPDF: RequestHandler = async (req, res) => {
     const page = pdf.addPage([595.28, 841.89]);
     const font = await pdf.embedFont(StandardFonts.Helvetica);
     let y = 800;
-    page.drawText(sanitizePdfText(`Rapport CA Coiffeur - ${s.name}`), { x: 40, y, size: 18, font, color: rgb(0.2,0.2,0.2) });
+    page.drawText(sanitizePdfText(`Rapport CA Coiffeur - ${s.name}`), { x: 40, y, size: 18, font, color: rgb(0.2, 0.2, 0.2) });
     y -= 30;
     const drawSection = (label: string, scope: ReturnType<typeof makeScope>) => {
       page.drawText(sanitizePdfText(label), { x: 40, y, size: 14, font });
       y -= 20;
       const headers = ["Mode", "Nombre", "Montant (EUR)"];
-      const methods: [string, {amount:number;count:number}][] = [
+      const methods: [string, { amount: number; count: number }][] = [
         ["Especes", scope.methods.cash],
         ["Cheque", scope.methods.check],
         ["Carte", scope.methods.card],
       ];
       const rows = methods.concat([["Total", scope.total] as any]);
-      const startX = 40; const colW = [200,120,160];
+      const startX = 40; const colW = [200, 120, 160];
       const drawRow = (vals: string[]) => {
-        vals.forEach((v, i) => page.drawText(sanitizePdfText(v), { x: startX + colW.slice(0,i).reduce((a,b)=>a+b,0), y, size: 11, font, color: rgb(0,0,0) }));
+        vals.forEach((v, i) => page.drawText(sanitizePdfText(v), { x: startX + colW.slice(0, i).reduce((a, b) => a + b, 0), y, size: 11, font, color: rgb(0, 0, 0) }));
         y -= 16;
       };
-      page.drawText(sanitizePdfText(headers[0]), {x:startX,y,size:11,font,color:rgb(0,0,0)});
-      page.drawText(sanitizePdfText(headers[1]), {x:startX+colW[0],y,size:11,font,color:rgb(0,0,0)});
-      page.drawText(sanitizePdfText(headers[2]), {x:startX+colW[0]+colW[1],y,size:11,font,color:rgb(0,0,0)});
+      page.drawText(sanitizePdfText(headers[0]), { x: startX, y, size: 11, font, color: rgb(0, 0, 0) });
+      page.drawText(sanitizePdfText(headers[1]), { x: startX + colW[0], y, size: 11, font, color: rgb(0, 0, 0) });
+      page.drawText(sanitizePdfText(headers[2]), { x: startX + colW[0] + colW[1], y, size: 11, font, color: rgb(0, 0, 0) });
       y -= 16;
       rows.forEach(([name, r]) => drawRow([name, String(r.count), r.amount.toFixed(2)]));
       y -= 12;
@@ -1895,11 +2007,9 @@ export const exportStylistPDF: RequestHandler = async (req, res) => {
     drawSection("Aujourd'hui", data.daily);
     drawSection("Ce mois-ci", data.monthly);
     const bytes = await pdf.save();
-    const buffer = Buffer.from(bytes);
     res.setHeader("Content-Type", "application/pdf");
-    res.setHeader("Content-Disposition", `attachment; filename=rapport-coiffeur-${s.name.replace(/[^a-z0-9-]+/gi,'_')}.pdf`);
-    res.setHeader("Content-Length", buffer.length);
-    res.end(buffer);
+    res.setHeader("Content-Disposition", `attachment; filename=rapport-coiffeur-${s.name.replace(/[^a-z0-9-]+/gi, '_')}.pdf`);
+    res.send(Buffer.from(bytes));
   } catch (error) {
     console.error('Error exporting stylist PDF:', error);
     res.status(500).json({ error: "Erreur serveur" });
@@ -2118,7 +2228,7 @@ export const exportByDayCSV: RequestHandler = async (req, res) => {
       totals.set(dStart, cur);
     }
     const rows: string[] = [];
-    rows.push(["date","nombre","montant_eur"].join(","));
+    rows.push(["date", "nombre", "montant_eur"].join(","));
     for (let t = startDate.getTime(); t <= end; t += dayMs) {
       const key = startOfDayParis(t);
       const v = totals.get(key) || { amount: 0, count: 0 };
@@ -2127,7 +2237,7 @@ export const exportByDayCSV: RequestHandler = async (req, res) => {
     }
     const csv = rows.join("\n");
     res.setHeader("Content-Type", "text/csv; charset=utf-8");
-    res.setHeader("Content-Disposition", `attachment; filename=rapport-mensuel-${year}-${String(monthIdx+1).padStart(2,'0')}.csv`);
+    res.setHeader("Content-Disposition", `attachment; filename=rapport-mensuel-${year}-${String(monthIdx + 1).padStart(2, '0')}.csv`);
     res.send(csv);
   } catch (error) {
     console.error('Error exporting by day CSV:', error);
@@ -2203,11 +2313,9 @@ export const exportByDayPDF: RequestHandler = async (req, res) => {
       drawRow([iso, String(v.count), v.amount.toFixed(2)]);
     }
     const bytes = await pdf.save();
-    const buffer = Buffer.from(bytes);
     res.setHeader("Content-Type", "application/pdf");
-    res.setHeader("Content-Disposition", `attachment; filename=rapport-mensuel-${year}-${String(monthIdx+1).padStart(2,'0')}.pdf`);
-    res.setHeader("Content-Length", buffer.length);
-    res.end(buffer);
+    res.setHeader("Content-Disposition", `attachment; filename=rapport-mensuel-${year}-${String(monthIdx + 1).padStart(2, '0')}.pdf`);
+    res.send(Buffer.from(bytes));
   } catch (error) {
     console.error('Error exporting by day PDF:', error);
     res.status(500).json({ error: "Erreur serveur" });
@@ -2233,7 +2341,7 @@ export const exportByMonthCSV: RequestHandler = async (req, res) => {
       totals.set(key, cur);
     }
     const rows: string[] = [];
-    rows.push(["mois","nombre","montant_eur"].join(","));
+    rows.push(["mois", "nombre", "montant_eur"].join(","));
     for (let m = 0; m <= 11; m++) {
       const v = totals.get(m) || { amount: 0, count: 0 };
       const label = `${year}-${String(m + 1).padStart(2, "0")}`;
@@ -2303,11 +2411,9 @@ export const exportByMonthPDF: RequestHandler = async (req, res) => {
       drawRow([label, String(v.count), v.amount.toFixed(2)]);
     }
     const bytes = await pdf.save();
-    const buffer = Buffer.from(bytes);
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader("Content-Disposition", `attachment; filename=rapport-annuel-${year}.pdf`);
-    res.setHeader("Content-Length", buffer.length);
-    res.end(buffer);
+    res.send(Buffer.from(bytes));
   } catch (error) {
     console.error('Error exporting by month PDF:', error);
     res.status(500).json({ error: "Erreur serveur" });

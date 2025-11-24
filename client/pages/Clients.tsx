@@ -174,9 +174,9 @@ export default function Clients() {
                     pattern="[0-9]*"
                     value={redeemDefault > 0 ? String(redeemDefault) : redeemPoints}
                     readOnly={redeemDefault > 0}
-                    onWheelCapture={(e)=> e.preventDefault()}
-                    onKeyDown={(e)=>{ if (["ArrowUp","ArrowDown","PageUp","PageDown"].includes(e.key)) e.preventDefault(); }}
-                    onChange={(e)=>{
+                    onWheelCapture={(e) => e.preventDefault()}
+                    onKeyDown={(e) => { if (["ArrowUp", "ArrowDown", "PageUp", "PageDown"].includes(e.key)) e.preventDefault(); }}
+                    onChange={(e) => {
                       if (redeemDefault > 0) {
                         setRedeemPoints(String(redeemDefault));
                         return;
@@ -196,7 +196,7 @@ export default function Clients() {
                 type="single"
                 collapsible
                 value={stylistAccordionOpen ? "stylist" : ""}
-                onValueChange={(value)=> {
+                onValueChange={(value) => {
                   const isOpen = value === "stylist";
                   setStylistAccordionOpen(isOpen);
                   if (!isOpen) {
@@ -228,7 +228,7 @@ export default function Clients() {
                             <button
                               key={s.id}
                               type="button"
-                              onClick={()=> {
+                              onClick={() => {
                                 setRedeemStylistId(s.id);
                                 setStylistAccordionOpen(false);
                               }}

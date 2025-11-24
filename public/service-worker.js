@@ -35,9 +35,15 @@ self.addEventListener('activate', (event) => {
 // Stratégie de cache avec fallback réseau
 self.addEventListener('fetch', (event) => {
   const { request } = event;
-  
+
   // API requests - réseau d'abord
   if (request.url.includes('/api/')) {
+    // Ne jamais mettre en cache les méthodes non-GET (POST, PUT, DELETE, etc.)
+    if (request.method !== 'GET') {
+      event.respondWith(fetch(request));
+      return;
+    }
+
     event.respondWith(
       fetch(request)
         .then((response) => {
@@ -49,10 +55,9 @@ self.addEventListener('fetch', (event) => {
         })
         .catch(() => caches.match(request))
     );
-    if (event.request.method === 'POST') return;
     return;
   }
-  
+
   // Fichiers statiques - cache d'abord
   event.respondWith(
     caches.match(request).then((response) => {

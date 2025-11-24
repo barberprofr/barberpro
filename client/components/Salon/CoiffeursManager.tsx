@@ -37,8 +37,8 @@ export default function CoiffeursManager() {
     return (
       <div className="mt-2 rounded-md border bg-muted/30 p-3 text-sm">
         <div className="flex items-center gap-2 mb-2">
-          <button className={`px-2 py-1 rounded ${period === "daily" ? "bg-primary text-primary-foreground" : "bg-background border"}`} onClick={()=>setPeriod("daily")}>Jour</button>
-          <button className={`px-2 py-1 rounded ${period === "monthly" ? "bg-primary text-primary-foreground" : "bg-background border"}`} onClick={()=>setPeriod("monthly")}>Mois</button>
+          <button className={`px-2 py-1 rounded ${period === "daily" ? "bg-primary text-primary-foreground" : "bg-background border"}`} onClick={() => setPeriod("daily")}>Jour</button>
+          <button className={`px-2 py-1 rounded ${period === "monthly" ? "bg-primary text-primary-foreground" : "bg-background border"}`} onClick={() => setPeriod("monthly")}>Mois</button>
           <div className="ml-auto text-muted-foreground">Total: <span className="font-medium text-foreground">{eur.format(scope?.total.amount || 0)}</span> • {scope?.total.count || 0} prestations</div>
         </div>
         <div className="grid grid-cols-3 gap-2">
@@ -69,7 +69,7 @@ export default function CoiffeursManager() {
           <CardTitle className="text-lg">Coiffeurs & Chiffre d'affaires</CardTitle>
           <div className="flex items-center gap-2 text-sm">
             <span className="text-muted-foreground">Rémunération</span>
-            <Input className="w-20" type="number" min="0" max="100" value={pct} onChange={(e)=>setPct(e.target.value)} />
+            <Input className="w-20" type="number" min="0" max="100" value={pct} onChange={(e) => setPct(e.target.value)} />
             <span className="text-muted-foreground">%</span>
           </div>
         </div>
@@ -82,9 +82,9 @@ export default function CoiffeursManager() {
               <div className="text-xs text-muted-foreground">Créez d'abord votre compte administrateur depuis l'écran de connexion.</div>
             ) : (
               <div className="grid gap-2">
-                <Input type="email" placeholder="Email" value={email} onChange={(e)=>setEmail(e.target.value)} />
-                <Input type="password" placeholder="Mot de passe de connexion" value={password} onChange={(e)=>setPassword(e.target.value)} />
-                <Button size="sm" onClick={()=> /.+@.+\..+/.test(email) && password && login.mutate({ email, password }, { onSuccess: (d)=> { setAdminToken(d.token); setPassword(""); } })}>Se connecter</Button>
+                <Input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
+                <Input type="password" placeholder="Mot de passe de connexion" value={password} onChange={(e) => setPassword(e.target.value)} />
+                <Button size="sm" onClick={() => /.+@.+\..+/.test(email) && password && login.mutate({ email, password }, { onSuccess: (d) => { setAdminToken(d.token); setPassword(""); } })}>Se connecter</Button>
               </div>
             )}
             <div className="text-xs text-muted-foreground">Requis pour ajouter des coiffeurs et modifier les paramètres.</div>
@@ -99,7 +99,7 @@ export default function CoiffeursManager() {
             const payout = (m * rowPct) / 100;
             return (
               <div key={s.id} className="py-3">
-                <div className="flex items-center justify-between gap-2 cursor-pointer" onClick={()=> setExpanded(expanded === s.id ? "" : s.id)}>
+                <div className="flex items-center justify-between gap-2 cursor-pointer" onClick={() => setExpanded(expanded === s.id ? "" : s.id)}>
                   <div>
                     <div className="font-medium">{s.name}</div>
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -113,9 +113,9 @@ export default function CoiffeursManager() {
                   </div>
                 </div>
                 {config?.isAdmin && (
-                  <div className="mt-2 flex items-center gap-2" onClick={(e)=> e.stopPropagation()}>
-                    <Input className="w-24" type="number" min="0" max="100" value={editPct[s.id] ?? String(rowPct)} onChange={(e)=> setEditPct((m)=> ({ ...m, [s.id]: e.target.value }))} />
-                    <Button size="sm" onClick={()=> { const val = Number(editPct[s.id] ?? rowPct); if (!isNaN(val)) setCommissionMut.mutate({ id: s.id, commissionPct: Math.max(0, Math.min(100, val)) }); }}>Enregistrer %</Button>
+                  <div className="mt-2 flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                    <Input className="w-24" type="number" min="0" max="100" value={editPct[s.id] ?? String(rowPct)} onChange={(e) => setEditPct((m) => ({ ...m, [s.id]: e.target.value }))} />
+                    <Button size="sm" onClick={() => { const val = Number(editPct[s.id] ?? rowPct); if (!isNaN(val)) setCommissionMut.mutate({ id: s.id, commissionPct: Math.max(0, Math.min(100, val)) }); }}>Enregistrer %</Button>
                   </div>
                 )}
                 {expanded === s.id && <RowDetail id={s.id} />}

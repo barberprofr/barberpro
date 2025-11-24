@@ -5,7 +5,7 @@ import { Loader2, Check, ChevronDown, CircleDollarSign, CreditCard, FileText, Sp
 import type { LucideIcon } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Input } from "@/components/ui/input";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
@@ -13,8 +13,9 @@ import { useToast } from "@/hooks/use-toast";
 import { useAddClient, useAddPrestation, useAddProduct, useClients, useConfig, useStylists } from "@/lib/api";
 import ServicesPicker from "./ServicesPicker";
 import ProductsPicker from "./ProductsPicker";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 const PHONE_DIGITS_REQUIRED = 10;
 const PAYMENT_OPTIONS: { value: "cash" | "check" | "card"; label: string; icon: LucideIcon }[] = [
   { value: "cash", label: "Espèces", icon: CircleDollarSign },
@@ -32,7 +33,7 @@ export default function PrestationsForm() {
   const { data: config } = useConfig();
   const { toast } = useToast();
 
-  const salonDisplayName = useMemo(() => (config?.salonName ?? "").trim() || "Votre salon" , [config?.salonName]);
+  const salonDisplayName = useMemo(() => (config?.salonName ?? "").trim() || "Votre salon", [config?.salonName]);
   const salonInitials = useMemo(() => {
     return salonDisplayName
       .split(/\s+/)
@@ -53,11 +54,14 @@ export default function PrestationsForm() {
   const [paymentPickerOpen, setPaymentPickerOpen] = useState(false);
   const [when, setWhen] = useState<string>("");
   const [isProduct, setIsProduct] = useState(false);
+  const [selectedServiceName, setSelectedServiceName] = useState<string>("");
+  const [selectedServiceId, setSelectedServiceId] = useState<string>("");
+  const [selectedProductName, setSelectedProductName] = useState<string>("");
+  const [selectedProductTypeId, setSelectedProductTypeId] = useState<string>("");
   const [newClientAccordionOpen, setNewClientAccordionOpen] = useState(false);
   const [newClientFirstName, setNewClientFirstName] = useState<string>("");
   const [newClientName, setNewClientName] = useState<string>("");
-  const [newClientEmail, setNewClientEmail] = useState<string>("");
-  const [newClientEmailConfirm, setNewClientEmailConfirm] = useState<string>("");
+
   const [newClientPhone, setNewClientPhone] = useState<string>("");
   const [clientPickerOpen, setClientPickerOpen] = useState(false);
   const [clientSearch, setClientSearch] = useState("");
@@ -84,8 +88,7 @@ export default function PrestationsForm() {
   const sanitizedNewClientName = useMemo(() => {
     return [sanitizedNewClientFirstName, sanitizedNewClientLastName].filter(Boolean).join(" ").trim();
   }, [sanitizedNewClientFirstName, sanitizedNewClientLastName]);
-  const sanitizedNewClientEmail = useMemo(() => newClientEmail.trim().toLowerCase(), [newClientEmail]);
-  const sanitizedNewClientEmailConfirm = useMemo(() => newClientEmailConfirm.trim().toLowerCase(), [newClientEmailConfirm]);
+
   const sanitizedNewClientPhone = useMemo(() => {
     if (!newClientPhone) return "";
     return newClientPhone.normalize("NFC").replace(/[^+\d().\-\s]/g, "").trim();
@@ -99,36 +102,30 @@ export default function PrestationsForm() {
     return Boolean(
       sanitizedNewClientFirstName ||
       sanitizedNewClientLastName ||
-      sanitizedNewClientEmail ||
-      sanitizedNewClientEmailConfirm ||
       sanitizedNewClientPhone
     );
-  }, [clientId, sanitizedNewClientEmail, sanitizedNewClientEmailConfirm, sanitizedNewClientFirstName, sanitizedNewClientLastName, sanitizedNewClientPhone]);
+  }, [clientId, sanitizedNewClientFirstName, sanitizedNewClientLastName, sanitizedNewClientPhone]);
   const newClientFormComplete = useMemo(() => {
     if (!usingNewClient) return false;
     return Boolean(
       sanitizedNewClientFirstName &&
       sanitizedNewClientLastName &&
-      sanitizedNewClientEmail &&
-      sanitizedNewClientEmailConfirm &&
       sanitizedNewClientPhone &&
       sanitizedNewClientPhoneDigits.length === PHONE_DIGITS_REQUIRED
     );
-  }, [usingNewClient, sanitizedNewClientEmail, sanitizedNewClientEmailConfirm, sanitizedNewClientFirstName, sanitizedNewClientLastName, sanitizedNewClientPhone, sanitizedNewClientPhoneDigits]);
+  }, [usingNewClient, sanitizedNewClientFirstName, sanitizedNewClientLastName, sanitizedNewClientPhone, sanitizedNewClientPhoneDigits]);
   const newClientFormValid = useMemo(() => {
     if (!usingNewClient) return true;
     if (!newClientFormComplete) return false;
-    if (!EMAIL_REGEX.test(sanitizedNewClientEmail)) return false;
-    if (sanitizedNewClientEmail !== sanitizedNewClientEmailConfirm) return false;
     if (sanitizedNewClientPhoneDigits.length !== PHONE_DIGITS_REQUIRED) return false;
     return true;
-  }, [newClientFormComplete, sanitizedNewClientEmail, sanitizedNewClientEmailConfirm, sanitizedNewClientPhoneDigits, usingNewClient]);
+  }, [newClientFormComplete, sanitizedNewClientPhoneDigits, usingNewClient]);
   const selectedStylist = useMemo(() => stylists?.find((s) => s.id === stylistId) ?? null, [stylists, stylistId]);
   const paymentOption = useMemo(() => PAYMENT_OPTIONS.find((opt) => opt.value === payment), [payment]);
   const paymentLabel = paymentOption?.label ?? "Carte";
   const PaymentIcon = paymentOption?.icon ?? null;
   const selectedClient = useMemo(() => clients?.find(c => c.id === clientId), [clients, clientId]);
-  const hasClientSelection = useMemo(() => Boolean(selectedClient || (usingNewClient && newClientFormComplete)), [newClientFormComplete, selectedClient, usingNewClient]);
+  const hasClientSelection = useMemo(() => Boolean(clientId === "anonymous" || selectedClient || (usingNewClient && newClientFormComplete)), [clientId, newClientFormComplete, selectedClient, usingNewClient]);
   const selectionContainerClass = useMemo(() => (
     "rounded-3xl border border-white/12 bg-gradient-to-br from-slate-950/85 via-indigo-900/55 to-emerald-800/35 px-4 py-3 space-y-3 shadow-[0_22px_55px_rgba(8,15,40,0.5)] backdrop-blur-xl"
   ), []);
@@ -166,34 +163,40 @@ export default function PrestationsForm() {
     prevStylistPickerOpenRef.current = stylistPickerOpen;
   }, [stylistPickerOpen]);
   const clientSummary = useMemo(() => {
+    if (clientId === "anonymous") {
+      return "Client Anonyme";
+    }
     if (selectedClient) {
-      const contact = [selectedClient.email, selectedClient.phone].filter(Boolean).join(" - ");
+      const contact = [selectedClient.phone].filter(Boolean).join(" - ");
       const base = `${selectedClient.name} - ${selectedClient.points} pts`;
       return contact ? `${base} - ${contact}` : base;
     }
     if (usingNewClient && newClientFormComplete) {
-      const contact = [sanitizedNewClientEmail, sanitizedNewClientPhone].filter(Boolean).join(" - ");
+      const contact = [sanitizedNewClientPhone].filter(Boolean).join(" - ");
       const base = `${sanitizedNewClientName} (nouveau)`;
       return contact ? `${base} - ${contact}` : base;
     }
     return "Aucun client sélectionné";
-  }, [newClientFormComplete, sanitizedNewClientEmail, sanitizedNewClientName, sanitizedNewClientPhone, selectedClient, usingNewClient]);
+  }, [clientId, newClientFormComplete, sanitizedNewClientName, sanitizedNewClientPhone, selectedClient, usingNewClient]);
 
   const clientSelectionTitle = useMemo(() => {
+    if (clientId === "anonymous") {
+      return "Client Anonyme";
+    }
     if (selectedClient) {
-      return [selectedClient.name, selectedClient.email, selectedClient.phone].filter(Boolean).join(" - ") || "Sélectionner un client";
+      return [selectedClient.name, selectedClient.phone].filter(Boolean).join(" - ") || "Sélectionner un client";
     }
     if (usingNewClient && newClientFormComplete) {
-      return [sanitizedNewClientName, sanitizedNewClientEmail || null, sanitizedNewClientPhone || null].filter(Boolean).join(" - ");
+      return [sanitizedNewClientName, sanitizedNewClientPhone || null].filter(Boolean).join(" - ");
     }
     return "Sélectionner un client";
-  }, [newClientFormComplete, sanitizedNewClientEmail, sanitizedNewClientName, sanitizedNewClientPhone, selectedClient, usingNewClient]);
+  }, [clientId, newClientFormComplete, sanitizedNewClientName, sanitizedNewClientPhone, selectedClient, usingNewClient]);
 
   const filteredClients = useMemo(() => {
     const term = debouncedClientSearch.trim().toLowerCase();
     if (!term) return [];
     return (clients ?? []).filter((c) => {
-      const haystack = [c.name, c.email ?? "", c.phone ?? ""].join(" ").toLowerCase();
+      const haystack = [c.name, c.phone ?? ""].join(" ").toLowerCase();
       return haystack.includes(term);
     });
   }, [debouncedClientSearch, clients]);
@@ -211,8 +214,6 @@ export default function PrestationsForm() {
     setClientId("");
     setNewClientFirstName("");
     setNewClientName("");
-    setNewClientEmail("");
-    setNewClientEmailConfirm("");
     setNewClientPhone("");
     setNewClientAccordionOpen(false);
     setClientPickerOpen(false);
@@ -270,8 +271,12 @@ export default function PrestationsForm() {
     if (!(stylistId && amount && Number(amount) > 0 && paymentSelected && when)) {
       return false;
     }
+    // For products, client selection is optional; for prestations it's still required
+    if (!isProduct && !hasClientSelection) {
+      return false;
+    }
     return newClientFormValid;
-  }, [amount, newClientFormValid, paymentSelected, stylistId, when]);
+  }, [amount, hasClientSelection, newClientFormValid, paymentSelected, stylistId, when, isProduct]);
 
   useEffect(() => {
     if (paymentSelected && canSubmit && !addPrestation.isPending && !addClient.isPending && !addProduct.isPending) {
@@ -327,6 +332,8 @@ export default function PrestationsForm() {
     setPayment("");
     setPaymentSelected(false);
     setIsProduct(false);
+    setSelectedServiceName(serviceName);
+    setSelectedServiceId(serviceId);
     setTimeout(() => {
       setPaymentPickerOpen(true);
     }, 100);
@@ -341,6 +348,8 @@ export default function PrestationsForm() {
     setPayment("");
     setPaymentSelected(false);
     setIsProduct(true);
+    setSelectedProductName(productName);
+    setSelectedProductTypeId(productId);
     setProductsPopoverOpen(false);
     setTimeout(() => {
       setPaymentPickerOpen(true);
@@ -359,10 +368,10 @@ export default function PrestationsForm() {
   }
   function parisLocalToEpoch(local: string) {
     const [date, time] = local.split("T");
-    const [y,m,d] = date.split("-").map(Number);
-    const [hh,mm] = time.split(":").map(Number);
+    const [y, m, d] = date.split("-").map(Number);
+    const [hh, mm] = time.split(":").map(Number);
     // Initial guess as if components were UTC
-    let guess = new Date(Date.UTC(y, (m-1), d, hh, mm));
+    let guess = new Date(Date.UTC(y, (m - 1), d, hh, mm));
     // Get offset for Europe/Paris at that instant
     let offsetMin = tzOffsetMinutes("Europe/Paris", guess);
     // Adjust to get the actual UTC instant corresponding to Paris local time
@@ -370,7 +379,7 @@ export default function PrestationsForm() {
     // Recompute once in case offset boundary crosses
     guess = new Date(ts);
     offsetMin = tzOffsetMinutes("Europe/Paris", guess);
-    ts = new Date(Date.UTC(y, (m-1), d, hh, mm)).getTime() - offsetMin * 60 * 1000;
+    ts = new Date(Date.UTC(y, (m - 1), d, hh, mm)).getTime() - offsetMin * 60 * 1000;
     return ts;
   }
   async function onSubmit(e: React.FormEvent) {
@@ -385,18 +394,7 @@ export default function PrestationsForm() {
         toast({ title: "Informations manquantes", description: "Merci de remplir tous les champs du nouveau client." });
         return;
       }
-      if (sanitizedNewClientEmail && !EMAIL_REGEX.test(sanitizedNewClientEmail)) {
-        setClientAccordion("client");
-        setNewClientAccordionOpen(true);
-        toast({ title: "Email invalide", description: "Merci de vérifier l'adresse email du client." });
-        return;
-      }
-      if (sanitizedNewClientEmail && sanitizedNewClientEmail !== sanitizedNewClientEmailConfirm) {
-        setClientAccordion("client");
-        setNewClientAccordionOpen(true);
-        toast({ title: "Confirmation email", description: "Les deux emails ne correspondent pas." });
-        return;
-      }
+
       if (sanitizedNewClientPhoneDigits.length !== PHONE_DIGITS_REQUIRED) {
         setClientAccordion("client");
         setNewClientAccordionOpen(true);
@@ -406,7 +404,6 @@ export default function PrestationsForm() {
       try {
         const created = await addClient.mutateAsync({
           name: sanitizedNewClientName,
-          email: sanitizedNewClientEmail || undefined,
           phone: sanitizedNewClientPhone || undefined,
         });
         nextClientId = created.client.id;
@@ -429,8 +426,17 @@ export default function PrestationsForm() {
 
     if (isProduct) {
       addProduct.mutate(
-        { stylistId, clientId: nextClientId || undefined, amount: Number(amount), paymentMethod: payment as any, timestamp: ts },
-        { onSuccess: () => {
+        {
+          stylistId,
+          clientId: nextClientId || undefined,
+          amount: Number(amount),
+          paymentMethod: payment as any,
+          timestamp: ts,
+          productName: selectedProductName || undefined,
+          productTypeId: selectedProductTypeId || undefined
+        },
+        {
+          onSuccess: () => {
             servicesPickerCloseRef.current?.();
             setStylistId("");
             setStylistPickerOpen(false);
@@ -442,8 +448,6 @@ export default function PrestationsForm() {
             setIsProduct(false);
             setNewClientFirstName("");
             setNewClientName("");
-            setNewClientEmail("");
-            setNewClientEmailConfirm("");
             setNewClientPhone("");
             setNewClientAccordionOpen(false);
             setClientPickerOpen(false);
@@ -462,12 +466,22 @@ export default function PrestationsForm() {
             qc.invalidateQueries({ queryKey: ["summary"] });
             qc.invalidateQueries({ queryKey: ["stylists"] });
             qc.invalidateQueries({ queryKey: ["clients"] });
-          } }
+          }
+        }
       );
     } else {
       addPrestation.mutate(
-        { stylistId, clientId: nextClientId || undefined, amount: Number(amount), paymentMethod: payment as any, timestamp: ts },
-        { onSuccess: () => {
+        {
+          stylistId,
+          clientId: nextClientId || undefined,
+          amount: Number(amount),
+          paymentMethod: payment as any,
+          timestamp: ts,
+          serviceName: selectedServiceName || undefined,
+          serviceId: selectedServiceId || undefined
+        },
+        {
+          onSuccess: () => {
             servicesPickerCloseRef.current?.();
             setStylistId("");
             setStylistPickerOpen(false);
@@ -479,8 +493,6 @@ export default function PrestationsForm() {
             setIsProduct(false);
             setNewClientFirstName("");
             setNewClientName("");
-            setNewClientEmail("");
-            setNewClientEmailConfirm("");
             setNewClientPhone("");
             setNewClientAccordionOpen(false);
             setClientPickerOpen(false);
@@ -499,7 +511,8 @@ export default function PrestationsForm() {
             qc.invalidateQueries({ queryKey: ["summary"] });
             qc.invalidateQueries({ queryKey: ["stylists"] });
             qc.invalidateQueries({ queryKey: ["clients"] });
-          } }
+          }
+        }
       );
     }
   }
@@ -527,31 +540,31 @@ export default function PrestationsForm() {
         </div>
       </CardHeader>
       <form ref={formRef} onSubmit={onSubmit} className="space-y-3">
-              <AnimatePresence mode="wait">
-                {showSuccess && (
-              <motion.div
-                key="success-banner"
-                initial={{ opacity: 0, y: -18 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -18 }}
-                transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                className="flex items-center justify-center gap-3 rounded-2xl border border-emerald-300/80 bg-gradient-to-r from-emerald-500 via-emerald-400 to-teal-400 px-4 py-2.5 text-base font-semibold text-white shadow-[0_20px_40px_rgba(16,185,129,0.35)]"
-              >
-                <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/20 text-emerald-900 shadow-lg">
-                  <Check className="h-4 w-4" />
-                </span>
-                Prestation enregistrée avec succès
-              </motion.div>
-            )}
-          </AnimatePresence>
-          <div className="flex gap-4 sm:flex-row flex-col">
-            <div className="space-y-2">
-              <div
-                className={cn(
-                  "group relative w-full max-w-[20rem] overflow-hidden rounded-3xl border border-white/18 bg-[linear-gradient(135deg,rgba(12,18,45,0.95)0%,rgba(99,102,241,0.68)52%,rgba(16,185,129,0.52)100%)] px-4 pb-4 shadow-[0_28px_72px_rgba(8,15,40,0.55)] backdrop-blur-2xl transition-all duration-300",
-                  stylistId ? "border-emerald-300/70 shadow-[0_36px_92px_rgba(16,185,129,0.45)]" : null
-                )}
-              >
+        <AnimatePresence mode="wait">
+          {showSuccess && (
+            <motion.div
+              key="success-banner"
+              initial={{ opacity: 0, y: -18 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -18 }}
+              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+              className="flex items-center justify-center gap-3 rounded-2xl border border-emerald-300/80 bg-gradient-to-r from-emerald-500 via-emerald-400 to-teal-400 px-4 py-2.5 text-base font-semibold text-white shadow-[0_20px_40px_rgba(16,185,129,0.35)]"
+            >
+              <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/20 text-emerald-900 shadow-lg">
+                <Check className="h-4 w-4" />
+              </span>
+              Prestation enregistrée avec succès
+            </motion.div>
+          )}
+        </AnimatePresence>
+        <div className="flex gap-4 sm:flex-row flex-col">
+          <div className="space-y-2">
+            <div
+              className={cn(
+                "group relative w-full max-w-[20rem] overflow-hidden rounded-3xl border border-white/18 bg-[linear-gradient(135deg,rgba(12,18,45,0.95)0%,rgba(99,102,241,0.68)52%,rgba(16,185,129,0.52)100%)] px-4 pb-4 shadow-[0_28px_72px_rgba(8,15,40,0.55)] backdrop-blur-2xl transition-all duration-300",
+                stylistId ? "border-emerald-300/70 shadow-[0_36px_92px_rgba(16,185,129,0.45)]" : null
+              )}
+            >
               <span className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.28),transparent_55%)] opacity-80 transition-opacity duration-300 group-hover:opacity-100" />
               <div className="relative flex items-center justify-end pt-4">
                 <motion.button
@@ -668,19 +681,18 @@ export default function PrestationsForm() {
                 </PopoverContent>
               </Popover>
             </div>
-            </div>
-            <ServicesPicker
-              onServiceSelect={handleServiceSelect}
-              onReset={handleServicesPickerReset}
-            />
           </div>
-          <ProductsPicker onProductSelect={handleProductSelect} />
-          <div className="hidden grid-cols-[minmax(0,1.75fr)_minmax(0,1fr)] gap-6 lg:gap-8">
-            <div></div>
-            <div className="flex flex-col items-end gap-1 text-right py-3 pr-4 pl-10 sm:pl-14 md:pl-20">
-              <label className="text-sm font-medium">Paiement</label>
-              <Popover open={paymentPickerOpen} onOpenChange={setPaymentPickerOpen}>
-                <PopoverTrigger asChild>
+          <ServicesPicker
+            onServiceSelect={handleServiceSelect}
+            onReset={handleServicesPickerReset}
+          />
+        </div>
+        <ProductsPicker onProductSelect={handleProductSelect} />
+        <div className="flex justify-center w-full mt-6">
+          <div className="flex flex-col items-center gap-1 text-center w-full max-w-md">
+            
+            <Popover open={paymentPickerOpen} onOpenChange={setPaymentPickerOpen}>
+              <PopoverTrigger asChild>
                 <Button
                   type="button"
                   variant="outline"
@@ -697,8 +709,9 @@ export default function PrestationsForm() {
                   <span className="text-xs text-emerald-200">▾</span>
                 </Button>
               </PopoverTrigger>
-                <PopoverContent side="top" align="end" sideOffset={-10} className="w-[min(80vw,18rem)] rounded-2xl border border-emerald-400/40 bg-slate-950/95 p-4 text-slate-50 shadow-2xl">
-                  <div className="space-y-3">
+              <PopoverContent side="bottom" align="center" className="w-[min(90vw,28rem)] rounded-3xl border border-emerald-400/50 bg-gradient-to-br from-slate-950/95 via-indigo-900/70 to-emerald-800/40 p-6 text-slate-50 shadow-[0_40px_100px_rgba(8,15,40,0.8)] backdrop-blur-2xl">
+                <div className="space-y-4">
+                  <div className="grid gap-4 sm:grid-cols-1">
                     {PAYMENT_OPTIONS.map((option) => {
                       const Icon = option.icon;
                       const isSelected = payment === option.value;
@@ -708,21 +721,19 @@ export default function PrestationsForm() {
                           type="button"
                           onClick={() => handlePaymentSelect(option.value)}
                           className={cn(
-                            "flex w-full items-center justify-between rounded-xl border border-slate-700/60 bg-slate-900/80 px-4 py-3 text-left text-sm font-semibold transition-all duration-150 hover:border-emerald-400/70 hover:bg-emerald-500/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400",
-                            isSelected && "border-emerald-400/80 bg-emerald-500/15 text-emerald-100 shadow-[0_0_0_1px_rgba(16,185,129,0.45)]"
+                            "flex w-full items-center justify-center gap-4 rounded-2xl border-2 border-slate-700/70 bg-slate-900/90 px-6 py-5 text-center text-lg font-bold transition-all duration-200 hover:border-emerald-400/80 hover:bg-emerald-500/20 hover:scale-102 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 shadow-[0_8px_25px_rgba(8,15,40,0.3)]",
+                            isSelected && "border-emerald-400 bg-emerald-500/25 text-emerald-100 shadow-[0_12px_35px_rgba(16,185,129,0.5)] scale-105"
                           )}
                         >
-                          <span className="flex items-center gap-3">
-                            <span className={cn(
-                              "flex h-9 w-9 items-center justify-center rounded-xl border border-slate-700/70 bg-slate-900/70 text-slate-200 transition-colors",
-                              isSelected && "border-emerald-400/80 bg-emerald-500/15 text-emerald-200"
-                            )}>
-                              <Icon className="h-4 w-4" />
-                            </span>
-                            <span>{option.label}</span>
+                          <span className={cn(
+                            "flex h-12 w-12 items-center justify-center rounded-2xl border border-slate-700/80 bg-slate-800/80 text-slate-200 transition-all",
+                            isSelected && "border-emerald-400/90 bg-emerald-500/30 text-emerald-200 shadow-[0_4px_12px_rgba(16,185,129,0.4)]"
+                          )}>
+                            <Icon className="h-7 w-7" />
                           </span>
+                          <span className="text-xl font-black">{option.label}</span>
                           {isSelected ? (
-                            <span className="rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-200">
+                            <span className="rounded-full bg-emerald-500/20 px-3 py-1 text-sm font-bold uppercase tracking-wide text-emerald-200 border border-emerald-400/50">
                               Sélectionné
                             </span>
                           ) : null}
@@ -730,292 +741,287 @@ export default function PrestationsForm() {
                       );
                     })}
                   </div>
+                </div>
+              </PopoverContent>
+            </Popover>
+          </div>
+        </div>
+        <Popover open={clientAccordion === "client"} onOpenChange={(open) => {
+          if (open) {
+            setClientAccordion("client");
+          } else {
+            setClientAccordion("");
+          }
+        }}>
+          <PopoverTrigger asChild>
+            <button
+              type="button"
+              className={cn(
+                "group relative overflow-hidden rounded-lg border px-2 py-1.5 text-center text-slate-100 transition shadow-[0_8px_20px_rgba(8,15,40,0.25)] w-full",
+                hasClientSelection
+                  ? "border-emerald-300/30 bg-slate-950/60"
+                  : "border-[#8c7cff]/35 bg-[linear-gradient(135deg,rgba(50,34,118,0.5)0%,rgba(58,52,182,0.36)45%,rgba(14,165,233,0.28)100%)]"
+              )}
+            >
+              <div className="flex w-full flex-col items-center gap-0.5 text-center">
+                <span className="inline-flex items-center gap-0.5 rounded-full border border-white/20 bg-white/8 px-2 py-0.5 text-xs font-semibold text-white/85 shadow-[0_3px_8px_rgba(79,70,229,0.18)] leading-tight">
+                  <Sparkles className="h-1.5 w-1.5 text-amber-200" />
+                  Sélectionner un client
+                </span>
+                {hasClientSelection ? (
+                  <span className="text-xs font-medium text-emerald-100">{clientSummary}</span>
+                ) : (
+                  <span className="text-[7.5px] uppercase tracking-[0.24em] text-[#c1b8ff]">Choisissez un client pour continuer</span>
+                )}
+              </div>
+            </button>
+          </PopoverTrigger>
+          <PopoverContent side="bottom" align="center" className="w-[min(90vw,40rem)] overflow-hidden rounded-2xl border border-white/15 bg-slate-950/95 p-4 shadow-[0_40px_95px_rgba(8,15,40,0.7)] backdrop-blur-xl">
+            <div className="space-y-2">
+              <div className={selectionContainerClass}>
+                <div className="flex items-center justify-between gap-2">
+                  <label className="text-[11px] font-semibold uppercase tracking-wide text-slate-200">Sélection</label>
+                  <div className="flex items-center gap-2">
+                    {!hasClientSelection && <span className="text-[10px] font-semibold text-[#c3b8ff]">Requis</span>}
+                    {clientId && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setClientId("");
+                          setClientPickerOpen(false);
+                          setClientSearch("");
+                        }}
+                        className="text-[10px] font-semibold uppercase tracking-wide text-[#d0c3ff] underline underline-offset-2 hover:text-[#a99bf7]"
+                      >
+                        Effacer
+                      </button>
+                    )}
+                  </div>
+                </div>
+                <Popover
+                  open={clientPickerOpen}
+                  onOpenChange={(open) => {
+                    setClientPickerOpen(open);
+                    if (open) {
+                      setClientAccordion("client");
+                    } else {
+                      setClientSearch("");
+                    }
+                  }}
+                >
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      aria-expanded={clientPickerOpen}
+                      className={cn(
+                        "group relative mt-2 w-full justify-between overflow-hidden rounded-2xl border px-3.5 py-2.5 text-sm font-semibold transition-all",
+                        hasClientSelection
+                          ? "border-emerald-300/60 bg-emerald-300/20 text-emerald-100 shadow-[0_16px_40px_rgba(16,185,129,0.25)]"
+                          : "border-[#8c7cff]/65 bg-[linear-gradient(135deg,rgba(60,37,115,0.78)0%,rgba(80,61,201,0.6)60%,rgba(17,94,89,0.48)100%)] text-[#f4ebff] shadow-[0_18px_45px_rgba(76,29,149,0.35)]"
+                      )}
+                      title={clientSelectionTitle}
+                    >
+                      <span className="flex flex-col items-start text-left gap-1">
+                        {clientId === "anonymous" ? (
+                          <>
+                            <span className="text-base font-bold text-amber-200">Client Anonyme</span>
+                            <span className="text-xs text-amber-200/70">Client non enregistré</span>
+                          </>
+                        ) : selectedClient ? (
+                          <>
+                            <span className="text-base font-bold">{selectedClient.name} - {selectedClient.points} pts</span>
+                            {selectedClient.phone && (
+                              <span className="text-xs text-muted-foreground">{selectedClient.phone}</span>
+                            )}
+                          </>
+                        ) : usingNewClient && newClientFormComplete ? (
+                          <>
+                            <span className="text-base font-bold">{sanitizedNewClientName} - nouveau</span>
+                            {sanitizedNewClientPhone && (
+                              <span className="text-xs text-muted-foreground">{sanitizedNewClientPhone}</span>
+                            )}
+                          </>
+                        ) : (
+                          <span>Rechercher un client</span>
+                        )}
+                      </span>
+                      <span className={cn("ml-2", hasClientSelection ? "text-emerald-200" : "text-[#e1d5ff]")}>▾</span>
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-80 overflow-hidden rounded-3xl border border-white/15 bg-slate-950/90 p-0 shadow-[0_32px_70px_rgba(8,15,40,0.7)] backdrop-blur-2xl focus:outline-none">
+                    <Command>
+                      <CommandInput
+                        placeholder="Rechercher par nom ou téléphone"
+                        autoFocus
+                        value={clientSearch}
+                        onValueChange={setClientSearch}
+                        className="h-11 rounded-2xl border border-white/20 bg-[linear-gradient(135deg,rgba(255,255,255,0.26)0%,rgba(148,163,184,0.18)45%,rgba(56,189,248,0.16)100%)] text-lg text-white placeholder:text-white/70 shadow-[0_18px_40px_rgba(8,15,40,0.32)] backdrop-blur-2xl focus-visible:ring-2 focus-visible:ring-cyan-300 focus-visible:ring-offset-0"
+                      />
+                      <CommandList>
+                        <CommandGroup className="space-y-1 px-2 py-2">
+                          <CommandItem
+                            value="Client Anonyme anonymous"
+                            className="flex cursor-pointer flex-col gap-1 rounded-2xl border-2 border-amber-400/60 bg-amber-400/10 px-3 py-2 text-slate-100 transition hover:border-amber-300/80 hover:bg-amber-400/20"
+                            onSelect={() => {
+                              setClientId("anonymous");
+                              setClientPickerOpen(false);
+                              setClientSearch("");
+                              setClientAccordion("");
+                            }}
+                          >
+                            <span className="inline-flex items-center gap-2 text-sm font-semibold">
+                              <span className="inline-flex h-1.5 w-1.5 rounded-full bg-amber-300" />
+                              Client Anonyme
+                            </span>
+                            <div className="flex items-center gap-2 text-xs text-white/70">
+                              <span className="text-[10px] text-amber-200/80">Pour les clients qui ne souhaitent pas s'enregistrer</span>
+                            </div>
+                          </CommandItem>
+                        </CommandGroup>
+                        {clientSearch.trim().length === 0 ? (
+                          <div className="py-6 text-center text-xs text-white/70">
+                            Tapez un nom ou un numéro pour afficher les clients.
+                          </div>
+                        ) : filteredClients.length === 0 ? (
+                          <CommandEmpty>Aucun client trouvé</CommandEmpty>
+                        ) : (
+                          <CommandGroup className="space-y-1 px-2 py-2">
+                            {filteredClients.map((c) => {
+                              const searchValue = [c.name, c.phone ?? ""].filter(Boolean).join(" ");
+                              return (
+                                <CommandItem
+                                  key={c.id}
+                                  value={searchValue}
+                                  className="flex cursor-pointer flex-col gap-1 rounded-2xl border border-transparent bg-white/5 px-3 py-2 text-slate-100 transition hover:border-emerald-300/60 hover:bg-emerald-400/20"
+                                  onSelect={() => {
+                                    setClientId(c.id);
+                                    setClientPickerOpen(false);
+                                    setClientSearch("");
+                                    setClientAccordion("");
+                                  }}
+                                >
+                                  <span className="inline-flex items-center gap-2 text-sm font-semibold">
+                                    <span className="inline-flex h-1.5 w-1.5 rounded-full bg-emerald-300" />
+                                    {c.name}
+                                  </span>
+                                  <div className="flex items-center gap-2 text-xs text-white/70">
+                                    <span className="inline-flex items-center gap-1 rounded-full border border-emerald-300/50 bg-emerald-300/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-100">
+                                      {c.points} pts
+                                    </span>
+                                    {c.phone && (
+                                      <span className="text-[11px] text-white/70">{c.phone}</span>
+                                    )}
+                                  </div>
+                                </CommandItem>
+                              );
+                            })}
+                          </CommandGroup>
+                        )}
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
+              </div>
+              <Popover open={newClientAccordionOpen} onOpenChange={setNewClientAccordionOpen}>
+                <PopoverTrigger asChild>
+                  <button
+                    type="button"
+                    className="flex w-full flex-col items-center gap-1 rounded-3xl border border-white/12 bg-white/10 px-4 py-2 text-center text-sm font-semibold text-amber-200 transition-colors hover:bg-white/20 shadow-[0_18px_45px_rgba(8,15,40,0.35)] backdrop-blur-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
+                  >
+                    <span className="inline-flex items-center gap-2 rounded-full border border-amber-200/60 bg-amber-200/10 px-3.5 py-1 text-lg font-bold tracking-wide text-amber-200">
+                      <Sparkles className="h-3 w-3 text-amber-300" />
+                      Nouveau client
+                    </span>
+                    <ChevronDown
+                      className={cn(
+                        "h-4 w-4 transition-transform duration-150",
+                        newClientAccordionOpen ? "rotate-180" : "rotate-0"
+                      )}
+                    />
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent side="bottom" align="center" className="w-[min(90vw,32rem)] overflow-hidden rounded-2xl border border-white/15 bg-slate-950/95 p-4 shadow-[0_40px_95px_rgba(8,15,40,0.7)] backdrop-blur-xl">
+                  <div className="space-y-2">
+                    <Input
+                      value={newClientName}
+                      onChange={(e) => {
+                        const v = e.target.value.normalize("NFC").replace(/[^\p{L} \-']/gu, "");
+                        setNewClientName(v);
+                      }}
+                      inputMode="text"
+                      autoComplete="family-name"
+                      placeholder="Nom"
+                      required={usingNewClient}
+                      aria-invalid={usingNewClient && !sanitizedNewClientLastName}
+                    />
+                    <Input
+                      value={newClientFirstName}
+                      onChange={(e) => {
+                        const v = e.target.value.normalize("NFC").replace(/[^\p{L} \-']/gu, "");
+                        setNewClientFirstName(v);
+                      }}
+                      inputMode="text"
+                      autoComplete="given-name"
+                      placeholder="Prénom"
+                      required={usingNewClient}
+                      aria-invalid={usingNewClient && !sanitizedNewClientFirstName}
+                    />
+
+                    <Input
+                      type="tel"
+                      value={newClientPhone}
+                      onChange={(e) => {
+                        const v = e.target.value.normalize("NFC").replace(/[^+\d().\-\s]/g, "");
+                        setNewClientPhone(v);
+                      }}
+                      inputMode="tel"
+                      autoComplete="tel"
+                      placeholder="Téléphone"
+                      required={usingNewClient}
+                      aria-invalid={usingNewClient && sanitizedNewClientPhoneDigits.length !== PHONE_DIGITS_REQUIRED}
+                    />
+                    {usingNewClient && sanitizedNewClientPhoneDigits.length !== PHONE_DIGITS_REQUIRED ? (
+                      <p className="text-[11px] font-semibold text-rose-400">
+                        Le numéro doit contenir exactement 10 chiffres.
+                      </p>
+                    ) : null}
+                    <button
+                      type="button"
+                      disabled={!newClientFormComplete || addClient.isPending}
+                      onClick={async () => {
+                        try {
+                          const created = await addClient.mutateAsync({
+                            name: sanitizedNewClientName,
+                            phone: sanitizedNewClientPhone || undefined,
+                          });
+                          setClientId(created.client.id);
+                          setNewClientAccordionOpen(false);
+                          setNewClientFirstName("");
+                          setNewClientName("");
+                          setNewClientPhone("");
+                          setClientAccordion("");
+                        } catch (err) {
+                          console.error("Erreur lors de la création du client:", err);
+                        }
+                      }}
+                      className="mt-2 w-full rounded-2xl border border-amber-300/60 bg-amber-300/15 px-3 py-2 text-sm font-semibold text-amber-200 transition-colors hover:bg-amber-300/25 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-amber-300/15 flex items-center justify-center gap-2"
+                    >
+                      {addClient.isPending ? (
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          Création en cours...
+                        </>
+                      ) : (
+                        "Valider le nouveau client"
+                      )}
+                    </button>
+                  </div>
                 </PopoverContent>
               </Popover>
             </div>
-          </div>
-          <Popover open={clientAccordion === "client"} onOpenChange={(open) => {
-            if (open) {
-              setClientAccordion("client");
-            } else {
-              setClientAccordion("");
-            }
-          }}>
-            <PopoverTrigger asChild>
-              <button
-                type="button"
-                className={cn(
-                  "group relative overflow-hidden rounded-lg border px-2 py-1.5 text-center text-slate-100 transition shadow-[0_8px_20px_rgba(8,15,40,0.25)] w-full",
-                  hasClientSelection
-                    ? "border-emerald-300/30 bg-slate-950/60"
-                    : "border-[#8c7cff]/35 bg-[linear-gradient(135deg,rgba(50,34,118,0.5)0%,rgba(58,52,182,0.36)45%,rgba(14,165,233,0.28)100%)]"
-                )}
-              >
-                <div className="flex w-full flex-col items-center gap-0.5 text-center">
-                  <span className="inline-flex items-center gap-0.5 rounded-full border border-white/20 bg-white/8 px-2 py-0.5 text-xs font-semibold text-white/85 shadow-[0_3px_8px_rgba(79,70,229,0.18)] leading-tight">
-                    <Sparkles className="h-1.5 w-1.5 text-amber-200" />
-                    Sélectionner un client
-                  </span>
-                  {hasClientSelection ? (
-                    <span className="text-xs font-medium text-emerald-100">{clientSummary}</span>
-                  ) : (
-                    <span className="text-[7.5px] uppercase tracking-[0.24em] text-[#c1b8ff]">Choisissez un client pour continuer</span>
-                  )}
-                </div>
-              </button>
-            </PopoverTrigger>
-            <PopoverContent side="bottom" align="center" className="w-[min(90vw,40rem)] overflow-hidden rounded-2xl border border-white/15 bg-slate-950/95 p-4 shadow-[0_40px_95px_rgba(8,15,40,0.7)] backdrop-blur-xl">
-                  <div className="space-y-2">
-                    <div className={selectionContainerClass}>
-                      <div className="flex items-center justify-between gap-2">
-                        <label className="text-[11px] font-semibold uppercase tracking-wide text-slate-200">Sélection</label>
-                        <div className="flex items-center gap-2">
-                          {!hasClientSelection && <span className="text-[10px] font-semibold text-[#c3b8ff]">Requis</span>}
-                          {clientId && (
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setClientId("");
-                                setClientPickerOpen(false);
-                                setClientSearch("");
-                              }}
-                              className="text-[10px] font-semibold uppercase tracking-wide text-[#d0c3ff] underline underline-offset-2 hover:text-[#a99bf7]"
-                            >
-                              Effacer
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                      <Popover
-                        open={clientPickerOpen}
-                        onOpenChange={(open) => {
-                          setClientPickerOpen(open);
-                          if (open) {
-                            setClientAccordion("client");
-                          } else {
-                            setClientSearch("");
-                          }
-                        }}
-                      >
-                        <PopoverTrigger asChild>
-                          <Button
-                            variant="outline"
-                            role="combobox"
-                            aria-expanded={clientPickerOpen}
-                            className={cn(
-                              "group relative mt-2 w-full justify-between overflow-hidden rounded-2xl border px-3.5 py-2.5 text-sm font-semibold transition-all",
-                              hasClientSelection
-                                ? "border-emerald-300/60 bg-emerald-300/20 text-emerald-100 shadow-[0_16px_40px_rgba(16,185,129,0.25)]"
-                                : "border-[#8c7cff]/65 bg-[linear-gradient(135deg,rgba(60,37,115,0.78)0%,rgba(80,61,201,0.6)60%,rgba(17,94,89,0.48)100%)] text-[#f4ebff] shadow-[0_18px_45px_rgba(76,29,149,0.35)]"
-                            )}
-                            title={clientSelectionTitle}
-                          >
-                            <span className="flex flex-col items-start text-left gap-1">
-                              {selectedClient ? (
-                                <>
-                                  <span className="text-base font-bold">{selectedClient.name} - {selectedClient.points} pts</span>
-                                  {(selectedClient.email || selectedClient.phone) && (
-                                    <span className="text-xs text-muted-foreground">{[selectedClient.email, selectedClient.phone].filter(Boolean).join(" - ")}</span>
-                                  )}
-                                </>
-                              ) : usingNewClient && newClientFormComplete ? (
-                                <>
-                                  <span className="text-base font-bold">{sanitizedNewClientName} - nouveau</span>
-                                  {[sanitizedNewClientEmail, sanitizedNewClientPhone].filter(Boolean).length > 0 && (
-                                    <span className="text-xs text-muted-foreground">{[sanitizedNewClientEmail, sanitizedNewClientPhone].filter(Boolean).join(" - ")}</span>
-                                  )}
-                                </>
-                              ) : (
-                                <span>Rechercher un client</span>
-                              )}
-                            </span>
-                            <span className={cn("ml-2", hasClientSelection ? "text-emerald-200" : "text-[#e1d5ff]")}>▾</span>
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-80 overflow-hidden rounded-3xl border border-white/15 bg-slate-950/90 p-0 shadow-[0_32px_70px_rgba(8,15,40,0.7)] backdrop-blur-2xl focus:outline-none">
-                          <Command>
-                            <CommandInput
-                              placeholder="Rechercher par lettre, email ou numéro"
-                              autoFocus
-                              value={clientSearch}
-                              onValueChange={setClientSearch}
-                              className="h-11 rounded-2xl border border-white/20 bg-[linear-gradient(135deg,rgba(255,255,255,0.26)0%,rgba(148,163,184,0.18)45%,rgba(56,189,248,0.16)100%)] text-lg text-white placeholder:text-white/70 shadow-[0_18px_40px_rgba(8,15,40,0.32)] backdrop-blur-2xl focus-visible:ring-2 focus-visible:ring-cyan-300 focus-visible:ring-offset-0"
-                            />
-                            <CommandList>
-                              {clientSearch.trim().length === 0 ? (
-                                <div className="py-6 text-center text-xs text-white/70">
-                                  Tapez un nom, un email ou un numéro pour afficher les clients.
-                                </div>
-                              ) : filteredClients.length === 0 ? (
-                                <CommandEmpty>Aucun client trouvé</CommandEmpty>
-                              ) : (
-                                <CommandGroup className="space-y-1 px-2 py-2">
-                                  {filteredClients.map((c) => {
-                                    const searchValue = [c.name, c.email ?? "", c.phone ?? ""].filter(Boolean).join(" ");
-                                    return (
-                                      <CommandItem
-                                        key={c.id}
-                                        value={searchValue}
-                                        className="flex cursor-pointer flex-col gap-1 rounded-2xl border border-transparent bg-white/5 px-3 py-2 text-slate-100 transition hover:border-emerald-300/60 hover:bg-emerald-400/20"
-                                        onSelect={() => {
-                                          setClientId(c.id);
-                                          setClientPickerOpen(false);
-                                          setClientSearch("");
-                                          setClientAccordion("");
-                                        }}
-                                      >
-                                        <span className="inline-flex items-center gap-2 text-sm font-semibold">
-                                          <span className="inline-flex h-1.5 w-1.5 rounded-full bg-emerald-300" />
-                                          {c.name}
-                                        </span>
-                                        <div className="flex items-center gap-2 text-xs text-white/70">
-                                          <span className="inline-flex items-center gap-1 rounded-full border border-emerald-300/50 bg-emerald-300/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-100">
-                                            {c.points} pts
-                                          </span>
-                                          {(c.email || c.phone) && (
-                                            <span className="text-[11px] text-white/70">{[c.email, c.phone].filter(Boolean).join(" - ")}</span>
-                                          )}
-                                        </div>
-                                      </CommandItem>
-                                    );
-                                  })}
-                                </CommandGroup>
-                              )}
-                            </CommandList>
-                          </Command>
-                        </PopoverContent>
-                      </Popover>
-                    </div>
-                    <Popover open={newClientAccordionOpen} onOpenChange={setNewClientAccordionOpen}>
-                      <PopoverTrigger asChild>
-                        <button
-                          type="button"
-                          className="flex w-full flex-col items-center gap-1 rounded-3xl border border-white/12 bg-white/10 px-4 py-2 text-center text-sm font-semibold text-amber-200 transition-colors hover:bg-white/20 shadow-[0_18px_45px_rgba(8,15,40,0.35)] backdrop-blur-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
-                        >
-                          <span className="inline-flex items-center gap-2 rounded-full border border-amber-200/60 bg-amber-200/10 px-3.5 py-1 text-lg font-bold tracking-wide text-amber-200">
-                            <Sparkles className="h-3 w-3 text-amber-300" />
-                            Nouveau client
-                          </span>
-                          <ChevronDown
-                            className={cn(
-                              "h-4 w-4 transition-transform duration-150",
-                              newClientAccordionOpen ? "rotate-180" : "rotate-0"
-                            )}
-                          />
-                        </button>
-                      </PopoverTrigger>
-                      <PopoverContent side="bottom" align="center" className="w-[min(90vw,32rem)] overflow-hidden rounded-2xl border border-white/15 bg-slate-950/95 p-4 shadow-[0_40px_95px_rgba(8,15,40,0.7)] backdrop-blur-xl">
-                        <div className="space-y-2">
-                          <Input
-                            value={newClientName}
-                            onChange={(e)=>{
-                              const v = e.target.value.normalize("NFC").replace(/[^\p{L} \-']/gu, "");
-                              setNewClientName(v);
-                            }}
-                            inputMode="text"
-                            autoComplete="family-name"
-                            placeholder="Nom"
-                            required={usingNewClient}
-                            aria-invalid={usingNewClient && !sanitizedNewClientLastName}
-                          />
-                          <Input
-                            value={newClientFirstName}
-                            onChange={(e)=>{
-                              const v = e.target.value.normalize("NFC").replace(/[^\p{L} \-']/gu, "");
-                              setNewClientFirstName(v);
-                            }}
-                            inputMode="text"
-                            autoComplete="given-name"
-                            placeholder="Prénom"
-                            required={usingNewClient}
-                            aria-invalid={usingNewClient && !sanitizedNewClientFirstName}
-                          />
-                          <Input
-                            type="email"
-                            value={newClientEmail}
-                            onChange={(e)=> {
-                              setNewClientEmail(e.target.value);
-                            }}
-                            inputMode="email"
-                            autoComplete="email"
-                            placeholder="Email"
-                            required={usingNewClient}
-                            aria-invalid={usingNewClient && (!sanitizedNewClientEmail || !EMAIL_REGEX.test(sanitizedNewClientEmail))}
-                          />
-                          <Input
-                            type="email"
-                            value={newClientEmailConfirm}
-                            onChange={(e)=> {
-                              setNewClientEmailConfirm(e.target.value);
-                            }}
-                            inputMode="email"
-                            autoComplete="email"
-                            placeholder="Confirmation email"
-                            required={usingNewClient}
-                            aria-invalid={usingNewClient && sanitizedNewClientEmail !== sanitizedNewClientEmailConfirm}
-                          />
-                          {usingNewClient && sanitizedNewClientEmail && sanitizedNewClientEmailConfirm && sanitizedNewClientEmail !== sanitizedNewClientEmailConfirm ? (
-                            <p className="text-[11px] font-semibold text-rose-400">
-                              Les adresses email ne correspondent pas.
-                            </p>
-                          ) : null}
-                          <Input
-                            type="tel"
-                            value={newClientPhone}
-                            onChange={(e)=>{
-                              const v = e.target.value.normalize("NFC").replace(/[^+\d().\-\s]/g, "");
-                              setNewClientPhone(v);
-                            }}
-                            inputMode="tel"
-                            autoComplete="tel"
-                            placeholder="Téléphone"
-                            required={usingNewClient}
-                            aria-invalid={usingNewClient && sanitizedNewClientPhoneDigits.length !== PHONE_DIGITS_REQUIRED}
-                          />
-                          {usingNewClient && sanitizedNewClientPhoneDigits.length !== PHONE_DIGITS_REQUIRED ? (
-                            <p className="text-[11px] font-semibold text-rose-400">
-                              Le numéro doit contenir exactement 10 chiffres.
-                            </p>
-                          ) : null}
-                          <button
-                            type="button"
-                            disabled={!newClientFormComplete || addClient.isPending}
-                            onClick={async () => {
-                              try {
-                                const created = await addClient.mutateAsync({
-                                  name: sanitizedNewClientName,
-                                  email: sanitizedNewClientEmail || undefined,
-                                  phone: sanitizedNewClientPhone || undefined,
-                                });
-                                setClientId(created.client.id);
-                                setNewClientAccordionOpen(false);
-                                setNewClientFirstName("");
-                                setNewClientName("");
-                                setNewClientEmail("");
-                                setNewClientEmailConfirm("");
-                                setNewClientPhone("");
-                                setClientAccordion("");
-                              } catch (err) {
-                                console.error("Erreur lors de la création du client:", err);
-                              }
-                            }}
-                            className="mt-2 w-full rounded-2xl border border-amber-300/60 bg-amber-300/15 px-3 py-2 text-sm font-semibold text-amber-200 transition-colors hover:bg-amber-300/25 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-amber-300/15 flex items-center justify-center gap-2"
-                          >
-                            {addClient.isPending ? (
-                              <>
-                                <Loader2 className="h-4 w-4 animate-spin" />
-                                Création en cours...
-                              </>
-                            ) : (
-                              "Valider le nouveau client"
-                            )}
-                          </button>
-                        </div>
-                      </PopoverContent>
-                    </Popover>
-                </div>
-            </PopoverContent>
-          </Popover>
+          </PopoverContent>
+        </Popover>
       </form>
     </Card>
   );

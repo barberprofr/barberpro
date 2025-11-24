@@ -75,6 +75,9 @@ function sanitizeInit(init?: RequestInit): RequestInit | undefined {
 
 async function apiFetch(input: string, init?: RequestInit): Promise<Response> {
   const requestInit = sanitizeInit(init);
+  // Force no-store to prevent caching of API responses, especially for PWA
+  const finalInit = { ...requestInit, cache: 'no-store' as RequestCache };
+
   const normalizedPath = normalizePath(apiPath(input));
   const attemptedUrls: string[] = [];
   let lastErr: any = null;
@@ -89,7 +92,7 @@ async function apiFetch(input: string, init?: RequestInit): Promise<Response> {
         const url = buildUrl(candidate, normalizedPath);
         attemptedUrls.push(url);
         try {
-          const res = await fetch(url, requestInit);
+          const res = await fetch(url, finalInit);
           if (res.status !== 404) return res;
           lastErr = new Error(`HTTP ${res.status} at ${url}`);
         } catch (e) {
@@ -170,21 +173,25 @@ export interface PointsUsageReport {
 }
 
 export function useStylists() {
-  return useQuery({ queryKey: ["stylists"], queryFn: async () => {
-    const res = await apiFetch("/api/stylists");
-    if (!res.ok) throw new Error("Failed to load stylists");
-    const data = await res.json() as { stylists: Stylist[] };
-    return data.stylists;
-  }});
+  return useQuery({
+    queryKey: ["stylists"], queryFn: async () => {
+      const res = await apiFetch("/api/stylists");
+      if (!res.ok) throw new Error("Failed to load stylists");
+      const data = await res.json() as { stylists: Stylist[] };
+      return data.stylists;
+    }
+  });
 }
 
 export function useClients(enabled: boolean = true) {
-  return useQuery({ queryKey: ["clients"], enabled, queryFn: async () => {
-    const res = await apiFetch("/api/clients");
-    if (!res.ok) throw new Error("Failed to load clients");
-    const data = await res.json() as { clients: Client[] };
-    return data.clients;
-  }});
+  return useQuery({
+    queryKey: ["clients"], enabled, queryFn: async () => {
+      const res = await apiFetch("/api/clients");
+      if (!res.ok) throw new Error("Failed to load clients");
+      const data = await res.json() as { clients: Client[] };
+      return data.clients;
+    }
+  });
 }
 
 export interface SummaryPayments { total: PaymentBreakdown; methods: Record<MethodKey, PaymentBreakdown> }
@@ -196,17 +203,19 @@ export interface DashboardSummary {
 }
 
 export function useDashboardSummary() {
-  return useQuery({ queryKey: ["summary"], queryFn: async (): Promise<DashboardSummary> => {
-    const res = await apiFetch("/api/reports/summary");
-    if (!res.ok) throw new Error("Failed to load summary");
-    return res.json();
-  }});
+  return useQuery({
+    queryKey: ["summary"], queryFn: async (): Promise<DashboardSummary> => {
+      const res = await apiFetch("/api/reports/summary");
+      if (!res.ok) throw new Error("Failed to load summary");
+      return res.json();
+    }
+  });
 }
 
 export function useAddPrestation() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (input: { stylistId: string; clientId?: string; amount: number; paymentMethod: PaymentMethod; timestamp: number; pointsPercent?: number; }) => {
+    mutationFn: async (input: { stylistId: string; clientId?: string; amount: number; paymentMethod: PaymentMethod; timestamp: number; pointsPercent?: number; serviceName?: string; serviceId?: string; }) => {
       const res = await apiFetch("/api/prestations", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(input) });
       if (!res.ok) await throwResponseError(res);
       return res.json() as Promise<{ prestation: Prestation; client?: Client }>;
@@ -222,7 +231,7 @@ export function useAddPrestation() {
 export function useAddProduct() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (input: { stylistId: string; clientId?: string; amount: number; paymentMethod: PaymentMethod; timestamp: number; }) => {
+    mutationFn: async (input: { stylistId: string; clientId?: string; amount: number; paymentMethod: PaymentMethod; timestamp: number; productName?: string; productTypeId?: string; }) => {
       const res = await apiFetch("/api/products", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(input) });
       if (!res.ok) await throwResponseError(res);
       return res.json() as Promise<{ product: Product; client?: Client }>;
@@ -342,7 +351,7 @@ export interface PaymentBreakdown { amount: number; count: number }
 export interface StylistBreakdown {
   daily: { total: PaymentBreakdown; methods: Record<MethodKey, PaymentBreakdown> };
   monthly: { total: PaymentBreakdown; methods: Record<MethodKey, PaymentBreakdown> };
-  dailyEntries?: { amount: number; paymentMethod: MethodKey; timestamp: number; kind: "prestation" | "produit" }[];
+  dailyEntries?: { amount: number; paymentMethod: MethodKey; timestamp: number; kind: "prestation" | "produit"; name?: string }[];
 }
 
 export function useStylistBreakdown(stylistId?: string, date?: string) {
@@ -485,16 +494,6 @@ export async function createCheckoutSession() {
   return res.json() as Promise<{ url?: string; id?: string }>;
 }
 
-// Check subscription status manually (useful after payment)
-export async function checkSubscriptionStatus() {
-  const res = await apiFetch("/api/check-subscription-status", { method: "GET" });
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(text || "Failed to check subscription status");
-  }
-  return res.json() as Promise<{ subscriptionStatus: string | null; subscriptionCurrentPeriodEnd: number | null; updated: boolean }>;
-}
-
 export function useAdminRecover() {
   return useMutation({
     mutationFn: async (email: string) => {
@@ -526,10 +525,10 @@ export function useAdminRecoverVerify() {
 export function useAdminRecoverCode() {
   return useMutation({
     mutationFn: async (email: string) => {
-      const res = await apiFetch("/api/admin/recover-code", { 
-        method: "POST", 
-        headers: { "Content-Type": "application/json" }, 
-        body: JSON.stringify({ email }) 
+      const res = await apiFetch("/api/admin/recover-code", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email })
       });
       if (!res.ok) await throwResponseError(res);
       return res.json() as Promise<{ ok: true; emailed?: boolean }>;
@@ -541,10 +540,10 @@ export function useAdminRecoverCodeVerify() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (input: { email: string; code: string; newAdminCode: string }) => {
-      const res = await apiFetch("/api/admin/recover-code/verify", { 
-        method: "POST", 
-        headers: { "Content-Type": "application/json" }, 
-        body: JSON.stringify(input) 
+      const res = await apiFetch("/api/admin/recover-code/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(input)
       });
       if (!res.ok) await throwResponseError(res);
       return res.json() as Promise<{ token: string; salonId?: string }>;
@@ -603,12 +602,14 @@ export function useDeleteStylist() {
 }
 
 export function useServices() {
-  return useQuery({ queryKey: ["services"], queryFn: async () => {
-    const res = await apiFetch("/api/services");
-    if (!res.ok) throw new Error("Failed to load services");
-    const data = await res.json() as { services: Service[] };
-    return data.services;
-  }});
+  return useQuery({
+    queryKey: ["services"], queryFn: async () => {
+      const res = await apiFetch("/api/services");
+      if (!res.ok) throw new Error("Failed to load services");
+      const data = await res.json() as { services: Service[] };
+      return data.services;
+    }
+  });
 }
 
 export function useAddService() {
@@ -641,12 +642,14 @@ export function useDeleteService() {
 }
 
 export function useProductTypes() {
-  return useQuery({ queryKey: ["product-types"], queryFn: async () => {
-    const res = await apiFetch("/api/product-types");
-    if (!res.ok) throw new Error("Failed to load product types");
-    const data = await res.json() as { productTypes: ProductType[] };
-    return data.productTypes;
-  }});
+  return useQuery({
+    queryKey: ["product-types"], queryFn: async () => {
+      const res = await apiFetch("/api/product-types");
+      if (!res.ok) throw new Error("Failed to load product types");
+      const data = await res.json() as { productTypes: ProductType[] };
+      return data.productTypes;
+    }
+  });
 }
 
 export function useAddProductType() {

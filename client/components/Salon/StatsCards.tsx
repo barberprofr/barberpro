@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useDashboardSummary, useStylists, useStylistBreakdown, useConfig, apiPath, useProducts } from "@/lib/api";
+import { StylistDailySection, StylistMonthly } from "@/components/Salon/StylistDailyStats";
 
 type SummaryHighlightCardProps = {
   label: string;
@@ -263,94 +264,16 @@ export default function StatsCards() {
             </div>
           </button>
         </PopoverTrigger>
-        <PopoverContent side="bottom" align="center" className="w-[min(90vw,36rem)] overflow-hidden rounded-2xl border border-white/15 bg-[linear-gradient(135deg,rgba(4,11,46,0.92)0%,rgba(11,27,77,0.78)55%,rgba(16,45,115,0.58)100%)] p-4 shadow-[0_40px_95px_rgba(8,15,40,0.7)] backdrop-blur-xl">
+        <PopoverContent side="bottom" align="center" className="w-[min(90vw,36rem)] max-h-[80vh] overflow-y-auto rounded-2xl border border-white/15 bg-[linear-gradient(135deg,rgba(4,11,46,0.92)0%,rgba(11,27,77,0.78)55%,rgba(16,45,115,0.58)100%)] p-4 shadow-[0_40px_95px_rgba(8,15,40,0.7)] backdrop-blur-xl">
           {!hasStylists ? (
             <div className="rounded-2xl border border-primary/25 bg-primary/5 px-4 py-3 text-sm text-muted-foreground">
               Aucun coiffeur enregistré pour le moment.
             </div>
           ) : (
             <motion.div layout className="space-y-3">
-              {stylistsList.map((s) => {
-                const isOpen = openId === s.id;
-                const salary = eur.format((((s.stats as any)?.dailyPrestationAmount ?? (s.stats?.dailyAmount ?? 0)) * ((s as any).commissionPct ?? config?.commissionDefault ?? 0) / 100));
-                const dailyPointsUsed = s.stats?.dailyPointsUsed ?? 0;
-                return (
-                  <motion.div
-                    key={s.id}
-                    layout
-                    transition={{ layout: { type: "spring", stiffness: 260, damping: 28 } }}
-                    className="rounded-3xl border border-white/12 bg-[linear-gradient(140deg,rgba(8,15,40,0.88)0%,rgba(27,51,122,0.7)55%,rgba(46,91,181,0.55)100%)] p-3 shadow-[0_18px_45px_rgba(15,23,42,0.35)] backdrop-blur-xl transition hover:border-white/30 hover:bg-[linear-gradient(140deg,rgba(8,15,40,0.92)0%,rgba(27,51,122,0.78)55%,rgba(46,91,181,0.62)100%)]"
-                  >
-                    <motion.button
-                      type="button"
-                      layout="position"
-                      className="flex w-full flex-col gap-2 rounded-lg bg-transparent px-1.5 py-1 text-left outline-none transition-all duration-200 focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
-                      onClick={() => setOpenId(isOpen ? "" : s.id)}
-                      whileHover={{ scale: 1.01 }}
-                      whileTap={{ scale: 0.995 }}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" || e.key === " ") {
-                          e.preventDefault();
-                          setOpenId(isOpen ? "" : s.id);
-                        }
-                      }}
-                      aria-expanded={isOpen}
-                      aria-controls={`stylist-${s.id}-details`}
-                    >
-                      <motion.div layout className="flex w-full items-center justify-between gap-3">
-                        <div className="flex flex-1 flex-col gap-1.5">
-                          <span className="inline-flex items-center gap-2 rounded-full border border-white/35 bg-white/15 px-4 py-1 text-sm font-semibold text-white w-fit">
-                            <span className="h-1.5 w-1.5 rounded-full bg-emerald-300" />
-                            {s.name}
-                          </span>
-                          <span className="text-[11px] font-semibold text-emerald-100">
-                            {s.stats?.dailyCount ?? 0} prestation{(s.stats?.dailyCount ?? 0) > 1 ? "s" : ""}{(s.stats as any)?.dailyProductCount ? `, ${(s.stats as any).dailyProductCount} produit${(s.stats as any).dailyProductCount > 1 ? "s" : ""}` : ""}
-                          </span>
-                          <span className="text-[11px] font-semibold text-emerald-100">
-                            Salaire {salary}
-                          </span>
-                        </div>
-                        <motion.div
-                          layout
-                          animate={{ scale: isOpen ? 1.05 : 1, opacity: 1 }}
-                          transition={{ type: "spring", stiffness: 240, damping: 20 }}
-                          className="text-right"
-                        >
-                          <div className="text-2xl font-extrabold text-primary transition-all duration-300">
-                            {eur.format(s.stats?.dailyAmount ?? 0)}
-                          </div>
-                          {dailyPointsUsed > 0 && (
-                            <div className="text-[10px] uppercase tracking-wide text-muted-foreground">
-                              Points utilisés {pointsFmt.format(dailyPointsUsed)} pts
-                            </div>
-                          )}
-                        </motion.div>
-                      </motion.div>
-                    </motion.button>
-                    <AnimatePresence initial={false}>
-                      {isOpen && (
-                        <motion.div
-                          key="details"
-                          id={`stylist-${s.id}-details`}
-                          initial={{ height: 0, opacity: 0, y: -8 }}
-                          animate={{ height: "auto", opacity: 1, y: 0 }}
-                          exit={{ height: 0, opacity: 0, y: -8 }}
-                          transition={{ duration: 0.32, ease: [0.16, 1, 0.3, 1] }}
-                          className="overflow-hidden"
-                        >
-                          <motion.div
-                            layout
-                            transition={{ layout: { type: "spring", stiffness: 220, damping: 26 } }}
-                            className="pt-2"
-                          >
-                            <StylistBreakdown id={s.id} />
-                          </motion.div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </motion.div>
-                );
-              })}
+              {stylistsList.map((s) => (
+                <StylistCard key={s.id} s={s} config={config} openId={openId} setOpenId={setOpenId} />
+              ))}
             </motion.div>
           )}
         </PopoverContent>
@@ -359,23 +282,105 @@ export default function StatsCards() {
   );
 }
 
-function StylistBreakdown({ id }: { id: string }) {
-  const { data } = useStylistBreakdown(id);
-  const daily = data?.daily;
+function StylistCard({ s, config, openId, setOpenId }: { s: any, config: any, openId: string, setOpenId: (id: string) => void }) {
+  const [viewMode, setViewMode] = useState<"daily" | "monthly">("daily");
+  const isOpen = openId === s.id;
+  const salary = eur.format((((s.stats as any)?.dailyPrestationAmount ?? (s.stats?.dailyAmount ?? 0)) * ((s as any).commissionPct ?? config?.commissionDefault ?? 0) / 100));
+  const dailyPointsUsed = s.stats?.dailyPointsUsed ?? 0;
+
   return (
-    <div className="mt-1 text-sm border rounded-md overflow-hidden">
-      <div className="grid grid-cols-4 bg-muted/40 px-3 py-2 font-medium">
-        <div></div>
-        <div>Espèces</div>
-        <div>Chèque</div>
-        <div>Carte</div>
-      </div>
-      <div className="grid grid-cols-4 px-3 py-2 border-t">
-        <div></div>
-        <div>{eur.format(daily?.methods.cash.amount || 0)}</div>
-        <div>{eur.format(daily?.methods.check.amount || 0)}</div>
-        <div>{eur.format(daily?.methods.card.amount || 0)}</div>
-      </div>
-    </div>
+    <motion.div
+      layout
+      transition={{ layout: { type: "spring", stiffness: 260, damping: 28 } }}
+      className="rounded-3xl border border-white/12 bg-[linear-gradient(140deg,rgba(8,15,40,0.88)0%,rgba(27,51,122,0.7)55%,rgba(46,91,181,0.55)100%)] p-3 shadow-[0_18px_45px_rgba(15,23,42,0.35)] backdrop-blur-xl transition hover:border-white/30 hover:bg-[linear-gradient(140deg,rgba(8,15,40,0.92)0%,rgba(27,51,122,0.78)55%,rgba(46,91,181,0.62)100%)]"
+    >
+      <motion.button
+        type="button"
+        layout="position"
+        className="flex w-full flex-col gap-2 rounded-lg bg-transparent px-1.5 py-1 text-left outline-none transition-all duration-200 focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
+        onClick={() => setOpenId(isOpen ? "" : s.id)}
+        whileHover={{ scale: 1.01 }}
+        whileTap={{ scale: 0.995 }}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            setOpenId(isOpen ? "" : s.id);
+          }
+        }}
+        aria-expanded={isOpen}
+        aria-controls={`stylist-${s.id}-details`}
+      >
+        <motion.div layout className="flex w-full items-center justify-between gap-3">
+          <div className="flex flex-1 flex-col gap-1.5">
+            <span className="inline-flex items-center gap-2 rounded-full border border-white/35 bg-white/15 px-4 py-1 text-sm font-semibold text-white w-fit">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-300" />
+              {s.name}
+            </span>
+            <span className="text-[11px] font-semibold text-emerald-100">
+              {s.stats?.dailyCount ?? 0} prestation{(s.stats?.dailyCount ?? 0) > 1 ? "s" : ""}{(s.stats as any)?.dailyProductCount ? `, ${(s.stats as any).dailyProductCount} produit${(s.stats as any).dailyProductCount > 1 ? "s" : ""}` : ""}
+            </span>
+            <span className="text-[11px] font-semibold text-emerald-100">
+              Salaire {salary}
+            </span>
+          </div>
+          <motion.div
+            layout
+            animate={{ scale: isOpen ? 1.05 : 1, opacity: 1 }}
+            transition={{ type: "spring", stiffness: 240, damping: 20 }}
+            className="text-right"
+          >
+            <div className="text-2xl font-extrabold text-primary transition-all duration-300">
+              {eur.format(s.stats?.dailyAmount ?? 0)}
+            </div>
+            {dailyPointsUsed > 0 && (
+              <div className="text-[10px] uppercase tracking-wide text-muted-foreground">
+                Points utilisés {pointsFmt.format(dailyPointsUsed)} pts
+              </div>
+            )}
+          </motion.div>
+        </motion.div>
+      </motion.button>
+      <AnimatePresence initial={false}>
+        {isOpen && (
+          <motion.div
+            key="details"
+            id={`stylist-${s.id}-details`}
+            initial={{ height: 0, opacity: 0, y: -8 }}
+            animate={{ height: "auto", opacity: 1, y: 0 }}
+            exit={{ height: 0, opacity: 0, y: -8 }}
+            transition={{ duration: 0.32, ease: [0.16, 1, 0.3, 1] }}
+            className="overflow-hidden"
+          >
+            <motion.div
+              layout
+              transition={{ layout: { type: "spring", stiffness: 220, damping: 26 } }}
+              className="pt-2 space-y-2"
+            >
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setViewMode("daily")}
+                  className={`flex-1 rounded-lg px-2 py-1 text-xs font-semibold uppercase tracking-wider transition-colors ${viewMode === "daily" ? "bg-white/20 text-white" : "bg-transparent text-white/50 hover:bg-white/10"}`}
+                >
+                  Journalier
+                </button>
+                <button
+                  onClick={() => setViewMode("monthly")}
+                  className={`flex-1 rounded-lg px-2 py-1 text-xs font-semibold uppercase tracking-wider transition-colors ${viewMode === "monthly" ? "bg-white/20 text-white" : "bg-transparent text-white/50 hover:bg-white/10"}`}
+                >
+                  Mensuel
+                </button>
+              </div>
+              {viewMode === "daily" ? (
+                <StylistDailySection id={s.id} commissionPct={((s as any).commissionPct ?? config?.commissionDefault ?? 0)} />
+              ) : (
+                <StylistMonthly id={s.id} commissionPct={((s as any).commissionPct ?? config?.commissionDefault ?? 0)} />
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
   );
 }
+
+

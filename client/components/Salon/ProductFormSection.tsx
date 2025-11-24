@@ -4,14 +4,14 @@ import { Loader2, Check, ChevronDown, CircleDollarSign, CreditCard, FileText, Sp
 import type { LucideIcon } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Input } from "@/components/ui/input";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { useAddClient, useAddProduct, useClients, useStylists } from "@/lib/api";
 
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 const PHONE_DIGITS_REQUIRED = 10;
 const PAYMENT_OPTIONS: { value: "cash" | "check" | "card"; label: string; icon: LucideIcon }[] = [
   { value: "cash", label: "Espèces", icon: CircleDollarSign },
@@ -43,8 +43,7 @@ export default function ProductFormSection({ onSuccess }: ProductFormSectionProp
   const [newClientAccordionOpen, setNewClientAccordionOpen] = useState(false);
   const [newClientFirstName, setNewClientFirstName] = useState<string>("");
   const [newClientName, setNewClientName] = useState<string>("");
-  const [newClientEmail, setNewClientEmail] = useState<string>("");
-  const [newClientEmailConfirm, setNewClientEmailConfirm] = useState<string>("");
+
   const [newClientPhone, setNewClientPhone] = useState<string>("");
   const [clientPickerOpen, setClientPickerOpen] = useState(false);
   const [clientSearch, setClientSearch] = useState("");
@@ -67,8 +66,7 @@ export default function ProductFormSection({ onSuccess }: ProductFormSectionProp
   const sanitizedNewClientName = useMemo(() => {
     return [sanitizedNewClientFirstName, sanitizedNewClientLastName].filter(Boolean).join(" ").trim();
   }, [sanitizedNewClientFirstName, sanitizedNewClientLastName]);
-  const sanitizedNewClientEmail = useMemo(() => newClientEmail.trim().toLowerCase(), [newClientEmail]);
-  const sanitizedNewClientEmailConfirm = useMemo(() => newClientEmailConfirm.trim().toLowerCase(), [newClientEmailConfirm]);
+
   const sanitizedNewClientPhone = useMemo(() => {
     if (!newClientPhone) return "";
     return newClientPhone.normalize("NFC").replace(/[^+\d().\-\s]/g, "").trim();
@@ -83,16 +81,14 @@ export default function ProductFormSection({ onSuccess }: ProductFormSectionProp
   }, [clientId, sanitizedNewClientEmail, sanitizedNewClientEmailConfirm, sanitizedNewClientFirstName, sanitizedNewClientLastName, sanitizedNewClientPhone]);
   const newClientFormComplete = useMemo(() => {
     if (!usingNewClient) return false;
-    return Boolean(sanitizedNewClientFirstName && sanitizedNewClientLastName && sanitizedNewClientEmail && sanitizedNewClientEmailConfirm && sanitizedNewClientPhone && sanitizedNewClientPhoneDigits.length === PHONE_DIGITS_REQUIRED);
-  }, [usingNewClient, sanitizedNewClientEmail, sanitizedNewClientEmailConfirm, sanitizedNewClientFirstName, sanitizedNewClientLastName, sanitizedNewClientPhone, sanitizedNewClientPhoneDigits]);
+    return Boolean(sanitizedNewClientFirstName && sanitizedNewClientLastName && sanitizedNewClientPhone && sanitizedNewClientPhoneDigits.length === PHONE_DIGITS_REQUIRED);
+  }, [usingNewClient, sanitizedNewClientFirstName, sanitizedNewClientLastName, sanitizedNewClientPhone, sanitizedNewClientPhoneDigits]);
   const newClientFormValid = useMemo(() => {
     if (!usingNewClient) return true;
     if (!newClientFormComplete) return false;
-    if (!EMAIL_REGEX.test(sanitizedNewClientEmail)) return false;
-    if (sanitizedNewClientEmail !== sanitizedNewClientEmailConfirm) return false;
     if (sanitizedNewClientPhoneDigits.length !== PHONE_DIGITS_REQUIRED) return false;
     return true;
-  }, [newClientFormComplete, sanitizedNewClientEmail, sanitizedNewClientEmailConfirm, sanitizedNewClientPhoneDigits, usingNewClient]);
+  }, [newClientFormComplete, sanitizedNewClientPhoneDigits, usingNewClient]);
   const selectedStylist = useMemo(() => stylists?.find((s) => s.id === stylistId) ?? null, [stylists, stylistId]);
   const paymentOption = useMemo(() => PAYMENT_OPTIONS.find((opt) => opt.value === payment), [payment]);
   const paymentLabel = paymentOption?.label ?? "Carte";
@@ -115,7 +111,7 @@ export default function ProductFormSection({ onSuccess }: ProductFormSectionProp
     const term = debouncedClientSearch.trim().toLowerCase();
     if (!term) return [];
     return (clients ?? []).filter((c) => {
-      const haystack = [c.name, c.email ?? "", c.phone ?? ""].join(" ").toLowerCase();
+      const haystack = [c.name, c.phone ?? ""].join(" ").toLowerCase();
       return haystack.includes(term);
     });
   }, [debouncedClientSearch, clients]);
@@ -217,11 +213,10 @@ export default function ProductFormSection({ onSuccess }: ProductFormSectionProp
         return;
       }
       try {
-        const created = await addClient.mutateAsync({
-          name: sanitizedNewClientName,
-          email: sanitizedNewClientEmail || undefined,
-          phone: sanitizedNewClientPhone || undefined,
-        });
+                                const created = await addClient.mutateAsync({
+                                  name: sanitizedNewClientName,
+                                  phone: sanitizedNewClientPhone || undefined,
+                                });
         nextClientId = created.client.id;
         setClientId(created.client.id);
         setClientSearch("");
@@ -252,8 +247,6 @@ export default function ProductFormSection({ onSuccess }: ProductFormSectionProp
         setClientId("");
         setNewClientFirstName("");
         setNewClientName("");
-        setNewClientEmail("");
-        setNewClientEmailConfirm("");
         setNewClientPhone("");
         setNewClientAccordionOpen(false);
         setClientPickerOpen(false);
@@ -373,50 +366,65 @@ export default function ProductFormSection({ onSuccess }: ProductFormSectionProp
           </div>
         </div>
 
-        <Popover open={paymentPopoverOpen} onOpenChange={setPaymentPopoverOpen}>
-          <PopoverTrigger asChild>
-            <button
-              type="button"
-              className="w-full group relative overflow-hidden rounded-lg border border-emerald-300/60 bg-emerald-500/15 px-4 py-2 text-left text-base font-semibold uppercase tracking-wide text-emerald-100 shadow-[0_12px_28px_rgba(16,185,129,0.38)] transition-all duration-200 hover:border-emerald-300/80 hover:shadow-[0_16px_36px_rgba(16,185,129,0.45)]"
-            >
-              <span className="inline-flex items-center gap-2">
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-200" />
-                {payment ? paymentLabel : "Paiement"}
-              </span>
-            </button>
-          </PopoverTrigger>
-          <PopoverContent side="bottom" align="center" className="w-[min(85vw,32rem)] overflow-hidden rounded-2xl border border-white/15 bg-[linear-gradient(140deg,rgba(7,12,30,0.96)0%,rgba(67,56,202,0.65)55%,rgba(16,185,129,0.45)100%)] p-3 text-slate-50 shadow-[0_40px_95px_rgba(8,15,40,0.7)] backdrop-blur-2xl">
-            <div className="space-y-2">
-              {PAYMENT_OPTIONS.map((option) => {
-                const Icon = option.icon;
-                const isSelected = payment === option.value;
-                return (
-                  <button
-                    key={option.value}
-                    type="button"
-                    onClick={() => handlePaymentSelect(option.value)}
-                    className={cn(
-                      "flex w-full items-center justify-between rounded-xl border border-slate-700/60 bg-slate-900/80 px-4 py-3 text-left text-sm font-semibold transition-all duration-150 hover:border-emerald-400/70 hover:bg-emerald-500/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400",
-                      isSelected && "border-emerald-400/80 bg-emerald-500/15 text-emerald-100 shadow-[0_0_0_1px_rgba(16,185,129,0.45)]"
-                    )}
-                  >
-                    <span className="flex items-center gap-3">
-                      <span className={cn("flex h-9 w-9 items-center justify-center rounded-xl border border-slate-700/70 bg-slate-900/70 text-slate-200 transition-colors", isSelected && "border-emerald-400/80 bg-emerald-500/15 text-emerald-200")}>
-                        <Icon className="h-4 w-4" />
-                      </span>
-                      <span>{option.label}</span>
-                    </span>
-                    {isSelected ? (
-                      <span className="rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-200">
-                        Sélectionné
+        <div className="flex justify-center">
+          <div className="flex flex-col items-center gap-4 py-6">
+            <label className="text-lg font-semibold text-white">Choisir le mode de paiement</label>
+            <Popover open={paymentPopoverOpen} onOpenChange={setPaymentPopoverOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="inline-flex h-16 min-w-[12rem] items-center justify-center gap-4 rounded-3xl border-2 border-emerald-400/70 bg-emerald-500/20 px-6 text-lg font-bold text-emerald-100 transition-all duration-200 hover:border-emerald-300 hover:bg-emerald-400/30 hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 shadow-[0_8px_25px_rgba(16,185,129,0.4)]"
+                >
+                  <span className="flex items-center gap-3">
+                    {PaymentIcon ? (
+                      <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-500/30 text-emerald-200">
+                        <PaymentIcon className="h-6 w-6" />
                       </span>
                     ) : null}
-                  </button>
-                );
-              })}
-            </div>
-          </PopoverContent>
-        </Popover>
+                    <span className="text-xl font-black">{paymentLabel}</span>
+                  </span>
+                  <span className="text-sm text-emerald-200">▼</span>
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent side="bottom" align="center" className="w-[min(90vw,28rem)] rounded-3xl border border-emerald-400/50 bg-gradient-to-br from-slate-950/95 via-indigo-900/70 to-emerald-800/40 p-6 text-slate-50 shadow-[0_40px_100px_rgba(8,15,40,0.8)] backdrop-blur-2xl">
+                <div className="space-y-4">
+                  <h3 className="text-center text-2xl font-bold text-white mb-4">Modes de paiement</h3>
+                  <div className="grid gap-4 sm:grid-cols-1">
+                    {PAYMENT_OPTIONS.map((option) => {
+                      const Icon = option.icon;
+                      const isSelected = payment === option.value;
+                      return (
+                        <button
+                          key={option.value}
+                          type="button"
+                          onClick={() => handlePaymentSelect(option.value)}
+                          className={cn(
+                            "flex w-full items-center justify-center gap-4 rounded-2xl border-2 border-slate-700/70 bg-slate-900/90 px-6 py-5 text-center text-lg font-bold transition-all duration-200 hover:border-emerald-400/80 hover:bg-emerald-500/20 hover:scale-102 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 shadow-[0_8px_25px_rgba(8,15,40,0.3)]",
+                            isSelected && "border-emerald-400 bg-emerald-500/25 text-emerald-100 shadow-[0_12px_35px_rgba(16,185,129,0.5)] scale-105"
+                          )}
+                        >
+                          <span className={cn(
+                            "flex h-12 w-12 items-center justify-center rounded-2xl border border-slate-700/80 bg-slate-800/80 text-slate-200 transition-all",
+                            isSelected && "border-emerald-400/90 bg-emerald-500/30 text-emerald-200 shadow-[0_4px_12px_rgba(16,185,129,0.4)]"
+                          )}>
+                            <Icon className="h-7 w-7" />
+                          </span>
+                          <span className="text-xl font-black">{option.label}</span>
+                          {isSelected ? (
+                            <span className="rounded-full bg-emerald-500/20 px-3 py-1 text-sm font-bold uppercase tracking-wide text-emerald-200 border border-emerald-400/50">
+                              Sélectionné
+                            </span>
+                          ) : null}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
+          </div>
+        </div>
       </div>
 
       <button type="submit" disabled={!canSubmit || addProduct.isPending} className="mt-4 w-full py-2 px-4 rounded-xl bg-emerald-500 text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
