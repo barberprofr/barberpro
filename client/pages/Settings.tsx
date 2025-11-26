@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { PasswordInput } from "@/components/ui/password-input";
 import { Button } from "@/components/ui/button";
 import ClientsExport from "@/components/Salon/ClientsExport";
+import PointsManager from "@/components/Salon/PointsManager";
 import ServicesManager from "@/components/Salon/ServicesManager";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
@@ -852,7 +853,6 @@ export default function Settings() {
   const adminEmailValid = adminEmailTrimmed ? /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(adminEmailTrimmed) : !adminEmailRequired;
   const [stylistName, setStylistName] = useState("");
   const [commissionPct, setCommissionPct] = useState("");
-  const [loyaltyPct, setLoyaltyPct] = useState("" + (typeof config?.loyaltyPercentDefault === "number" ? config.loyaltyPercentDefault : 5));
   const [pointsRedeemDefaultStr, setPointsRedeemDefaultStr] = useState("" + (typeof config?.pointsRedeemDefault === "number" ? config.pointsRedeemDefault : 10));
   const [loginCode, setLoginCode] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -1267,8 +1267,7 @@ export default function Settings() {
             <div className={cn(glassPanelClasses, "space-y-2.5 text-xs")}>
               <div className={pillHeadingClasses}>Aperçu des paramètres actuels</div>
               <dl className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-y-1.5 gap-x-3 text-sm">
-                <dt className="font-semibold text-white/80">Points de fidélité</dt>
-                <dd className="text-right text-base font-black text-white drop-shadow-[0_10px_25px_rgba(16,185,129,0.45)]">{config?.loyaltyPercentDefault ?? 0}%</dd>
+
                 <dt className="font-semibold text-white/80">Rémunération par défaut</dt>
                 <dd className="text-right text-base font-black text-white drop-shadow-[0_10px_25px_rgba(59,130,246,0.45)]">{config?.commissionDefault ?? 50}%</dd>
                 <dt className="font-semibold text-white/80">Points à déduire</dt>
@@ -1409,7 +1408,7 @@ export default function Settings() {
                     </span>
                   </AccordionTrigger>
                   <AccordionContent className="px-3 pb-3 pt-2">
-                    <div className="grid gap-3 text-[11px] sm:grid-cols-2 xl:grid-cols-4">
+                    <div className="grid gap-3 text-[11px] sm:grid-cols-2">
                       <div className={cn(inputShellClasses, "col-span-full flex-col items-start gap-2 border-white/14 bg-slate-950/70 sm:col-span-2 xl:col-span-2")}
                       >
                         <span className="font-semibold text-white/80">Modifier le nom du salon</span>
@@ -1431,29 +1430,7 @@ export default function Settings() {
                           </Button>
                         </div>
                       </div>
-                      <div className={cn(inputShellClasses, "justify-between border-white/14 bg-slate-950/70")}
-                      >
-                        <span className="font-semibold text-white/80">Points de fidélité (%)</span>
-                        <div className="flex items-center gap-1.5">
-                          <Input
-                            className={cn(inputFieldClasses, "h-9 w-20 bg-slate-950/85 text-sm font-semibold text-white caret-emerald-200 placeholder:text-white/65")}
-                            type="text"
-                            inputMode="numeric"
-                            pattern="[0-9]*"
-                            value={loyaltyPct}
-                            onWheelCapture={(e) => e.preventDefault()}
-                            onKeyDown={(e) => { if (["ArrowUp", "ArrowDown", "PageUp", "PageDown"].includes(e.key)) e.preventDefault(); }}
-                            onChange={(e) => setLoyaltyPct(e.target.value.replace(/[^0-9]/g, ""))}
-                          />
-                          <Button
-                            size="sm"
-                            className="h-8 rounded-lg border border-white/20 bg-[linear-gradient(135deg,rgba(16,185,129,0.82)0%,rgba(59,130,246,0.64)100%)] px-2.5 text-[9px] font-bold uppercase tracking-[0.2em] text-white shadow-[0_14px_36px_rgba(16,185,129,0.4)]"
-                            onClick={() => updateConfig.mutate({ loyaltyPercentDefault: Math.max(0, Math.min(100, Number(loyaltyPct) || 0)) })}
-                          >
-                            OK
-                          </Button>
-                        </div>
-                      </div>
+
                       <div className={cn(inputShellClasses, "justify-between border-white/14 bg-slate-950/70")}
                       >
                         <span className="font-semibold text-white/80">Rémunération par défaut (%)</span>
@@ -1607,6 +1584,16 @@ export default function Settings() {
                   </AccordionTrigger>
                   <AccordionContent className="pt-3 text-sm text-white/80">
                     <ClientsExport />
+                  </AccordionContent>
+                </div>
+              </AccordionItem>
+              <AccordionItem value="points-manager">
+                <div className={cn(glassPanelClasses, "space-y-2.5 bg-[linear-gradient(145deg,rgba(8,15,40,0.88)0%,rgba(16,185,129,0.5)55%,rgba(52,211,153,0.38)100%)]")}>
+                  <AccordionTrigger className="flex w-full items-center justify-between rounded-xl border border-white/18 bg-white/12 px-3 py-1.5 text-xs font-semibold text-white shadow-[0_14px_32px_rgba(16,185,129,0.3)] transition hover:no-underline">
+                    <span>Gestion des Points</span>
+                  </AccordionTrigger>
+                  <AccordionContent className="pt-3 text-sm text-white/80">
+                    <PointsManager />
                   </AccordionContent>
                 </div>
               </AccordionItem>

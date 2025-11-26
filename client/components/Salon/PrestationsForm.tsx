@@ -19,8 +19,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 const PHONE_DIGITS_REQUIRED = 10;
 const PAYMENT_OPTIONS: { value: "cash" | "check" | "card"; label: string; icon: LucideIcon }[] = [
   { value: "cash", label: "Espèces", icon: CircleDollarSign },
-  { value: "check", label: "Chèque", icon: FileText },
   { value: "card", label: "Carte", icon: CreditCard },
+  { value: "check", label: "Chèque", icon: FileText },
 ];
 
 export default function PrestationsForm() {
@@ -125,7 +125,7 @@ export default function PrestationsForm() {
   const paymentLabel = paymentOption?.label ?? "Carte";
   const PaymentIcon = paymentOption?.icon ?? null;
   const selectedClient = useMemo(() => clients?.find(c => c.id === clientId), [clients, clientId]);
-  const hasClientSelection = useMemo(() => Boolean(clientId === "anonymous" || selectedClient || (usingNewClient && newClientFormComplete)), [clientId, newClientFormComplete, selectedClient, usingNewClient]);
+  const hasClientSelection = useMemo(() => Boolean(clientId || (usingNewClient && newClientFormComplete)), [clientId, newClientFormComplete, usingNewClient]);
   const selectionContainerClass = useMemo(() => (
     "rounded-3xl border border-white/12 bg-gradient-to-br from-slate-950/85 via-indigo-900/55 to-emerald-800/35 px-4 py-3 space-y-3 shadow-[0_22px_55px_rgba(8,15,40,0.5)] backdrop-blur-xl"
   ), []);
@@ -163,9 +163,7 @@ export default function PrestationsForm() {
     prevStylistPickerOpenRef.current = stylistPickerOpen;
   }, [stylistPickerOpen]);
   const clientSummary = useMemo(() => {
-    if (clientId === "anonymous") {
-      return "Client Anonyme";
-    }
+
     if (selectedClient) {
       const contact = [selectedClient.phone].filter(Boolean).join(" - ");
       const base = `${selectedClient.name} - ${selectedClient.points} pts`;
@@ -180,9 +178,7 @@ export default function PrestationsForm() {
   }, [clientId, newClientFormComplete, sanitizedNewClientName, sanitizedNewClientPhone, selectedClient, usingNewClient]);
 
   const clientSelectionTitle = useMemo(() => {
-    if (clientId === "anonymous") {
-      return "Client Anonyme";
-    }
+
     if (selectedClient) {
       return [selectedClient.name, selectedClient.phone].filter(Boolean).join(" - ") || "Sélectionner un client";
     }
@@ -272,9 +268,7 @@ export default function PrestationsForm() {
       return false;
     }
     // For products, client selection is optional; for prestations it's still required
-    if (!isProduct && !hasClientSelection) {
-      return false;
-    }
+    // Client selection is optional for both products and prestations now
     return newClientFormValid;
   }, [amount, hasClientSelection, newClientFormValid, paymentSelected, stylistId, when, isProduct]);
 
@@ -688,64 +682,51 @@ export default function PrestationsForm() {
           />
         </div>
         <ProductsPicker onProductSelect={handleProductSelect} />
-        <div className="flex justify-center w-full mt-6">
-          <div className="flex flex-col items-center gap-1 text-center w-full max-w-md">
-            
-            <Popover open={paymentPickerOpen} onOpenChange={setPaymentPickerOpen}>
-              <PopoverTrigger asChild>
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="mt-1 inline-flex h-[3.4rem] min-w-[9rem] items-center justify-between gap-3 rounded-2xl border-2 border-slate-700/70 bg-slate-900/80 px-3 text-sm font-semibold text-slate-100 transition-all duration-150 hover:border-emerald-400/70 hover:bg-emerald-500/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
-                >
-                  <span className="flex items-center gap-2">
-                    {PaymentIcon ? (
-                      <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-200">
-                        <PaymentIcon className="h-4 w-4" />
-                      </span>
-                    ) : null}
-                    <span className="text-base font-bold">{paymentLabel}</span>
-                  </span>
-                  <span className="text-xs text-emerald-200">▾</span>
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent side="bottom" align="center" className="w-[min(90vw,28rem)] rounded-3xl border border-emerald-400/50 bg-gradient-to-br from-slate-950/95 via-indigo-900/70 to-emerald-800/40 p-6 text-slate-50 shadow-[0_40px_100px_rgba(8,15,40,0.8)] backdrop-blur-2xl">
-                <div className="space-y-4">
-                  <div className="grid gap-4 sm:grid-cols-1">
-                    {PAYMENT_OPTIONS.map((option) => {
-                      const Icon = option.icon;
-                      const isSelected = payment === option.value;
-                      return (
-                        <button
-                          key={option.value}
-                          type="button"
-                          onClick={() => handlePaymentSelect(option.value)}
-                          className={cn(
-                            "flex w-full items-center justify-center gap-4 rounded-2xl border-2 border-slate-700/70 bg-slate-900/90 px-6 py-5 text-center text-lg font-bold transition-all duration-200 hover:border-emerald-400/80 hover:bg-emerald-500/20 hover:scale-102 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 shadow-[0_8px_25px_rgba(8,15,40,0.3)]",
-                            isSelected && "border-emerald-400 bg-emerald-500/25 text-emerald-100 shadow-[0_12px_35px_rgba(16,185,129,0.5)] scale-105"
-                          )}
-                        >
-                          <span className={cn(
-                            "flex h-12 w-12 items-center justify-center rounded-2xl border border-slate-700/80 bg-slate-800/80 text-slate-200 transition-all",
-                            isSelected && "border-emerald-400/90 bg-emerald-500/30 text-emerald-200 shadow-[0_4px_12px_rgba(16,185,129,0.4)]"
-                          )}>
-                            <Icon className="h-7 w-7" />
-                          </span>
-                          <span className="text-xl font-black">{option.label}</span>
-                          {isSelected ? (
-                            <span className="rounded-full bg-emerald-500/20 px-3 py-1 text-sm font-bold uppercase tracking-wide text-emerald-200 border border-emerald-400/50">
-                              Sélectionné
-                            </span>
-                          ) : null}
-                        </button>
-                      );
-                    })}
+        {amount ? (
+          <div className="flex justify-center w-full mt-6">
+            <div className="flex flex-col items-center gap-1 text-center w-full max-w-md">
+
+              {paymentPickerOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+                  <div className="w-full max-w-md rounded-3xl border border-emerald-400/50 bg-gradient-to-br from-slate-950/95 via-indigo-900/70 to-emerald-800/40 p-6 text-slate-50 shadow-[0_40px_100px_rgba(8,15,40,0.8)] backdrop-blur-2xl animate-in zoom-in-95 duration-200">
+                    <div className="space-y-4">
+                      <div className="grid gap-4 sm:grid-cols-1">
+                        {PAYMENT_OPTIONS.map((option) => {
+                          const Icon = option.icon;
+                          const isSelected = payment === option.value;
+                          return (
+                            <button
+                              key={option.value}
+                              type="button"
+                              onClick={() => handlePaymentSelect(option.value)}
+                              className={cn(
+                                "flex w-full items-center justify-center gap-4 rounded-2xl border-2 border-slate-700/70 bg-slate-900/90 px-6 py-5 text-center text-lg font-bold transition-all duration-200 hover:border-emerald-400/80 hover:bg-emerald-500/20 hover:scale-102 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 shadow-[0_8px_25px_rgba(8,15,40,0.3)]",
+                                isSelected && "border-emerald-400 bg-emerald-500/25 text-emerald-100 shadow-[0_12px_35px_rgba(16,185,129,0.5)] scale-105"
+                              )}
+                            >
+                              <span className={cn(
+                                "flex h-12 w-12 items-center justify-center rounded-2xl border border-slate-700/80 bg-slate-800/80 text-slate-200 transition-all",
+                                isSelected && "border-emerald-400/90 bg-emerald-500/30 text-emerald-200 shadow-[0_4px_12px_rgba(16,185,129,0.4)]"
+                              )}>
+                                <Icon className="h-7 w-7" />
+                              </span>
+                              <span className="text-xl font-black">{option.label}</span>
+                              {isSelected ? (
+                                <span className="rounded-full bg-emerald-500/20 px-3 py-1 text-sm font-bold uppercase tracking-wide text-emerald-200 border border-emerald-400/50">
+                                  Sélectionné
+                                </span>
+                              ) : null}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </PopoverContent>
-            </Popover>
+              )}
+            </div>
           </div>
-        </div>
+        ) : null}
         <Popover open={clientAccordion === "client"} onOpenChange={(open) => {
           if (open) {
             setClientAccordion("client");
@@ -823,12 +804,7 @@ export default function PrestationsForm() {
                       title={clientSelectionTitle}
                     >
                       <span className="flex flex-col items-start text-left gap-1">
-                        {clientId === "anonymous" ? (
-                          <>
-                            <span className="text-base font-bold text-amber-200">Client Anonyme</span>
-                            <span className="text-xs text-amber-200/70">Client non enregistré</span>
-                          </>
-                        ) : selectedClient ? (
+                        {selectedClient ? (
                           <>
                             <span className="text-base font-bold">{selectedClient.name} - {selectedClient.points} pts</span>
                             {selectedClient.phone && (
@@ -859,26 +835,8 @@ export default function PrestationsForm() {
                         className="h-11 rounded-2xl border border-white/20 bg-[linear-gradient(135deg,rgba(255,255,255,0.26)0%,rgba(148,163,184,0.18)45%,rgba(56,189,248,0.16)100%)] text-lg text-white placeholder:text-white/70 shadow-[0_18px_40px_rgba(8,15,40,0.32)] backdrop-blur-2xl focus-visible:ring-2 focus-visible:ring-cyan-300 focus-visible:ring-offset-0"
                       />
                       <CommandList>
-                        <CommandGroup className="space-y-1 px-2 py-2">
-                          <CommandItem
-                            value="Client Anonyme anonymous"
-                            className="flex cursor-pointer flex-col gap-1 rounded-2xl border-2 border-amber-400/60 bg-amber-400/10 px-3 py-2 text-slate-100 transition hover:border-amber-300/80 hover:bg-amber-400/20"
-                            onSelect={() => {
-                              setClientId("anonymous");
-                              setClientPickerOpen(false);
-                              setClientSearch("");
-                              setClientAccordion("");
-                            }}
-                          >
-                            <span className="inline-flex items-center gap-2 text-sm font-semibold">
-                              <span className="inline-flex h-1.5 w-1.5 rounded-full bg-amber-300" />
-                              Client Anonyme
-                            </span>
-                            <div className="flex items-center gap-2 text-xs text-white/70">
-                              <span className="text-[10px] text-amber-200/80">Pour les clients qui ne souhaitent pas s'enregistrer</span>
-                            </div>
-                          </CommandItem>
-                        </CommandGroup>
+
+
                         {clientSearch.trim().length === 0 ? (
                           <div className="py-6 text-center text-xs text-white/70">
                             Tapez un nom ou un numéro pour afficher les clients.

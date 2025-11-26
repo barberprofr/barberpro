@@ -17,8 +17,8 @@ export default function SharedLayout({ children }: PropsWithChildren) {
   const { data: config, refetch } = useConfig();
   const qc = useQueryClient();
   // Lock access if not admin OR if admin but subscription not active or trialing
-  const locked = !config?.isAdmin || (config?.isAdmin && config?.subscriptionStatus !== "active" && config?.subscriptionStatus !== "trialing");
-  const hasActiveSubscription = config?.isAdmin && (config?.subscriptionStatus === "active" || config?.subscriptionStatus === "trialing");
+  const locked = !config?.isAdmin || (config?.isAdmin && config?.subscriptionStatus !== "active" && config?.subscriptionStatus !== "trialing" && config?.subscriptionStatus !== "paid");
+  const hasActiveSubscription = config?.isAdmin && (config?.subscriptionStatus === "active" || config?.subscriptionStatus === "trialing" || config?.subscriptionStatus === "paid");
   const [showSubPrompt, setShowSubPrompt] = useState(false);
   const retryTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -84,7 +84,9 @@ export default function SharedLayout({ children }: PropsWithChildren) {
   useEffect(() => {
     // Show subscription prompt when user is admin but subscription not active AND not trialing
     // The popup must stay visible until payment is completed
-    if (config?.isAdmin && config?.subscriptionStatus !== "active" && config?.subscriptionStatus !== "trialing") {
+    // Show subscription prompt when user is admin but subscription not active AND not trialing
+    // The popup must stay visible until payment is completed
+    if (config?.isAdmin && config?.subscriptionStatus !== "active" && config?.subscriptionStatus !== "trialing" && config?.subscriptionStatus !== "paid") {
       setShowSubPrompt(true);
     } else if (hasActiveSubscription) {
       setShowSubPrompt(false);

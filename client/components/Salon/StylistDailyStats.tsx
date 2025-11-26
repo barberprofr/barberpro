@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { useStylistBreakdown } from "@/lib/api";
+import { useStylistBreakdown, useUpdateTransactionPaymentMethod } from "@/lib/api";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
 
 const eur = new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" });
 
@@ -52,8 +54,14 @@ function StylistDaily({ id, date, commissionPct }: { id: string; date?: string; 
 
 function StylistEncaissements({ id, date }: { id: string; date?: string }) {
     const { data } = useStylistBreakdown(id, date);
+    const updatePaymentMethod = useUpdateTransactionPaymentMethod();
     const entries = data?.dailyEntries || [];
     const fmt = (ts: number) => new Date(ts).toLocaleTimeString("fr-FR", { timeZone: "Europe/Paris", hour: "2-digit", minute: "2-digit" });
+
+    const handleUpdatePayment = (entryId: string, kind: "prestation" | "produit", method: "cash" | "check" | "card") => {
+        updatePaymentMethod.mutate({ id: entryId, kind, paymentMethod: method });
+    };
+
     return (
         <div className="text-sm border border-gray-700 rounded-md overflow-hidden">
             <div className="grid grid-cols-3 bg-gray-800 text-gray-100 px-3 py-2 font-medium">
@@ -65,9 +73,39 @@ function StylistEncaissements({ id, date }: { id: string; date?: string }) {
                 {entries.length === 0 ? (
                     <div className="px-3 py-2 text-muted-foreground">Aucun encaissement pour ce jour</div>
                 ) : entries.map((e: any, i: number) => (
-                    <div key={i} className="grid grid-cols-3 px-3 py-2 border-t border-gray-700">
+                    <div key={i} className="grid grid-cols-3 px-3 py-2 border-t border-gray-700 items-center">
                         <div>{fmt(e.timestamp)}</div>
-                        <div><span className={"inline-flex items-center px-2 py-0.5 rounded-full border-2 text-xs font-semibold " + (e.paymentMethod === "cash" ? "border-emerald-300 bg-emerald-50 text-emerald-900" : e.paymentMethod === "check" ? "border-amber-300 bg-amber-50 text-amber-900" : "border-indigo-300 bg-indigo-50 text-indigo-900")}>{({ cash: "Espèces", check: "Chèque", card: "Carte" } as const)[e.paymentMethod as "cash" | "check" | "card"]}</span></div>
+                        <div>
+                            <Popover>
+                                <PopoverTrigger asChild>
+                                    <button className={cn(
+                                        "inline-flex items-center px-2 py-0.5 rounded-full border-2 text-xs font-semibold transition-transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-offset-slate-900",
+                                        e.paymentMethod === "cash" ? "border-emerald-300 bg-emerald-50 text-emerald-900 focus:ring-emerald-400" :
+                                            e.paymentMethod === "check" ? "border-amber-300 bg-amber-50 text-amber-900 focus:ring-amber-400" :
+                                                "border-indigo-300 bg-indigo-50 text-indigo-900 focus:ring-indigo-400"
+                                    )}>
+                                        {({ cash: "Espèces", check: "Chèque", card: "Carte" } as const)[e.paymentMethod as "cash" | "check" | "card"]}
+                                    </button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-40 p-1 bg-slate-900 border-slate-700">
+                                    <div className="grid gap-1">
+                                        {(["cash", "check", "card"] as const).map((method) => (
+                                            <button
+                                                key={method}
+                                                onClick={() => handleUpdatePayment(e.id, e.kind || "prestation", method)}
+                                                className={cn(
+                                                    "flex items-center w-full px-2 py-1.5 text-xs font-medium rounded-md transition-colors",
+                                                    e.paymentMethod === method ? "bg-slate-800 text-white" : "text-slate-400 hover:bg-slate-800 hover:text-white"
+                                                )}
+                                            >
+                                                {({ cash: "Espèces", check: "Chèque", card: "Carte" } as const)[method]}
+                                                {e.paymentMethod === method && <span className="ml-auto text-emerald-400">✓</span>}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </PopoverContent>
+                            </Popover>
+                        </div>
                         <div className="flex items-center justify-between">{eur.format(e.amount)} <span className="text-xs text-white/60">{e.name || (e.kind === "prestation" ? "prestation" : "produit")}</span></div>
                     </div>
                 ))}
@@ -77,14 +115,10 @@ function StylistEncaissements({ id, date }: { id: string; date?: string }) {
 }
 
 export function StylistDailySection({ id, commissionPct }: { id: string; commissionPct: number }) {
-    const [date, setDate] = useState<string>(() => parisDateString());
+    // Force date to today, no state setter needed for user interaction
+    const date = parisDateString();
     return (
         <div className="space-y-2">
-            <div className="flex items-center gap-2 text-sm">
-                <span className="text-muted-foreground">Date</span>
-                <input type="date" className="border rounded px-2 py-1 bg-gray-900 border-gray-700 text-gray-100" value={date} onChange={(e) => setDate(e.target.value)} />
-                <Button variant="outline" size="sm" onClick={() => setDate(parisDateString())}>Aujourd'hui</Button>
-            </div>
             <StylistDaily id={id} date={date} commissionPct={commissionPct} />
             <StylistEncaissements id={id} date={date} />
         </div>

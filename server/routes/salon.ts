@@ -298,35 +298,7 @@ function makeScope() {
   };
 }
 
-async function getOrCreateAnonymousClient(salonId: string): Promise<IClient> {
-  const anonymousId = `anonymous_${salonId}`;
 
-  // Check if client exists first
-  const existingClient = await Client.findOne({ id: anonymousId, salonId });
-  if (existingClient) {
-    return existingClient;
-  }
-
-  try {
-    const client = await Client.create({
-      id: anonymousId,
-      name: "Client Anonyme",
-      points: 0,
-      email: null,
-      phone: null,
-      lastVisitAt: null,
-      salonId,
-    });
-    return client;
-  } catch (error: any) {
-    // Handle race condition where another request created the client concurrently
-    if (error.code === 11000) {
-      const client = await Client.findOne({ id: anonymousId, salonId });
-      if (client) return client;
-    }
-    throw error;
-  }
-}
 
 async function aggregateByPayment(salonId: string, stylistId: string, refNowMs: number = Date.now()) {
   const now = refNowMs;
@@ -341,7 +313,7 @@ async function aggregateByPayment(salonId: string, stylistId: string, refNowMs: 
   const monthly = makeScope();
   const prestationDaily = makeScope();
   const prestationMonthly = makeScope();
-  const dailyEntries: { amount: number; paymentMethod: PaymentMethod; timestamp: number; kind: "prestation" | "produit"; name?: string }[] = [];
+  const dailyEntries: { id: string; amount: number; paymentMethod: PaymentMethod; timestamp: number; kind: "prestation" | "produit"; name?: string }[] = [];
 
   for (const p of prestations) {
     const inc = (scope: ReturnType<typeof makeScope>) => {
@@ -355,6 +327,7 @@ async function aggregateByPayment(salonId: string, stylistId: string, refNowMs: 
       inc(daily);
       inc(prestationDaily);
       dailyEntries.push({
+        id: p.id,
         amount: p.amount,
         paymentMethod: p.paymentMethod,
         timestamp: p.timestamp,
@@ -377,6 +350,7 @@ async function aggregateByPayment(salonId: string, stylistId: string, refNowMs: 
     if (startOfDayParis(prod.timestamp) === todayStart) {
       incAmount(daily);
       dailyEntries.push({
+        id: prod.id,
         amount: prod.amount,
         paymentMethod: prod.paymentMethod,
         timestamp: prod.timestamp,
@@ -1393,17 +1367,13 @@ export const createPrestation: RequestHandler = async (req, res) => {
     const stylist = await Stylist.findOne({ id: stylistId, salonId });
     if (!stylist) return res.status(404).json({ error: "stylist not found" });
 
-    // Resolve clientId – if none provided, use anonymous; if provided but not found, also fallback to anonymous
+    // Resolve clientId – if none provided, it remains undefined (optional)
     let finalClientId = clientId;
-    if (!finalClientId) {
-      const anonymousClient = await getOrCreateAnonymousClient(salonId);
-      finalClientId = anonymousClient.id;
-    } else {
+    if (finalClientId) {
       const client = await Client.findOne({ id: finalClientId, salonId });
       if (!client) {
-        // fallback to anonymous client when the supplied id does not exist
-        const anonymousClient = await getOrCreateAnonymousClient(salonId);
-        finalClientId = anonymousClient.id;
+        // If provided ID is invalid, treat as no client
+        finalClientId = undefined;
       }
     }
 
@@ -1427,8 +1397,8 @@ export const createPrestation: RequestHandler = async (req, res) => {
 
     await prestation.save();
 
-    // Only award points if not anonymous client
-    if (finalClientId && finalClientId !== "anonymous") {
+    // Only award points if client is selected
+    if (finalClientId) {
       await Client.findOneAndUpdate(
         { id: finalClientId, salonId },
         { $inc: { points } }
@@ -1492,6 +1462,63 @@ export const redeemPoints: RequestHandler = async (req, res) => {
     res.json({ client: updatedClient, reason: reason ?? "redeem", usage });
   } catch (error) {
     console.error('Error redeeming points:', error);
+    res.status(500).json({ error: "Erreur serveur" });
+  }
+};
+
+export const addPoints: RequestHandler = async (req, res) => {
+  try {
+    if (!(await requireAdmin(req, res))) return;
+
+    const body = await parseRequestBody(req);
+    const salonId = getSalonId(req);
+    const { clientId, points } = body as { clientId?: string; points?: number };
+
+    if (!clientId || typeof points !== "number" || points <= 0) {
+      return res.status(400).json({ error: "clientId and positive points required" });
+    }
+
+    const client = await Client.findOne({ id: clientId, salonId });
+    if (!client) return res.status(404).json({ error: "client not found" });
+
+    await Client.findOneAndUpdate(
+      { id: clientId, salonId },
+      { $inc: { points: points } }
+    );
+
+    const updatedClient = await Client.findOne({ id: clientId, salonId });
+    res.json({ client: updatedClient });
+  } catch (error) {
+    console.error('Error adding points:', error);
+    res.status(500).json({ error: "Erreur serveur" });
+  }
+};
+
+export const updateTransactionPaymentMethod: RequestHandler = async (req, res) => {
+  try {
+    if (!(await requireAdmin(req, res))) return;
+
+    const body = await parseRequestBody(req);
+    const salonId = getSalonId(req);
+    const { id, kind, paymentMethod } = body as { id: string; kind: "prestation" | "produit"; paymentMethod: PaymentMethod };
+
+    if (!id || !kind || !paymentMethod) {
+      return res.status(400).json({ error: "id, kind and paymentMethod required" });
+    }
+
+    if (kind === "prestation") {
+      const result = await Prestation.findOneAndUpdate({ id, salonId }, { $set: { paymentMethod } });
+      if (!result) return res.status(404).json({ error: "prestation not found" });
+    } else if (kind === "produit") {
+      const result = await Product.findOneAndUpdate({ id, salonId }, { $set: { paymentMethod } });
+      if (!result) return res.status(404).json({ error: "product not found" });
+    } else {
+      return res.status(400).json({ error: "invalid kind" });
+    }
+
+    res.json({ ok: true });
+  } catch (error) {
+    console.error('Error updating transaction payment method:', error);
     res.status(500).json({ error: "Erreur serveur" });
   }
 };

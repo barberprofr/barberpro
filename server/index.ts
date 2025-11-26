@@ -3,7 +3,7 @@ import express from "express";
 import cors from "cors";
 import { handleDemo } from "./routes/demo";
 import { connectDatabase } from './db';
-import { addClient, addStylist, adminLogin, createPrestation, createProduct, listProducts, exportSummaryCSV, exportSummaryPDF, getConfig, getStylistBreakdown, listClients, listStylists, pointsUsageReport, redeemPoints, reportByDay, reportByMonth, setAdminPassword, setStylistCommission, summaryReport, updateConfig, deleteStylist, deleteClient, recoverAdminPassword, recoverAdminVerify, exportStylistCSV, exportStylistPDF, exportByDayCSV, exportByDayPDF, exportByMonthCSV, exportByMonthPDF, setupAdminAccount, verifyAdminCode, updateStylist, listServices, addService, deleteService, listProductTypes, addProductType, deleteProductType, recoverAdminCode, verifyAdminCodeRecovery } from "./routes/salon";
+import { addClient, addStylist, adminLogin, createPrestation, createProduct, listProducts, exportSummaryCSV, exportSummaryPDF, getConfig, getStylistBreakdown, listClients, listStylists, pointsUsageReport, redeemPoints, reportByDay, reportByMonth, setAdminPassword, setStylistCommission, summaryReport, updateConfig, deleteStylist, deleteClient, recoverAdminPassword, recoverAdminVerify, exportStylistCSV, exportStylistPDF, exportByDayCSV, exportByDayPDF, exportByMonthCSV, exportByMonthPDF, setupAdminAccount, verifyAdminCode, updateStylist, listServices, addService, deleteService, listProductTypes, addProductType, deleteProductType, recoverAdminCode, verifyAdminCodeRecovery, addPoints, updateTransactionPaymentMethod } from "./routes/salon";
 import { createCheckoutSession, createPortalSession, webhookHandler } from "./routes/payment";
 
 export function createServer() {
@@ -43,11 +43,11 @@ export function createServer() {
   // Mount webhook route for both paths
   app.post("/api/webhook", webhookMiddleware, webhookHandlerWrapper);
   app.post("/.netlify/functions/api/webhook", webhookMiddleware, webhookHandlerWrapper);
-  
+
   // mount other payment routes
   app.post("/api/create-checkout-session", createCheckoutSession);
   app.post("/api/create-portal-session", createPortalSession);
-  
+
   // mount payment routes in multi-salon namespace
   app.post("/api/salons/:salonId/create-checkout-session", createCheckoutSession);
   app.post("/api/salons/:salonId/create-portal-session", createPortalSession);
@@ -93,6 +93,8 @@ export function createServer() {
   app.post("/api/clients/redeem", redeemPoints);
   app.get("/api/reports/summary", summaryReport);
   app.get("/api/reports/points-usage", pointsUsageReport);
+  app.post("/api/clients/add-points", addPoints);
+  app.post("/api/transactions/update-payment-method", updateTransactionPaymentMethod);
   app.get("/api/stylists/:id/breakdown", getStylistBreakdown);
   app.get("/api/reports/summary.csv", exportSummaryCSV);
   app.get("/api/reports/summary.pdf", exportSummaryPDF);
@@ -136,6 +138,8 @@ export function createServer() {
   app.post("/api/salons/:salonId/clients/redeem", redeemPoints);
   app.get("/api/salons/:salonId/reports/summary", summaryReport);
   app.get("/api/salons/:salonId/reports/points-usage", pointsUsageReport);
+  app.post("/api/salons/:salonId/clients/add-points", addPoints);
+  app.post("/api/salons/:salonId/transactions/update-payment-method", updateTransactionPaymentMethod);
   app.get("/api/salons/:salonId/reports/stylists/:id.csv", exportStylistCSV);
   app.get("/api/salons/:salonId/reports/stylists/:id.pdf", exportStylistPDF);
   app.get("/api/salons/:salonId/reports/summary.csv", exportSummaryCSV);
@@ -148,12 +152,12 @@ export function createServer() {
   app.get("/api/salons/:salonId/reports/by-month.pdf", exportByMonthPDF);
 
   // Routes pour la récupération du CODE ADMIN
-app.post("/api/admin/recover-code", recoverAdminCode);
-app.post("/api/admin/recover-code/verify", verifyAdminCodeRecovery);
+  app.post("/api/admin/recover-code", recoverAdminCode);
+  app.post("/api/admin/recover-code/verify", verifyAdminCodeRecovery);
 
-// Et dans la section multi-salon :
-app.post("/api/salons/:salonId/admin/recover-code", recoverAdminCode);
-app.post("/api/salons/:salonId/admin/recover-code/verify", verifyAdminCodeRecovery);
+  // Et dans la section multi-salon :
+  app.post("/api/salons/:salonId/admin/recover-code", recoverAdminCode);
+  app.post("/api/salons/:salonId/admin/recover-code/verify", verifyAdminCodeRecovery);
 
   return app;
 }

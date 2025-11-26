@@ -351,7 +351,7 @@ export interface PaymentBreakdown { amount: number; count: number }
 export interface StylistBreakdown {
   daily: { total: PaymentBreakdown; methods: Record<MethodKey, PaymentBreakdown> };
   monthly: { total: PaymentBreakdown; methods: Record<MethodKey, PaymentBreakdown> };
-  dailyEntries?: { amount: number; paymentMethod: MethodKey; timestamp: number; kind: "prestation" | "produit"; name?: string }[];
+  dailyEntries?: { id: string; amount: number; paymentMethod: MethodKey; timestamp: number; kind: "prestation" | "produit"; name?: string }[];
 }
 
 export function useStylistBreakdown(stylistId?: string, date?: string) {
@@ -680,3 +680,43 @@ export function useDeleteProductType() {
     }
   });
 }
+
+export function useAddPoints() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: { clientId: string; points: number }) => {
+      const res = await apiFetch("/api/clients/add-points", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-admin-token": getAdminToken() || "" },
+        body: JSON.stringify(input)
+      });
+      if (!res.ok) await throwResponseError(res);
+      return res.json() as Promise<{ client: Client }>;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["clients"] });
+    }
+  });
+}
+
+export function useUpdateTransactionPaymentMethod() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: { id: string; kind: "prestation" | "produit"; paymentMethod: PaymentMethod }) => {
+      const res = await apiFetch("/api/transactions/update-payment-method", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-admin-token": getAdminToken() || "" },
+        body: JSON.stringify(input)
+      });
+      if (!res.ok) await throwResponseError(res);
+      return res.json() as Promise<{ ok: true }>;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["stylist-breakdown"] });
+      qc.invalidateQueries({ queryKey: ["dashboard-summary"] });
+      qc.invalidateQueries({ queryKey: ["revenue-by-day"] });
+      qc.invalidateQueries({ queryKey: ["revenue-by-month"] });
+    }
+  });
+}
+

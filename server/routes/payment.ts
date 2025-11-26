@@ -98,7 +98,7 @@ export const webhookHandler: RequestHandler = async (req, res) => {
       const customerId = session.customer;
       const subscriptionId = session.subscription;
       const salonId = session.metadata?.salonId ?? "main";
-      
+
       console.log('📦 Webhook: checkout.session.completed', {
         customerId,
         subscriptionId,
@@ -132,7 +132,9 @@ export const webhookHandler: RequestHandler = async (req, res) => {
       if (!settings && sub.metadata && sub.metadata.salonId) settings = await Settings.findOne({ salonId: sub.metadata.salonId });
       if (settings) {
         settings.stripeSubscriptionId = subscriptionId ?? settings.stripeSubscriptionId;
-        settings.subscriptionStatus = status ?? settings.subscriptionStatus;
+        // If status is 'paid' (from invoice), normalize to 'active'
+        const normalizedStatus = status === 'paid' ? 'active' : status;
+        settings.subscriptionStatus = normalizedStatus ?? settings.subscriptionStatus;
         if (currentPeriodEnd) settings.subscriptionCurrentPeriodEnd = currentPeriodEnd;
         await settings.save();
       }

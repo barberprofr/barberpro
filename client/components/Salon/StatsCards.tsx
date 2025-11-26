@@ -356,25 +356,7 @@ function StylistCard({ s, config, openId, setOpenId }: { s: any, config: any, op
               transition={{ layout: { type: "spring", stiffness: 220, damping: 26 } }}
               className="pt-2 space-y-2"
             >
-              <div className="flex gap-2">
-                <button
-                  onClick={() => setViewMode("daily")}
-                  className={`flex-1 rounded-lg px-2 py-1 text-xs font-semibold uppercase tracking-wider transition-colors ${viewMode === "daily" ? "bg-white/20 text-white" : "bg-transparent text-white/50 hover:bg-white/10"}`}
-                >
-                  Journalier
-                </button>
-                <button
-                  onClick={() => setViewMode("monthly")}
-                  className={`flex-1 rounded-lg px-2 py-1 text-xs font-semibold uppercase tracking-wider transition-colors ${viewMode === "monthly" ? "bg-white/20 text-white" : "bg-transparent text-white/50 hover:bg-white/10"}`}
-                >
-                  Mensuel
-                </button>
-              </div>
-              {viewMode === "daily" ? (
-                <StylistDailySection id={s.id} commissionPct={((s as any).commissionPct ?? config?.commissionDefault ?? 0)} />
-              ) : (
-                <StylistMonthly id={s.id} commissionPct={((s as any).commissionPct ?? config?.commissionDefault ?? 0)} />
-              )}
+              <StylistDailySection id={s.id} commissionPct={((s as any).commissionPct ?? config?.commissionDefault ?? 0)} />
             </motion.div>
           </motion.div>
         )}
