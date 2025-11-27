@@ -1,11 +1,4 @@
-import sgMail from '@sendgrid/mail';
-
-// Configurer SendGrid
-if (process.env.SENDGRID_API_KEY) {
-  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-} else {
-  console.warn('⚠️ SENDGRID_API_KEY non configurée');
-}
+import nodemailer from 'nodemailer';
 
 export interface EmailOptions {
   to: string;
@@ -16,44 +9,54 @@ export interface EmailOptions {
 
 export class EmailService {
   static async sendEmail(options: EmailOptions): Promise<boolean> {
-    // Si SendGrid n'est pas configuré, log en console
-    if (!process.env.SENDGRID_API_KEY) {
-      console.log('📧 Email simulé (SendGrid non configuré):');
+    // Configuration du transporteur
+    // Si les variables ne sont pas définies, cela échouera probablement lors de l'envoi réel,
+    // mais on peut garder la logique de simulation si on veut.
+    // Ici, on tente de créer le transporteur.
+
+    if (!process.env.SMTP_HOST && !process.env.SMTP_USER) {
+      // Mode simulation si pas de config SMTP (similaire à avant)
+      console.log('📧 Email simulé (SMTP non configuré):');
       console.log('À:', options.to);
       console.log('Sujet:', options.subject);
       console.log('Contenu:', options.text);
       return true;
     }
 
+    const transporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST,
+      port: parseInt(process.env.SMTP_PORT || '587'),
+      secure: process.env.SMTP_PORT === '465', // true pour 465, false pour les autres
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
+      },
+    });
+
     try {
-      const msg = {
-        to: options.to,
+      await transporter.sendMail({
         from: {
-          email: process.env.SENDGRID_FROM_EMAIL || 'no-reply@example.com',
-          name: process.env.SENDGRID_FROM_NAME || 'Salon App'
+          name: process.env.SMTP_FROM_NAME || 'Salon App',
+          address: process.env.SMTP_FROM_EMAIL || 'no-reply@example.com'
         },
+        to: options.to,
         subject: options.subject,
         text: options.text,
         html: options.html,
-      };
-
-      await sgMail.send(msg);
+      });
       console.log('✅ Email envoyé avec succès à:', options.to);
       return true;
     } catch (error) {
       console.error('❌ Erreur envoi email:', error);
-      if (error.response) {
-        console.error('Détails SendGrid:', error.response.body);
-      }
       return false;
     }
   }
 
   // Méthode spécifique pour la récupération du CODE ADMIN
-static async sendAdminCodeRecovery(to: string, code: string, salonName?: string): Promise<boolean> {
+  static async sendAdminCodeRecovery(to: string, code: string, salonName?: string): Promise<boolean> {
     const salon = salonName || 'Votre Salon';
     const subject = `Récupération de Code Admin - ${salon}`;
-    
+
     const text = `
       Bonjour,
   
@@ -68,9 +71,9 @@ static async sendAdminCodeRecovery(to: string, code: string, salonName?: string)
       Si vous n'êtes pas à l'origine de cette demande, veuillez ignorer cet email.
   
       Cordialement,
-      L'équipe ${salon}
+      L'équipe BarberPro
     `;
-  
+
     const html = `
       <!DOCTYPE html>
       <html>
@@ -106,13 +109,13 @@ static async sendAdminCodeRecovery(to: string, code: string, salonName?: string)
           <p>Si vous n'êtes pas à l'origine de cette demande, veuillez ignorer cet email.</p>
           
           <div class="footer">
-            <p>Cordialement,<br>L'équipe ${salon}</p>
+            <p>Cordialement,<br>L'équipe BarberPro</p>
           </div>
         </div>
       </body>
       </html>
     `;
-  
+
     return this.sendEmail({
       to,
       subject,
@@ -125,9 +128,10 @@ static async sendAdminCodeRecovery(to: string, code: string, salonName?: string)
   static async sendAdminRecoveryCode(to: string, code: string, salonName?: string): Promise<boolean> {
     const salon = salonName || 'Votre Salon';
     const subject = `Code de récupération - ${salon}`;
-    
+
     const text = `
       Bonjour,
+
 
       Vous avez demandé la récupération de votre code administrateur pour ${salon}.
 
@@ -138,7 +142,7 @@ static async sendAdminCodeRecovery(to: string, code: string, salonName?: string)
       Si vous n'êtes pas à l'origine de cette demande, veuillez ignorer cet email.
 
       Cordialement,
-      L'équipe ${salon}
+      L'équipe BarberPro
     `;
 
     const html = `
@@ -172,7 +176,7 @@ static async sendAdminCodeRecovery(to: string, code: string, salonName?: string)
           <p>Si vous n'êtes pas à l'origine de cette demande, veuillez ignorer cet email.</p>
           
           <div class="footer">
-            <p>Cordialement,<br>L'équipe ${salon}</p>
+            <p>Cordialement,<br>L'équipe BarberPro</p>
           </div>
         </div>
       </body>
@@ -191,7 +195,7 @@ static async sendAdminCodeRecovery(to: string, code: string, salonName?: string)
   static async sendPasswordResetCode(to: string, code: string, salonName?: string): Promise<boolean> {
     const salon = salonName || 'Votre Salon';
     const subject = `Réinitialisation de mot de passe - ${salon}`;
-    
+
     const text = `
       Bonjour,
 
@@ -204,7 +208,7 @@ static async sendAdminCodeRecovery(to: string, code: string, salonName?: string)
       Si vous n'êtes pas à l'origine de cette demande, veuillez ignorer cet email.
 
       Cordialement,
-      L'équipe ${salon}
+      L'équipe BarberPro
     `;
 
     const html = `
@@ -241,7 +245,7 @@ static async sendAdminCodeRecovery(to: string, code: string, salonName?: string)
           <p>Si vous n'êtes pas à l'origine de cette demande, veuillez ignorer cet email.</p>
           
           <div class="footer">
-            <p>Cordialement,<br>L'équipe ${salon}</p>
+            <p>Cordialement,<br>L'équipe BarberPro</p>
           </div>
         </div>
       </body>

@@ -69,47 +69,57 @@ function StylistEncaissements({ id, date }: { id: string; date?: string }) {
                 <div>Mode</div>
                 <div>Montant</div>
             </div>
-            <div className="max-h-[400px] overflow-y-auto">
+            <div className="max-h-[400px] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
                 {entries.length === 0 ? (
                     <div className="px-3 py-2 text-muted-foreground">Aucun encaissement pour ce jour</div>
                 ) : entries.map((e: any, i: number) => (
-                    <div key={i} className="grid grid-cols-3 px-3 py-2 border-t border-gray-700 items-center">
-                        <div>{fmt(e.timestamp)}</div>
-                        <div>
-                            <Popover>
-                                <PopoverTrigger asChild>
-                                    <button className={cn(
-                                        "inline-flex items-center px-2 py-0.5 rounded-full border-2 text-xs font-semibold transition-transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-offset-slate-900",
-                                        e.paymentMethod === "cash" ? "border-emerald-300 bg-emerald-50 text-emerald-900 focus:ring-emerald-400" :
-                                            e.paymentMethod === "check" ? "border-amber-300 bg-amber-50 text-amber-900 focus:ring-amber-400" :
-                                                "border-indigo-300 bg-indigo-50 text-indigo-900 focus:ring-indigo-400"
-                                    )}>
-                                        {({ cash: "Espèces", check: "Chèque", card: "Carte" } as const)[e.paymentMethod as "cash" | "check" | "card"]}
-                                    </button>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-40 p-1 bg-slate-900 border-slate-700">
-                                    <div className="grid gap-1">
-                                        {(["cash", "check", "card"] as const).map((method) => (
-                                            <button
-                                                key={method}
-                                                onClick={() => handleUpdatePayment(e.id, e.kind || "prestation", method)}
-                                                className={cn(
-                                                    "flex items-center w-full px-2 py-1.5 text-xs font-medium rounded-md transition-colors",
-                                                    e.paymentMethod === method ? "bg-slate-800 text-white" : "text-slate-400 hover:bg-slate-800 hover:text-white"
-                                                )}
-                                            >
-                                                {({ cash: "Espèces", check: "Chèque", card: "Carte" } as const)[method]}
-                                                {e.paymentMethod === method && <span className="ml-auto text-emerald-400">✓</span>}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </PopoverContent>
-                            </Popover>
-                        </div>
-                        <div className="flex items-center justify-between">{eur.format(e.amount)} <span className="text-xs text-white/60">{e.name || (e.kind === "prestation" ? "prestation" : "produit")}</span></div>
-                    </div>
+                    <TransactionRow key={i} entry={e} fmt={fmt} onUpdate={handleUpdatePayment} />
                 ))}
             </div>
+        </div>
+    );
+}
+
+function TransactionRow({ entry: e, fmt, onUpdate }: { entry: any, fmt: (ts: number) => string, onUpdate: (id: string, kind: "prestation" | "produit", method: "cash" | "check" | "card") => void }) {
+    const [open, setOpen] = useState(false);
+
+    return (
+        <div className="grid grid-cols-3 px-3 py-2 border-t border-gray-700 items-center">
+            <div>{fmt(e.timestamp)}</div>
+            <div>
+                <Popover open={open} onOpenChange={setOpen}>
+                    <PopoverTrigger asChild>
+                        <button className={cn(
+                            "inline-flex items-center px-2 py-0.5 rounded-full border-2 text-xs font-semibold transition-transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-offset-slate-900",
+                            e.paymentMethod === "cash" ? "border-emerald-300 bg-emerald-50 text-emerald-900 focus:ring-emerald-400" :
+                                e.paymentMethod === "check" ? "border-amber-300 bg-amber-50 text-amber-900 focus:ring-amber-400" :
+                                    "border-indigo-300 bg-indigo-50 text-indigo-900 focus:ring-indigo-400"
+                        )}>
+                            {({ cash: "Espèces", check: "Chèque", card: "Carte" } as const)[e.paymentMethod as "cash" | "check" | "card"]}
+                        </button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-40 p-1 bg-slate-900 border-slate-700">
+                        <div className="grid gap-1">
+                            {(["cash", "check", "card"] as const).map((method) => (
+                                <button
+                                    key={method}
+                                    onClick={() => {
+                                        onUpdate(e.id, e.kind || "prestation", method);
+                                        setOpen(false);
+                                    }}
+                                    className={cn(
+                                        "flex items-center w-full px-2 py-1.5 text-xs font-medium rounded-md transition-colors",
+                                        e.paymentMethod === method ? "bg-slate-800 text-white" : "text-slate-400 hover:bg-slate-800 hover:text-white"
+                                    )}
+                                >
+                                    {({ cash: "Espèces", check: "Chèque", card: "Carte" } as const)[method]}
+                                </button>
+                            ))}
+                        </div>
+                    </PopoverContent>
+                </Popover>
+            </div>
+            <div>{eur.format(e.amount)} <span className="text-xs text-white/60">{e.name || (e.kind === "prestation" ? "prestation" : "produit")}</span></div>
         </div>
     );
 }

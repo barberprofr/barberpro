@@ -88,7 +88,8 @@ export interface ISettings extends Document {
     loginPasswordHash: string | null;
     adminCodeHash: string | null;
     adminToken: string | null;
-    adminEmail: string | null;
+    accountEmail: string; // Email de connexion (immutable)
+    adminEmail: string | null; // Email de récupération (modifiable)
     salonName: string | null;
     salonAddress: string | null;
     salonPostalCode: string | null;
@@ -215,6 +216,7 @@ const SettingsSchema = new Schema({
     loginPasswordHash: { type: String, default: null },
     adminCodeHash: { type: String, default: null },
     adminToken: { type: String, default: null },
+    accountEmail: { type: String, required: false }, // Will be required after migration
     adminEmail: { type: String, default: null },
     salonName: { type: String, default: null },
     salonAddress: { type: String, default: null },

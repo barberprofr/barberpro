@@ -574,7 +574,8 @@ export const getConfig: RequestHandler = async (req, res) => {
       adminSet: settings.loginPasswordHash != null,
       adminCodeSet: settings.adminCodeHash != null,
       isAdmin: admin,
-      adminEmail: settings.adminEmail,
+      accountEmail: settings.accountEmail, // Email de connexion
+      adminEmail: settings.adminEmail, // Email de récupération
       salonName: settings.salonName,
       salonAddress: settings.salonAddress,
       salonPostalCode: settings.salonPostalCode,
@@ -646,7 +647,8 @@ export const setupAdminAccount: RequestHandler = async (req, res) => {
     const updates: any = {
       loginPasswordHash: sha256(loginPassword),
       adminCodeHash: code ? sha256(code) : null,
-      adminEmail: emailValue,
+      accountEmail: emailValue, // Email de connexion (immutable)
+      adminEmail: emailValue, // Email de récupération (initialisé identique)
       salonName: name,
       salonAddress: address,
       salonPostalCode: postalCode,
@@ -696,7 +698,27 @@ export const adminLogin: RequestHandler = async (req, res) => {
     let foundSalonId: string | null = null;
     let foundSettings: ISettings | null = null;
 
-    const settings = await Settings.findOne({ adminEmail: e, loginPasswordHash: passwordHash });
+    // 1. Chercher par accountEmail (nouveau standard)
+    let settings = await Settings.findOne({ accountEmail: e, loginPasswordHash: passwordHash });
+
+    // 2. Fallback: Chercher par adminEmail (pour compatibilité avant migration)
+    if (!settings) {
+      settings = await Settings.findOne({ adminEmail: e, loginPasswordHash: passwordHash });
+
+      if (settings) {
+        // Si accountEmail est déjà défini, on ne permet PAS la connexion via adminEmail
+        // (Cela signifie que c'est un compte moderne/migré et l'utilisateur doit utiliser son accountEmail)
+        if (settings.accountEmail) {
+          settings = null;
+        } else {
+          // Migration à la volée si trouvé par adminEmail ET accountEmail non défini
+          console.log(`🔄 Migration accountEmail pour salon ${settings.salonId}`);
+          settings.accountEmail = settings.adminEmail || e;
+          await settings.save();
+        }
+      }
+    }
+
     if (settings) {
       foundSalonId = settings.salonId;
       foundSettings = settings;
@@ -855,8 +877,12 @@ export const recoverAdminPassword: RequestHandler = async (req, res) => {
     // 2. Si pas trouvé dans cache, chercher dans la base de données
     if (!foundSalonId) {
       console.log(`🔍 Recherche en base de données pour: ${e}`);
+      // Chercher par adminEmail (récupération) OU accountEmail (fallback)
       const settings = await Settings.findOne({
-        adminEmail: { $regex: new RegExp(`^${e}$`, 'i') }
+        $or: [
+          { adminEmail: { $regex: new RegExp(`^${e}$`, 'i') } },
+          { accountEmail: { $regex: new RegExp(`^${e}$`, 'i') } }
+        ]
       });
 
       if (settings) {
@@ -881,8 +907,9 @@ export const recoverAdminPassword: RequestHandler = async (req, res) => {
     }
 
     // Vérifier la correspondance exacte de l'email (case insensitive)
-    if (foundSettings.adminEmail.toLowerCase() !== e) {
-      console.log(`❌ Email non reconnu: ${e} vs ${foundSettings.adminEmail}`);
+    const targetEmail = (foundSettings.adminEmail || foundSettings.accountEmail || "").toLowerCase();
+    if (targetEmail !== e) {
+      console.log(`❌ Email non reconnu: ${e} vs ${targetEmail}`);
       return res.status(401).json({ error: "Email non reconnu" });
     }
 

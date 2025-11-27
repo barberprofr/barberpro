@@ -1059,7 +1059,7 @@ export default function Settings() {
                   <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                     <PasswordInput value={password} onChange={(e) => { setPassword(e.target.value); setAdminSaveErr(""); }} placeholder="Nouveau code admin" className={cn(adminInputClasses, "h-11 px-4 text-base")} />
                     <PasswordInput value={confirmPassword} onChange={(e) => { setConfirmPassword(e.target.value); setAdminSaveErr(""); }} placeholder="Confirmer le code admin" className={cn(adminInputClasses, "h-11 px-4 text-base")} />
-                    <Input key={`admin-email-create-${adminSaveMsg ? '1' : '0'}`} type="text" inputMode="email" autoComplete="off" autoCapitalize="off" autoCorrect="off" spellCheck={false} placeholder="Email (obligatoire)" value={adminEmail} onChange={(e) => setAdminEmail(e.target.value)} className={cn(adminInputClasses, "h-11 px-4 text-base")} />
+                    <Input key={`admin-email-create-${adminSaveMsg ? '1' : '0'}`} type="text" inputMode="email" autoComplete="off" autoCapitalize="off" autoCorrect="off" spellCheck={false} placeholder="Email de récupération (obligatoire)" value={adminEmail} onChange={(e) => setAdminEmail(e.target.value)} className={cn(adminInputClasses, "h-11 px-4 text-base")} />
                     <Input type="text" inputMode="email" autoComplete="off" autoCapitalize="off" autoCorrect="off" spellCheck={false} placeholder="Confirmer l'email" value={confirmAdminEmail} onChange={(e) => setConfirmAdminEmail(e.target.value)} className={cn(adminInputClasses, "h-11 px-4 text-base")} />
                   </div>
                   <div className="flex items-center gap-1.5">
@@ -1196,10 +1196,19 @@ export default function Settings() {
                     <input type="password" name="password" autoComplete="new-password" tabIndex={-1} />
                   </div>
                   <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+                    {config?.accountEmail && (
+                      <div className="col-span-full mb-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2">
+                        <div className="text-[10px] font-semibold uppercase tracking-wider text-white/50">Email de connexion (Compte)</div>
+                        <div className="font-mono text-sm text-white/90">{config.accountEmail}</div>
+                      </div>
+                    )}
                     <PasswordInput name="admin_code_current" autoComplete="off" placeholder={adminCodeAlreadySet ? "Code admin actuel" : "Définir un code admin"} value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} className={cn(adminInputClasses, "h-11 px-4 text-base")} />
                     <PasswordInput name="admin_code_new" autoComplete="off" placeholder="Nouveau code admin (min 4)" value={password} onChange={(e) => setPassword(e.target.value)} className={cn(adminInputClasses, "h-11 px-4 text-base")} />
                     <div className="space-y-0.5">
-                      <Input key={`admin-email-${adminUnlocked ? '1' : '0'}-${adminSaveMsg ? '1' : '0'}`} type="text" inputMode="email" name={emailFieldName} autoComplete="off" autoCapitalize="off" autoCorrect="off" spellCheck={false} placeholder={adminEmailRequired ? "Email (obligatoire)" : "Email (optionnel)"} value={adminEmail} onChange={(e) => setAdminEmail(e.target.value)} readOnly={!emailFocus} onFocus={() => setEmailFocus(true)} className={cn(adminInputClasses, "h-11 px-4 text-base")} />
+                      <Input key={`admin-email-${adminUnlocked ? '1' : '0'}-${adminSaveMsg ? '1' : '0'}`} type="text" inputMode="email" name={emailFieldName} autoComplete="off" autoCapitalize="off" autoCorrect="off" spellCheck={false} placeholder={adminEmailRequired ? "Email de récupération (obligatoire)" : "Email de récupération (optionnel)"} value={adminEmail} onChange={(e) => setAdminEmail(e.target.value)} readOnly={!emailFocus} onFocus={() => setEmailFocus(true)} className={cn(adminInputClasses, "h-11 px-4 text-base")} />
+                      <div className="px-1 text-[10px] text-white/50">
+                        {config?.adminEmail ? `Actuel : ${config.adminEmail}` : "Aucun email de récupération défini"}
+                      </div>
                       {!adminEmailValid && <span className="text-xs text-destructive">Email invalide</span>}
                     </div>
                   </div>
