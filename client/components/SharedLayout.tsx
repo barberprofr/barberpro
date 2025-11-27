@@ -170,7 +170,7 @@ export default function SharedLayout({ children }: PropsWithChildren) {
           <div className="w-full max-w-lg rounded-xl bg-white p-6 text-slate-900 shadow-2xl">
             <h3 className="text-xl font-semibold mb-2">Abonnement requis</h3>
             <p className="mt-2 text-sm text-slate-700">
-              Pour accéder à l'application, vous devez activer votre abonnement à 25€ / mois.
+              Pour accéder à l'application, vous devez activer votre abonnement à 29€ / mois.
             </p>
             <p className="mt-2 text-xs text-slate-500">
               Le paiement est sécurisé via Stripe. Vous serez redirigé vers la page de paiement.
@@ -192,7 +192,7 @@ export default function SharedLayout({ children }: PropsWithChildren) {
                   }
                 }}
               >
-                S'abonner — 25€/mois
+                S'abonner — 29€/mois
               </button>
             </div>
           </div>

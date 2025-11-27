@@ -17,8 +17,8 @@ import { connectDatabase } from "../db.ts";
 const emailToSalonId = new Map<string, string>();
 
 // ⭐️ RÉINTÉGRATION : Système de période d'essai
-const parsedTrialDays = Number(process.env.SUBSCRIPTION_TRIAL_DAYS ?? "1");
-const TRIAL_DURATION_DAYS = Number.isFinite(parsedTrialDays) ? Math.max(0, parsedTrialDays) : 1;
+const parsedTrialDays = Number(process.env.SUBSCRIPTION_TRIAL_DAYS ?? "14");
+const TRIAL_DURATION_DAYS = Number.isFinite(parsedTrialDays) ? Math.max(0, parsedTrialDays) : 14;
 const TRIAL_DURATION_MS = TRIAL_DURATION_DAYS * 24 * 60 * 60 * 1000;
 
 // Parser manuel pour Netlify Functions - CORRIGÉ
