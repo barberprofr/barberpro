@@ -8,7 +8,7 @@ import { useAdminLogin, useDeleteClient, useClients, useRedeemPoints, useConfig,
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Loader2, Sparkles, Search, Camera, ChevronLeft, ChevronRight, X, Trash2 } from "lucide-react";
+import { Loader2, Sparkles, Search, Camera, ChevronLeft, ChevronRight, X, Trash2, Image as ImageIcon } from "lucide-react";
 
 export default function Clients() {
   const { data: config, isLoading: cfgLoading } = useConfig();
@@ -449,13 +449,33 @@ export default function Clients() {
                           {uploadPhoto.isPending ? (
                             <Loader2 className="h-5 w-5 animate-spin text-white/60" />
                           ) : (
-                            <Camera className="h-5 w-5 text-white/60" />
+                            <ImageIcon className="h-5 w-5 text-white/60" />
                           )}
-                          <span className="text-[10px] text-white/60">Ajouter</span>
+                          <span className="text-[10px] text-white/60">Galerie</span>
                           <input
                             type="file"
                             className="hidden"
                             accept="image/*"
+                            disabled={uploadPhoto.isPending}
+                            onChange={async (e) => {
+                              if (e.target.files && e.target.files[0]) {
+                                await uploadPhoto.mutateAsync({ clientId: c.id, file: e.target.files[0] });
+                              }
+                            }}
+                          />
+                        </label>
+                        <label className="flex aspect-square cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border border-dashed border-white/25 bg-white/5 hover:bg-white/10 transition">
+                          {uploadPhoto.isPending ? (
+                            <Loader2 className="h-5 w-5 animate-spin text-white/60" />
+                          ) : (
+                            <Camera className="h-5 w-5 text-white/60" />
+                          )}
+                          <span className="text-[10px] text-white/60">Caméra</span>
+                          <input
+                            type="file"
+                            className="hidden"
+                            accept="image/*"
+                            capture="environment"
                             disabled={uploadPhoto.isPending}
                             onChange={async (e) => {
                               if (e.target.files && e.target.files[0]) {

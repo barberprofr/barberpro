@@ -36,27 +36,25 @@ self.addEventListener('fetch', (event) => {
   const { request } = event;
 
   // 1. Navigation (HTML) - Network First
-  // Pour s'assurer que l'utilisateur a toujours la dernière version de l'app
   if (request.mode === 'navigate') {
     event.respondWith(
       fetch(request)
         .then((response) => {
-          // Mise en cache de la nouvelle version
           const responseClone = response.clone();
           caches.open(CACHE_NAME).then((cache) => {
             cache.put(request, responseClone);
           });
           return response;
         })
-        .catch(() => {
-          // Fallback cache si hors ligne
+        .catch((error) => {
+          console.log('Navigation fetch failed, falling back to cache:', error);
           return caches.match(request);
         })
     );
     return;
   }
 
-  // 2. API requests - Network First (ne pas cacher les POST/PUT/DELETE)
+  // 2. API requests - Network First
   if (request.url.includes('/api/')) {
     if (request.method !== 'GET') {
       event.respondWith(fetch(request));
@@ -72,28 +70,37 @@ self.addEventListener('fetch', (event) => {
           });
           return response;
         })
-        .catch(() => caches.match(request))
+        .catch((error) => {
+          console.log('API fetch failed, falling back to cache:', error);
+          return caches.match(request);
+        })
     );
     return;
   }
 
   // 3. Assets statiques (JS, CSS, Images) - Cache First
-  // Ces fichiers ont généralement des hash dans leur nom (ex: index.a1b2c3.js)
   event.respondWith(
     caches.match(request).then((response) => {
       if (response) {
         return response;
       }
-      return fetch(request).then((response) => {
-        if (!response || response.status !== 200 || response.type === 'error') {
+      return fetch(request)
+        .then((response) => {
+          if (!response || response.status !== 200 || response.type === 'error') {
+            return response;
+          }
+          const responseClone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(request, responseClone);
+          });
           return response;
-        }
-        const responseClone = response.clone();
-        caches.open(CACHE_NAME).then((cache) => {
-          cache.put(request, responseClone);
+        })
+        .catch((error) => {
+          console.error('Static asset fetch failed:', request.url, error);
+          // On ne peut pas faire grand chose ici si l'asset n'est pas en cache
+          // et que le réseau échoue, à part retourner une erreur ou une image par défaut.
+          throw error;
         });
-        return response;
-      });
     })
   );
 });
