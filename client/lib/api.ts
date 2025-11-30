@@ -740,3 +740,22 @@ export function useUploadClientPhoto() {
   });
 }
 
+
+export function useDeleteClientPhoto() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ clientId, photoUrl }: { clientId: string; photoUrl: string }) => {
+      const res = await apiFetch(`/api/clients/${clientId}/photos`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ photoUrl }),
+      });
+      if (!res.ok) await throwResponseError(res);
+      return res.json() as Promise<{ client: Client }>;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['clients'] });
+    }
+  });
+}
+

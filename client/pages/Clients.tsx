@@ -4,11 +4,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { cn } from "@/lib/utils";
-import { useAdminLogin, useDeleteClient, useClients, useRedeemPoints, useConfig, useStylists, useUploadClientPhoto } from "@/lib/api";
+import { useAdminLogin, useDeleteClient, useClients, useRedeemPoints, useConfig, useStylists, useUploadClientPhoto, useDeleteClientPhoto } from "@/lib/api";
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Loader2, Sparkles, Search, Camera, ChevronLeft, ChevronRight, X } from "lucide-react";
+import { Loader2, Sparkles, Search, Camera, ChevronLeft, ChevronRight, X, Trash2 } from "lucide-react";
 
 export default function Clients() {
   const { data: config, isLoading: cfgLoading } = useConfig();
@@ -21,6 +21,7 @@ export default function Clients() {
   const adminLogin = useAdminLogin();
   const delClient = useDeleteClient();
   const uploadPhoto = useUploadClientPhoto();
+  const deletePhoto = useDeleteClientPhoto();
   const [redeemPoints, setRedeemPoints] = useState("");
   const [selected, setSelected] = useState<string>("");
   const [viewingPhotoIndex, setViewingPhotoIndex] = useState<number | null>(null);
@@ -136,6 +137,20 @@ export default function Clients() {
               onClick={() => setViewingPhotoIndex(null)}
             >
               <X className="h-6 w-6" />
+            </button>
+
+            <button
+              className="absolute right-16 top-4 rounded-full bg-red-500/20 p-2 text-red-200 hover:bg-red-500/40"
+              onClick={(e) => {
+                e.stopPropagation();
+                if (window.confirm("Voulez-vous vraiment supprimer cette photo ?")) {
+                  deletePhoto.mutate({ clientId: selectedClient.id, photoUrl: selectedClient.photos[viewingPhotoIndex] }, {
+                    onSuccess: () => setViewingPhotoIndex(null)
+                  });
+                }
+              }}
+            >
+              <Trash2 className="h-6 w-6" />
             </button>
 
             <button
@@ -410,13 +425,25 @@ export default function Clients() {
                       <h4 className="text-sm font-medium text-white/80">Photos</h4>
                       <div className="grid grid-cols-3 gap-2">
                         {c.photos?.map((photo, i) => (
-                          <img
-                            key={i}
-                            src={photo}
-                            alt={`Client photo ${i + 1}`}
-                            className="aspect-square rounded-lg object-cover border border-white/10 cursor-pointer hover:opacity-80 transition"
-                            onClick={() => setViewingPhotoIndex(i)}
-                          />
+                          <div key={i} className="relative group">
+                            <img
+                              src={photo}
+                              alt={`Client photo ${i + 1}`}
+                              className="aspect-square rounded-lg object-cover border border-white/10 cursor-pointer hover:opacity-80 transition w-full"
+                              onClick={() => setViewingPhotoIndex(i)}
+                            />
+                            <button
+                              className="absolute top-1 right-1 rounded-full bg-black/50 p-1 text-white opacity-0 group-hover:opacity-100 transition hover:bg-red-500/80"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (window.confirm("Supprimer cette photo ?")) {
+                                  deletePhoto.mutate({ clientId: c.id, photoUrl: photo });
+                                }
+                              }}
+                            >
+                              <X className="h-3 w-3" />
+                            </button>
+                          </div>
                         ))}
                         <label className="flex aspect-square cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border border-dashed border-white/25 bg-white/5 hover:bg-white/10 transition">
                           {uploadPhoto.isPending ? (
