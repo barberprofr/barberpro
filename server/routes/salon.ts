@@ -1,4 +1,7 @@
 import { RequestHandler } from "express";
+import { v2 as cloudinary } from 'cloudinary';
+import { CloudinaryStorage } from 'multer-storage-cloudinary';
+import multer from 'multer';
 import { createHash, randomBytes } from "node:crypto";
 import { IncomingMessage } from "node:http";
 import { EmailService } from './emailService.ts';
@@ -2477,3 +2480,47 @@ export const exportByMonthPDF: RequestHandler = async (req, res) => {
 export {
   connectDatabase
 };
+
+// Cloudinary Configuration
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'barberpro-clients',
+    allowed_formats: ['jpg', 'png', 'jpeg', 'webp'],
+  } as any,
+});
+
+const upload = multer({ storage: storage });
+
+export const uploadClientPhoto = [
+  upload.single('photo'),
+  async (req: any, res: any) => {
+    try {
+      const salonId = getSalonId(req);
+      const { id } = req.params;
+
+      if (!req.file || !req.file.path) {
+        return res.status(400).json({ error: "No file uploaded" });
+      }
+
+      const client = await Client.findOne({ id, salonId });
+      if (!client) {
+        return res.status(404).json({ error: "Client not found" });
+      }
+
+      client.photos.push(req.file.path);
+      await client.save();
+
+      res.json({ client });
+    } catch (error) {
+      console.error('Error uploading client photo:', error);
+      res.status(500).json({ error: "Erreur serveur" });
+    }
+  }
+];

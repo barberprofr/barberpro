@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Loader2, Check, ChevronDown, CircleDollarSign, CreditCard, FileText, Sparkles } from "lucide-react";
+import { Loader2, Check, ChevronDown, CircleDollarSign, CreditCard, FileText, Sparkles, ArrowLeft } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Input } from "@/components/ui/input";
@@ -69,6 +69,8 @@ export default function PrestationsForm() {
   const [showSuccess, setShowSuccess] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [clientAccordion, setClientAccordion] = useState<string>("");
+  const [servicesPickerOpen, setServicesPickerOpen] = useState(false);
+  const [productsPickerOpen, setProductsPickerOpen] = useState(false);
   const successTimeoutRef = useRef<number | null>(null);
   const amountHintTimeoutRef = useRef<number | null>(null);
   const amountInputRef = useRef<HTMLInputElement | null>(null);
@@ -206,6 +208,8 @@ export default function PrestationsForm() {
     setPayment("");
     setPaymentSelected(false);
     setPaymentPickerOpen(false);
+    setServicesPickerOpen(false);
+    setProductsPickerOpen(false);
     setAmount("");
     setClientId("");
     setNewClientFirstName("");
@@ -321,7 +325,7 @@ export default function PrestationsForm() {
     setNewClientAccordionOpen(false);
   }, []);
 
-  const handleServiceSelect = useCallback((serviceId: string, serviceName: string, price: number) => {
+  /*const handleServiceSelect = useCallback((serviceId: string, serviceName: string, price: number) => {
     setAmount(price.toString());
     setPayment("");
     setPaymentSelected(false);
@@ -331,20 +335,52 @@ export default function PrestationsForm() {
     setTimeout(() => {
       setPaymentPickerOpen(true);
     }, 100);
+  }, []);*/
+
+
+  const handleServiceSelect = useCallback((prestations: Array<{ id: string, name: string, price: number, quantity: number }>) => {
+    const totalAmount = prestations.reduce((sum, p) => sum + (p.price * p.quantity), 0);
+    setAmount(totalAmount.toString());
+    setPayment("");
+    setPaymentSelected(false);
+    setIsProduct(false);
+
+    if (prestations.length > 0) {
+      const summary = prestations.map(p =>
+        p.quantity > 1 ? `${p.name} (x${p.quantity})` : p.name
+      ).join(", ");
+      setSelectedServiceName(summary);
+      setSelectedServiceId(prestations[0].id);
+    }
+
+    (window as any).__selectedPrestations = prestations;
+
+    setTimeout(() => {
+      setPaymentPickerOpen(true);
+    }, 100);
   }, []);
 
   const handleServicesPickerReset = useCallback((closeFunc: () => void) => {
     servicesPickerCloseRef.current = closeFunc;
   }, []);
 
-  const handleProductSelect = useCallback((productId: string, productName: string, price: number) => {
-    setAmount(price.toString());
+  const handleProductSelect = useCallback((products: Array<{ id: string, name: string, price: number, quantity: number }>) => {
+    const totalAmount = products.reduce((sum, p) => sum + (p.price * p.quantity), 0);
+    setAmount(totalAmount.toString());
     setPayment("");
     setPaymentSelected(false);
     setIsProduct(true);
-    setSelectedProductName(productName);
-    setSelectedProductTypeId(productId);
-    setProductsPopoverOpen(false);
+
+    if (products.length > 0) {
+      const summary = products.map(p =>
+        p.quantity > 1 ? `${p.name} (x${p.quantity})` : p.name
+      ).join(", ");
+      setSelectedProductName(summary);
+      setSelectedProductTypeId(products[0].id);
+    }
+
+    (window as any).__selectedProducts = products;
+
     setTimeout(() => {
       setPaymentPickerOpen(true);
     }, 100);
@@ -419,95 +455,234 @@ export default function PrestationsForm() {
     const ts = parisLocalToEpoch(isoNow);
 
     if (isProduct) {
-      addProduct.mutate(
-        {
-          stylistId,
-          clientId: nextClientId || undefined,
-          amount: Number(amount),
-          paymentMethod: payment as any,
-          timestamp: ts,
-          productName: selectedProductName || undefined,
-          productTypeId: selectedProductTypeId || undefined
-        },
-        {
-          onSuccess: () => {
-            servicesPickerCloseRef.current?.();
-            setStylistId("");
-            setStylistPickerOpen(false);
-            setPayment("");
-            setPaymentSelected(false);
-            setPaymentPickerOpen(false);
-            setAmount("");
-            setClientId("");
-            setIsProduct(false);
-            setNewClientFirstName("");
-            setNewClientName("");
-            setNewClientPhone("");
-            setNewClientAccordionOpen(false);
-            setClientPickerOpen(false);
-            setClientSearch("");
-            setClientAccordion("");
-            setWhen(parisNowIsoLocal());
-            if (successTimeoutRef.current) {
-              window.clearTimeout(successTimeoutRef.current);
-              successTimeoutRef.current = null;
-            }
-            setShowSuccess(true);
-            successTimeoutRef.current = window.setTimeout(() => {
-              setShowSuccess(false);
-              successTimeoutRef.current = null;
-            }, 2400);
-            qc.invalidateQueries({ queryKey: ["summary"] });
-            qc.invalidateQueries({ queryKey: ["stylists"] });
-            qc.invalidateQueries({ queryKey: ["clients"] });
+      const storedProducts = (window as any).__selectedProducts as Array<{ id: string, name: string, price: number, quantity: number }> | undefined;
+
+      if (storedProducts && storedProducts.length > 0) {
+        const submitProduct = async (product: { id: string, name: string, price: number, quantity: number }) => {
+          for (let i = 0; i < product.quantity; i++) {
+            await addProduct.mutateAsync({
+              stylistId,
+              clientId: nextClientId || undefined,
+              amount: product.price,
+              paymentMethod: payment as any,
+              timestamp: ts,
+              productName: product.name || undefined,
+              productTypeId: product.id || undefined
+            });
           }
+        };
+
+        try {
+          for (const product of storedProducts) {
+            await submitProduct(product);
+          }
+          delete (window as any).__selectedProducts;
+
+          // Success handling (copied from below)
+          servicesPickerCloseRef.current?.();
+          setStylistId("");
+          setStylistPickerOpen(false);
+          setPayment("");
+          setPaymentSelected(false);
+          setPaymentPickerOpen(false);
+          setServicesPickerOpen(false);
+          setProductsPickerOpen(false);
+          setAmount("");
+          setClientId("");
+          setIsProduct(false);
+          setNewClientFirstName("");
+          setNewClientName("");
+          setNewClientPhone("");
+          setNewClientAccordionOpen(false);
+          setClientPickerOpen(false);
+          setClientSearch("");
+          setClientAccordion("");
+          setWhen(parisNowIsoLocal());
+          if (successTimeoutRef.current) {
+            window.clearTimeout(successTimeoutRef.current);
+            successTimeoutRef.current = null;
+          }
+          setShowSuccess(true);
+          successTimeoutRef.current = window.setTimeout(() => {
+            setShowSuccess(false);
+            successTimeoutRef.current = null;
+          }, 2400);
+          qc.invalidateQueries({ queryKey: ["summary"] });
+          qc.invalidateQueries({ queryKey: ["stylists"] });
+          qc.invalidateQueries({ queryKey: ["clients"] });
+
+        } catch (error) {
+          console.error("Failed to submit products", error);
+          toast({
+            title: "Erreur",
+            description: "Impossible d'enregistrer tous les produits. Veuillez réessayer.",
+          });
         }
-      );
+      } else {
+        // Fallback for single product (legacy)
+        addProduct.mutate(
+          {
+            stylistId,
+            clientId: nextClientId || undefined,
+            amount: Number(amount),
+            paymentMethod: payment as any,
+            timestamp: ts,
+            productName: selectedProductName || undefined,
+            productTypeId: selectedProductTypeId || undefined
+          },
+          {
+            onSuccess: () => {
+              servicesPickerCloseRef.current?.();
+              setStylistId("");
+              setStylistPickerOpen(false);
+              setPayment("");
+              setPaymentSelected(false);
+              setPaymentPickerOpen(false);
+              setServicesPickerOpen(false);
+              setProductsPickerOpen(false);
+              setAmount("");
+              setClientId("");
+              setIsProduct(false);
+              setNewClientFirstName("");
+              setNewClientName("");
+              setNewClientPhone("");
+              setNewClientAccordionOpen(false);
+              setClientPickerOpen(false);
+              setClientSearch("");
+              setClientAccordion("");
+              setWhen(parisNowIsoLocal());
+              if (successTimeoutRef.current) {
+                window.clearTimeout(successTimeoutRef.current);
+                successTimeoutRef.current = null;
+              }
+              setShowSuccess(true);
+              successTimeoutRef.current = window.setTimeout(() => {
+                setShowSuccess(false);
+                successTimeoutRef.current = null;
+              }, 2400);
+              qc.invalidateQueries({ queryKey: ["summary"] });
+              qc.invalidateQueries({ queryKey: ["stylists"] });
+              qc.invalidateQueries({ queryKey: ["clients"] });
+            }
+          }
+        );
+      }
     } else {
-      addPrestation.mutate(
-        {
-          stylistId,
-          clientId: nextClientId || undefined,
-          amount: Number(amount),
-          paymentMethod: payment as any,
-          timestamp: ts,
-          serviceName: selectedServiceName || undefined,
-          serviceId: selectedServiceId || undefined
-        },
-        {
-          onSuccess: () => {
-            servicesPickerCloseRef.current?.();
-            setStylistId("");
-            setStylistPickerOpen(false);
-            setPayment("");
-            setPaymentSelected(false);
-            setPaymentPickerOpen(false);
-            setAmount("");
-            setClientId("");
-            setIsProduct(false);
-            setNewClientFirstName("");
-            setNewClientName("");
-            setNewClientPhone("");
-            setNewClientAccordionOpen(false);
-            setClientPickerOpen(false);
-            setClientSearch("");
-            setClientAccordion("");
-            setWhen(parisNowIsoLocal());
-            if (successTimeoutRef.current) {
-              window.clearTimeout(successTimeoutRef.current);
-              successTimeoutRef.current = null;
-            }
-            setShowSuccess(true);
-            successTimeoutRef.current = window.setTimeout(() => {
-              setShowSuccess(false);
-              successTimeoutRef.current = null;
-            }, 2400);
-            qc.invalidateQueries({ queryKey: ["summary"] });
-            qc.invalidateQueries({ queryKey: ["stylists"] });
-            qc.invalidateQueries({ queryKey: ["clients"] });
+      const storedPrestations = (window as any).__selectedPrestations as Array<{ id: string, name: string, price: number, quantity: number }> | undefined;
+
+      if (storedPrestations && storedPrestations.length > 0) {
+        // Submit multiple prestations
+        const submitPrestation = async (prestation: { id: string, name: string, price: number, quantity: number }) => {
+          for (let i = 0; i < prestation.quantity; i++) {
+            await addPrestation.mutateAsync({
+              stylistId,
+              clientId: nextClientId || undefined,
+              amount: prestation.price,
+              paymentMethod: payment as any,
+              timestamp: ts,
+              serviceName: prestation.name || undefined,
+              serviceId: prestation.id || undefined
+            });
           }
+        };
+
+        try {
+          for (const prestation of storedPrestations) {
+            await submitPrestation(prestation);
+          }
+
+          delete (window as any).__selectedPrestations;
+
+          // Reset form (copy all the reset logic from the existing onSuccess)
+          servicesPickerCloseRef.current?.();
+          setStylistId("");
+          setStylistPickerOpen(false);
+          setPayment("");
+          setPaymentSelected(false);
+          setPaymentPickerOpen(false);
+          setServicesPickerOpen(false);
+          setProductsPickerOpen(false);
+          setAmount("");
+          setClientId("");
+          setIsProduct(false);
+          setNewClientFirstName("");
+          setNewClientName("");
+          setNewClientPhone("");
+          setNewClientAccordionOpen(false);
+          setClientPickerOpen(false);
+          setClientSearch("");
+          setClientAccordion("");
+          setWhen(parisNowIsoLocal());
+
+          if (successTimeoutRef.current) {
+            window.clearTimeout(successTimeoutRef.current);
+            successTimeoutRef.current = null;
+          }
+          setShowSuccess(true);
+          successTimeoutRef.current = window.setTimeout(() => {
+            setShowSuccess(false);
+            successTimeoutRef.current = null;
+          }, 2400);
+
+          qc.invalidateQueries({ queryKey: ["summary"] });
+          qc.invalidateQueries({ queryKey: ["stylists"] });
+          qc.invalidateQueries({ queryKey: ["clients"] });
+        } catch (error) {
+          console.error("Failed to submit prestations", error);
+          toast({
+            title: "Erreur",
+            description: "Impossible d'enregistrer toutes les prestations. Veuillez réessayer.",
+          });
         }
-      );
+      } else {
+        // Fallback to single prestation (keep original code here)
+        addPrestation.mutate(
+          {
+            stylistId,
+            clientId: nextClientId || undefined,
+            amount: Number(amount),
+            paymentMethod: payment as any,
+            timestamp: ts,
+            serviceName: selectedServiceName || undefined,
+            serviceId: selectedServiceId || undefined
+          },
+          {
+            onSuccess: () => {
+              servicesPickerCloseRef.current?.();
+              setStylistId("");
+              setStylistPickerOpen(false);
+              setPayment("");
+              setPaymentSelected(false);
+              setPaymentPickerOpen(false);
+              setServicesPickerOpen(false);
+              setProductsPickerOpen(false);
+              setAmount("");
+              setClientId("");
+              setIsProduct(false);
+              setNewClientFirstName("");
+              setNewClientName("");
+              setNewClientPhone("");
+              setNewClientAccordionOpen(false);
+              setClientPickerOpen(false);
+              setClientSearch("");
+              setClientAccordion("");
+              setWhen(parisNowIsoLocal());
+              if (successTimeoutRef.current) {
+                window.clearTimeout(successTimeoutRef.current);
+                successTimeoutRef.current = null;
+              }
+              setShowSuccess(true);
+              successTimeoutRef.current = window.setTimeout(() => {
+                setShowSuccess(false);
+                successTimeoutRef.current = null;
+              }, 2400);
+              qc.invalidateQueries({ queryKey: ["summary"] });
+              qc.invalidateQueries({ queryKey: ["stylists"] });
+              qc.invalidateQueries({ queryKey: ["clients"] });
+            }
+          }
+        );
+      }
     }
   }
 
@@ -679,9 +854,17 @@ export default function PrestationsForm() {
           <ServicesPicker
             onServiceSelect={handleServiceSelect}
             onReset={handleServicesPickerReset}
+            externalOpen={servicesPickerOpen}
+            onOpenChange={setServicesPickerOpen}
+            disabled={!stylistId}
           />
         </div>
-        <ProductsPicker onProductSelect={handleProductSelect} />
+        <ProductsPicker
+          onProductSelect={handleProductSelect}
+          externalOpen={productsPickerOpen}
+          onOpenChange={setProductsPickerOpen}
+          disabled={!stylistId}
+        />
         {amount ? (
           <div className="flex justify-center w-full mt-6">
             <div className="flex flex-col items-center gap-1 text-center w-full max-w-md">
@@ -689,6 +872,23 @@ export default function PrestationsForm() {
               {paymentPickerOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
                   <div className="w-full max-w-md rounded-3xl border border-emerald-400/50 bg-gradient-to-br from-slate-950/95 via-indigo-900/70 to-emerald-800/40 p-6 text-slate-50 shadow-[0_40px_100px_rgba(8,15,40,0.8)] backdrop-blur-2xl animate-in zoom-in-95 duration-200">
+                    <div className="mb-4 flex items-center gap-3">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setPaymentPickerOpen(false);
+                          if (isProduct) {
+                            setProductsPickerOpen(true);
+                          } else {
+                            setServicesPickerOpen(true);
+                          }
+                        }}
+                        className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-slate-200 transition hover:bg-white/10 hover:scale-105 active:scale-95"
+                      >
+                        <ArrowLeft className="h-5 w-5" />
+                      </button>
+                      <span className="text-xl font-bold text-white">Moyen de paiement</span>
+                    </div>
                     <div className="space-y-4">
                       <div className="grid gap-4 sm:grid-cols-1">
                         {PAYMENT_OPTIONS.map((option) => {
@@ -980,7 +1180,7 @@ export default function PrestationsForm() {
             </div>
           </PopoverContent>
         </Popover>
-      </form>
-    </Card>
+      </form >
+    </Card >
   );
 }

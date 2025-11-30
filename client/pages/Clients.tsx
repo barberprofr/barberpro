@@ -4,11 +4,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { cn } from "@/lib/utils";
-import { useAdminLogin, useDeleteClient, useClients, useRedeemPoints, useConfig, useStylists } from "@/lib/api";
+import { useAdminLogin, useDeleteClient, useClients, useRedeemPoints, useConfig, useStylists, useUploadClientPhoto } from "@/lib/api";
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
-import { motion } from "framer-motion";
-import { Loader2, Sparkles, Search } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Loader2, Sparkles, Search, Camera, ChevronLeft, ChevronRight, X } from "lucide-react";
 
 export default function Clients() {
   const { data: config, isLoading: cfgLoading } = useConfig();
@@ -20,8 +20,10 @@ export default function Clients() {
   const redeem = useRedeemPoints();
   const adminLogin = useAdminLogin();
   const delClient = useDeleteClient();
+  const uploadPhoto = useUploadClientPhoto();
   const [redeemPoints, setRedeemPoints] = useState("");
   const [selected, setSelected] = useState<string>("");
+  const [viewingPhotoIndex, setViewingPhotoIndex] = useState<number | null>(null);
   const [query, setQuery] = useState("");
   const [redeemStylistId, setRedeemStylistId] = useState<string>("");
   const [stylistAccordionOpen, setStylistAccordionOpen] = useState(false);
@@ -106,8 +108,72 @@ export default function Clients() {
       window.clearTimeout(refreshTimeoutRef.current);
     }
   }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (viewingPhotoIndex === null || !selectedClient?.photos) return;
+      if (e.key === "Escape") setViewingPhotoIndex(null);
+      if (e.key === "ArrowLeft") setViewingPhotoIndex((prev) => (prev === null ? null : (prev - 1 + selectedClient.photos.length) % selectedClient.photos.length));
+      if (e.key === "ArrowRight") setViewingPhotoIndex((prev) => (prev === null ? null : (prev + 1) % selectedClient.photos.length));
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [viewingPhotoIndex, selectedClient]);
+
   return (
     <SharedLayout>
+      <AnimatePresence>
+        {viewingPhotoIndex !== null && selectedClient?.photos && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 backdrop-blur-sm p-4"
+            onClick={() => setViewingPhotoIndex(null)}
+          >
+            <button
+              className="absolute right-4 top-4 rounded-full bg-white/10 p-2 text-white hover:bg-white/20"
+              onClick={() => setViewingPhotoIndex(null)}
+            >
+              <X className="h-6 w-6" />
+            </button>
+
+            <button
+              className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-3 text-white hover:bg-white/20 disabled:opacity-50"
+              onClick={(e) => {
+                e.stopPropagation();
+                setViewingPhotoIndex((prev) => (prev === null ? null : (prev - 1 + selectedClient.photos.length) % selectedClient.photos.length));
+              }}
+            >
+              <ChevronLeft className="h-8 w-8" />
+            </button>
+
+            <motion.img
+              key={viewingPhotoIndex}
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              src={selectedClient.photos[viewingPhotoIndex]}
+              alt="Client photo"
+              className="max-h-[85vh] max-w-[90vw] rounded-lg object-contain shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            />
+
+            <button
+              className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-3 text-white hover:bg-white/20 disabled:opacity-50"
+              onClick={(e) => {
+                e.stopPropagation();
+                setViewingPhotoIndex((prev) => (prev === null ? null : (prev + 1) % selectedClient.photos.length));
+              }}
+            >
+              <ChevronRight className="h-8 w-8" />
+            </button>
+
+            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 rounded-full bg-black/50 px-4 py-1 text-sm text-white backdrop-blur-md">
+              {viewingPhotoIndex + 1} / {selectedClient.photos.length}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
       <div className="mx-auto max-w-md space-y-4">
         <Card className="border-none shadow-md bg-card">
           <CardHeader>
@@ -338,6 +404,42 @@ export default function Clients() {
                       </Button>
                     </div>
                   </CardContent>
+                  {isSelected && (
+                    <div className="px-4 pb-4 space-y-3">
+                      <div className="h-px bg-white/10" />
+                      <h4 className="text-sm font-medium text-white/80">Photos</h4>
+                      <div className="grid grid-cols-3 gap-2">
+                        {c.photos?.map((photo, i) => (
+                          <img
+                            key={i}
+                            src={photo}
+                            alt={`Client photo ${i + 1}`}
+                            className="aspect-square rounded-lg object-cover border border-white/10 cursor-pointer hover:opacity-80 transition"
+                            onClick={() => setViewingPhotoIndex(i)}
+                          />
+                        ))}
+                        <label className="flex aspect-square cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border border-dashed border-white/25 bg-white/5 hover:bg-white/10 transition">
+                          {uploadPhoto.isPending ? (
+                            <Loader2 className="h-5 w-5 animate-spin text-white/60" />
+                          ) : (
+                            <Camera className="h-5 w-5 text-white/60" />
+                          )}
+                          <span className="text-[10px] text-white/60">Ajouter</span>
+                          <input
+                            type="file"
+                            className="hidden"
+                            accept="image/*"
+                            disabled={uploadPhoto.isPending}
+                            onChange={async (e) => {
+                              if (e.target.files && e.target.files[0]) {
+                                await uploadPhoto.mutateAsync({ clientId: c.id, file: e.target.files[0] });
+                              }
+                            }}
+                          />
+                        </label>
+                      </div>
+                    </div>
+                  )}
                 </Card>
               );
             })

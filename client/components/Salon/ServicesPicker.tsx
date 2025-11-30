@@ -1,38 +1,121 @@
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useServices } from "@/lib/api";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Check, X, Plus, Minus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState, useEffect, useCallback } from "react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 
-interface ServicesPickerProps {
-  onServiceSelect?: (serviceId: string, serviceName: string, price: number) => void;
-  onReset?: (closeFunc: () => void) => void;
+interface SelectedPrestation {
+  id: string;
+  name: string;
+  price: number;
+  quantity: number;
 }
 
-export default function ServicesPicker({ onServiceSelect, onReset }: ServicesPickerProps) {
+interface ServicesPickerProps {
+  onServiceSelect?: (prestations: SelectedPrestation[]) => void;
+  onReset?: (closeFunc: () => void) => void;
+  externalOpen?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  disabled?: boolean;
+}
+
+export default function ServicesPicker({ onServiceSelect, onReset, externalOpen, onOpenChange, disabled }: ServicesPickerProps) {
   const { data: services = [] } = useServices();
-  const [popoverOpen, setPopoverOpen] = useState(false);
+  const { toast } = useToast();
+  const [internalOpen, setInternalOpen] = useState(false);
+
+  const isControlled = typeof externalOpen !== "undefined";
+  const popoverOpen = isControlled ? externalOpen : internalOpen;
+  const setPopoverOpen = useCallback((open: boolean) => {
+    if (disabled && open) {
+      toast({
+        title: "Action requise",
+        description: "Veuillez sélectionner un coiffeur avant de choisir les prestations.",
+        variant: "destructive",
+      });
+      return;
+    }
+    if (isControlled) {
+      onOpenChange?.(open);
+    } else {
+      setInternalOpen(open);
+    }
+  }, [isControlled, onOpenChange, disabled, toast]);
+
+
+
+  const [selectedPrestations, setSelectedPrestations] = useState<Map<string, SelectedPrestation>>(new Map());
+  const [calculatorServiceId, setCalculatorServiceId] = useState<string | null>(null);
 
   useEffect(() => {
-    onReset?.(() => setPopoverOpen(false));
+    onReset?.(() => {
+      setPopoverOpen(false);
+      setSelectedPrestations(new Map());
+    });
   }, [onReset]);
 
   const hasServices = services.length > 0;
 
-  const handleServiceSelect = useCallback((serviceId: string, serviceName: string, price: number) => {
-    onServiceSelect?.(serviceId, serviceName, price);
-    setPopoverOpen(false);
-  }, [onServiceSelect]);
+  const toggleService = useCallback((serviceId: string, serviceName: string, price: number) => {
+    setSelectedPrestations(prev => {
+      const newMap = new Map(prev);
+      if (newMap.has(serviceId)) {
+        newMap.delete(serviceId);
+      } else {
+        newMap.set(serviceId, { id: serviceId, name: serviceName, price, quantity: 1 });
+      }
+      return newMap;
+    });
+  }, []);
+
+  const setQuantity = useCallback((serviceId: string, quantity: number) => {
+    setSelectedPrestations(prev => {
+      const newMap = new Map(prev);
+      const prestation = newMap.get(serviceId);
+      if (prestation) {
+        newMap.set(serviceId, { ...prestation, quantity });
+      }
+      return newMap;
+    });
+    setCalculatorServiceId(null);
+  }, []);
+
+  const total = Array.from(selectedPrestations.values()).reduce(
+    (sum, p) => sum + p.price * p.quantity,
+    0
+  );
+
+  const handleValidate = useCallback(() => {
+    if (selectedPrestations.size > 0) {
+      onServiceSelect?.(Array.from(selectedPrestations.values()));
+      setPopoverOpen(false);
+    }
+  }, [selectedPrestations, onServiceSelect]);
 
   return (
     <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
       <PopoverTrigger asChild>
         <button
           type="button"
+          disabled={disabled}
+          onClick={(e) => {
+            if (disabled) {
+              e.preventDefault();
+              e.stopPropagation();
+              toast({
+                title: "Action requise",
+                description: "Veuillez sélectionner un coiffeur avant de choisir les prestations.",
+                variant: "destructive",
+              });
+            }
+          }}
           className={cn(
             "w-full rounded-2xl border border-white/18 bg-[linear-gradient(135deg,rgba(12,18,45,0.95)0%,rgba(99,102,241,0.68)52%,rgba(16,185,129,0.52)100%)] px-4 py-3 text-lg font-black text-white transition-all hover:bg-[linear-gradient(135deg,rgba(12,18,45,0.95)0%,rgba(99,102,241,0.75)52%,rgba(16,185,129,0.6)100%)] shadow-[0_10px_24px_rgba(8,15,40,0.3)]",
-            "flex justify-between items-center"
+            "flex justify-between items-center",
+            disabled && "opacity-50 cursor-not-allowed grayscale"
           )}
         >
           <span>PRESTATIONS</span>
@@ -41,32 +124,171 @@ export default function ServicesPicker({ onServiceSelect, onReset }: ServicesPic
       </PopoverTrigger>
       <PopoverContent side="bottom" align="center" className="w-[min(90vw,36rem)] rounded-2xl border border-white/15 bg-[linear-gradient(135deg,rgba(4,11,46,0.92)0%,rgba(11,27,77,0.78)55%,rgba(16,45,115,0.58)100%)] shadow-[0_40px_95px_rgba(8,15,40,0.7)] backdrop-blur-xl p-0">
         {hasServices ? (
-          <motion.div layout className="space-y-2 max-h-[60vh] overflow-y-auto p-4 elegant-scrollbar">
-            {services.map((service) => (
-              <motion.button
-                key={service.id}
-                layout
-                onClick={() => handleServiceSelect(service.id, service.name, service.price)}
-                className="group relative w-full overflow-hidden rounded-2xl border border-white/12 bg-[linear-gradient(140deg,rgba(8,15,40,0.88)0%,rgba(27,51,122,0.7)55%,rgba(46,91,181,0.55)100%)] p-3 text-left shadow-[0_18px_45px_rgba(15,23,42,0.35)] backdrop-blur-xl transition hover:border-white/30 hover:bg-[linear-gradient(140deg,rgba(8,15,40,0.92)0%,rgba(27,51,122,0.78)55%,rgba(46,91,181,0.62)100%)]"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <div className="flex items-center justify-between gap-3">
-                  <div className="flex flex-col gap-1">
-                    <span className="inline-flex items-center gap-3 rounded-full border border-white/35 bg-white/15 px-6 py-2.5 text-base font-bold text-white w-fit">
-                      <span className="h-2.5 w-2.5 rounded-full bg-amber-300" />
-                      {service.name}
-                    </span>
+          <div className="flex flex-col">
+            {/* Total display at top */}
+            <AnimatePresence>
+              {selectedPrestations.size > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="border-b border-white/15 bg-gradient-to-r from-emerald-500/20 to-emerald-600/20 px-4 py-3"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-semibold text-emerald-100">Total</span>
+                    <span className="text-2xl font-black text-emerald-300">{total.toFixed(2)}€</span>
                   </div>
-                  <div className="text-right">
-                    <div className="text-lg font-extrabold text-primary">
-                      {service.price.toFixed(2)}€
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Services list */}
+            <motion.div layout className="space-y-2 max-h-[50vh] overflow-y-auto p-4 elegant-scrollbar">
+              {services.map((service) => {
+                const isSelected = selectedPrestations.has(service.id);
+                const selectedData = selectedPrestations.get(service.id);
+
+                return (
+                  <motion.div
+                    key={service.id}
+                    layout
+                    onClick={() => !isSelected && toggleService(service.id, service.name, service.price)}
+                    className={cn(
+                      "group relative w-full overflow-hidden rounded-2xl border p-3 shadow-[0_18px_45px_rgba(15,23,42,0.35)] backdrop-blur-xl transition",
+                      isSelected
+                        ? "border-emerald-400/60 bg-[linear-gradient(140deg,rgba(16,185,129,0.25)0%,rgba(5,150,105,0.18)100%)]"
+                        : "border-white/12 bg-[linear-gradient(140deg,rgba(8,15,40,0.88)0%,rgba(27,51,122,0.7)55%,rgba(46,91,181,0.55)100%)] cursor-pointer hover:border-white/30"
+                    )}
+                  >
+                    <div className="flex items-center gap-3">
+                      {/* Checkmark or Select Button */}
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleService(service.id, service.name, service.price);
+                        }}
+                        className={cn(
+                          "flex h-8 w-8 items-center justify-center rounded-full border-2 transition-all flex-shrink-0",
+                          isSelected
+                            ? "border-emerald-400 bg-emerald-500 text-white"
+                            : "border-white/30 bg-white/10 text-white/50 hover:border-white/50 hover:bg-white/20"
+                        )}
+                      >
+                        {isSelected && <Check className="h-5 w-5" />}
+                      </button>
+
+                      {/* Service name and price */}
+                      <div className="flex-1 flex items-center justify-between gap-3">
+                        <span className="text-base font-bold text-white">
+                          {service.name}
+                        </span>
+                        <span className="text-sm font-semibold text-white/80">
+                          {service.price.toFixed(2)}€
+                        </span>
+                      </div>
+
+                      {/* Quantity controls (only if selected) */}
+                      <AnimatePresence>
+                        {isSelected && selectedData && (
+                          <motion.div
+                            initial={{ opacity: 0, scale: 0.8 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.8 }}
+                            className="flex items-center gap-2"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            {/* Quantity display - clickable to open calculator */}
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setCalculatorServiceId(service.id);
+                              }}
+                              className="relative flex items-center gap-1 rounded-lg border border-emerald-400/50 bg-emerald-950/40 px-3 py-1.5 hover:bg-emerald-900/50 transition cursor-pointer"
+                            >
+                              <span className="text-sm font-bold text-emerald-100">
+                                Qté: {selectedData.quantity}
+                              </span>
+                            </button>
+
+                            {/* Deselect button */}
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                toggleService(service.id, service.name, service.price);
+                              }}
+                              className="flex h-7 w-7 items-center justify-center rounded-full bg-red-500/80 text-white hover:bg-red-600 transition flex-shrink-0"
+                            >
+                              <X className="h-4 w-4" />
+                            </button>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
                     </div>
-                  </div>
-                </div>
-              </motion.button>
-            ))}
-          </motion.div>
+                  </motion.div>
+                );
+              })}
+            </motion.div>
+
+            {/* Calculator Popup */}
+            <AnimatePresence>
+              {calculatorServiceId && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+                  onClick={() => setCalculatorServiceId(null)}
+                >
+                  <motion.div
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    exit={{ scale: 0.8, opacity: 0 }}
+                    onClick={(e) => e.stopPropagation()}
+                    className="w-[min(90vw,20rem)] rounded-3xl border border-emerald-400/50 bg-gradient-to-br from-slate-950/95 via-indigo-900/70 to-emerald-800/40 p-6 shadow-[0_40px_100px_rgba(8,15,40,0.8)] backdrop-blur-2xl"
+                  >
+                    <h3 className="mb-4 text-center text-xl font-bold text-emerald-100">
+                      Sélectionner la quantité
+                    </h3>
+                    <div className="grid grid-cols-3 gap-3">
+                      {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
+                        <button
+                          key={num}
+                          type="button"
+                          onClick={() => setQuantity(calculatorServiceId, num)}
+                          className="flex h-16 w-full items-center justify-center rounded-xl border-2 border-emerald-400/50 bg-gradient-to-br from-emerald-600/30 to-emerald-700/20 text-2xl font-black text-white transition-all hover:scale-105 hover:border-emerald-300 hover:bg-gradient-to-br hover:from-emerald-500/40 hover:to-emerald-600/30 active:scale-95"
+                        >
+                          {num}
+                        </button>
+                      ))}
+                    </div>
+                  </motion.div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Validate button at bottom */}
+            <AnimatePresence>
+              {selectedPrestations.size > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="border-t border-white/15 p-4"
+                >
+                  <Button
+                    type="button"
+                    onClick={handleValidate}
+                    className="w-full rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 py-6 text-lg font-black text-white shadow-[0_20px_40px_rgba(16,185,129,0.4)] hover:from-emerald-600 hover:to-emerald-700 transition-all hover:scale-105"
+                  >
+                    Valider ({selectedPrestations.size} prestation{selectedPrestations.size > 1 ? 's' : ''})
+                  </Button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
         ) : (
           <div className="px-4 py-3 text-sm text-muted-foreground">
             Aucun service enregistré pour le moment. Allez dans les paramètres pour en ajouter.

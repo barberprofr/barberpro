@@ -143,7 +143,7 @@ export interface StylistStats {
 }
 
 export interface Stylist { id: string; name: string; stats?: StylistStats; commissionPct?: number; }
-export interface Client { id: string; name: string; points: number; email: string | null; phone: string | null; lastVisitAt: number | null }
+export interface Client { id: string; name: string; points: number; email: string | null; phone: string | null; lastVisitAt: number | null; photos: string[] }
 export interface Prestation { id: string; stylistId: string; clientId?: string; amount: number; paymentMethod: PaymentMethod; timestamp: number; pointsPercent: number; pointsAwarded: number }
 export interface Product { id: string; stylistId: string; clientId?: string; amount: number; paymentMethod: PaymentMethod; timestamp: number }
 export interface Service { id: string; name: string; price: number; description?: string }
@@ -716,6 +716,26 @@ export function useUpdateTransactionPaymentMethod() {
       qc.invalidateQueries({ queryKey: ["dashboard-summary"] });
       qc.invalidateQueries({ queryKey: ["revenue-by-day"] });
       qc.invalidateQueries({ queryKey: ["revenue-by-month"] });
+    }
+  });
+}
+
+
+export function useUploadClientPhoto() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ clientId, file }: { clientId: string; file: File }) => {
+      const formData = new FormData();
+      formData.append('photo', file);
+      const res = await apiFetch(`/api/clients/${clientId}/photos`, {
+        method: 'POST',
+        body: formData,
+      });
+      if (!res.ok) await throwResponseError(res);
+      return res.json() as Promise<{ client: Client }>;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['clients'] });
     }
   });
 }

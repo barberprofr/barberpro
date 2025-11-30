@@ -22,6 +22,7 @@ export interface IClient extends Document {
     salonId: string;
     createdAt: Date;
     updatedAt: Date;
+    photos: string[];
 }
 
 export interface IPrestation extends Document {
@@ -130,7 +131,8 @@ const ClientSchema = new Schema({
     email: { type: String, default: null },
     phone: { type: String, default: null },
     lastVisitAt: { type: Number, default: null },
-    salonId: { type: String, required: true, index: true }
+    salonId: { type: String, required: true, index: true },
+    photos: { type: [String], default: [] }
 }, {
     timestamps: true,
     id: false
