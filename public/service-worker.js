@@ -1,7 +1,6 @@
-const CACHE_NAME = 'barberpro-v1';
+const CACHE_NAME = 'barberpro-v2';
 const ASSETS_TO_CACHE = [
   '/',
-  '/app',
   '/index.html',
   '/manifest.json'
 ];
@@ -32,13 +31,33 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Stratégie de cache avec fallback réseau
+// Stratégie de cache
 self.addEventListener('fetch', (event) => {
   const { request } = event;
 
-  // API requests - réseau d'abord
+  // 1. Navigation (HTML) - Network First
+  // Pour s'assurer que l'utilisateur a toujours la dernière version de l'app
+  if (request.mode === 'navigate') {
+    event.respondWith(
+      fetch(request)
+        .then((response) => {
+          // Mise en cache de la nouvelle version
+          const responseClone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(request, responseClone);
+          });
+          return response;
+        })
+        .catch(() => {
+          // Fallback cache si hors ligne
+          return caches.match(request);
+        })
+    );
+    return;
+  }
+
+  // 2. API requests - Network First (ne pas cacher les POST/PUT/DELETE)
   if (request.url.includes('/api/')) {
-    // Ne jamais mettre en cache les méthodes non-GET (POST, PUT, DELETE, etc.)
     if (request.method !== 'GET') {
       event.respondWith(fetch(request));
       return;
@@ -58,7 +77,8 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Fichiers statiques - cache d'abord
+  // 3. Assets statiques (JS, CSS, Images) - Cache First
+  // Ces fichiers ont généralement des hash dans leur nom (ex: index.a1b2c3.js)
   event.respondWith(
     caches.match(request).then((response) => {
       if (response) {
