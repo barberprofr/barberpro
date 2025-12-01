@@ -3,23 +3,29 @@
   publish = "dist/spa"
 
 [functions]
-  # This is the directory where Netlify will look for serverless functions.
-  # We will need to create a handler file inside this directory.
   directory = "netlify/functions"
 
+# Redirections API → Serverless Functions Netlify
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/api/:splat"
   status = 200
+  force = true
 
-# Désactiver le cache pour le Service Worker et index.html
+# Désactiver cache pour service worker
 [[headers]]
   for = "/service-worker.js"
   [headers.values]
     Cache-Control = "no-cache, no-store, must-revalidate"
 
+# Désactiver cache pour index.html
 [[headers]]
   for = "/index.html"
   [headers.values]
     Cache-Control = "no-cache, no-store, must-revalidate"
 
+# Désactiver cache pour toutes les API
+[[headers]]
+  for = "/api/*"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"

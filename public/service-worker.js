@@ -1,106 +1,58 @@
-const CACHE_NAME = 'barberpro-v2';
+const CACHE_NAME = 'barberpro-v3';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
   '/manifest.json'
 ];
 
-// Installation du service worker
+// Installation
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS_TO_CACHE);
-    })
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS_TO_CACHE))
   );
   self.skipWaiting();
 });
 
-// Activation et nettoyage des anciens caches
+// Activation
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.map((cacheName) => {
-          if (cacheName !== CACHE_NAME) {
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    })
+    caches.keys().then((keys) =>
+      Promise.all(
+        keys.map((key) => key !== CACHE_NAME && caches.delete(key))
+      )
+    )
   );
   self.clients.claim();
 });
 
-// Stratégie de cache
+// Fetch
 self.addEventListener('fetch', (event) => {
-  const { request } = event;
+  const req = event.request;
 
-  // 1. Navigation (HTML) - Network First
-  if (request.mode === 'navigate') {
+  // 🔹 Ne jamais intercepter les API
+  if (req.url.includes('/api/')) return;
+
+  // 🔹 Navigation (HTML) - Network First
+  if (req.mode === 'navigate') {
     event.respondWith(
-      fetch(request)
-        .then((response) => {
-          const responseClone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(request, responseClone);
-          });
-          return response;
-        })
-        .catch((error) => {
-          console.log('Navigation fetch failed, falling back to cache:', error);
-          return caches.match(request);
-        })
+      fetch(req).catch(() => caches.match(req))
     );
     return;
   }
 
-  // 2. API requests - Network First
-  if (request.url.includes('/api/')) {
-    if (request.method !== 'GET') {
-      event.respondWith(fetch(request));
-      return;
-    }
-
-    event.respondWith(
-      fetch(request)
-        .then((response) => {
-          const responseClone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(request, responseClone);
-          });
-          return response;
-        })
-        .catch((error) => {
-          console.log('API fetch failed, falling back to cache:', error);
-          return caches.match(request);
-        })
-    );
-    return;
-  }
-
-  // 3. Assets statiques (JS, CSS, Images) - Cache First
+  // 🔹 Assets statiques - Cache First
   event.respondWith(
-    caches.match(request).then((response) => {
-      if (response) {
-        return response;
-      }
-      return fetch(request)
-        .then((response) => {
-          if (!response || response.status !== 200 || response.type === 'error') {
-            return response;
-          }
-          const responseClone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(request, responseClone);
-          });
-          return response;
-        })
-        .catch((error) => {
-          console.error('Static asset fetch failed:', request.url, error);
-          // On ne peut pas faire grand chose ici si l'asset n'est pas en cache
-          // et que le réseau échoue, à part retourner une erreur ou une image par défaut.
-          throw error;
-        });
+    caches.match(req).then((res) => {
+      if (res) return res;
+      return fetch(req).then((fetched) => {
+        if (!fetched || fetched.status !== 200) return fetched;
+        const clone = fetched.clone();
+        caches.open(CACHE_NAME).then((cache) => cache.put(req, clone));
+        return fetched;
+      }).catch((error) => {
+        console.error('Static asset fetch failed:', req.url, error);
+        throw error;
+      });
     })
   );
 });
