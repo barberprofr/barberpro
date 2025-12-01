@@ -296,6 +296,22 @@ export default function PrestationsForm() {
   const handleStylistSelect = useCallback((id: string) => {
     setStylistId(id);
     setStylistPickerOpen(false);
+
+    // Reset selections when stylist changes
+    setAmount("");
+    setPayment("");
+    setPaymentSelected(false);
+    setPaymentPickerOpen(false);
+    setServicesPickerOpen(false);
+    setProductsPickerOpen(false);
+    setSelectedServiceName("");
+    setSelectedServiceId("");
+    setSelectedProductName("");
+    setSelectedProductTypeId("");
+    setIsProduct(false);
+    delete (window as any).__selectedPrestations;
+    delete (window as any).__selectedProducts;
+
     if (amountHintTimeoutRef.current) {
       window.clearTimeout(amountHintTimeoutRef.current);
       amountHintTimeoutRef.current = null;
@@ -852,6 +868,7 @@ export default function PrestationsForm() {
             </div>
           </div>
           <ServicesPicker
+            key={`services-${stylistId}`}
             onServiceSelect={handleServiceSelect}
             onReset={handleServicesPickerReset}
             externalOpen={servicesPickerOpen}
@@ -860,6 +877,7 @@ export default function PrestationsForm() {
           />
         </div>
         <ProductsPicker
+          key={`products-${stylistId}`}
           onProductSelect={handleProductSelect}
           externalOpen={productsPickerOpen}
           onOpenChange={setProductsPickerOpen}
