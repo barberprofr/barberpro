@@ -1,58 +1,37 @@
-const CACHE_NAME = 'barberpro-v3';
-const ASSETS_TO_CACHE = [
-  '/',
-  '/index.html',
-  '/manifest.json'
-];
+// ✨ Service Worker Minimal pour PWA Installable
+// 🎯 Stratégie: Network Only (pas de cache agressif)
+// ✅ Permet l'installation PWA sans problèmes de versions persistantes
 
-// Installation
+const VERSION = 'v1.0.0'; // Pour tracking uniquement
+
+// Installation - Prend le contrôle immédiatement
 self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS_TO_CACHE))
-  );
-  self.skipWaiting();
+  console.log(`🔧 Service Worker ${VERSION} installé`);
+  self.skipWaiting(); // Active immédiatement la nouvelle version
 });
 
-// Activation
+// Activation - Nettoie les anciens caches si présents
 self.addEventListener('activate', (event) => {
+  console.log(`✅ Service Worker ${VERSION} activé`);
   event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(
-        keys.map((key) => key !== CACHE_NAME && caches.delete(key))
-      )
-    )
-  );
-  self.clients.claim();
-});
-
-// Fetch
-self.addEventListener('fetch', (event) => {
-  const req = event.request;
-
-  // 🔹 Ne jamais intercepter les API
-  if (req.url.includes('/api/')) return;
-
-  // 🔹 Navigation (HTML) - Network First
-  if (req.mode === 'navigate') {
-    event.respondWith(
-      fetch(req).catch(() => caches.match(req))
-    );
-    return;
-  }
-
-  // 🔹 Assets statiques - Cache First
-  event.respondWith(
-    caches.match(req).then((res) => {
-      if (res) return res;
-      return fetch(req).then((fetched) => {
-        if (!fetched || fetched.status !== 200) return fetched;
-        const clone = fetched.clone();
-        caches.open(CACHE_NAME).then((cache) => cache.put(req, clone));
-        return fetched;
-      }).catch((error) => {
-        console.error('Static asset fetch failed:', req.url, error);
-        throw error;
-      });
+    caches.keys().then((cacheNames) => {
+      // Supprimer TOUS les anciens caches
+      return Promise.all(
+        cacheNames.map((cacheName) => {
+          console.log(`🗑️ Suppression cache: ${cacheName}`);
+          return caches.delete(cacheName);
+        })
+      );
+    }).then(() => {
+      // Prend le contrôle de toutes les pages immédiatement
+      return self.clients.claim();
     })
   );
+});
+
+// Fetch - Toujours utiliser le réseau (Network Only)
+self.addEventListener('fetch', (event) => {
+  // Stratégie: toujours aller chercher sur le réseau
+  // Pas de cache = pas de problèmes de versions anciennes
+  event.respondWith(fetch(event.request));
 });
