@@ -877,35 +877,63 @@ export default function PrestationsForm() {
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex flex-col items-center justify-center">
-                <h2 className="text-xl font-semibold text-white mb-6">
+                <h2 className="text-xl font-semibold text-white mb-8">
                   Que souhaitez-vous enregistrer ?
                 </h2>
                 
-                <div className="flex gap-6">
+                <div className="flex gap-6 flex-col sm:flex-row">
+                  {/* Carte Prestations - Style glassmorphism violet/magenta */}
                   <motion.button
                     type="button"
                     onClick={() => {
                       setShowTypePickerPopup(false);
                       setTimeout(() => setServicesPickerOpen(true), 100);
                     }}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="rounded-full border-2 border-violet-500/70 bg-transparent px-8 py-3 text-lg font-medium text-violet-400 transition-all duration-200 hover:border-violet-400 hover:text-violet-300 hover:shadow-[0_0_25px_rgba(139,92,246,0.5)]"
+                    whileHover={{ scale: 1.05, y: -4 }}
+                    whileTap={{ scale: 0.97 }}
+                    className="group relative flex flex-col items-center justify-center w-36 h-36 rounded-2xl border border-white/10 bg-gradient-to-br from-slate-800/80 via-slate-900/90 to-slate-800/80 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.4)] transition-all duration-300 hover:border-violet-400/40 hover:shadow-[0_12px_40px_rgba(139,92,246,0.25)]"
                   >
-                    Prestations
+                    {/* Halo lumineux derrière l'icône */}
+                    <div className="relative flex items-center justify-center mb-3">
+                      {/* Cercle externe avec gradient */}
+                      <div className="absolute w-20 h-20 rounded-full bg-gradient-to-br from-violet-500/30 via-fuchsia-500/20 to-purple-600/30 blur-md group-hover:from-violet-400/40 group-hover:via-fuchsia-400/30 group-hover:to-purple-500/40 transition-all duration-300" />
+                      {/* Cercle intermédiaire */}
+                      <div className="absolute w-16 h-16 rounded-full border-2 border-violet-400/50 group-hover:border-violet-300/70 transition-all duration-300 shadow-[0_0_20px_rgba(139,92,246,0.4),inset_0_0_15px_rgba(139,92,246,0.2)]" />
+                      {/* Fond icône avec gradient */}
+                      <div className="relative flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-fuchsia-500 via-violet-500 to-purple-600 shadow-[0_4px_20px_rgba(168,85,247,0.5)] group-hover:shadow-[0_6px_25px_rgba(168,85,247,0.7)] transition-all duration-300">
+                        <Scissors className="h-6 w-6 text-white drop-shadow-lg" />
+                      </div>
+                    </div>
+                    <span className="text-sm font-medium text-violet-300 group-hover:text-violet-200 transition-colors duration-300">
+                      Prestations
+                    </span>
                   </motion.button>
 
+                  {/* Carte Produits - Style glassmorphism cyan/turquoise */}
                   <motion.button
                     type="button"
                     onClick={() => {
                       setShowTypePickerPopup(false);
                       setTimeout(() => setProductsPickerOpen(true), 100);
                     }}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="rounded-full border-2 border-amber-500/70 bg-transparent px-8 py-3 text-lg font-medium text-amber-500 transition-all duration-200 hover:border-amber-400 hover:text-amber-400 hover:shadow-[0_0_25px_rgba(251,191,36,0.5)]"
+                    whileHover={{ scale: 1.05, y: -4 }}
+                    whileTap={{ scale: 0.97 }}
+                    className="group relative flex flex-col items-center justify-center w-36 h-36 rounded-2xl border border-white/10 bg-gradient-to-br from-slate-800/80 via-slate-900/90 to-slate-800/80 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.4)] transition-all duration-300 hover:border-cyan-400/40 hover:shadow-[0_12px_40px_rgba(34,211,238,0.25)]"
                   >
-                    Produits
+                    {/* Halo lumineux derrière l'icône */}
+                    <div className="relative flex items-center justify-center mb-3">
+                      {/* Cercle externe avec gradient */}
+                      <div className="absolute w-20 h-20 rounded-full bg-gradient-to-br from-cyan-500/30 via-teal-500/20 to-emerald-600/30 blur-md group-hover:from-cyan-400/40 group-hover:via-teal-400/30 group-hover:to-emerald-500/40 transition-all duration-300" />
+                      {/* Cercle intermédiaire */}
+                      <div className="absolute w-16 h-16 rounded-full border-2 border-cyan-400/50 group-hover:border-cyan-300/70 transition-all duration-300 shadow-[0_0_20px_rgba(34,211,238,0.4),inset_0_0_15px_rgba(34,211,238,0.2)]" />
+                      {/* Fond icône avec gradient */}
+                      <div className="relative flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-400 via-teal-500 to-emerald-500 shadow-[0_4px_20px_rgba(34,211,238,0.5)] group-hover:shadow-[0_6px_25px_rgba(34,211,238,0.7)] transition-all duration-300">
+                        <CircleDollarSign className="h-6 w-6 text-white drop-shadow-lg" />
+                      </div>
+                    </div>
+                    <span className="text-sm font-medium text-cyan-300 group-hover:text-cyan-200 transition-colors duration-300">
+                      Produits
+                    </span>
                   </motion.button>
                 </div>
               </div>
