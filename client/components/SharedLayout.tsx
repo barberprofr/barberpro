@@ -93,7 +93,11 @@ export default function SharedLayout({ children }: PropsWithChildren) {
     }
   }, [config, hasActiveSubscription]);
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-950 via-sky-800 to-amber-700">
+    <div className="relative min-h-screen bg-gradient-to-br from-blue-950 via-sky-800 to-amber-700">
+      <div 
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-15 pointer-events-none"
+        style={{ backgroundImage: "url('/barber-bg.jpg')" }}
+      />
       {hasActiveSubscription && (
         <header className="sticky top-0 z-10 bg-background/80 backdrop-blur border-b">
           <div className="container flex items-center justify-between py-3">
