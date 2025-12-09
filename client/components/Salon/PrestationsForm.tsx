@@ -68,6 +68,7 @@ export default function PrestationsForm() {
   const [debouncedClientSearch, setDebouncedClientSearch] = useState("");
   const [showSuccess, setShowSuccess] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showTypePickerPopup, setShowTypePickerPopup] = useState(false);
   const [lastTransactionAmount, setLastTransactionAmount] = useState<number>(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [clientAccordion, setClientAccordion] = useState<string>("");
@@ -318,8 +319,10 @@ export default function PrestationsForm() {
       amountHintTimeoutRef.current = null;
     }
 
-    // Les pilules PRESTATIONS et PRODUITS s'affichent automatiquement après sélection du coiffeur
-    // L'utilisateur clique sur la pilule de son choix pour ouvrir le dialog correspondant
+    // Ouvrir la popup de sélection Prestations/Produits
+    setTimeout(() => {
+      setShowTypePickerPopup(true);
+    }, 100);
   }, [setStylistId, setStylistPickerOpen]);
 
   const handlePaymentSelect = useCallback((value: string) => {
@@ -848,6 +851,62 @@ export default function PrestationsForm() {
 
                 <div className="text-5xl font-bold text-white">
                   {lastTransactionAmount.toFixed(2)} €
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showTypePickerPopup && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+            onClick={() => setShowTypePickerPopup(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+              className="relative sm:max-w-lg w-[90%] rounded-2xl border border-slate-700/50 bg-gradient-to-br from-slate-900/98 via-slate-800/98 to-slate-900/98 backdrop-blur-xl shadow-[0_25px_80px_rgba(0,0,0,0.6)] p-8"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex flex-col items-center justify-center">
+                <h2 className="text-xl font-semibold text-white mb-6">
+                  Que souhaitez-vous enregistrer ?
+                </h2>
+                
+                <div className="flex gap-6">
+                  <motion.button
+                    type="button"
+                    onClick={() => {
+                      setShowTypePickerPopup(false);
+                      setTimeout(() => setServicesPickerOpen(true), 100);
+                    }}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="rounded-full border-2 border-violet-500/70 bg-transparent px-8 py-3 text-lg font-medium text-violet-400 transition-all duration-200 hover:border-violet-400 hover:text-violet-300 hover:shadow-[0_0_25px_rgba(139,92,246,0.5)]"
+                  >
+                    Prestations
+                  </motion.button>
+
+                  <motion.button
+                    type="button"
+                    onClick={() => {
+                      setShowTypePickerPopup(false);
+                      setTimeout(() => setProductsPickerOpen(true), 100);
+                    }}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="rounded-full border-2 border-amber-500/70 bg-transparent px-8 py-3 text-lg font-medium text-amber-500 transition-all duration-200 hover:border-amber-400 hover:text-amber-400 hover:shadow-[0_0_25px_rgba(251,191,36,0.5)]"
+                  >
+                    Produits
+                  </motion.button>
                 </div>
               </div>
             </motion.div>
