@@ -757,6 +757,34 @@ export default function PrestationsForm() {
         />
         <div className="flex gap-4 sm:flex-row flex-col">
           <div className="space-y-2">
+            <div className="relative w-full max-w-[16rem]">
+              <motion.button
+                type="button"
+                whileTap={{ scale: 0.97 }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  refreshStylists();
+                }}
+                disabled={isRefreshing}
+                title="Rafraîchir"
+                className="absolute top-2 right-2 z-20 inline-flex items-center gap-1 rounded-full border border-cyan-400/50 bg-cyan-500/20 px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-cyan-300 transition-all duration-200 hover:bg-cyan-500/30 focus:outline-none disabled:cursor-wait disabled:opacity-80"
+              >
+                <span>Rafraîchir</span>
+                <AnimatePresence initial={false}>
+                  {isRefreshing ? (
+                    <motion.span
+                      key="refreshing-spinner"
+                      initial={{ opacity: 0, rotate: -45 }}
+                      animate={{ opacity: 1, rotate: 0 }}
+                      exit={{ opacity: 0, rotate: 45 }}
+                      transition={{ duration: 0.2 }}
+                      className="inline-flex"
+                    >
+                      <Loader2 className="h-2.5 w-2.5 animate-spin text-cyan-300" />
+                    </motion.span>
+                  ) : null}
+                </AnimatePresence>
+              </motion.button>
               <Popover open={stylistPickerOpen} onOpenChange={setStylistPickerOpen}>
                 <PopoverTrigger asChild>
                   <motion.button
@@ -764,7 +792,7 @@ export default function PrestationsForm() {
                     whileHover={{ scale: 1.03 }}
                     whileTap={{ scale: 0.98 }}
                     className={cn(
-                      "group relative flex flex-col items-center justify-center gap-4 w-full max-w-[16rem] rounded-3xl border border-slate-700/60 bg-slate-900/95 px-8 py-8 transition-all duration-300 focus:outline-none",
+                      "group relative flex flex-col items-center justify-center gap-4 w-full rounded-3xl border border-slate-700/60 bg-slate-900/95 px-8 py-8 transition-all duration-300 focus:outline-none",
                       stylistId 
                         ? "border-cyan-400/60 shadow-[0_0_30px_rgba(34,211,238,0.4)] scale-[1.02]" 
                         : "hover:border-slate-600"
@@ -856,6 +884,7 @@ export default function PrestationsForm() {
                   </div>
                 </PopoverContent>
               </Popover>
+            </div>
           </div>
         </div>
 
