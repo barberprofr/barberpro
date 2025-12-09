@@ -1188,28 +1188,48 @@ export default function PrestationsForm() {
                           const Icon = option.icon;
                           const isSelected = payment === option.value;
                           return (
-                            <button
+                            <motion.button
                               key={option.value}
                               type="button"
                               onClick={() => handlePaymentSelect(option.value)}
+                              animate={isSelected ? {
+                                scale: [1.15, 1.2, 1.15],
+                                boxShadow: [
+                                  "0 0 20px rgba(34,211,238,0.6), 0 0 40px rgba(34,211,238,0.3)",
+                                  "0 0 40px rgba(34,211,238,0.8), 0 0 60px rgba(34,211,238,0.5)",
+                                  "0 0 20px rgba(34,211,238,0.6), 0 0 40px rgba(34,211,238,0.3)"
+                                ]
+                              } : { scale: 1 }}
+                              transition={isSelected ? {
+                                duration: 1.5,
+                                repeat: Infinity,
+                                ease: "easeInOut"
+                              } : { duration: 0.2 }}
+                              whileHover={{ scale: isSelected ? 1.2 : 1.05 }}
+                              whileTap={{ scale: 0.95 }}
                               className={cn(
-                                "flex w-full items-center justify-center gap-4 rounded-2xl border-2 border-slate-700/70 bg-slate-900/90 px-6 py-5 text-center text-lg font-bold transition-all duration-200 hover:border-emerald-400/80 hover:bg-emerald-500/20 hover:scale-102 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 shadow-[0_8px_25px_rgba(8,15,40,0.3)]",
-                                isSelected && "border-emerald-400 bg-emerald-500/25 text-emerald-100 shadow-[0_12px_35px_rgba(16,185,129,0.5)] scale-105"
+                                "flex w-full items-center justify-center gap-4 rounded-2xl border-2 border-slate-700/70 bg-slate-900/90 px-6 py-5 text-center text-lg font-bold transition-colors duration-200 hover:border-cyan-400/80 hover:bg-cyan-500/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 shadow-[0_8px_25px_rgba(8,15,40,0.3)]",
+                                isSelected && "border-cyan-400 bg-gradient-to-r from-cyan-500/30 via-cyan-400/40 to-cyan-500/30 text-cyan-100 [background-size:200%_100%] animate-[shimmer_2s_ease-in-out_infinite]"
                               )}
+                              style={isSelected ? {
+                                background: "linear-gradient(90deg, rgba(34,211,238,0.2) 0%, rgba(34,211,238,0.5) 50%, rgba(34,211,238,0.2) 100%)",
+                                backgroundSize: "200% 100%",
+                                animation: "shimmer 2s ease-in-out infinite"
+                              } : undefined}
                             >
                               <span className={cn(
                                 "flex h-12 w-12 items-center justify-center rounded-2xl border border-slate-700/80 bg-slate-800/80 text-slate-200 transition-all",
-                                isSelected && "border-emerald-400/90 bg-emerald-500/30 text-emerald-200 shadow-[0_4px_12px_rgba(16,185,129,0.4)]"
+                                isSelected && "border-cyan-400/90 bg-cyan-500/30 text-cyan-200 shadow-[0_4px_20px_rgba(34,211,238,0.6)]"
                               )}>
                                 <Icon className="h-7 w-7" />
                               </span>
-                              <span className="text-xl font-black">{option.label}</span>
+                              <span className={cn("text-xl font-black", isSelected && "text-cyan-300")}>{option.label}</span>
                               {isSelected ? (
-                                <span className="rounded-full bg-emerald-500/20 px-3 py-1 text-sm font-bold uppercase tracking-wide text-emerald-200 border border-emerald-400/50">
+                                <span className="rounded-full bg-cyan-500/30 px-3 py-1 text-sm font-bold uppercase tracking-wide text-cyan-200 border border-cyan-400/50 shadow-[0_0_15px_rgba(34,211,238,0.5)]">
                                   Sélectionné
                                 </span>
                               ) : null}
-                            </button>
+                            </motion.button>
                           );
                         })}
                       </div>
