@@ -716,7 +716,7 @@ export default function PrestationsForm() {
       return;
     }
     const target = e.target as HTMLElement;
-    if (target.closest('[data-stylist-card]') || target.closest('[data-popover-content]') || target.closest('[data-pill-button]')) {
+    if (target.closest('[data-stylist-card]') || target.closest('[data-popover-content]') || target.closest('[data-pill-button]') || target.closest('[role="dialog"]') || target.closest('[data-radix-dialog-overlay]')) {
       return;
     }
     if (stylistId && !amount) {
