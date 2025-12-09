@@ -795,7 +795,7 @@ export default function PrestationsForm() {
                         {[...Array(12)].map((_, i) => (
                           <div
                             key={i}
-                            className="absolute left-1/2 top-0 h-3 w-1 -translate-x-1/2 rounded-full bg-white"
+                            className="absolute left-1/2 top-0 h-3 w-1 -translate-x-1/2 rounded-full bg-violet-400"
                             style={{
                               transform: `translateX(-50%) rotate(${i * 30}deg)`,
                               transformOrigin: '50% 24px',
