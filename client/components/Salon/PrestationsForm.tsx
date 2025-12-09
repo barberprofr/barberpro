@@ -995,15 +995,15 @@ export default function PrestationsForm() {
                   </span>
                 </motion.button>
               </PopoverTrigger>
-              <PopoverContent side="bottom" align="center" className="w-[min(90vw,30rem)] overflow-visible rounded-3xl border border-slate-700/50 bg-slate-900/95 p-0 text-slate-50 shadow-[0_25px_60px_rgba(0,0,0,0.5)] backdrop-blur-xl">
-                <div className="p-5">
-                  <div className="max-h-[50vh] overflow-y-auto overflow-x-visible scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+              <PopoverContent side="bottom" align="center" className="w-[min(95vw,38rem)] overflow-visible rounded-3xl border border-slate-700/50 bg-slate-900/95 p-0 text-slate-50 shadow-[0_25px_60px_rgba(0,0,0,0.5)] backdrop-blur-xl">
+                <div className="p-6">
+                  <div className="max-h-[55vh] overflow-y-auto overflow-x-visible scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
                     {stylistsLoading ? (
-                      <div className="flex items-center justify-center py-10">
-                        <Loader2 className="h-6 w-6 animate-spin text-cyan-400" />
+                      <div className="flex items-center justify-center py-12">
+                        <Loader2 className="h-8 w-8 animate-spin text-cyan-400" />
                       </div>
                     ) : stylists && stylists.length > 0 ? (
-                      <div className="grid gap-4 grid-cols-2 p-1">
+                      <div className="grid gap-5 grid-cols-2 p-1">
                         {stylists.map((s) => (
                           <motion.button
                             key={s.id}
@@ -1022,13 +1022,13 @@ export default function PrestationsForm() {
                             whileHover={{ scale: stylistId === s.id ? 1.05 : 1.03 }}
                             whileTap={{ scale: 0.98 }}
                             className={cn(
-                              "flex items-center gap-3 rounded-2xl border-2 border-slate-600/50 bg-slate-800/80 px-5 py-4 text-left transition-colors duration-200 shadow-[0_0_15px_rgba(0,0,0,0.3)] hover:border-cyan-500/50 focus:outline-none",
+                              "flex items-center gap-4 rounded-2xl border-2 border-slate-600/50 bg-slate-800/80 px-6 py-5 text-left transition-colors duration-200 shadow-[0_0_15px_rgba(0,0,0,0.3)] hover:border-cyan-500/50 focus:outline-none",
                               stylistId === s.id && "border-cyan-400 bg-slate-700/70"
                             )}
                           >
                             <motion.span
                               className={cn(
-                                "h-2.5 w-2.5 rounded-full flex-shrink-0",
+                                "h-3 w-3 rounded-full flex-shrink-0",
                                 stylistId === s.id ? "bg-cyan-400" : "bg-cyan-500/70"
                               )}
                               animate={stylistId === s.id ? {
@@ -1036,7 +1036,7 @@ export default function PrestationsForm() {
                               } : {}}
                               transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
                             />
-                            <span className="text-xl font-bold text-white truncate">
+                            <span className="text-2xl font-bold text-white truncate">
                               {s.name}
                             </span>
                           </motion.button>
