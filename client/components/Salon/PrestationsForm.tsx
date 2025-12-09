@@ -1250,7 +1250,7 @@ export default function PrestationsForm() {
             setClientSearch("");
           }
         }}>
-          <DialogContent className="w-[min(90vw,24rem)] overflow-hidden rounded-3xl border border-cyan-400/30 bg-gradient-to-br from-white/20 via-cyan-100/15 to-white/10 p-0 shadow-[0_25px_60px_rgba(0,0,0,0.3),0_8px_25px_rgba(34,211,238,0.15),inset_0_1px_0_rgba(255,255,255,0.3)] backdrop-blur-xl">
+          <DialogContent className="w-[min(90vw,24rem)] overflow-hidden rounded-2xl border border-emerald-500/30 bg-gradient-to-br from-slate-900/80 via-emerald-950/60 to-slate-900/80 p-0 shadow-[0_25px_60px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.1)] backdrop-blur-xl">
             <div className="p-5 space-y-5">
               {/* Barre de recherche */}
               <div className="relative">
@@ -1259,18 +1259,18 @@ export default function PrestationsForm() {
                   autoFocus
                   value={clientSearch}
                   onChange={(e) => setClientSearch(e.target.value)}
-                  className="h-12 w-full rounded-xl border border-cyan-400/40 bg-white/20 pl-4 pr-4 text-base text-slate-800 font-medium placeholder:text-slate-500 focus:border-cyan-500 focus:ring-0 focus:bg-white/30 shadow-[inset_0_2px_4px_rgba(0,0,0,0.1)]"
+                  className="h-12 w-full rounded-xl border border-white/20 bg-black/30 pl-4 pr-4 text-base text-white font-medium placeholder:text-white/50 focus:border-emerald-400/60 focus:ring-0 focus:bg-black/40"
                 />
               </div>
 
               {/* Liste des clients */}
               <div className="max-h-[40vh] overflow-y-auto">
                 {clientSearch.trim().length === 0 ? (
-                  <div className="py-8 text-center text-sm font-medium text-slate-600">
+                  <div className="py-8 text-center text-sm font-medium text-white/60">
                     Tapez un nom ou un numéro pour afficher les clients.
                   </div>
                 ) : filteredClients.length === 0 ? (
-                  <div className="py-8 text-center text-sm font-medium text-slate-600">
+                  <div className="py-8 text-center text-sm font-medium text-white/60">
                     Aucun client trouvé
                   </div>
                 ) : (
@@ -1285,15 +1285,15 @@ export default function PrestationsForm() {
                           setClientSearch("");
                           setClientAccordion("");
                         }}
-                        className="flex w-full items-center justify-between rounded-xl border border-cyan-400/30 bg-white/25 px-4 py-3 text-left transition hover:border-cyan-500 hover:bg-white/40 shadow-[0_4px_12px_rgba(0,0,0,0.1)]"
+                        className="flex w-full items-center justify-between rounded-xl border border-white/15 bg-black/25 px-4 py-3 text-left transition hover:border-emerald-400/50 hover:bg-black/40"
                       >
                         <div className="flex flex-col gap-0.5">
-                          <span className="text-sm font-bold text-slate-800">{c.name}</span>
+                          <span className="text-sm font-bold text-white">{c.name}</span>
                           {c.phone && (
-                            <span className="text-xs font-medium text-slate-600">{c.phone}</span>
+                            <span className="text-xs font-medium text-white/60">{c.phone}</span>
                           )}
                         </div>
-                        <span className="rounded-full bg-cyan-500/30 px-2 py-0.5 text-xs font-bold text-cyan-700 shadow-sm">
+                        <span className="rounded-full bg-emerald-500/30 px-2 py-0.5 text-xs font-bold text-emerald-300">
                           {c.points} pts
                         </span>
                       </button>
@@ -1309,7 +1309,7 @@ export default function PrestationsForm() {
                   setClientAccordion("");
                   setClientSearch("");
                 }}
-                className="w-full rounded-xl border border-slate-400/40 bg-white/30 py-3 text-sm font-bold text-slate-700 transition hover:bg-white/50 shadow-[0_4px_15px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,0.5)]"
+                className="w-full rounded-xl border border-white/20 bg-black/30 py-3 text-sm font-bold text-white transition hover:bg-black/50"
               >
                 Fermer
               </button>
@@ -1324,9 +1324,9 @@ export default function PrestationsForm() {
             setClientAccordion("");
           }
         }}>
-          <DialogContent className="w-[min(90vw,24rem)] overflow-hidden rounded-3xl border border-amber-400/30 bg-gradient-to-br from-white/20 via-amber-100/15 to-white/10 p-0 shadow-[0_25px_60px_rgba(0,0,0,0.3),0_8px_25px_rgba(251,191,36,0.15),inset_0_1px_0_rgba(255,255,255,0.3)] backdrop-blur-xl">
+          <DialogContent className="w-[min(90vw,24rem)] overflow-hidden rounded-2xl border border-amber-500/30 bg-gradient-to-br from-slate-900/80 via-amber-950/40 to-slate-900/80 p-0 shadow-[0_25px_60px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.1)] backdrop-blur-xl">
             <div className="p-5 space-y-4">
-              <h3 className="text-lg font-bold text-slate-800 text-center">Nouveau client</h3>
+              <h3 className="text-lg font-bold text-white text-center">Nouveau client</h3>
               
               <Input
                 value={newClientFirstName}
@@ -1337,7 +1337,7 @@ export default function PrestationsForm() {
                 inputMode="text"
                 autoComplete="given-name"
                 placeholder="Prénom"
-                className="h-12 rounded-xl border border-amber-400/40 bg-white/20 text-slate-800 font-medium placeholder:text-slate-500 focus:border-amber-500 focus:ring-0 focus:bg-white/30 shadow-[inset_0_2px_4px_rgba(0,0,0,0.1)]"
+                className="h-12 rounded-xl border border-white/20 bg-black/30 text-white font-medium placeholder:text-white/50 focus:border-amber-400/60 focus:ring-0 focus:bg-black/40"
               />
               
               <Input
@@ -1349,7 +1349,7 @@ export default function PrestationsForm() {
                 inputMode="text"
                 autoComplete="family-name"
                 placeholder="Nom"
-                className="h-12 rounded-xl border border-amber-400/40 bg-white/20 text-slate-800 font-medium placeholder:text-slate-500 focus:border-amber-500 focus:ring-0 focus:bg-white/30 shadow-[inset_0_2px_4px_rgba(0,0,0,0.1)]"
+                className="h-12 rounded-xl border border-white/20 bg-black/30 text-white font-medium placeholder:text-white/50 focus:border-amber-400/60 focus:ring-0 focus:bg-black/40"
               />
 
               <Input
@@ -1362,11 +1362,11 @@ export default function PrestationsForm() {
                 inputMode="tel"
                 autoComplete="tel"
                 placeholder="Téléphone (10 chiffres)"
-                className="h-12 rounded-xl border border-amber-400/40 bg-white/20 text-slate-800 font-medium placeholder:text-slate-500 focus:border-amber-500 focus:ring-0 focus:bg-white/30 shadow-[inset_0_2px_4px_rgba(0,0,0,0.1)]"
+                className="h-12 rounded-xl border border-white/20 bg-black/30 text-white font-medium placeholder:text-white/50 focus:border-amber-400/60 focus:ring-0 focus:bg-black/40"
               />
               
               {usingNewClient && sanitizedNewClientPhoneDigits.length > 0 && sanitizedNewClientPhoneDigits.length !== PHONE_DIGITS_REQUIRED && (
-                <p className="text-xs font-medium text-rose-600">
+                <p className="text-xs font-medium text-rose-400">
                   Le numéro doit contenir exactement 10 chiffres.
                 </p>
               )}
@@ -1390,7 +1390,7 @@ export default function PrestationsForm() {
                     console.error("Erreur lors de la création du client:", err);
                   }
                 }}
-                className="w-full rounded-xl bg-amber-500/40 border border-amber-500/50 py-3 text-sm font-bold text-amber-900 transition hover:bg-amber-500/60 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-[0_4px_15px_rgba(251,191,36,0.3),inset_0_1px_0_rgba(255,255,255,0.4)]"
+                className="w-full rounded-xl bg-amber-500/30 border border-amber-400/40 py-3 text-sm font-bold text-white transition hover:bg-amber-500/50 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {addClient.isPending ? (
                   <>
@@ -1408,7 +1408,7 @@ export default function PrestationsForm() {
                   setNewClientAccordionOpen(false);
                   setClientAccordion("");
                 }}
-                className="w-full rounded-xl border border-slate-400/40 bg-white/30 py-3 text-sm font-bold text-slate-700 transition hover:bg-white/50 shadow-[0_4px_15px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,0.5)]"
+                className="w-full rounded-xl border border-white/20 bg-black/30 py-3 text-sm font-bold text-white transition hover:bg-black/50"
               >
                 Annuler
               </button>
