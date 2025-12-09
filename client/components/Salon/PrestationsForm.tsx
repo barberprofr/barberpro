@@ -737,7 +737,7 @@ export default function PrestationsForm() {
     if (showSuccess) {
       const timer = window.setTimeout(() => {
         setShowSuccess(false);
-      }, 4000);
+      }, 3000);
       return () => window.clearTimeout(timer);
     }
   }, [showSuccess]);
