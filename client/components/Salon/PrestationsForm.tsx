@@ -760,7 +760,7 @@ export default function PrestationsForm() {
       <CardHeader>
         <div className="flex items-center justify-center">
           <span 
-            className="text-2xl font-black text-black [-webkit-text-stroke:1px_white] [text-shadow:0_0_8px_rgba(255,255,255,0.8),0_0_16px_rgba(255,255,255,0.5)]" 
+            className="text-base font-bold text-cyan-400 [-webkit-text-stroke:0.5px_black] [text-shadow:0_0_6px_rgba(34,211,238,0.6),0_1px_2px_rgba(0,0,0,0.8)]" 
             title={salonDisplayName}
           >
             {salonDisplayName}
