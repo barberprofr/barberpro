@@ -26,7 +26,7 @@ function StylistDaily({ id, date, commissionPct }: { id: string; date?: string; 
     const dailyProductCount = (data as any)?.dailyProductCount ?? 0;
     const salary = (prestationTotal?.amount || 0) * (commissionPct ?? 0) / 100;
     return (
-        <div className="rounded-3xl border border-white/10 bg-slate-950/50 p-4 shadow-inner text-sm space-y-4">
+        <div className="rounded-3xl border border-white/20 bg-slate-700/30 p-4 shadow-inner text-sm space-y-4 backdrop-blur-sm">
             <div className="space-y-3">
                 <div className="flex items-center justify-between text-slate-100">
                     <span className="text-lg font-black tracking-wide">CA du jour</span>
