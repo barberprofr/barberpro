@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { ChevronDown, ChevronLeft, Euro, Scissors, Package } from "lucide-react";
+import { ChevronDown, ChevronLeft, Euro, Scissors, Package, Users } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useDashboardSummary, useStylists, useStylistBreakdown, useConfig, apiPath, useProducts } from "@/lib/api";
@@ -227,17 +227,26 @@ export default function StatsCards() {
     <div className="space-y-4">
       <Popover>
         <PopoverTrigger asChild>
-          <button
+          <motion.button
             type="button"
-            className="w-full rounded-2xl border border-sky-400/50 bg-[linear-gradient(135deg,rgba(15,76,173,0.35)0%,rgba(29,97,187,0.28)50%,rgba(56,189,248,0.2)100%)] px-4 py-3 text-sm font-semibold text-sky-100 transition-all hover:bg-[linear-gradient(135deg,rgba(15,76,173,0.42)0%,rgba(29,97,187,0.35)50%,rgba(56,189,248,0.27)100%)] shadow-[0_10px_24px_rgba(29,97,187,0.2)]"
+            whileHover={{ scale: 1.02, y: -2 }}
+            whileTap={{ scale: 0.98 }}
+            className="relative w-full overflow-hidden rounded-3xl border border-emerald-400/40 bg-gradient-to-br from-slate-800/90 via-slate-900/95 to-slate-950 backdrop-blur-xl shadow-[0_12px_40px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.1)] p-4 transition-all duration-300 hover:shadow-[0_16px_50px_rgba(16,185,129,0.3)]"
           >
-            <div className="flex w-full items-center justify-between">
-              <span>Coiffeurs</span>
-              <span className="text-xs text-sky-300/70">
-                {hasStylists ? `${stylistCount} coiffeur${stylistCount > 1 ? "s" : ""}` : "Aucun coiffeur"}
-              </span>
+            <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 via-transparent to-transparent pointer-events-none" />
+            <div className="relative flex items-center gap-4">
+              <div className="relative flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-400 via-green-500 to-teal-600 shadow-[0_6px_24px_rgba(16,185,129,0.5),inset_0_2px_4px_rgba(255,255,255,0.3)]">
+                <div className="absolute inset-1 rounded-xl bg-gradient-to-br from-emerald-300 via-green-400 to-teal-500 shadow-[inset_0_-4px_10px_rgba(0,0,0,0.3)]" />
+                <Users className="relative h-7 w-7 text-white drop-shadow-lg" />
+              </div>
+              <div className="flex flex-col items-start">
+                <span className="text-lg font-black text-white uppercase tracking-wide">Coiffeurs</span>
+                <span className="text-sm font-semibold text-emerald-300/80">
+                  {hasStylists ? `${stylistCount} coiffeur${stylistCount > 1 ? "s" : ""}` : "Aucun coiffeur"}
+                </span>
+              </div>
             </div>
-          </button>
+          </motion.button>
         </PopoverTrigger>
         <PopoverContent side="bottom" align="center" className="w-[min(90vw,36rem)] max-h-[80vh] overflow-y-auto rounded-2xl border border-white/15 bg-[linear-gradient(135deg,rgba(4,11,46,0.92)0%,rgba(11,27,77,0.78)55%,rgba(16,45,115,0.58)100%)] p-4 shadow-[0_40px_95px_rgba(8,15,40,0.7)] backdrop-blur-xl [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
           <StylistsList stylists={stylistsList} config={config} hasStylists={hasStylists} />
@@ -417,25 +426,12 @@ function StylistsList({ stylists, config, hasStylists }: { stylists: any[], conf
         exit={{ opacity: 0, x: -20 }}
         className="space-y-4"
       >
-        <button
-          onClick={() => setSelectedId(null)}
-          className="group flex items-center gap-2 text-sm text-white/70 hover:text-white transition-colors"
-        >
-          <div className="rounded-full bg-white/10 p-1 group-hover:bg-white/20 transition-colors">
-            <ChevronLeft className="h-4 w-4" />
-          </div>
-          <span className="font-medium">Retour à la liste</span>
-        </button>
-
         <div className="space-y-4">
-          <div className="flex items-center gap-3 border-b border-white/10 pb-4">
-            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-300 ring-1 ring-emerald-500/50">
-              <span className="h-2.5 w-2.5 rounded-full bg-emerald-400" />
+          <div className="flex flex-col items-center justify-center border-b border-white/10 pb-4">
+            <span className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-300 ring-1 ring-emerald-500/50 mb-2">
+              <span className="h-3 w-3 rounded-full bg-emerald-400" />
             </span>
-            <div>
-              <h3 className="text-lg font-bold text-white">{selectedStylist.name}</h3>
-              <p className="text-xs text-white/50">Statistiques détaillées</p>
-            </div>
+            <h3 className="text-3xl font-black text-white text-center">{selectedStylist.name}</h3>
           </div>
           <StylistDailySection id={selectedStylist.id} commissionPct={((selectedStylist as any).commissionPct ?? config?.commissionDefault ?? 0)} />
         </div>
@@ -491,7 +487,7 @@ function StylistCard({ s, config, onClick }: { s: any, config: any, onClick: () 
           </span>
         </div>
         <div className="text-right">
-          <div className="text-4xl font-extrabold text-fuchsia-400/70 transition-all duration-300">
+          <div className="text-2xl font-extrabold text-primary transition-all duration-300">
             {eur.format(s.stats?.dailyAmount ?? 0)}
           </div>
           {dailyPointsUsed > 0 && (

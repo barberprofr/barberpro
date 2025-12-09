@@ -9,6 +9,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { AnimatePresence, motion } from "framer-motion";
+import barberBg from "@/assets/barber-bg.avif";
 
 export default function SharedLayout({ children }: PropsWithChildren) {
   const location = useLocation();
@@ -93,7 +94,11 @@ export default function SharedLayout({ children }: PropsWithChildren) {
     }
   }, [config, hasActiveSubscription]);
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-950 via-sky-800 to-amber-700">
+    <div className="relative min-h-screen bg-gradient-to-br from-blue-950 via-sky-800 to-amber-700">
+      <div 
+        className="fixed inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-40 pointer-events-none"
+        style={{ backgroundImage: `url(${barberBg})` }}
+      />
       {hasActiveSubscription && (
         <header className="sticky top-0 z-10 bg-background/80 backdrop-blur border-b">
           <div className="container flex items-center justify-between py-3">
@@ -151,7 +156,7 @@ export default function SharedLayout({ children }: PropsWithChildren) {
           )}
         </header>
       )}
-      <main className="container pt-4 pb-[calc(7.5rem+env(safe-area-inset-bottom,0px))]">
+      <main className="relative z-10 container pt-4 pb-[calc(7.5rem+env(safe-area-inset-bottom,0px))]">
         <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={location.pathname}
