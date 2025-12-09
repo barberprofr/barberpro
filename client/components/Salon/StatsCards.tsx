@@ -428,13 +428,11 @@ function StylistsList({ stylists, config, hasStylists }: { stylists: any[], conf
         </button>
 
         <div className="space-y-4">
-          <div className="flex items-center gap-3 border-b border-white/10 pb-4">
-            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-300 ring-1 ring-emerald-500/50">
-              <span className="h-2.5 w-2.5 rounded-full bg-emerald-400" />
+          <div className="flex flex-col items-center justify-center border-b border-white/10 pb-4">
+            <span className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-300 ring-1 ring-emerald-500/50 mb-2">
+              <span className="h-3 w-3 rounded-full bg-emerald-400" />
             </span>
-            <div>
-              <h3 className="text-lg font-bold text-white">{selectedStylist.name}</h3>
-            </div>
+            <h3 className="text-3xl font-black text-white text-center">{selectedStylist.name}</h3>
           </div>
           <StylistDailySection id={selectedStylist.id} commissionPct={((selectedStylist as any).commissionPct ?? config?.commissionDefault ?? 0)} />
         </div>
