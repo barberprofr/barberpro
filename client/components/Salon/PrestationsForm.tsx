@@ -889,14 +889,16 @@ export default function PrestationsForm() {
                     )}
                   >
                     <motion.div
-                      animate={stylistId ? { 
-                        filter: ["drop-shadow(0 0 8px rgba(167,139,250,0.6))", "drop-shadow(0 0 20px rgba(167,139,250,0.9))", "drop-shadow(0 0 8px rgba(167,139,250,0.6))"]
-                      } : {}}
-                      transition={stylistId ? { duration: 2, repeat: Infinity, ease: "easeInOut" } : {}}
+                      animate={{ 
+                        filter: stylistId 
+                          ? ["drop-shadow(0 0 12px rgba(34,211,238,0.8))", "drop-shadow(0 0 25px rgba(34,211,238,1))", "drop-shadow(0 0 12px rgba(34,211,238,0.8))"]
+                          : ["drop-shadow(0 0 8px rgba(34,211,238,0.5))", "drop-shadow(0 0 15px rgba(34,211,238,0.7))", "drop-shadow(0 0 8px rgba(34,211,238,0.5))"]
+                      }}
+                      transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
                     >
                       <Scissors className={cn(
                         "h-12 w-12 transition-all duration-300",
-                        stylistId ? "text-violet-400" : "text-violet-500/80"
+                        stylistId ? "text-cyan-400" : "text-cyan-400"
                       )} />
                     </motion.div>
                     <span className={cn(
