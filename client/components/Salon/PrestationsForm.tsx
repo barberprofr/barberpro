@@ -1157,7 +1157,7 @@ export default function PrestationsForm() {
         </div>
 
         {/* Rangée du bas: Total CA, Prestations, Produits - boutons pilules - position fixe en bas */}
-        <div className="fixed bottom-8 left-0 right-0 flex justify-center items-center gap-3 px-4 z-40">
+        <div className="fixed bottom-2 left-0 right-0 flex justify-center items-center gap-3 px-4 z-40">
           {/* Bouton Total CA - jaune/orange */}
           <motion.button
             type="button"
