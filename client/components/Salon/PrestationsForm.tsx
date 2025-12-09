@@ -1075,8 +1075,8 @@ export default function PrestationsForm() {
           </div>
         </div>
 
-        {/* Rangée du milieu: Client et Nouveau Client - à l'extérieur du cadre */}
-        <div className="flex justify-between items-center mt-8 px-6">
+        {/* Rangée du milieu: Client et Nouveau Client */}
+        <div className="flex justify-between items-center mt-6 px-8">
           {/* Bouton Client - cyan */}
           <motion.button
             type="button"
@@ -1156,8 +1156,8 @@ export default function PrestationsForm() {
           </motion.button>
         </div>
 
-        {/* Rangée du bas: Total CA, Prestations, Produits - boutons pilules - très espacée */}
-        <div className="flex justify-center items-center gap-3 mt-56 px-4">
+        {/* Rangée du bas: Total CA, Prestations, Produits - boutons pilules */}
+        <div className="flex justify-center items-center gap-3 mt-40 px-4">
           {/* Bouton Total CA - jaune/orange */}
           <motion.button
             type="button"
@@ -1194,16 +1194,6 @@ export default function PrestationsForm() {
           >
             <span className="text-sm font-medium text-orange-500">Produits</span>
           </motion.button>
-        </div>
-
-        {/* Barre du bas: Coiffeur sélectionné et compteur */}
-        <div className="flex justify-between items-center mt-8 mx-4 px-6 py-3 rounded-full border-2 border-slate-600/50 bg-slate-900/50">
-          <span className="text-sm font-medium text-white">
-            {selectedStylist ? selectedStylist.name : "Coiffeur"}
-          </span>
-          <span className="text-sm font-medium text-slate-400">
-            {summary?.dailyCount ?? 0} coiffes
-          </span>
         </div>
 
         {/* Popup Total CA */}
