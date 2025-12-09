@@ -886,22 +886,36 @@ export default function PrestationsForm() {
         {stylistId && !amount && (
           <div className="flex justify-center gap-3 mt-4">
             {/* Pilule PRESTATIONS - outline violet */}
-            <button
+            <motion.button
               type="button"
               onClick={() => setServicesPickerOpen(true)}
-              className="rounded-full border border-violet-500/70 bg-transparent px-6 py-2.5 text-violet-400 font-medium transition-all duration-200 hover:border-violet-400 hover:text-violet-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400/50"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95, y: 2 }}
+              className={cn(
+                "rounded-full border px-6 py-2.5 font-medium transition-all duration-200 focus:outline-none",
+                servicesPickerOpen
+                  ? "border-violet-400 text-violet-300 shadow-[0_0_20px_rgba(139,92,246,0.6)] animate-pulse"
+                  : "border-violet-500/70 bg-transparent text-violet-400 hover:border-violet-400 hover:text-violet-300"
+              )}
             >
               Prestations
-            </button>
+            </motion.button>
 
             {/* Pilule PRODUITS - filled avec texte orange */}
-            <button
+            <motion.button
               type="button"
               onClick={() => setProductsPickerOpen(true)}
-              className="rounded-full border border-slate-700 bg-slate-900/90 px-6 py-2.5 text-amber-500 font-medium transition-all duration-200 hover:border-slate-600 hover:text-amber-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/50"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95, y: 2 }}
+              className={cn(
+                "rounded-full border px-6 py-2.5 font-medium transition-all duration-200 focus:outline-none",
+                productsPickerOpen
+                  ? "border-amber-400 bg-slate-900/90 text-amber-400 shadow-[0_0_20px_rgba(251,191,36,0.6)] animate-pulse"
+                  : "border-slate-700 bg-slate-900/90 text-amber-500 hover:border-slate-600 hover:text-amber-400"
+              )}
             >
               Produits
-            </button>
+            </motion.button>
           </div>
         )}
 
