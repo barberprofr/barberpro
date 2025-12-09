@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { ChevronDown, ChevronLeft, Euro } from "lucide-react";
+import { ChevronDown, ChevronLeft, Euro, Sparkles, Package } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useDashboardSummary, useStylists, useStylistBreakdown, useConfig, apiPath, useProducts } from "@/lib/api";
@@ -244,37 +244,51 @@ export default function StatsCards() {
         </PopoverContent>
       </Popover>
 
-      {/* Boutons pilules: Total CA, Prestations, Produits */}
-      <div className="flex justify-center items-center gap-3 mt-6 px-4">
+      {/* Boutons style glassmorphisme avec icônes 3D */}
+      <div className="flex justify-center items-center gap-4 mt-6 px-4">
         <motion.button
           type="button"
           onClick={() => setTotalCAPopupOpen(true)}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          className="flex items-center gap-2 px-4 py-2 rounded-full border-2 border-amber-500/60 bg-transparent transition-all duration-300 hover:border-amber-400 hover:shadow-[0_0_20px_rgba(245,158,11,0.4)]"
+          whileHover={{ scale: 1.03, y: -2 }}
+          whileTap={{ scale: 0.97 }}
+          className="relative flex flex-col items-center justify-center w-[100px] h-[100px] rounded-2xl border border-white/20 bg-gradient-to-br from-slate-800/80 via-slate-900/90 to-slate-950/95 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] overflow-hidden transition-all duration-300 hover:shadow-[0_12px_40px_rgba(236,72,153,0.3)]"
         >
-          <Euro className="h-4 w-4 text-amber-500" />
-          <span className="text-sm font-medium text-amber-500">Total CA</span>
+          <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none" />
+          <div className="relative flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-br from-pink-500 via-fuchsia-500 to-purple-600 shadow-[0_4px_20px_rgba(236,72,153,0.5),inset_0_2px_4px_rgba(255,255,255,0.3)]">
+            <div className="absolute inset-1 rounded-full bg-gradient-to-br from-pink-400 via-fuchsia-400 to-purple-500 shadow-[inset_0_-3px_8px_rgba(0,0,0,0.3)]" />
+            <Euro className="relative h-6 w-6 text-white drop-shadow-lg" />
+          </div>
+          <span className="mt-2 text-[10px] font-semibold text-white/80 uppercase tracking-wider">Total CA</span>
         </motion.button>
 
         <motion.button
           type="button"
           onClick={() => setPrestationsPopupOpen(true)}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          className="flex items-center gap-2 px-4 py-2 rounded-full border-2 border-emerald-500/60 bg-transparent transition-all duration-300 hover:border-emerald-400 hover:shadow-[0_0_20px_rgba(16,185,129,0.4)]"
+          whileHover={{ scale: 1.03, y: -2 }}
+          whileTap={{ scale: 0.97 }}
+          className="relative flex flex-col items-center justify-center w-[100px] h-[100px] rounded-2xl border border-white/20 bg-gradient-to-br from-slate-800/80 via-slate-900/90 to-slate-950/95 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] overflow-hidden transition-all duration-300 hover:shadow-[0_12px_40px_rgba(6,182,212,0.3)]"
         >
-          <span className="text-sm font-medium text-emerald-500">Prestations</span>
+          <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none" />
+          <div className="relative flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-br from-cyan-400 via-teal-500 to-emerald-600 shadow-[0_4px_20px_rgba(6,182,212,0.5),inset_0_2px_4px_rgba(255,255,255,0.3)]">
+            <div className="absolute inset-1 rounded-full bg-gradient-to-br from-cyan-300 via-teal-400 to-emerald-500 shadow-[inset_0_-3px_8px_rgba(0,0,0,0.3)]" />
+            <Sparkles className="relative h-6 w-6 text-white drop-shadow-lg" />
+          </div>
+          <span className="mt-2 text-[10px] font-semibold text-white/80 uppercase tracking-wider">Prestations</span>
         </motion.button>
 
         <motion.button
           type="button"
           onClick={() => setProduitsPopupOpen(true)}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          className="flex items-center gap-2 px-4 py-2 rounded-full border-2 border-orange-500/60 bg-transparent transition-all duration-300 hover:border-orange-400 hover:shadow-[0_0_20px_rgba(249,115,22,0.4)]"
+          whileHover={{ scale: 1.03, y: -2 }}
+          whileTap={{ scale: 0.97 }}
+          className="relative flex flex-col items-center justify-center w-[100px] h-[100px] rounded-2xl border border-white/20 bg-gradient-to-br from-slate-800/80 via-slate-900/90 to-slate-950/95 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] overflow-hidden transition-all duration-300 hover:shadow-[0_12px_40px_rgba(168,85,247,0.3)]"
         >
-          <span className="text-sm font-medium text-orange-500">Produits</span>
+          <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none" />
+          <div className="relative flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-br from-violet-400 via-purple-500 to-indigo-600 shadow-[0_4px_20px_rgba(168,85,247,0.5),inset_0_2px_4px_rgba(255,255,255,0.3)]">
+            <div className="absolute inset-1 rounded-full bg-gradient-to-br from-violet-300 via-purple-400 to-indigo-500 shadow-[inset_0_-3px_8px_rgba(0,0,0,0.3)]" />
+            <Package className="relative h-6 w-6 text-white drop-shadow-lg" />
+          </div>
+          <span className="mt-2 text-[10px] font-semibold text-white/80 uppercase tracking-wider">Produits</span>
         </motion.button>
       </div>
 
