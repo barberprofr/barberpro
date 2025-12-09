@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Loader2, Check, ChevronDown, CircleDollarSign, CreditCard, FileText, Sparkles, ArrowLeft, Scissors, Users, UserPlus } from "lucide-react";
+import { Loader2, Check, ChevronDown, CircleDollarSign, CreditCard, FileText, Sparkles, ArrowLeft, Scissors, Users, UserPlus, Euro, X } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Input } from "@/components/ui/input";
@@ -10,7 +10,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
-import { useAddClient, useAddPrestation, useAddProduct, useClients, useConfig, useStylists } from "@/lib/api";
+import { useAddClient, useAddPrestation, useAddProduct, useClients, useConfig, useStylists, useDashboardSummary } from "@/lib/api";
 import ServicesPicker from "./ServicesPicker";
 import ProductsPicker from "./ProductsPicker";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -31,6 +31,7 @@ export default function PrestationsForm() {
   const addProduct = useAddProduct();
   const addClient = useAddClient();
   const { data: config } = useConfig();
+  const { data: summary } = useDashboardSummary();
   const { toast } = useToast();
 
   const salonDisplayName = useMemo(() => (config?.salonName ?? "").trim() || "Votre salon", [config?.salonName]);
@@ -44,6 +45,7 @@ export default function PrestationsForm() {
   }, [salonDisplayName]);
 
   const [productsPopoverOpen, setProductsPopoverOpen] = useState(false);
+  const [totalCAPopupOpen, setTotalCAPopupOpen] = useState(false);
   const [stylistId, setStylistId] = useState<string>("");
   const [stylistPickerOpen, setStylistPickerOpen] = useState(false);
   const [clientId, setClientId] = useState<string>("");
@@ -1071,7 +1073,7 @@ export default function PrestationsForm() {
           </div>
         </div>
 
-        {/* Boutons Client et Nouveau Client aux extrémités */}
+        {/* Boutons Client, Total CA et Nouveau Client */}
         <div className="flex justify-between items-center mt-4 px-4">
           {/* Bouton Client - cyan */}
           <motion.button
@@ -1108,6 +1110,23 @@ export default function PrestationsForm() {
               clientId ? "text-base text-fuchsia-400 drop-shadow-[0_0_8px_rgba(232,121,249,0.6)]" : "text-xs text-cyan-500"
             )}>
               {selectedClient ? selectedClient.name.split(' ')[0] : "Client"}
+            </span>
+          </motion.button>
+
+          {/* Bouton Total CA - emerald/vert */}
+          <motion.button
+            type="button"
+            data-pill-button
+            onClick={() => setTotalCAPopupOpen(true)}
+            whileHover={{ scale: 1.08 }}
+            whileTap={{ scale: 0.95 }}
+            className="flex flex-col items-center gap-2 focus:outline-none transition-all duration-300"
+          >
+            <div className="relative flex h-14 w-14 items-center justify-center rounded-full border-2 border-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.3)] transition-all duration-300 hover:border-emerald-400 hover:shadow-[0_0_25px_rgba(16,185,129,0.6)]">
+              <Euro className="h-6 w-6 text-emerald-500 transition-all duration-300" />
+            </div>
+            <span className="text-xs font-medium text-emerald-500 transition-all duration-300">
+              Total CA
             </span>
           </motion.button>
 
@@ -1151,6 +1170,48 @@ export default function PrestationsForm() {
             </span>
           </motion.button>
         </div>
+
+        {/* Popup Total CA */}
+        <AnimatePresence>
+          {totalCAPopupOpen && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+              onClick={() => setTotalCAPopupOpen(false)}
+            >
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                onClick={(e) => e.stopPropagation()}
+                className="relative w-[90%] max-w-sm rounded-3xl bg-gradient-to-br from-slate-900/98 via-cyan-900/60 to-slate-800/98 border border-cyan-500/30 shadow-[0_25px_80px_rgba(0,0,0,0.6),0_0_40px_rgba(6,182,212,0.2)] backdrop-blur-xl p-8"
+              >
+                <button
+                  type="button"
+                  onClick={() => setTotalCAPopupOpen(false)}
+                  className="absolute top-4 right-4 flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/5 text-slate-400 transition hover:bg-white/10 hover:text-white"
+                >
+                  <ChevronDown className="h-5 w-5" />
+                </button>
+                <div className="flex flex-col items-center text-center">
+                  <span className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-300/80 mb-1">
+                    TOTAL CA
+                  </span>
+                  <span className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-300/80 mb-6">
+                    AUJOURD'HUI
+                  </span>
+                  <div className="text-5xl font-bold text-white tracking-tight">
+                    {(summary?.dailyAmount ?? 0).toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
+                  </div>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
 
         {amount ? (
