@@ -758,33 +758,6 @@ export default function PrestationsForm() {
         <div className="flex gap-4 sm:flex-row flex-col">
           <div className="space-y-2">
             <div className="relative w-full max-w-[16rem]">
-              <motion.button
-                type="button"
-                whileTap={{ scale: 0.97 }}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  refreshStylists();
-                }}
-                disabled={isRefreshing}
-                title="Rafraîchir"
-                className="absolute top-2 right-2 z-20 inline-flex items-center gap-1 rounded-full border border-cyan-400/50 bg-cyan-500/20 px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-cyan-300 transition-all duration-200 hover:bg-cyan-500/30 focus:outline-none disabled:cursor-wait disabled:opacity-80"
-              >
-                <span>Rafraîchir</span>
-                <AnimatePresence initial={false}>
-                  {isRefreshing ? (
-                    <motion.span
-                      key="refreshing-spinner"
-                      initial={{ opacity: 0, rotate: -45 }}
-                      animate={{ opacity: 1, rotate: 0 }}
-                      exit={{ opacity: 0, rotate: 45 }}
-                      transition={{ duration: 0.2 }}
-                      className="inline-flex"
-                    >
-                      <Loader2 className="h-2.5 w-2.5 animate-spin text-cyan-300" />
-                    </motion.span>
-                  ) : null}
-                </AnimatePresence>
-              </motion.button>
               <Popover open={stylistPickerOpen} onOpenChange={setStylistPickerOpen}>
                 <PopoverTrigger asChild>
                   <motion.button
