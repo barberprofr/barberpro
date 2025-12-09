@@ -963,15 +963,6 @@ export default function PrestationsForm() {
                       )}
                     </div>
                   </div>
-                  <div className="border-t border-slate-700/50 bg-slate-900/80 px-4 py-3">
-                    <button
-                      type="button"
-                      className="text-sm text-slate-400 hover:text-white transition-colors"
-                      onClick={() => setStylistPickerOpen(false)}
-                    >
-                      Fermer
-                    </button>
-                  </div>
                 </PopoverContent>
               </Popover>
             </div>
