@@ -67,6 +67,7 @@ export default function PrestationsForm() {
   const [clientSearch, setClientSearch] = useState("");
   const [debouncedClientSearch, setDebouncedClientSearch] = useState("");
   const [showSuccess, setShowSuccess] = useState(false);
+  const [lastTransactionAmount, setLastTransactionAmount] = useState<number>(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [clientAccordion, setClientAccordion] = useState<string>("");
   const [servicesPickerOpen, setServicesPickerOpen] = useState(false);
@@ -511,12 +512,9 @@ export default function PrestationsForm() {
             window.clearTimeout(successTimeoutRef.current);
             successTimeoutRef.current = null;
           }
+          setLastTransactionAmount(Number(amount));
           setShowSuccess(true);
           dialogsOpenedForSessionRef.current = false;
-          successTimeoutRef.current = window.setTimeout(() => {
-            setShowSuccess(false);
-            successTimeoutRef.current = null;
-          }, 2400);
           qc.invalidateQueries({ queryKey: ["summary"] });
           qc.invalidateQueries({ queryKey: ["stylists"] });
           qc.invalidateQueries({ queryKey: ["clients"] });
@@ -565,12 +563,9 @@ export default function PrestationsForm() {
                 window.clearTimeout(successTimeoutRef.current);
                 successTimeoutRef.current = null;
               }
+              setLastTransactionAmount(Number(amount));
               setShowSuccess(true);
               dialogsOpenedForSessionRef.current = false;
-              successTimeoutRef.current = window.setTimeout(() => {
-                setShowSuccess(false);
-                successTimeoutRef.current = null;
-              }, 2400);
               qc.invalidateQueries({ queryKey: ["summary"] });
               qc.invalidateQueries({ queryKey: ["stylists"] });
               qc.invalidateQueries({ queryKey: ["clients"] });
@@ -629,12 +624,9 @@ export default function PrestationsForm() {
             window.clearTimeout(successTimeoutRef.current);
             successTimeoutRef.current = null;
           }
+          setLastTransactionAmount(Number(amount));
           setShowSuccess(true);
           dialogsOpenedForSessionRef.current = false;
-          successTimeoutRef.current = window.setTimeout(() => {
-            setShowSuccess(false);
-            successTimeoutRef.current = null;
-          }, 2400);
 
           qc.invalidateQueries({ queryKey: ["summary"] });
           qc.invalidateQueries({ queryKey: ["stylists"] });
@@ -683,12 +675,9 @@ export default function PrestationsForm() {
                 window.clearTimeout(successTimeoutRef.current);
                 successTimeoutRef.current = null;
               }
+              setLastTransactionAmount(Number(amount));
               setShowSuccess(true);
               dialogsOpenedForSessionRef.current = false;
-              successTimeoutRef.current = window.setTimeout(() => {
-                setShowSuccess(false);
-                successTimeoutRef.current = null;
-              }, 2400);
               qc.invalidateQueries({ queryKey: ["summary"] });
               qc.invalidateQueries({ queryKey: ["stylists"] });
               qc.invalidateQueries({ queryKey: ["clients"] });
@@ -700,9 +689,6 @@ export default function PrestationsForm() {
   }
 
   useEffect(() => () => {
-    if (successTimeoutRef.current) {
-      window.clearTimeout(successTimeoutRef.current);
-    }
     if (amountHintTimeoutRef.current) {
       window.clearTimeout(amountHintTimeoutRef.current);
     }
@@ -751,24 +737,90 @@ export default function PrestationsForm() {
           </div>
         </div>
       </CardHeader>
-      <form ref={formRef} onSubmit={onSubmit} className="space-y-3">
-        <AnimatePresence mode="wait">
-          {showSuccess && (
+      <Dialog open={showSuccess} onOpenChange={setShowSuccess}>
+        <DialogContent className="sm:max-w-md border-0 bg-gradient-to-br from-slate-900/95 via-slate-800/95 to-slate-900/95 backdrop-blur-xl shadow-[0_25px_80px_rgba(0,0,0,0.6)]">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="flex flex-col items-center justify-center py-8 px-4"
+          >
             <motion.div
-              key="success-banner"
-              initial={{ opacity: 0, y: -18 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -18 }}
-              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-              className="flex items-center justify-center gap-3 rounded-2xl border border-emerald-300/80 bg-gradient-to-r from-emerald-500 via-emerald-400 to-teal-400 px-4 py-2.5 text-base font-semibold text-white shadow-[0_20px_40px_rgba(16,185,129,0.35)]"
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.1 }}
+              className="relative mb-6"
             >
-              <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/20 text-emerald-900 shadow-lg">
-                <Check className="h-4 w-4" />
-              </span>
-              Prestation enregistrée avec succès
+              <div className="flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 via-emerald-500 to-teal-500 shadow-[0_0_50px_rgba(16,185,129,0.5)]">
+                <Check className="h-12 w-12 text-white" strokeWidth={3} />
+              </div>
+              <motion.div
+                className="absolute inset-0 rounded-full border-4 border-emerald-400/40"
+                animate={{ scale: [1, 1.3, 1], opacity: [0.6, 0, 0.6] }}
+                transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+              />
+              <motion.div
+                className="absolute -top-2 -right-2"
+                initial={{ scale: 0, rotate: -45 }}
+                animate={{ scale: 1, rotate: 0 }}
+                transition={{ delay: 0.3, type: "spring" }}
+              >
+                <Sparkles className="h-8 w-8 text-yellow-400" />
+              </motion.div>
+              <motion.div
+                className="absolute -bottom-1 -left-3"
+                initial={{ scale: 0, rotate: 45 }}
+                animate={{ scale: 1, rotate: 0 }}
+                transition={{ delay: 0.4, type: "spring" }}
+              >
+                <Sparkles className="h-6 w-6 text-cyan-400" />
+              </motion.div>
             </motion.div>
-          )}
-        </AnimatePresence>
+
+            <motion.h2
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="text-2xl font-bold text-emerald-400 mb-2"
+            >
+              Transaction validée
+            </motion.h2>
+            
+            <motion.p
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.25 }}
+              className="text-slate-400 text-sm mb-6"
+            >
+              Merci !
+            </motion.p>
+
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.35, type: "spring" }}
+              className="text-5xl font-bold text-white mb-8"
+            >
+              {lastTransactionAmount.toFixed(2)} €
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.45 }}
+            >
+              <Button
+                type="button"
+                onClick={() => setShowSuccess(false)}
+                className="px-12 py-6 text-lg font-semibold rounded-full bg-gradient-to-r from-pink-500 via-fuchsia-500 to-purple-500 hover:from-pink-600 hover:via-fuchsia-600 hover:to-purple-600 text-white shadow-[0_10px_40px_rgba(236,72,153,0.4)] transition-all duration-300 hover:scale-105"
+              >
+                Terminer
+              </Button>
+            </motion.div>
+          </motion.div>
+        </DialogContent>
+      </Dialog>
+
+      <form ref={formRef} onSubmit={onSubmit} className="space-y-3">
         {/* ServicesPicker et ProductsPicker en Dialog (invisibles, ouverts après sélection coiffeur) */}
         <ServicesPicker
           key={`services-${stylistId}`}
