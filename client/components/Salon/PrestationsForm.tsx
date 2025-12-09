@@ -67,6 +67,7 @@ export default function PrestationsForm() {
   const [clientSearch, setClientSearch] = useState("");
   const [debouncedClientSearch, setDebouncedClientSearch] = useState("");
   const [showSuccess, setShowSuccess] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [lastTransactionAmount, setLastTransactionAmount] = useState<number>(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [clientAccordion, setClientAccordion] = useState<string>("");
@@ -424,7 +425,10 @@ export default function PrestationsForm() {
   }
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!canSubmit || addPrestation.isPending || addClient.isPending || addProduct.isPending) return;
+    if (!canSubmit || addPrestation.isPending || addClient.isPending || addProduct.isPending || isSubmitting) return;
+
+    setLastTransactionAmount(Number(amount));
+    setIsSubmitting(true);
 
     let nextClientId = clientId;
     if (!nextClientId && usingNewClient) {
@@ -512,7 +516,7 @@ export default function PrestationsForm() {
             window.clearTimeout(successTimeoutRef.current);
             successTimeoutRef.current = null;
           }
-          setLastTransactionAmount(Number(amount));
+          setIsSubmitting(false);
           setShowSuccess(true);
           dialogsOpenedForSessionRef.current = false;
           qc.invalidateQueries({ queryKey: ["summary"] });
@@ -521,6 +525,7 @@ export default function PrestationsForm() {
 
         } catch (error) {
           console.error("Failed to submit products", error);
+          setIsSubmitting(false);
           toast({
             title: "Erreur",
             description: "Impossible d'enregistrer tous les produits. Veuillez réessayer.",
@@ -563,12 +568,15 @@ export default function PrestationsForm() {
                 window.clearTimeout(successTimeoutRef.current);
                 successTimeoutRef.current = null;
               }
-              setLastTransactionAmount(Number(amount));
+              setIsSubmitting(false);
               setShowSuccess(true);
               dialogsOpenedForSessionRef.current = false;
               qc.invalidateQueries({ queryKey: ["summary"] });
               qc.invalidateQueries({ queryKey: ["stylists"] });
               qc.invalidateQueries({ queryKey: ["clients"] });
+            },
+            onError: () => {
+              setIsSubmitting(false);
             }
           }
         );
@@ -624,7 +632,7 @@ export default function PrestationsForm() {
             window.clearTimeout(successTimeoutRef.current);
             successTimeoutRef.current = null;
           }
-          setLastTransactionAmount(Number(amount));
+          setIsSubmitting(false);
           setShowSuccess(true);
           dialogsOpenedForSessionRef.current = false;
 
@@ -633,6 +641,7 @@ export default function PrestationsForm() {
           qc.invalidateQueries({ queryKey: ["clients"] });
         } catch (error) {
           console.error("Failed to submit prestations", error);
+          setIsSubmitting(false);
           toast({
             title: "Erreur",
             description: "Impossible d'enregistrer toutes les prestations. Veuillez réessayer.",
@@ -675,12 +684,15 @@ export default function PrestationsForm() {
                 window.clearTimeout(successTimeoutRef.current);
                 successTimeoutRef.current = null;
               }
-              setLastTransactionAmount(Number(amount));
+              setIsSubmitting(false);
               setShowSuccess(true);
               dialogsOpenedForSessionRef.current = false;
               qc.invalidateQueries({ queryKey: ["summary"] });
               qc.invalidateQueries({ queryKey: ["stylists"] });
               qc.invalidateQueries({ queryKey: ["clients"] });
+            },
+            onError: () => {
+              setIsSubmitting(false);
             }
           }
         );
@@ -747,82 +759,82 @@ export default function PrestationsForm() {
         </div>
       </CardHeader>
       <AnimatePresence>
-        {showSuccess && (
+        {(isSubmitting || showSuccess) && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
+            transition={{ duration: 0.15 }}
             className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
-            onClick={() => setShowSuccess(false)}
           >
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+              transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
               className="relative sm:max-w-md w-[90%] rounded-2xl border-0 bg-gradient-to-br from-slate-900/98 via-slate-800/98 to-slate-900/98 backdrop-blur-xl shadow-[0_25px_80px_rgba(0,0,0,0.6)] p-8"
-              onClick={(e) => e.stopPropagation()}
             >
               <div className="flex flex-col items-center justify-center">
-                <motion.div
-                  initial={{ scale: 0.5 }}
-                  animate={{ scale: 1 }}
-                  transition={{ duration: 0.3, ease: [0.34, 1.56, 0.64, 1] }}
-                  className="relative mb-6"
-                >
-                  <div className="flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 via-emerald-500 to-teal-500 shadow-[0_0_50px_rgba(16,185,129,0.5)]">
-                    <Check className="h-12 w-12 text-white" strokeWidth={3} />
+                <div className="relative mb-6">
+                  <div className={cn(
+                    "flex h-24 w-24 items-center justify-center rounded-full shadow-[0_0_50px_rgba(16,185,129,0.5)]",
+                    showSuccess 
+                      ? "bg-gradient-to-br from-emerald-400 via-emerald-500 to-teal-500"
+                      : "bg-gradient-to-br from-slate-600 via-slate-500 to-slate-600"
+                  )}>
+                    {showSuccess ? (
+                      <motion.div
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ duration: 0.25, ease: "backOut" }}
+                      >
+                        <Check className="h-12 w-12 text-white" strokeWidth={3} />
+                      </motion.div>
+                    ) : (
+                      <Loader2 className="h-12 w-12 text-white animate-spin" />
+                    )}
                   </div>
-                  <motion.div
-                    className="absolute inset-0 rounded-full border-4 border-emerald-400/30"
-                    animate={{ scale: [1, 1.4], opacity: [0.5, 0] }}
-                    transition={{ duration: 1, repeat: Infinity, ease: "easeOut" }}
-                  />
-                  <motion.div
-                    className="absolute -top-2 -right-2"
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ delay: 0.15, duration: 0.2, ease: "backOut" }}
-                  >
-                    <Sparkles className="h-8 w-8 text-yellow-400" />
-                  </motion.div>
-                  <motion.div
-                    className="absolute -bottom-1 -left-3"
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ delay: 0.2, duration: 0.2, ease: "backOut" }}
-                  >
-                    <Sparkles className="h-6 w-6 text-cyan-400" />
-                  </motion.div>
-                </motion.div>
+                  {showSuccess && (
+                    <>
+                      <motion.div
+                        className="absolute inset-0 rounded-full border-4 border-emerald-400/30"
+                        animate={{ scale: [1, 1.4], opacity: [0.5, 0] }}
+                        transition={{ duration: 1, repeat: Infinity, ease: "easeOut" }}
+                      />
+                      <motion.div
+                        className="absolute -top-2 -right-2"
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ delay: 0.1, duration: 0.2, ease: "backOut" }}
+                      >
+                        <Sparkles className="h-8 w-8 text-yellow-400" />
+                      </motion.div>
+                      <motion.div
+                        className="absolute -bottom-1 -left-3"
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ delay: 0.15, duration: 0.2, ease: "backOut" }}
+                      >
+                        <Sparkles className="h-6 w-6 text-cyan-400" />
+                      </motion.div>
+                    </>
+                  )}
+                </div>
 
-                <motion.h2
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.1, duration: 0.2 }}
-                  className="text-2xl font-bold text-emerald-400 mb-2"
-                >
-                  Transaction validée
-                </motion.h2>
+                <h2 className={cn(
+                  "text-2xl font-bold mb-2",
+                  showSuccess ? "text-emerald-400" : "text-slate-300"
+                )}>
+                  {showSuccess ? "Transaction validée" : "Validation..."}
+                </h2>
                 
-                <motion.p
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.15, duration: 0.2 }}
-                  className="text-slate-400 text-sm mb-6"
-                >
-                  Merci !
-                </motion.p>
+                <p className="text-slate-400 text-sm mb-6">
+                  {showSuccess ? "Merci !" : "Enregistrement en cours"}
+                </p>
 
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.2, duration: 0.25, ease: [0.34, 1.56, 0.64, 1] }}
-                  className="text-5xl font-bold text-white"
-                >
+                <div className="text-5xl font-bold text-white">
                   {lastTransactionAmount.toFixed(2)} €
-                </motion.div>
+                </div>
               </div>
             </motion.div>
           </motion.div>
