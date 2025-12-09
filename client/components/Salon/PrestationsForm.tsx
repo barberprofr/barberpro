@@ -1250,7 +1250,7 @@ export default function PrestationsForm() {
             setClientSearch("");
           }
         }}>
-          <DialogContent className="w-[min(90vw,24rem)] overflow-hidden rounded-2xl border border-emerald-500/30 bg-gradient-to-br from-slate-900/80 via-emerald-950/60 to-slate-900/80 p-0 shadow-[0_25px_60px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.1)] backdrop-blur-xl">
+          <DialogContent className="w-[min(90vw,24rem)] overflow-hidden rounded-2xl border border-white/20 bg-white/10 p-0 shadow-[0_25px_60px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.2),inset_0_-1px_0_rgba(255,255,255,0.1)] backdrop-blur-2xl">
             <div className="p-5 space-y-5">
               {/* Barre de recherche */}
               <div className="relative">
@@ -1259,7 +1259,7 @@ export default function PrestationsForm() {
                   autoFocus
                   value={clientSearch}
                   onChange={(e) => setClientSearch(e.target.value)}
-                  className="h-12 w-full rounded-xl border border-white/20 bg-black/30 pl-4 pr-4 text-base text-white font-medium placeholder:text-white/50 focus:border-emerald-400/60 focus:ring-0 focus:bg-black/40"
+                  className="h-12 w-full rounded-xl border border-white/30 bg-white/10 pl-4 pr-4 text-base text-white font-medium placeholder:text-white/50 focus:border-white/50 focus:ring-0 focus:bg-white/20 backdrop-blur-sm"
                 />
               </div>
 
@@ -1309,7 +1309,7 @@ export default function PrestationsForm() {
                   setClientAccordion("");
                   setClientSearch("");
                 }}
-                className="w-full rounded-xl border border-white/20 bg-black/30 py-3 text-sm font-bold text-white transition hover:bg-black/50"
+                className="w-full rounded-xl border border-white/30 bg-white/10 py-3 text-sm font-bold text-white transition hover:bg-white/20 backdrop-blur-sm"
               >
                 Fermer
               </button>
@@ -1324,7 +1324,7 @@ export default function PrestationsForm() {
             setClientAccordion("");
           }
         }}>
-          <DialogContent className="w-[min(90vw,24rem)] overflow-hidden rounded-2xl border border-amber-500/30 bg-gradient-to-br from-slate-900/80 via-amber-950/40 to-slate-900/80 p-0 shadow-[0_25px_60px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.1)] backdrop-blur-xl">
+          <DialogContent className="w-[min(90vw,24rem)] overflow-hidden rounded-2xl border border-white/20 bg-white/10 p-0 shadow-[0_25px_60px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.2),inset_0_-1px_0_rgba(255,255,255,0.1)] backdrop-blur-2xl">
             <div className="p-5 space-y-4">
               <h3 className="text-lg font-bold text-white text-center">Nouveau client</h3>
               
@@ -1337,7 +1337,7 @@ export default function PrestationsForm() {
                 inputMode="text"
                 autoComplete="given-name"
                 placeholder="Prénom"
-                className="h-12 rounded-xl border border-white/20 bg-black/30 text-white font-medium placeholder:text-white/50 focus:border-amber-400/60 focus:ring-0 focus:bg-black/40"
+                className="h-12 rounded-xl border border-white/30 bg-white/10 text-white font-medium placeholder:text-white/50 focus:border-white/50 focus:ring-0 focus:bg-white/20 backdrop-blur-sm"
               />
               
               <Input
@@ -1349,7 +1349,7 @@ export default function PrestationsForm() {
                 inputMode="text"
                 autoComplete="family-name"
                 placeholder="Nom"
-                className="h-12 rounded-xl border border-white/20 bg-black/30 text-white font-medium placeholder:text-white/50 focus:border-amber-400/60 focus:ring-0 focus:bg-black/40"
+                className="h-12 rounded-xl border border-white/30 bg-white/10 text-white font-medium placeholder:text-white/50 focus:border-white/50 focus:ring-0 focus:bg-white/20 backdrop-blur-sm"
               />
 
               <Input
@@ -1362,7 +1362,7 @@ export default function PrestationsForm() {
                 inputMode="tel"
                 autoComplete="tel"
                 placeholder="Téléphone (10 chiffres)"
-                className="h-12 rounded-xl border border-white/20 bg-black/30 text-white font-medium placeholder:text-white/50 focus:border-amber-400/60 focus:ring-0 focus:bg-black/40"
+                className="h-12 rounded-xl border border-white/30 bg-white/10 text-white font-medium placeholder:text-white/50 focus:border-white/50 focus:ring-0 focus:bg-white/20 backdrop-blur-sm"
               />
               
               {usingNewClient && sanitizedNewClientPhoneDigits.length > 0 && sanitizedNewClientPhoneDigits.length !== PHONE_DIGITS_REQUIRED && (
@@ -1390,7 +1390,7 @@ export default function PrestationsForm() {
                     console.error("Erreur lors de la création du client:", err);
                   }
                 }}
-                className="w-full rounded-xl bg-amber-500/30 border border-amber-400/40 py-3 text-sm font-bold text-white transition hover:bg-amber-500/50 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full rounded-xl bg-emerald-500/30 border border-emerald-400/40 py-3 text-sm font-bold text-white transition hover:bg-emerald-500/50 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 backdrop-blur-sm"
               >
                 {addClient.isPending ? (
                   <>
@@ -1408,7 +1408,7 @@ export default function PrestationsForm() {
                   setNewClientAccordionOpen(false);
                   setClientAccordion("");
                 }}
-                className="w-full rounded-xl border border-white/20 bg-black/30 py-3 text-sm font-bold text-white transition hover:bg-black/50"
+                className="w-full rounded-xl border border-white/30 bg-white/10 py-3 text-sm font-bold text-white transition hover:bg-white/20 backdrop-blur-sm"
               >
                 Annuler
               </button>
