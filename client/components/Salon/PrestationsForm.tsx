@@ -882,7 +882,7 @@ export default function PrestationsForm() {
                     whileHover={{ scale: 1.03 }}
                     whileTap={{ scale: 0.98 }}
                     className={cn(
-                      "group relative flex flex-col items-center justify-center gap-4 w-full rounded-3xl border border-slate-700/60 bg-slate-900/95 px-8 py-8 transition-all duration-300 focus:outline-none",
+                      "group relative flex flex-col items-center justify-center gap-4 w-full rounded-3xl border border-slate-700/60 bg-slate-950 px-8 py-8 transition-all duration-300 focus:outline-none",
                       stylistId 
                         ? "border-cyan-400/60 shadow-[0_0_30px_rgba(34,211,238,0.4)] scale-[1.02]" 
                         : "hover:border-slate-600"
