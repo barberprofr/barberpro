@@ -791,7 +791,21 @@ export default function PrestationsForm() {
                         <Check className="h-12 w-12 text-white" strokeWidth={3} />
                       </motion.div>
                     ) : (
-                      <Loader2 className="h-12 w-12 text-white animate-spin" />
+                      <div className="relative h-12 w-12">
+                        {[...Array(12)].map((_, i) => (
+                          <div
+                            key={i}
+                            className="absolute left-1/2 top-0 h-3 w-1 -translate-x-1/2 rounded-full bg-white"
+                            style={{
+                              transform: `translateX(-50%) rotate(${i * 30}deg)`,
+                              transformOrigin: '50% 24px',
+                              opacity: 1 - (i * 0.07),
+                              animation: `spinnerFade 1s linear infinite`,
+                              animationDelay: `${-i * (1/12)}s`
+                            }}
+                          />
+                        ))}
+                      </div>
                     )}
                   </div>
                   {showSuccess && (
