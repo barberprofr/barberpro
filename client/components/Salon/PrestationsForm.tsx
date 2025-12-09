@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Loader2, Check, ChevronDown, CircleDollarSign, CreditCard, FileText, Sparkles, ArrowLeft, Scissors, Users, UserPlus } from "lucide-react";
+import { Loader2, Check, ChevronDown, CircleDollarSign, CreditCard, FileText, Sparkles, ArrowLeft, Scissors } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Input } from "@/components/ui/input";
@@ -901,317 +901,6 @@ export default function PrestationsForm() {
           </div>
         )}
 
-        {/* Cartes Client et Nouveau Client - affichées après sélection du coiffeur */}
-        {stylistId && (
-          <div className="flex justify-center gap-4 mt-4">
-            {/* Carte Client - icône cyan */}
-            <Popover open={clientAccordion === "client"} onOpenChange={(open) => {
-              if (open) {
-                setClientAccordion("client");
-              } else {
-                setClientAccordion("");
-              }
-            }}>
-              <PopoverTrigger asChild>
-                <motion.button
-                  type="button"
-                  whileHover={{ scale: 1.03 }}
-                  whileTap={{ scale: 0.98 }}
-                  className={cn(
-                    "group relative flex flex-col items-center justify-center gap-3 rounded-3xl border border-slate-700/60 bg-slate-900/95 px-8 py-6 transition-all duration-300 focus:outline-none min-w-[140px]",
-                    clientId 
-                      ? "border-cyan-400/60 shadow-[0_0_30px_rgba(34,211,238,0.4)] scale-[1.02]" 
-                      : "hover:border-slate-600"
-                  )}
-                >
-                  {/* Cercle avec icône */}
-                  <motion.div
-                    className={cn(
-                      "flex h-16 w-16 items-center justify-center rounded-full transition-all duration-300",
-                      clientId 
-                        ? "bg-cyan-500/30 border-2 border-cyan-400" 
-                        : "bg-cyan-500/20 border-2 border-cyan-500/50"
-                    )}
-                    animate={clientId ? { 
-                      boxShadow: ["0 0 8px rgba(34,211,238,0.4)", "0 0 20px rgba(34,211,238,0.7)", "0 0 8px rgba(34,211,238,0.4)"]
-                    } : {}}
-                    transition={clientId ? { duration: 2, repeat: Infinity, ease: "easeInOut" } : {}}
-                  >
-                    <Users className={cn(
-                      "h-8 w-8 transition-all duration-300",
-                      clientId ? "text-cyan-300" : "text-cyan-400"
-                    )} />
-                  </motion.div>
-                  <span className={cn(
-                    "text-base font-semibold transition-all duration-300",
-                    clientId ? "text-white" : "text-slate-300"
-                  )}>
-                    {selectedClient ? selectedClient.name : "Client"}
-                  </span>
-                </motion.button>
-              </PopoverTrigger>
-              <PopoverContent side="bottom" align="center" className="w-[min(90vw,36rem)] overflow-hidden rounded-3xl border border-white/15 bg-[linear-gradient(140deg,rgba(7,12,30,0.96)0%,rgba(67,56,202,0.65)55%,rgba(16,185,129,0.45)100%)] p-0 text-slate-50 shadow-[0_40px_95px_rgba(8,15,40,0.7)] backdrop-blur-2xl">
-                <div className="space-y-4 p-5">
-                  <div className="space-y-1 text-left">
-                    <p className="text-2xl font-bold text-slate-50">Rechercher un client</p>
-                  </div>
-                  <Popover
-                    open={clientPickerOpen}
-                    onOpenChange={(open) => {
-                      setClientPickerOpen(open);
-                      if (!open) {
-                        setClientSearch("");
-                      }
-                    }}
-                  >
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        role="combobox"
-                        aria-expanded={clientPickerOpen}
-                        className={cn(
-                          "group relative w-full justify-between overflow-hidden rounded-2xl border px-3.5 py-2.5 text-sm font-semibold transition-all",
-                          clientId
-                            ? "border-emerald-300/60 bg-emerald-300/20 text-emerald-100 shadow-[0_16px_40px_rgba(16,185,129,0.25)]"
-                            : "border-[#8c7cff]/65 bg-[linear-gradient(135deg,rgba(60,37,115,0.78)0%,rgba(80,61,201,0.6)60%,rgba(17,94,89,0.48)100%)] text-[#f4ebff] shadow-[0_18px_45px_rgba(76,29,149,0.35)]"
-                        )}
-                        title={clientSelectionTitle}
-                      >
-                        <span className="flex flex-col items-start text-left gap-1">
-                          {selectedClient ? (
-                            <>
-                              <span className="text-base font-bold">{selectedClient.name} - {selectedClient.points} pts</span>
-                              {selectedClient.phone && (
-                                <span className="text-xs text-muted-foreground">{selectedClient.phone}</span>
-                              )}
-                            </>
-                          ) : (
-                            <span>Rechercher un client</span>
-                          )}
-                        </span>
-                        <span className={cn("ml-2", clientId ? "text-emerald-200" : "text-[#e1d5ff]")}>▾</span>
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-80 overflow-hidden rounded-3xl border border-white/15 bg-slate-950/90 p-0 shadow-[0_32px_70px_rgba(8,15,40,0.7)] backdrop-blur-2xl focus:outline-none">
-                      <Command>
-                        <CommandInput
-                          placeholder="Rechercher par nom ou téléphone"
-                          autoFocus
-                          value={clientSearch}
-                          onValueChange={setClientSearch}
-                          className="h-11 rounded-2xl border border-white/20 bg-[linear-gradient(135deg,rgba(255,255,255,0.26)0%,rgba(148,163,184,0.18)45%,rgba(56,189,248,0.16)100%)] text-lg text-white placeholder:text-white/70 shadow-[0_18px_40px_rgba(8,15,40,0.32)] backdrop-blur-2xl focus-visible:ring-2 focus-visible:ring-cyan-300 focus-visible:ring-offset-0"
-                        />
-                        <CommandList>
-                          {clientSearch.trim().length === 0 ? (
-                            <div className="py-6 text-center text-xs text-white/70">
-                              Tapez un nom ou un numéro pour afficher les clients.
-                            </div>
-                          ) : filteredClients.length === 0 ? (
-                            <CommandEmpty>Aucun client trouvé</CommandEmpty>
-                          ) : (
-                            <CommandGroup className="space-y-1 px-2 py-2">
-                              {filteredClients.map((c) => {
-                                const searchValue = [c.name, c.phone ?? ""].filter(Boolean).join(" ");
-                                return (
-                                  <CommandItem
-                                    key={c.id}
-                                    value={searchValue}
-                                    className="flex cursor-pointer flex-col gap-1 rounded-2xl border border-transparent bg-white/5 px-3 py-2 text-slate-100 transition hover:border-emerald-300/60 hover:bg-emerald-400/20"
-                                    onSelect={() => {
-                                      setClientId(c.id);
-                                      setClientPickerOpen(false);
-                                      setClientSearch("");
-                                      setClientAccordion("");
-                                    }}
-                                  >
-                                    <span className="inline-flex items-center gap-2 text-sm font-semibold">
-                                      <span className="inline-flex h-1.5 w-1.5 rounded-full bg-emerald-300" />
-                                      {c.name}
-                                    </span>
-                                    <div className="flex items-center gap-2 text-xs text-white/70">
-                                      <span className="inline-flex items-center gap-1 rounded-full border border-emerald-300/50 bg-emerald-300/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-100">
-                                        {c.points} pts
-                                      </span>
-                                      {c.phone && (
-                                        <span className="text-[11px] text-white/70">{c.phone}</span>
-                                      )}
-                                    </div>
-                                  </CommandItem>
-                                );
-                              })}
-                            </CommandGroup>
-                          )}
-                        </CommandList>
-                      </Command>
-                    </PopoverContent>
-                  </Popover>
-                  {clientId && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setClientId("");
-                        setClientPickerOpen(false);
-                        setClientSearch("");
-                      }}
-                      className="text-sm font-semibold text-rose-400 underline underline-offset-2 hover:text-rose-300"
-                    >
-                      Effacer la sélection
-                    </button>
-                  )}
-                </div>
-                <div className="flex justify-end rounded-b-3xl border-t border-white/10 bg-slate-950/80 px-5 py-4">
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="text-slate-300 hover:text-slate-50"
-                    onClick={() => setClientAccordion("")}
-                  >
-                    Fermer
-                  </Button>
-                </div>
-              </PopoverContent>
-            </Popover>
-
-            {/* Carte Nouveau Client - icône orange */}
-            <Popover open={newClientAccordionOpen} onOpenChange={setNewClientAccordionOpen}>
-              <PopoverTrigger asChild>
-                <motion.button
-                  type="button"
-                  whileHover={{ scale: 1.03 }}
-                  whileTap={{ scale: 0.98 }}
-                  className={cn(
-                    "group relative flex flex-col items-center justify-center gap-3 rounded-3xl border border-slate-700/60 bg-slate-900/95 px-8 py-6 transition-all duration-300 focus:outline-none min-w-[140px]",
-                    (usingNewClient && newClientFormComplete)
-                      ? "border-amber-400/60 shadow-[0_0_30px_rgba(251,191,36,0.4)] scale-[1.02]" 
-                      : "hover:border-slate-600"
-                  )}
-                >
-                  {/* Cercle avec icône */}
-                  <motion.div
-                    className={cn(
-                      "flex h-16 w-16 items-center justify-center rounded-full transition-all duration-300",
-                      (usingNewClient && newClientFormComplete)
-                        ? "bg-amber-500/30 border-2 border-amber-400" 
-                        : "bg-amber-500/20 border-2 border-amber-500/50"
-                    )}
-                    animate={(usingNewClient && newClientFormComplete) ? { 
-                      boxShadow: ["0 0 8px rgba(251,191,36,0.4)", "0 0 20px rgba(251,191,36,0.7)", "0 0 8px rgba(251,191,36,0.4)"]
-                    } : {}}
-                    transition={(usingNewClient && newClientFormComplete) ? { duration: 2, repeat: Infinity, ease: "easeInOut" } : {}}
-                  >
-                    <UserPlus className={cn(
-                      "h-8 w-8 transition-all duration-300",
-                      (usingNewClient && newClientFormComplete) ? "text-amber-300" : "text-amber-400"
-                    )} />
-                  </motion.div>
-                  <span className={cn(
-                    "text-base font-semibold transition-all duration-300",
-                    (usingNewClient && newClientFormComplete) ? "text-white" : "text-slate-300"
-                  )}>
-                    {(usingNewClient && newClientFormComplete) ? sanitizedNewClientName : "Nouveau Client"}
-                  </span>
-                </motion.button>
-              </PopoverTrigger>
-              <PopoverContent side="bottom" align="center" className="w-[min(90vw,32rem)] overflow-hidden rounded-3xl border border-white/15 bg-[linear-gradient(140deg,rgba(7,12,30,0.96)0%,rgba(120,80,40,0.55)55%,rgba(180,100,30,0.35)100%)] p-0 text-slate-50 shadow-[0_40px_95px_rgba(8,15,40,0.7)] backdrop-blur-2xl">
-                <div className="space-y-4 p-5">
-                  <div className="space-y-1 text-left">
-                    <p className="text-2xl font-bold text-slate-50">Nouveau client</p>
-                  </div>
-                  <div className="space-y-3">
-                    <Input
-                      value={newClientName}
-                      onChange={(e) => {
-                        const v = e.target.value.normalize("NFC").replace(/[^\p{L} \-']/gu, "");
-                        setNewClientName(v);
-                      }}
-                      inputMode="text"
-                      autoComplete="family-name"
-                      placeholder="Nom"
-                      className="bg-slate-900/70 border-slate-600 text-white placeholder:text-slate-400"
-                      required={usingNewClient}
-                      aria-invalid={usingNewClient && !sanitizedNewClientLastName}
-                    />
-                    <Input
-                      value={newClientFirstName}
-                      onChange={(e) => {
-                        const v = e.target.value.normalize("NFC").replace(/[^\p{L} \-']/gu, "");
-                        setNewClientFirstName(v);
-                      }}
-                      inputMode="text"
-                      autoComplete="given-name"
-                      placeholder="Prénom"
-                      className="bg-slate-900/70 border-slate-600 text-white placeholder:text-slate-400"
-                      required={usingNewClient}
-                      aria-invalid={usingNewClient && !sanitizedNewClientFirstName}
-                    />
-                    <Input
-                      type="tel"
-                      value={newClientPhone}
-                      onChange={(e) => {
-                        const v = e.target.value.normalize("NFC").replace(/[^+\d().\-\s]/g, "");
-                        setNewClientPhone(v);
-                      }}
-                      inputMode="tel"
-                      autoComplete="tel"
-                      placeholder="Téléphone"
-                      className="bg-slate-900/70 border-slate-600 text-white placeholder:text-slate-400"
-                      required={usingNewClient}
-                      aria-invalid={usingNewClient && sanitizedNewClientPhoneDigits.length !== PHONE_DIGITS_REQUIRED}
-                    />
-                    {usingNewClient && sanitizedNewClientPhoneDigits.length !== PHONE_DIGITS_REQUIRED ? (
-                      <p className="text-[11px] font-semibold text-rose-400">
-                        Le numéro doit contenir exactement 10 chiffres.
-                      </p>
-                    ) : null}
-                    <button
-                      type="button"
-                      disabled={!newClientFormComplete || addClient.isPending}
-                      onClick={async () => {
-                        try {
-                          const created = await addClient.mutateAsync({
-                            name: sanitizedNewClientName,
-                            phone: sanitizedNewClientPhone || undefined,
-                          });
-                          setClientId(created.client.id);
-                          setNewClientAccordionOpen(false);
-                          setNewClientFirstName("");
-                          setNewClientName("");
-                          setNewClientPhone("");
-                          setClientAccordion("");
-                        } catch (err) {
-                          console.error("Erreur lors de la création du client:", err);
-                        }
-                      }}
-                      className="mt-2 w-full rounded-2xl border border-amber-300/60 bg-amber-500/20 px-3 py-3 text-base font-semibold text-amber-200 transition-colors hover:bg-amber-500/30 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-amber-500/20 flex items-center justify-center gap-2"
-                    >
-                      {addClient.isPending ? (
-                        <>
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                          Création en cours...
-                        </>
-                      ) : (
-                        "Valider le nouveau client"
-                      )}
-                    </button>
-                  </div>
-                </div>
-                <div className="flex justify-end rounded-b-3xl border-t border-white/10 bg-slate-950/80 px-5 py-4">
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="text-slate-300 hover:text-slate-50"
-                    onClick={() => setNewClientAccordionOpen(false)}
-                  >
-                    Fermer
-                  </Button>
-                </div>
-              </PopoverContent>
-            </Popover>
-          </div>
-        )}
-
         {amount ? (
           <div className="flex justify-center w-full mt-6">
             <div className="flex flex-col items-center gap-1 text-center w-full max-w-md">
@@ -1274,6 +963,259 @@ export default function PrestationsForm() {
             </div>
           </div>
         ) : null}
+        <Popover open={clientAccordion === "client"} onOpenChange={(open) => {
+          if (open) {
+            setClientAccordion("client");
+          } else {
+            setClientAccordion("");
+          }
+        }}>
+          <PopoverTrigger asChild>
+            <button
+              type="button"
+              className={cn(
+                "group relative overflow-hidden rounded-lg border px-2 py-1.5 text-center text-slate-100 transition shadow-[0_8px_20px_rgba(8,15,40,0.25)] w-full",
+                hasClientSelection
+                  ? "border-emerald-300/30 bg-slate-950/60"
+                  : "border-[#8c7cff]/35 bg-[linear-gradient(135deg,rgba(50,34,118,0.5)0%,rgba(58,52,182,0.36)45%,rgba(14,165,233,0.28)100%)]"
+              )}
+            >
+              <div className="flex w-full flex-col items-center gap-0.5 text-center">
+                <span className="inline-flex items-center gap-0.5 rounded-full border border-white/20 bg-white/8 px-2 py-0.5 text-xs font-semibold text-white/85 shadow-[0_3px_8px_rgba(79,70,229,0.18)] leading-tight">
+                  <Sparkles className="h-1.5 w-1.5 text-amber-200" />
+                  Sélectionner un client
+                </span>
+                {hasClientSelection ? (
+                  <span className="text-xs font-medium text-emerald-100">{clientSummary}</span>
+                ) : (
+                  <span className="text-[7.5px] uppercase tracking-[0.24em] text-[#c1b8ff]">Choisissez un client pour continuer</span>
+                )}
+              </div>
+            </button>
+          </PopoverTrigger>
+          <PopoverContent side="bottom" align="center" className="w-[min(90vw,40rem)] overflow-hidden rounded-2xl border border-white/15 bg-slate-950/95 p-4 shadow-[0_40px_95px_rgba(8,15,40,0.7)] backdrop-blur-xl">
+            <div className="space-y-2">
+              <div className={selectionContainerClass}>
+                <div className="flex items-center justify-between gap-2">
+                  <label className="text-[11px] font-semibold uppercase tracking-wide text-slate-200">Sélection</label>
+                  <div className="flex items-center gap-2">
+                    {!hasClientSelection && <span className="text-[10px] font-semibold text-[#c3b8ff]">Requis</span>}
+                    {clientId && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setClientId("");
+                          setClientPickerOpen(false);
+                          setClientSearch("");
+                        }}
+                        className="text-[10px] font-semibold uppercase tracking-wide text-[#d0c3ff] underline underline-offset-2 hover:text-[#a99bf7]"
+                      >
+                        Effacer
+                      </button>
+                    )}
+                  </div>
+                </div>
+                <Popover
+                  open={clientPickerOpen}
+                  onOpenChange={(open) => {
+                    setClientPickerOpen(open);
+                    if (open) {
+                      setClientAccordion("client");
+                    } else {
+                      setClientSearch("");
+                    }
+                  }}
+                >
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      aria-expanded={clientPickerOpen}
+                      className={cn(
+                        "group relative mt-2 w-full justify-between overflow-hidden rounded-2xl border px-3.5 py-2.5 text-sm font-semibold transition-all",
+                        hasClientSelection
+                          ? "border-emerald-300/60 bg-emerald-300/20 text-emerald-100 shadow-[0_16px_40px_rgba(16,185,129,0.25)]"
+                          : "border-[#8c7cff]/65 bg-[linear-gradient(135deg,rgba(60,37,115,0.78)0%,rgba(80,61,201,0.6)60%,rgba(17,94,89,0.48)100%)] text-[#f4ebff] shadow-[0_18px_45px_rgba(76,29,149,0.35)]"
+                      )}
+                      title={clientSelectionTitle}
+                    >
+                      <span className="flex flex-col items-start text-left gap-1">
+                        {selectedClient ? (
+                          <>
+                            <span className="text-base font-bold">{selectedClient.name} - {selectedClient.points} pts</span>
+                            {selectedClient.phone && (
+                              <span className="text-xs text-muted-foreground">{selectedClient.phone}</span>
+                            )}
+                          </>
+                        ) : usingNewClient && newClientFormComplete ? (
+                          <>
+                            <span className="text-base font-bold">{sanitizedNewClientName} - nouveau</span>
+                            {sanitizedNewClientPhone && (
+                              <span className="text-xs text-muted-foreground">{sanitizedNewClientPhone}</span>
+                            )}
+                          </>
+                        ) : (
+                          <span>Rechercher un client</span>
+                        )}
+                      </span>
+                      <span className={cn("ml-2", hasClientSelection ? "text-emerald-200" : "text-[#e1d5ff]")}>▾</span>
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-80 overflow-hidden rounded-3xl border border-white/15 bg-slate-950/90 p-0 shadow-[0_32px_70px_rgba(8,15,40,0.7)] backdrop-blur-2xl focus:outline-none">
+                    <Command>
+                      <CommandInput
+                        placeholder="Rechercher par nom ou téléphone"
+                        autoFocus
+                        value={clientSearch}
+                        onValueChange={setClientSearch}
+                        className="h-11 rounded-2xl border border-white/20 bg-[linear-gradient(135deg,rgba(255,255,255,0.26)0%,rgba(148,163,184,0.18)45%,rgba(56,189,248,0.16)100%)] text-lg text-white placeholder:text-white/70 shadow-[0_18px_40px_rgba(8,15,40,0.32)] backdrop-blur-2xl focus-visible:ring-2 focus-visible:ring-cyan-300 focus-visible:ring-offset-0"
+                      />
+                      <CommandList>
+
+
+                        {clientSearch.trim().length === 0 ? (
+                          <div className="py-6 text-center text-xs text-white/70">
+                            Tapez un nom ou un numéro pour afficher les clients.
+                          </div>
+                        ) : filteredClients.length === 0 ? (
+                          <CommandEmpty>Aucun client trouvé</CommandEmpty>
+                        ) : (
+                          <CommandGroup className="space-y-1 px-2 py-2">
+                            {filteredClients.map((c) => {
+                              const searchValue = [c.name, c.phone ?? ""].filter(Boolean).join(" ");
+                              return (
+                                <CommandItem
+                                  key={c.id}
+                                  value={searchValue}
+                                  className="flex cursor-pointer flex-col gap-1 rounded-2xl border border-transparent bg-white/5 px-3 py-2 text-slate-100 transition hover:border-emerald-300/60 hover:bg-emerald-400/20"
+                                  onSelect={() => {
+                                    setClientId(c.id);
+                                    setClientPickerOpen(false);
+                                    setClientSearch("");
+                                    setClientAccordion("");
+                                  }}
+                                >
+                                  <span className="inline-flex items-center gap-2 text-sm font-semibold">
+                                    <span className="inline-flex h-1.5 w-1.5 rounded-full bg-emerald-300" />
+                                    {c.name}
+                                  </span>
+                                  <div className="flex items-center gap-2 text-xs text-white/70">
+                                    <span className="inline-flex items-center gap-1 rounded-full border border-emerald-300/50 bg-emerald-300/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-100">
+                                      {c.points} pts
+                                    </span>
+                                    {c.phone && (
+                                      <span className="text-[11px] text-white/70">{c.phone}</span>
+                                    )}
+                                  </div>
+                                </CommandItem>
+                              );
+                            })}
+                          </CommandGroup>
+                        )}
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
+              </div>
+              <Popover open={newClientAccordionOpen} onOpenChange={setNewClientAccordionOpen}>
+                <PopoverTrigger asChild>
+                  <button
+                    type="button"
+                    className="flex w-full flex-col items-center gap-1 rounded-3xl border border-white/12 bg-white/10 px-4 py-2 text-center text-sm font-semibold text-amber-200 transition-colors hover:bg-white/20 shadow-[0_18px_45px_rgba(8,15,40,0.35)] backdrop-blur-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
+                  >
+                    <span className="inline-flex items-center gap-2 rounded-full border border-amber-200/60 bg-amber-200/10 px-3.5 py-1 text-lg font-bold tracking-wide text-amber-200">
+                      <Sparkles className="h-3 w-3 text-amber-300" />
+                      Nouveau client
+                    </span>
+                    <ChevronDown
+                      className={cn(
+                        "h-4 w-4 transition-transform duration-150",
+                        newClientAccordionOpen ? "rotate-180" : "rotate-0"
+                      )}
+                    />
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent side="bottom" align="center" className="w-[min(90vw,32rem)] overflow-hidden rounded-2xl border border-white/15 bg-slate-950/95 p-4 shadow-[0_40px_95px_rgba(8,15,40,0.7)] backdrop-blur-xl">
+                  <div className="space-y-2">
+                    <Input
+                      value={newClientName}
+                      onChange={(e) => {
+                        const v = e.target.value.normalize("NFC").replace(/[^\p{L} \-']/gu, "");
+                        setNewClientName(v);
+                      }}
+                      inputMode="text"
+                      autoComplete="family-name"
+                      placeholder="Nom"
+                      required={usingNewClient}
+                      aria-invalid={usingNewClient && !sanitizedNewClientLastName}
+                    />
+                    <Input
+                      value={newClientFirstName}
+                      onChange={(e) => {
+                        const v = e.target.value.normalize("NFC").replace(/[^\p{L} \-']/gu, "");
+                        setNewClientFirstName(v);
+                      }}
+                      inputMode="text"
+                      autoComplete="given-name"
+                      placeholder="Prénom"
+                      required={usingNewClient}
+                      aria-invalid={usingNewClient && !sanitizedNewClientFirstName}
+                    />
+
+                    <Input
+                      type="tel"
+                      value={newClientPhone}
+                      onChange={(e) => {
+                        const v = e.target.value.normalize("NFC").replace(/[^+\d().\-\s]/g, "");
+                        setNewClientPhone(v);
+                      }}
+                      inputMode="tel"
+                      autoComplete="tel"
+                      placeholder="Téléphone"
+                      required={usingNewClient}
+                      aria-invalid={usingNewClient && sanitizedNewClientPhoneDigits.length !== PHONE_DIGITS_REQUIRED}
+                    />
+                    {usingNewClient && sanitizedNewClientPhoneDigits.length !== PHONE_DIGITS_REQUIRED ? (
+                      <p className="text-[11px] font-semibold text-rose-400">
+                        Le numéro doit contenir exactement 10 chiffres.
+                      </p>
+                    ) : null}
+                    <button
+                      type="button"
+                      disabled={!newClientFormComplete || addClient.isPending}
+                      onClick={async () => {
+                        try {
+                          const created = await addClient.mutateAsync({
+                            name: sanitizedNewClientName,
+                            phone: sanitizedNewClientPhone || undefined,
+                          });
+                          setClientId(created.client.id);
+                          setNewClientAccordionOpen(false);
+                          setNewClientFirstName("");
+                          setNewClientName("");
+                          setNewClientPhone("");
+                          setClientAccordion("");
+                        } catch (err) {
+                          console.error("Erreur lors de la création du client:", err);
+                        }
+                      }}
+                      className="mt-2 w-full rounded-2xl border border-amber-300/60 bg-amber-300/15 px-3 py-2 text-sm font-semibold text-amber-200 transition-colors hover:bg-amber-300/25 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-amber-300/15 flex items-center justify-center gap-2"
+                    >
+                      {addClient.isPending ? (
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          Création en cours...
+                        </>
+                      ) : (
+                        "Valider le nouveau client"
+                      )}
+                    </button>
+                  </div>
+                </PopoverContent>
+              </Popover>
+            </div>
+          </PopoverContent>
+        </Popover>
       </form >
     </Card >
   );
