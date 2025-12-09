@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { ChevronDown, ChevronLeft, Euro, Sparkles, Package } from "lucide-react";
+import { ChevronDown, ChevronLeft, Euro, Scissors, Package } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useDashboardSummary, useStylists, useStylistBreakdown, useConfig, apiPath, useProducts } from "@/lib/api";
@@ -271,7 +271,7 @@ export default function StatsCards() {
           <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none" />
           <div className="relative flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-br from-cyan-400 via-teal-500 to-emerald-600 shadow-[0_4px_20px_rgba(6,182,212,0.5),inset_0_2px_4px_rgba(255,255,255,0.3)]">
             <div className="absolute inset-1 rounded-full bg-gradient-to-br from-cyan-300 via-teal-400 to-emerald-500 shadow-[inset_0_-3px_8px_rgba(0,0,0,0.3)]" />
-            <Sparkles className="relative h-6 w-6 text-white drop-shadow-lg" />
+            <Scissors className="relative h-6 w-6 text-white drop-shadow-lg" />
           </div>
           <span className="mt-2 text-[10px] font-semibold text-white/80 uppercase tracking-wider">Prestations</span>
         </motion.button>
