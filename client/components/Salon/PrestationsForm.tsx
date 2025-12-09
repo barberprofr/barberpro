@@ -882,21 +882,21 @@ export default function PrestationsForm() {
                     whileHover={{ scale: 1.03 }}
                     whileTap={{ scale: 0.98 }}
                     className={cn(
-                      "group relative flex flex-col items-center justify-center gap-4 w-full rounded-3xl border border-slate-700/60 bg-slate-950 px-8 py-8 transition-all duration-300 focus:outline-none",
+                      "group relative flex flex-col items-center justify-center gap-4 w-full rounded-3xl border-2 bg-slate-950 px-8 py-8 transition-all duration-300 focus:outline-none",
                       stylistId 
-                        ? "border-cyan-400/60 shadow-[0_0_30px_rgba(34,211,238,0.4)] scale-[1.02]" 
-                        : "hover:border-slate-600"
+                        ? "border-violet-400 shadow-[0_0_35px_rgba(167,139,250,0.7),0_0_60px_rgba(167,139,250,0.4),inset_0_0_20px_rgba(167,139,250,0.15)] scale-[1.02]" 
+                        : "border-violet-500/50 shadow-[0_0_20px_rgba(167,139,250,0.35)] hover:border-violet-400/70 hover:shadow-[0_0_28px_rgba(167,139,250,0.5)]"
                     )}
                   >
                     <motion.div
                       animate={stylistId ? { 
-                        filter: ["drop-shadow(0 0 8px rgba(34,211,238,0.6))", "drop-shadow(0 0 20px rgba(34,211,238,0.9))", "drop-shadow(0 0 8px rgba(34,211,238,0.6))"]
+                        filter: ["drop-shadow(0 0 8px rgba(167,139,250,0.6))", "drop-shadow(0 0 20px rgba(167,139,250,0.9))", "drop-shadow(0 0 8px rgba(167,139,250,0.6))"]
                       } : {}}
                       transition={stylistId ? { duration: 2, repeat: Infinity, ease: "easeInOut" } : {}}
                     >
                       <Scissors className={cn(
                         "h-12 w-12 transition-all duration-300",
-                        stylistId ? "text-cyan-400" : "text-cyan-500/80"
+                        stylistId ? "text-violet-400" : "text-violet-500/80"
                       )} />
                     </motion.div>
                     <span className={cn(
