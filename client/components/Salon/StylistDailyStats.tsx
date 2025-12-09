@@ -43,9 +43,9 @@ function StylistDaily({ id, date, commissionPct }: { id: string; date?: string; 
                 </div>
                 <div className="grid grid-cols-4 border-t border-white/10">
                     <div className="px-3 py-3" aria-hidden="true" />
-                    <div className="px-3 py-3"><span className="text-xl font-black text-cyan-300 [-webkit-text-stroke:1px_black] [text-shadow:0_0_12px_rgba(34,211,238,0.7),0_0_24px_rgba(34,211,238,0.5)]">{eur.format(d?.methods.cash.amount || 0)}</span></div>
-                    <div className="px-3 py-3"><span className="text-xl font-black text-cyan-300 [-webkit-text-stroke:1px_black] [text-shadow:0_0_12px_rgba(34,211,238,0.7),0_0_24px_rgba(34,211,238,0.5)]">{eur.format(d?.methods.check.amount || 0)}</span></div>
-                    <div className="px-3 py-3"><span className="text-xl font-black text-cyan-300 [-webkit-text-stroke:1px_black] [text-shadow:0_0_12px_rgba(34,211,238,0.7),0_0_24px_rgba(34,211,238,0.5)]">{eur.format(d?.methods.card.amount || 0)}</span></div>
+                    <div className="px-3 py-3"><span className="text-xl font-black text-cyan-300 [-webkit-text-stroke:1px_black] [text-shadow:0_0_6px_rgba(34,211,238,0.35),0_0_12px_rgba(34,211,238,0.2)]">{eur.format(d?.methods.cash.amount || 0)}</span></div>
+                    <div className="px-3 py-3"><span className="text-xl font-black text-cyan-300 [-webkit-text-stroke:1px_black] [text-shadow:0_0_6px_rgba(34,211,238,0.35),0_0_12px_rgba(34,211,238,0.2)]">{eur.format(d?.methods.check.amount || 0)}</span></div>
+                    <div className="px-3 py-3"><span className="text-xl font-black text-cyan-300 [-webkit-text-stroke:1px_black] [text-shadow:0_0_6px_rgba(34,211,238,0.35),0_0_12px_rgba(34,211,238,0.2)]">{eur.format(d?.methods.card.amount || 0)}</span></div>
                 </div>
             </div>
         </div>
