@@ -95,7 +95,7 @@ export default function SharedLayout({ children }: PropsWithChildren) {
   return (
     <div className="relative min-h-screen bg-gradient-to-br from-blue-950 via-sky-800 to-amber-700">
       <div 
-        className="fixed inset-0 bg-cover bg-center bg-no-repeat opacity-20 pointer-events-none"
+        className="fixed inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-25 pointer-events-none"
         style={{ backgroundImage: "url('/barber-bg.webp')" }}
       />
       {hasActiveSubscription && (
@@ -155,7 +155,7 @@ export default function SharedLayout({ children }: PropsWithChildren) {
           )}
         </header>
       )}
-      <main className="container pt-4 pb-[calc(7.5rem+env(safe-area-inset-bottom,0px))]">
+      <main className="relative z-10 container pt-4 pb-[calc(7.5rem+env(safe-area-inset-bottom,0px))]">
         <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={location.pathname}
