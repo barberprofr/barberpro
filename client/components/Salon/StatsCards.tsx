@@ -417,16 +417,6 @@ function StylistsList({ stylists, config, hasStylists }: { stylists: any[], conf
         exit={{ opacity: 0, x: -20 }}
         className="space-y-4"
       >
-        <button
-          onClick={() => setSelectedId(null)}
-          className="group flex items-center gap-2 text-sm text-white/70 hover:text-white transition-colors"
-        >
-          <div className="rounded-full bg-white/10 p-1 group-hover:bg-white/20 transition-colors">
-            <ChevronLeft className="h-4 w-4" />
-          </div>
-          <span className="font-medium">Retour à la liste</span>
-        </button>
-
         <div className="space-y-4">
           <div className="flex flex-col items-center justify-center border-b border-white/10 pb-4">
             <span className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-300 ring-1 ring-emerald-500/50 mb-2">
