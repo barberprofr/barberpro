@@ -945,7 +945,21 @@ export default function PrestationsForm() {
         )}
       </AnimatePresence>
 
-      <form ref={formRef} onSubmit={onSubmit} className="space-y-3">
+      <form 
+        ref={formRef} 
+        onSubmit={onSubmit} 
+        className="space-y-3 min-h-[50vh]"
+        onClick={(e) => {
+          const target = e.target as HTMLElement;
+          const isButton = target.closest('button');
+          const isPopover = target.closest('[data-radix-popper-content-wrapper]');
+          const isDialog = target.closest('[role="dialog"]');
+          const isInput = target.closest('input');
+          if (!isButton && !isPopover && !isDialog && !isInput) {
+            refreshStylists();
+          }
+        }}
+      >
         {/* ServicesPicker et ProductsPicker en Dialog (invisibles, ouverts après sélection coiffeur) */}
         <ServicesPicker
           key={`services-${stylistId}`}
