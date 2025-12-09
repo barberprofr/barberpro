@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Loader2, Check, ChevronDown, CircleDollarSign, CreditCard, FileText, Sparkles, ArrowLeft, Scissors } from "lucide-react";
+import { Loader2, Check, ChevronDown, CircleDollarSign, CreditCard, FileText, Sparkles, ArrowLeft, Scissors, Users, UserPlus } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Input } from "@/components/ui/input";
@@ -785,6 +785,92 @@ export default function PrestationsForm() {
           onOpenChange={setProductsPickerOpen}
           disabled={!stylistId}
         />
+
+        {/* Pilules Client et Nouveau Client - affichées en haut de la page */}
+        <div className="flex justify-center gap-8 mb-6">
+          {/* Pilule Client - cyan */}
+          <motion.button
+            type="button"
+            onClick={() => {
+              setNewClientAccordionOpen(false);
+              setClientAccordion("client");
+              setClientPickerOpen(true);
+            }}
+            whileHover={{ scale: 1.08 }}
+            whileTap={{ scale: 0.95 }}
+            className={cn(
+              "flex flex-col items-center gap-2 focus:outline-none transition-all duration-300"
+            )}
+          >
+            <div className={cn(
+              "relative flex h-16 w-16 items-center justify-center rounded-full border-2 transition-all duration-300",
+              clientId
+                ? "border-cyan-400 shadow-[0_0_25px_rgba(34,211,238,0.6),inset_0_0_15px_rgba(34,211,238,0.2)]"
+                : "border-cyan-500/50 shadow-[0_0_15px_rgba(34,211,238,0.3)]"
+            )}>
+              <Users className={cn(
+                "h-7 w-7 transition-all duration-300",
+                clientId ? "text-cyan-400" : "text-cyan-500"
+              )} />
+              {clientId && (
+                <motion.div
+                  className="absolute inset-0 rounded-full border-2 border-cyan-400/50"
+                  animate={{ scale: [1, 1.2, 1], opacity: [0.8, 0, 0.8] }}
+                  transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                />
+              )}
+            </div>
+            <span className={cn(
+              "text-sm font-medium transition-all duration-300",
+              clientId ? "text-cyan-400" : "text-cyan-500"
+            )}>
+              Client
+            </span>
+          </motion.button>
+
+          {/* Pilule Nouveau Client - orange */}
+          <motion.button
+            type="button"
+            onClick={() => {
+              setClientId("");
+              setClientSearch("");
+              setNewClientAccordionOpen(true);
+              setClientAccordion("client");
+              setClientPickerOpen(true);
+            }}
+            whileHover={{ scale: 1.08 }}
+            whileTap={{ scale: 0.95 }}
+            className={cn(
+              "flex flex-col items-center gap-2 focus:outline-none transition-all duration-300"
+            )}
+          >
+            <div className={cn(
+              "relative flex h-16 w-16 items-center justify-center rounded-full border-2 transition-all duration-300",
+              usingNewClient && newClientFormComplete
+                ? "border-amber-400 shadow-[0_0_25px_rgba(251,191,36,0.6),inset_0_0_15px_rgba(251,191,36,0.2)]"
+                : "border-amber-500/50 shadow-[0_0_15px_rgba(251,191,36,0.3)]"
+            )}>
+              <UserPlus className={cn(
+                "h-7 w-7 transition-all duration-300",
+                usingNewClient && newClientFormComplete ? "text-amber-400" : "text-amber-500"
+              )} />
+              {usingNewClient && newClientFormComplete && (
+                <motion.div
+                  className="absolute inset-0 rounded-full border-2 border-amber-400/50"
+                  animate={{ scale: [1, 1.2, 1], opacity: [0.8, 0, 0.8] }}
+                  transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                />
+              )}
+            </div>
+            <span className={cn(
+              "text-sm font-medium transition-all duration-300",
+              usingNewClient && newClientFormComplete ? "text-amber-400" : "text-amber-500"
+            )}>
+              Nouveau Client
+            </span>
+          </motion.button>
+        </div>
+
         <div className="flex gap-4 sm:flex-row flex-col">
           <div className="space-y-2">
             <div className="relative w-full max-w-[16rem]">
