@@ -746,7 +746,7 @@ export default function PrestationsForm() {
     if (target.closest('[data-stylist-card]') || target.closest('[data-pill-button]')) {
       return;
     }
-    if (stylistId && !amount) {
+    if (stylistId) {
       refreshStylists();
     }
   }, [stylistId, amount, refreshStylists, servicesPickerOpen, productsPickerOpen, paymentPickerOpen]);
@@ -1030,26 +1030,26 @@ export default function PrestationsForm() {
                             animate={stylistId === s.id ? {
                               scale: [1, 1.08, 1.05],
                               boxShadow: [
-                                "0 0 15px rgba(34,211,238,0.25)",
-                                "0 0 40px rgba(34,211,238,0.7)",
-                                "0 0 30px rgba(34,211,238,0.5)"
+                                "0 0 15px rgba(232,121,249,0.25)",
+                                "0 0 40px rgba(232,121,249,0.7)",
+                                "0 0 30px rgba(232,121,249,0.5)"
                               ]
                             } : { scale: 1 }}
                             transition={{ duration: 0.4, ease: "easeOut" }}
                             whileHover={{ scale: stylistId === s.id ? 1.05 : 1.03 }}
                             whileTap={{ scale: 0.98 }}
                             className={cn(
-                              "flex items-center gap-4 rounded-2xl border-2 border-slate-600/50 bg-slate-800/80 px-6 py-5 text-left transition-colors duration-200 shadow-[0_0_15px_rgba(0,0,0,0.3)] hover:border-cyan-500/50 focus:outline-none",
-                              stylistId === s.id && "border-cyan-400 bg-slate-700/70"
+                              "flex items-center gap-4 rounded-2xl border-2 border-slate-500/60 bg-slate-800/80 px-6 py-5 text-left transition-colors duration-200 shadow-[0_0_15px_rgba(0,0,0,0.3)] hover:border-fuchsia-400/60 focus:outline-none",
+                              stylistId === s.id && "border-fuchsia-400 bg-slate-700/70 shadow-[0_0_20px_rgba(232,121,249,0.5)]"
                             )}
                           >
                             <motion.span
                               className={cn(
                                 "h-3 w-3 rounded-full flex-shrink-0",
-                                stylistId === s.id ? "bg-cyan-400" : "bg-cyan-500/70"
+                                stylistId === s.id ? "bg-fuchsia-400" : "bg-fuchsia-500/70"
                               )}
                               animate={stylistId === s.id ? {
-                                boxShadow: ["0 0 4px rgba(34,211,238,0.5)", "0 0 12px rgba(34,211,238,1)", "0 0 8px rgba(34,211,238,0.8)"]
+                                boxShadow: ["0 0 4px rgba(232,121,249,0.5)", "0 0 12px rgba(232,121,249,1)", "0 0 8px rgba(232,121,249,0.8)"]
                               } : {}}
                               transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
                             />
