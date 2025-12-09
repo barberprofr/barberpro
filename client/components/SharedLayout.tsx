@@ -9,6 +9,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { AnimatePresence, motion } from "framer-motion";
+import barberBg from "@/assets/barber-bg.webp";
 
 export default function SharedLayout({ children }: PropsWithChildren) {
   const location = useLocation();
@@ -96,7 +97,7 @@ export default function SharedLayout({ children }: PropsWithChildren) {
     <div className="relative min-h-screen bg-gradient-to-br from-blue-950 via-sky-800 to-amber-700">
       <div 
         className="fixed inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-25 pointer-events-none"
-        style={{ backgroundImage: "url('/barber-bg.webp')" }}
+        style={{ backgroundImage: `url(${barberBg})` }}
       />
       {hasActiveSubscription && (
         <header className="sticky top-0 z-10 bg-background/80 backdrop-blur border-b">
