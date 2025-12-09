@@ -711,8 +711,18 @@ export default function PrestationsForm() {
     }
   }, []);
 
+  const handleBackgroundClick = useCallback((e: React.MouseEvent) => {
+    const target = e.target as HTMLElement;
+    if (target.closest('[data-stylist-card]') || target.closest('[data-popover-content]') || target.closest('[data-pill-button]')) {
+      return;
+    }
+    if (stylistId && !amount) {
+      refreshStylists();
+    }
+  }, [stylistId, amount, refreshStylists]);
+
   return (
-    <Card className="border-none shadow-md bg-card">
+    <Card className="border-none shadow-md bg-card" onClick={handleBackgroundClick}>
       <CardHeader>
         <div className="flex items-center justify-end gap-3">
           <div className="flex items-center gap-2 rounded-full bg-slate-800/80 px-4 py-1.5 text-sm text-slate-100">
@@ -762,6 +772,7 @@ export default function PrestationsForm() {
                 <PopoverTrigger asChild>
                   <motion.button
                     type="button"
+                    data-stylist-card
                     whileHover={{ scale: 1.03 }}
                     whileTap={{ scale: 0.98 }}
                     className={cn(
@@ -867,6 +878,7 @@ export default function PrestationsForm() {
             {/* Pilule PRESTATIONS - outline violet */}
             <motion.button
               type="button"
+              data-pill-button
               onClick={() => setServicesPickerOpen(true)}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95, y: 2 }}
@@ -883,6 +895,7 @@ export default function PrestationsForm() {
             {/* Pilule PRODUITS - outline orange (identique à Prestations) */}
             <motion.button
               type="button"
+              data-pill-button
               onClick={() => setProductsPickerOpen(true)}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95, y: 2 }}
