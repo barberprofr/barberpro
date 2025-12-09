@@ -9,7 +9,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { AnimatePresence, motion } from "framer-motion";
-import barberBg from "@/assets/barber-bg.webp";
+import barberBg from "@/assets/barber-bg.avif";
 
 export default function SharedLayout({ children }: PropsWithChildren) {
   const location = useLocation();
