@@ -222,24 +222,6 @@ export default function StatsCards() {
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-2 gap-2.5">
-        <SummaryHighlightCard
-          label="Prestations (J)"
-          value={`${summary?.dailyCount ?? 0}`}
-          subtext="Prestations enregistrées aujourd'hui"
-          gradient="from-indigo-500/35 via-purple-500/15 to-slate-950/80"
-          accentClass="bg-indigo-200"
-          metaLabel="Salon"
-        />
-        <SummaryHighlightCard
-          label="Produits (J)"
-          value={`${dailyProductCount}`}
-          subtext="Produits enregistrés aujourd'hui"
-          gradient="from-indigo-500/35 via-purple-500/15 to-slate-950/80"
-          accentClass="bg-indigo-200"
-          metaLabel="Salon"
-        />
-      </div>
       <Popover>
         <PopoverTrigger asChild>
           <button

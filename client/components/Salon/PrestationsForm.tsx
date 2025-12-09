@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Loader2, Check, ChevronDown, CircleDollarSign, CreditCard, FileText, Sparkles, ArrowLeft, Scissors, Users, UserPlus, Euro, X } from "lucide-react";
+import { Loader2, Check, ChevronDown, CircleDollarSign, CreditCard, FileText, Sparkles, ArrowLeft, Scissors, Users, UserPlus, Euro, X, ClipboardList, Package } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Input } from "@/components/ui/input";
@@ -46,6 +46,8 @@ export default function PrestationsForm() {
 
   const [productsPopoverOpen, setProductsPopoverOpen] = useState(false);
   const [totalCAPopupOpen, setTotalCAPopupOpen] = useState(false);
+  const [prestationsPopupOpen, setPrestationsPopupOpen] = useState(false);
+  const [produitsPopupOpen, setProduitsPopupOpen] = useState(false);
   const [stylistId, setStylistId] = useState<string>("");
   const [stylistPickerOpen, setStylistPickerOpen] = useState(false);
   const [clientId, setClientId] = useState<string>("");
@@ -1113,6 +1115,23 @@ export default function PrestationsForm() {
             </span>
           </motion.button>
 
+          {/* Bouton Prestations - indigo */}
+          <motion.button
+            type="button"
+            data-pill-button
+            onClick={() => setPrestationsPopupOpen(true)}
+            whileHover={{ scale: 1.08 }}
+            whileTap={{ scale: 0.95 }}
+            className="flex flex-col items-center gap-2 focus:outline-none transition-all duration-300"
+          >
+            <div className="relative flex h-14 w-14 items-center justify-center rounded-full border-2 border-indigo-500/50 shadow-[0_0_15px_rgba(99,102,241,0.3)] transition-all duration-300 hover:border-indigo-400 hover:shadow-[0_0_25px_rgba(99,102,241,0.6)]">
+              <ClipboardList className="h-6 w-6 text-indigo-500 transition-all duration-300" />
+            </div>
+            <span className="text-xs font-medium text-indigo-500 transition-all duration-300">
+              Prestations
+            </span>
+          </motion.button>
+
           {/* Bouton Total CA - emerald/vert */}
           <motion.button
             type="button"
@@ -1127,6 +1146,23 @@ export default function PrestationsForm() {
             </div>
             <span className="text-xs font-medium text-emerald-500 transition-all duration-300">
               Total CA
+            </span>
+          </motion.button>
+
+          {/* Bouton Produits - violet */}
+          <motion.button
+            type="button"
+            data-pill-button
+            onClick={() => setProduitsPopupOpen(true)}
+            whileHover={{ scale: 1.08 }}
+            whileTap={{ scale: 0.95 }}
+            className="flex flex-col items-center gap-2 focus:outline-none transition-all duration-300"
+          >
+            <div className="relative flex h-14 w-14 items-center justify-center rounded-full border-2 border-violet-500/50 shadow-[0_0_15px_rgba(139,92,246,0.3)] transition-all duration-300 hover:border-violet-400 hover:shadow-[0_0_25px_rgba(139,92,246,0.6)]">
+              <Package className="h-6 w-6 text-violet-500 transition-all duration-300" />
+            </div>
+            <span className="text-xs font-medium text-violet-500 transition-all duration-300">
+              Produits
             </span>
           </motion.button>
 
@@ -1206,6 +1242,90 @@ export default function PrestationsForm() {
                   </span>
                   <div className="text-5xl font-bold text-white tracking-tight">
                     {(summary?.dailyAmount ?? 0).toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
+                  </div>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Popup Prestations */}
+        <AnimatePresence>
+          {prestationsPopupOpen && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+              onClick={() => setPrestationsPopupOpen(false)}
+            >
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                onClick={(e) => e.stopPropagation()}
+                className="relative w-[90%] max-w-sm rounded-3xl bg-gradient-to-br from-slate-900/98 via-indigo-900/60 to-slate-800/98 border border-indigo-500/30 shadow-[0_25px_80px_rgba(0,0,0,0.6),0_0_40px_rgba(99,102,241,0.2)] backdrop-blur-xl p-8"
+              >
+                <button
+                  type="button"
+                  onClick={() => setPrestationsPopupOpen(false)}
+                  className="absolute top-4 right-4 flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/5 text-slate-400 transition hover:bg-white/10 hover:text-white"
+                >
+                  <ChevronDown className="h-5 w-5" />
+                </button>
+                <div className="flex flex-col items-center text-center">
+                  <span className="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-300/80 mb-1">
+                    PRESTATIONS
+                  </span>
+                  <span className="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-300/80 mb-6">
+                    AUJOURD'HUI
+                  </span>
+                  <div className="text-5xl font-bold text-white tracking-tight">
+                    {summary?.dailyCount ?? 0}
+                  </div>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Popup Produits */}
+        <AnimatePresence>
+          {produitsPopupOpen && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+              onClick={() => setProduitsPopupOpen(false)}
+            >
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                onClick={(e) => e.stopPropagation()}
+                className="relative w-[90%] max-w-sm rounded-3xl bg-gradient-to-br from-slate-900/98 via-violet-900/60 to-slate-800/98 border border-violet-500/30 shadow-[0_25px_80px_rgba(0,0,0,0.6),0_0_40px_rgba(139,92,246,0.2)] backdrop-blur-xl p-8"
+              >
+                <button
+                  type="button"
+                  onClick={() => setProduitsPopupOpen(false)}
+                  className="absolute top-4 right-4 flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/5 text-slate-400 transition hover:bg-white/10 hover:text-white"
+                >
+                  <ChevronDown className="h-5 w-5" />
+                </button>
+                <div className="flex flex-col items-center text-center">
+                  <span className="text-xs font-semibold uppercase tracking-[0.2em] text-violet-300/80 mb-1">
+                    PRODUITS
+                  </span>
+                  <span className="text-xs font-semibold uppercase tracking-[0.2em] text-violet-300/80 mb-6">
+                    AUJOURD'HUI
+                  </span>
+                  <div className="text-5xl font-bold text-white tracking-tight">
+                    {summary?.dailyProductCount ?? 0}
                   </div>
                 </div>
               </motion.div>
