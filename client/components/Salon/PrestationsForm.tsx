@@ -925,7 +925,7 @@ export default function PrestationsForm() {
                               onClick={() => handleStylistSelect(s.id)}
                               className={cn(
                                 "flex items-center gap-3 rounded-2xl border-2 border-violet-500/40 bg-slate-800/80 px-5 py-4 text-left transition-all duration-200 shadow-[0_0_15px_rgba(167,139,250,0.25)] hover:border-violet-400/60 hover:shadow-[0_0_22px_rgba(167,139,250,0.4)] focus:outline-none",
-                                stylistId === s.id && "border-violet-400 bg-slate-700/70 shadow-[0_0_30px_rgba(167,139,250,0.5)]"
+                                stylistId === s.id && "border-violet-400 bg-slate-700/70 shadow-[0_0_30px_rgba(167,139,250,0.5)] scale-105"
                               )}
                             >
                               <span
