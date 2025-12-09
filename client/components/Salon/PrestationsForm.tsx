@@ -79,6 +79,7 @@ export default function PrestationsForm() {
   const formRef = useRef<HTMLFormElement | null>(null);
   const autoSubmitTimeoutRef = useRef<number | null>(null);
   const debounceTimeoutRef = useRef<number | null>(null);
+  const dialogsOpenedForSessionRef = useRef(false);
   const sanitizedNewClientFirstName = useMemo(() => {
     if (!newClientFirstName) return "";
     return newClientFirstName.normalize("NFC").replace(/[^\p{L} \-']/gu, "").trim();
@@ -302,8 +303,6 @@ export default function PrestationsForm() {
     setPayment("");
     setPaymentSelected(false);
     setPaymentPickerOpen(false);
-    setServicesPickerOpen(false);
-    setProductsPickerOpen(false);
     setSelectedServiceName("");
     setSelectedServiceId("");
     setSelectedProductName("");
@@ -316,15 +315,26 @@ export default function PrestationsForm() {
       window.clearTimeout(amountHintTimeoutRef.current);
       amountHintTimeoutRef.current = null;
     }
-    setShowAmountHint(true);
+
+    // Ouvrir automatiquement les deux popups uniquement si pas encore ouverts cette session
+    if (!dialogsOpenedForSessionRef.current) {
+      dialogsOpenedForSessionRef.current = true;
+      setTimeout(() => {
+        setServicesPickerOpen(true);
+        setProductsPickerOpen(true);
+      }, 100);
+    }
+
+    // Fallback: montrer l'indice de montant et focus après un délai si l'utilisateur ferme les popups
     amountHintTimeoutRef.current = window.setTimeout(() => {
-      setShowAmountHint(false);
-      amountHintTimeoutRef.current = null;
-    }, 3500);
-    window.requestAnimationFrame(() => {
+      setShowAmountHint(true);
       amountInputRef.current?.focus();
-      amountInputRef.current?.select?.();
-    });
+      amountInputRef.current?.select();
+      window.setTimeout(() => {
+        setShowAmountHint(false);
+      }, 3000);
+      amountHintTimeoutRef.current = null;
+    }, 2000);
   }, [setStylistId, setStylistPickerOpen]);
 
   const handlePaymentSelect = useCallback((value: string) => {
@@ -519,6 +529,7 @@ export default function PrestationsForm() {
             successTimeoutRef.current = null;
           }
           setShowSuccess(true);
+          dialogsOpenedForSessionRef.current = false;
           successTimeoutRef.current = window.setTimeout(() => {
             setShowSuccess(false);
             successTimeoutRef.current = null;
@@ -572,6 +583,7 @@ export default function PrestationsForm() {
                 successTimeoutRef.current = null;
               }
               setShowSuccess(true);
+              dialogsOpenedForSessionRef.current = false;
               successTimeoutRef.current = window.setTimeout(() => {
                 setShowSuccess(false);
                 successTimeoutRef.current = null;
@@ -635,6 +647,7 @@ export default function PrestationsForm() {
             successTimeoutRef.current = null;
           }
           setShowSuccess(true);
+          dialogsOpenedForSessionRef.current = false;
           successTimeoutRef.current = window.setTimeout(() => {
             setShowSuccess(false);
             successTimeoutRef.current = null;
@@ -688,6 +701,7 @@ export default function PrestationsForm() {
                 successTimeoutRef.current = null;
               }
               setShowSuccess(true);
+              dialogsOpenedForSessionRef.current = false;
               successTimeoutRef.current = window.setTimeout(() => {
                 setShowSuccess(false);
                 successTimeoutRef.current = null;
@@ -742,6 +756,22 @@ export default function PrestationsForm() {
             </motion.div>
           )}
         </AnimatePresence>
+        {/* ServicesPicker et ProductsPicker en Dialog (invisibles, ouverts après sélection coiffeur) */}
+        <ServicesPicker
+          key={`services-${stylistId}`}
+          onServiceSelect={handleServiceSelect}
+          onReset={handleServicesPickerReset}
+          externalOpen={servicesPickerOpen}
+          onOpenChange={setServicesPickerOpen}
+          disabled={!stylistId}
+        />
+        <ProductsPicker
+          key={`products-${stylistId}`}
+          onProductSelect={handleProductSelect}
+          externalOpen={productsPickerOpen}
+          onOpenChange={setProductsPickerOpen}
+          disabled={!stylistId}
+        />
         <div className="flex gap-4 sm:flex-row flex-col">
           <div className="space-y-2">
             <div
@@ -867,22 +897,7 @@ export default function PrestationsForm() {
               </Popover>
             </div>
           </div>
-          <ServicesPicker
-            key={`services-${stylistId}`}
-            onServiceSelect={handleServiceSelect}
-            onReset={handleServicesPickerReset}
-            externalOpen={servicesPickerOpen}
-            onOpenChange={setServicesPickerOpen}
-            disabled={!stylistId}
-          />
         </div>
-        <ProductsPicker
-          key={`products-${stylistId}`}
-          onProductSelect={handleProductSelect}
-          externalOpen={productsPickerOpen}
-          onOpenChange={setProductsPickerOpen}
-          disabled={!stylistId}
-        />
         {amount ? (
           <div className="flex justify-center w-full mt-6">
             <div className="flex flex-col items-center gap-1 text-center w-full max-w-md">
