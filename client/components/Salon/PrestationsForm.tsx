@@ -1143,44 +1143,6 @@ export default function PrestationsForm() {
           </div>
         </div>
 
-        {/* Pilules PRESTATIONS et PRODUITS - affichées après sélection du coiffeur */}
-        {stylistId && !amount && (
-          <div className="flex justify-center gap-3 mt-4">
-            {/* Pilule PRESTATIONS - outline violet */}
-            <motion.button
-              type="button"
-              data-pill-button
-              onClick={() => setServicesPickerOpen(true)}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95, y: 2 }}
-              className={cn(
-                "rounded-full border px-6 py-2.5 font-medium transition-all duration-200 focus:outline-none",
-                servicesPickerOpen
-                  ? "border-violet-400 text-violet-300 shadow-[0_0_20px_rgba(139,92,246,0.6)] animate-pulse"
-                  : "border-violet-500/70 bg-transparent text-violet-400 hover:border-violet-400 hover:text-violet-300"
-              )}
-            >
-              Prestations
-            </motion.button>
-
-            {/* Pilule PRODUITS - outline orange (identique à Prestations) */}
-            <motion.button
-              type="button"
-              data-pill-button
-              onClick={() => setProductsPickerOpen(true)}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95, y: 2 }}
-              className={cn(
-                "rounded-full border px-6 py-2.5 font-medium transition-all duration-200 focus:outline-none bg-transparent",
-                productsPickerOpen
-                  ? "border-amber-400 text-amber-300 shadow-[0_0_20px_rgba(251,191,36,0.6)] animate-pulse"
-                  : "border-amber-500/70 text-amber-500 hover:border-amber-400 hover:text-amber-400"
-              )}
-            >
-              Produits
-            </motion.button>
-          </div>
-        )}
 
         {amount ? (
           <div className="flex justify-center w-full mt-6">
