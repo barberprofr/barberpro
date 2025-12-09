@@ -711,8 +711,19 @@ export default function PrestationsForm() {
     }
   }, []);
 
+  const dialogClosedTimeRef = useRef<number>(0);
+  
+  useEffect(() => {
+    if (!servicesPickerOpen && !productsPickerOpen) {
+      dialogClosedTimeRef.current = Date.now();
+    }
+  }, [servicesPickerOpen, productsPickerOpen]);
+
   const handleBackgroundClick = useCallback((e: React.MouseEvent) => {
     if (servicesPickerOpen || productsPickerOpen || paymentPickerOpen) {
+      return;
+    }
+    if (Date.now() - dialogClosedTimeRef.current < 300) {
       return;
     }
     const target = e.target as HTMLElement;
