@@ -97,9 +97,9 @@ export default function ServicesPicker({ onServiceSelect, onReset, externalOpen,
 
   return (
     <Dialog open={popoverOpen} onOpenChange={setPopoverOpen}>
-      <DialogContent className="max-w-[min(90vw,36rem)] rounded-2xl border border-white/15 bg-[linear-gradient(135deg,rgba(4,11,46,0.92)0%,rgba(11,27,77,0.78)55%,rgba(16,45,115,0.58)100%)] shadow-[0_40px_95px_rgba(8,15,40,0.7)] backdrop-blur-xl p-0">
-        <DialogHeader className="px-4 pt-4 pb-2">
-          <DialogTitle className="text-xl font-black text-white">PRESTATIONS</DialogTitle>
+      <DialogContent className="max-w-[min(90vw,36rem)] rounded-2xl border border-fuchsia-500/20 bg-slate-900/60 shadow-[0_40px_100px_rgba(0,0,0,0.6),0_0_60px_rgba(217,70,239,0.1)] backdrop-blur-2xl p-0" style={{ transform: "perspective(1000px) rotateX(1deg)" }}>
+        <DialogHeader className="px-5 pt-5 pb-3 border-b border-fuchsia-500/15">
+          <DialogTitle className="text-xl font-black text-white/95 uppercase tracking-wider">PRESTATIONS</DialogTitle>
         </DialogHeader>
         {hasServices ? (
           <div className="flex flex-col">
@@ -110,11 +110,11 @@ export default function ServicesPicker({ onServiceSelect, onReset, externalOpen,
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: "auto" }}
                   exit={{ opacity: 0, height: 0 }}
-                  className="border-b border-white/15 bg-gradient-to-r from-emerald-500/20 to-emerald-600/20 px-4 py-3"
+                  className="border-b border-fuchsia-500/15 bg-gradient-to-r from-slate-800/40 via-fuchsia-900/15 to-slate-800/40 px-5 py-4"
                 >
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-semibold text-emerald-100">Total</span>
-                    <span className="text-2xl font-black text-emerald-300">{total.toFixed(2)}€</span>
+                    <span className="text-base font-medium text-white/70">Total</span>
+                    <span className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-400 via-pink-400 to-fuchsia-300 drop-shadow-[0_0_25px_rgba(217,70,239,0.6)]">{total.toFixed(2)}€</span>
                   </div>
                 </motion.div>
               )}
