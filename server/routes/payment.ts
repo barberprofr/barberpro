@@ -2,7 +2,17 @@ import { RequestHandler } from "express";
 import Stripe from "stripe";
 import { Settings } from "./models";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", { apiVersion: "2022-11-15" });
+let _stripe: Stripe | null = null;
+function getStripe(): Stripe {
+  if (!_stripe) {
+    const key = process.env.STRIPE_SECRET_KEY;
+    if (!key) {
+      throw new Error("STRIPE_SECRET_KEY not configured");
+    }
+    _stripe = new Stripe(key, { apiVersion: "2022-11-15" });
+  }
+  return _stripe;
+}
 
 // Create a Checkout Session for subscriptions
 export const createCheckoutSession: RequestHandler = async (req, res) => {
@@ -18,7 +28,7 @@ export const createCheckoutSession: RequestHandler = async (req, res) => {
     let customerId = settings.stripeCustomerId ?? undefined;
     if (!customerId && settings.adminEmail) {
       // Create a Stripe customer
-      const customer = await stripe.customers.create({ email: settings.adminEmail });
+      const customer = await getStripe().customers.create({ email: settings.adminEmail });
       customerId = customer.id;
       settings.stripeCustomerId = customerId;
       await settings.save();
@@ -31,7 +41,7 @@ export const createCheckoutSession: RequestHandler = async (req, res) => {
     const successUrl = `${baseUrl}/app?checkout=success`;
     const cancelUrl = `${baseUrl}/app?checkout=cancel`;
 
-    const session = await stripe.checkout.sessions.create({
+    const session = await getStripe().checkout.sessions.create({
       mode: "subscription",
       customer: customerId,
       line_items: [{ price: priceId, quantity: 1 }],
@@ -59,7 +69,7 @@ export const createPortalSession: RequestHandler = async (req, res) => {
 
     if (!process.env.STRIPE_PORTAL_RETURN_URL) return res.status(500).json({ error: "STRIPE_PORTAL_RETURN_URL not configured" });
 
-    const session = await stripe.billingPortal.sessions.create({
+    const session = await getStripe().billingPortal.sessions.create({
       customer: settings.stripeCustomerId,
       return_url: process.env.STRIPE_PORTAL_RETURN_URL
     });
@@ -82,7 +92,7 @@ export const webhookHandler: RequestHandler = async (req, res) => {
   let event;
   try {
     // req.body is raw buffer because route must be mounted with express.raw
-    event = stripe.webhooks.constructEvent((req as any).rawBody || req.body, sig, webhookSecret);
+    event = getStripe().webhooks.constructEvent((req as any).rawBody || req.body, sig, webhookSecret);
   } catch (err: any) {
     console.error("Webhook signature verification failed:", err?.message || err);
     return res.status(400).send(`Webhook Error: ${err?.message || err}`);
