@@ -960,9 +960,103 @@ export default function PrestationsForm() {
           disabled={!stylistId}
         />
 
-        {/* Pilules Client et Nouveau Client - affichées en haut de la page */}
-        <div className="flex justify-center gap-8 mb-6">
-          {/* Pilule Client - cyan */}
+        {/* Grande carte Coiffeur centrée en haut */}
+        <div className="flex justify-center mb-6">
+          <div className="relative w-full max-w-[14rem]">
+            <Popover open={stylistPickerOpen} onOpenChange={setStylistPickerOpen}>
+              <PopoverTrigger asChild>
+                <motion.button
+                  type="button"
+                  data-stylist-card
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.98 }}
+                  className={cn(
+                    "group relative flex flex-col items-center justify-center gap-4 w-full rounded-3xl border-2 bg-slate-950 px-8 py-8 transition-all duration-300 focus:outline-none",
+                    stylistId 
+                      ? "border-cyan-400 shadow-[0_0_35px_rgba(34,211,238,0.5),0_0_60px_rgba(34,211,238,0.3),inset_0_0_20px_rgba(34,211,238,0.1)]" 
+                      : "border-slate-700/70 shadow-[0_0_20px_rgba(0,0,0,0.4)] hover:border-cyan-500/50 hover:shadow-[0_0_28px_rgba(34,211,238,0.3)]"
+                  )}
+                >
+                  <motion.div
+                    animate={{ 
+                      filter: stylistId 
+                        ? ["drop-shadow(0 0 12px rgba(34,211,238,0.8))", "drop-shadow(0 0 25px rgba(34,211,238,1))", "drop-shadow(0 0 12px rgba(34,211,238,0.8))"]
+                        : ["drop-shadow(0 0 8px rgba(34,211,238,0.5))", "drop-shadow(0 0 15px rgba(34,211,238,0.7))", "drop-shadow(0 0 8px rgba(34,211,238,0.5))"]
+                    }}
+                    transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                  >
+                    <Scissors className="h-12 w-12 text-cyan-400 transition-all duration-300" />
+                  </motion.div>
+                  <span className={cn(
+                    "text-lg font-semibold transition-all duration-300",
+                    stylistId ? "text-white" : "text-slate-300"
+                  )}>
+                    {selectedStylist ? selectedStylist.name : "Coiffeur"}
+                  </span>
+                </motion.button>
+              </PopoverTrigger>
+              <PopoverContent side="bottom" align="center" className="w-[min(90vw,30rem)] overflow-visible rounded-3xl border border-slate-700/50 bg-slate-900/95 p-0 text-slate-50 shadow-[0_25px_60px_rgba(0,0,0,0.5)] backdrop-blur-xl">
+                <div className="p-5">
+                  <div className="max-h-[50vh] overflow-y-auto overflow-x-visible scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+                    {stylistsLoading ? (
+                      <div className="flex items-center justify-center py-10">
+                        <Loader2 className="h-6 w-6 animate-spin text-cyan-400" />
+                      </div>
+                    ) : stylists && stylists.length > 0 ? (
+                      <div className="grid gap-4 grid-cols-2 p-1">
+                        {stylists.map((s) => (
+                          <motion.button
+                            key={s.id}
+                            type="button"
+                            onClick={() => handleStylistSelect(s.id)}
+                            initial={false}
+                            animate={stylistId === s.id ? {
+                              scale: [1, 1.08, 1.05],
+                              boxShadow: [
+                                "0 0 15px rgba(34,211,238,0.25)",
+                                "0 0 40px rgba(34,211,238,0.7)",
+                                "0 0 30px rgba(34,211,238,0.5)"
+                              ]
+                            } : { scale: 1 }}
+                            transition={{ duration: 0.4, ease: "easeOut" }}
+                            whileHover={{ scale: stylistId === s.id ? 1.05 : 1.03 }}
+                            whileTap={{ scale: 0.98 }}
+                            className={cn(
+                              "flex items-center gap-3 rounded-2xl border-2 border-slate-600/50 bg-slate-800/80 px-5 py-4 text-left transition-colors duration-200 shadow-[0_0_15px_rgba(0,0,0,0.3)] hover:border-cyan-500/50 focus:outline-none",
+                              stylistId === s.id && "border-cyan-400 bg-slate-700/70"
+                            )}
+                          >
+                            <motion.span
+                              className={cn(
+                                "h-2.5 w-2.5 rounded-full flex-shrink-0",
+                                stylistId === s.id ? "bg-cyan-400" : "bg-cyan-500/70"
+                              )}
+                              animate={stylistId === s.id ? {
+                                boxShadow: ["0 0 4px rgba(34,211,238,0.5)", "0 0 12px rgba(34,211,238,1)", "0 0 8px rgba(34,211,238,0.8)"]
+                              } : {}}
+                              transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                            />
+                            <span className="text-xl font-bold text-white truncate">
+                              {s.name}
+                            </span>
+                          </motion.button>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="rounded-2xl border border-slate-700/70 bg-slate-800/80 p-5 text-center text-sm text-slate-300">
+                        Aucun coiffeur disponible.
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
+          </div>
+        </div>
+
+        {/* Boutons Client et Nouveau Client en bas, plus petits */}
+        <div className="flex justify-center gap-12 mt-4">
+          {/* Bouton Client - cyan */}
           <motion.button
             type="button"
             onClick={() => {
@@ -972,18 +1066,16 @@ export default function PrestationsForm() {
             }}
             whileHover={{ scale: 1.08 }}
             whileTap={{ scale: 0.95 }}
-            className={cn(
-              "flex flex-col items-center gap-2 focus:outline-none transition-all duration-300"
-            )}
+            className="flex flex-col items-center gap-2 focus:outline-none transition-all duration-300"
           >
             <div className={cn(
-              "relative flex h-16 w-16 items-center justify-center rounded-full border-2 transition-all duration-300",
+              "relative flex h-14 w-14 items-center justify-center rounded-full border-2 transition-all duration-300",
               clientId
                 ? "border-cyan-400 shadow-[0_0_25px_rgba(34,211,238,0.6),inset_0_0_15px_rgba(34,211,238,0.2)]"
                 : "border-cyan-500/50 shadow-[0_0_15px_rgba(34,211,238,0.3)]"
             )}>
               <Users className={cn(
-                "h-7 w-7 transition-all duration-300",
+                "h-6 w-6 transition-all duration-300",
                 clientId ? "text-cyan-400" : "text-cyan-500"
               )} />
               {clientId && (
@@ -995,14 +1087,14 @@ export default function PrestationsForm() {
               )}
             </div>
             <span className={cn(
-              "text-sm font-medium transition-all duration-300",
+              "text-xs font-medium transition-all duration-300",
               clientId ? "text-cyan-400" : "text-cyan-500"
             )}>
               Client
             </span>
           </motion.button>
 
-          {/* Pilule Nouveau Client - orange */}
+          {/* Bouton Nouveau Client - orange */}
           <motion.button
             type="button"
             onClick={() => {
@@ -1014,18 +1106,16 @@ export default function PrestationsForm() {
             }}
             whileHover={{ scale: 1.08 }}
             whileTap={{ scale: 0.95 }}
-            className={cn(
-              "flex flex-col items-center gap-2 focus:outline-none transition-all duration-300"
-            )}
+            className="flex flex-col items-center gap-2 focus:outline-none transition-all duration-300"
           >
             <div className={cn(
-              "relative flex h-16 w-16 items-center justify-center rounded-full border-2 transition-all duration-300",
+              "relative flex h-14 w-14 items-center justify-center rounded-full border-2 transition-all duration-300",
               usingNewClient && newClientFormComplete
                 ? "border-amber-400 shadow-[0_0_25px_rgba(251,191,36,0.6),inset_0_0_15px_rgba(251,191,36,0.2)]"
                 : "border-amber-500/50 shadow-[0_0_15px_rgba(251,191,36,0.3)]"
             )}>
               <UserPlus className={cn(
-                "h-7 w-7 transition-all duration-300",
+                "h-6 w-6 transition-all duration-300",
                 usingNewClient && newClientFormComplete ? "text-amber-400" : "text-amber-500"
               )} />
               {usingNewClient && newClientFormComplete && (
@@ -1037,110 +1127,12 @@ export default function PrestationsForm() {
               )}
             </div>
             <span className={cn(
-              "text-sm font-medium transition-all duration-300",
+              "text-xs font-medium transition-all duration-300",
               usingNewClient && newClientFormComplete ? "text-amber-400" : "text-amber-500"
             )}>
               Nouveau Client
             </span>
           </motion.button>
-        </div>
-
-        <div className="flex gap-4 sm:flex-row flex-col">
-          <div className="space-y-2">
-            <div className="relative w-full max-w-[16rem]">
-              <Popover open={stylistPickerOpen} onOpenChange={setStylistPickerOpen}>
-                <PopoverTrigger asChild>
-                  <motion.button
-                    type="button"
-                    data-stylist-card
-                    whileHover={{ scale: 1.03 }}
-                    whileTap={{ scale: 0.98 }}
-                    className={cn(
-                      "group relative flex flex-col items-center justify-center gap-4 w-full rounded-3xl border-2 bg-slate-950 px-8 py-8 transition-all duration-300 focus:outline-none",
-                      stylistId 
-                        ? "border-violet-400 shadow-[0_0_35px_rgba(167,139,250,0.7),0_0_60px_rgba(167,139,250,0.4),inset_0_0_20px_rgba(167,139,250,0.15)] scale-[1.02]" 
-                        : "border-violet-500/50 shadow-[0_0_20px_rgba(167,139,250,0.35)] hover:border-violet-400/70 hover:shadow-[0_0_28px_rgba(167,139,250,0.5)]"
-                    )}
-                  >
-                    <motion.div
-                      animate={{ 
-                        filter: stylistId 
-                          ? ["drop-shadow(0 0 12px rgba(34,211,238,0.8))", "drop-shadow(0 0 25px rgba(34,211,238,1))", "drop-shadow(0 0 12px rgba(34,211,238,0.8))"]
-                          : ["drop-shadow(0 0 8px rgba(34,211,238,0.5))", "drop-shadow(0 0 15px rgba(34,211,238,0.7))", "drop-shadow(0 0 8px rgba(34,211,238,0.5))"]
-                      }}
-                      transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                    >
-                      <Scissors className={cn(
-                        "h-12 w-12 transition-all duration-300",
-                        stylistId ? "text-cyan-400" : "text-cyan-400"
-                      )} />
-                    </motion.div>
-                    <span className={cn(
-                      "text-lg font-semibold transition-all duration-300",
-                      stylistId ? "text-white" : "text-slate-300"
-                    )}>
-                      {selectedStylist ? selectedStylist.name : "Coiffeur"}
-                    </span>
-                  </motion.button>
-                </PopoverTrigger>
-                <PopoverContent side="bottom" align="center" className="w-[min(90vw,30rem)] overflow-visible rounded-3xl border border-slate-700/50 bg-slate-900/95 p-0 text-slate-50 shadow-[0_25px_60px_rgba(0,0,0,0.5)] backdrop-blur-xl">
-                  <div className="p-5">
-                    <div className="max-h-[50vh] overflow-y-auto overflow-x-visible scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-                      {stylistsLoading ? (
-                        <div className="flex items-center justify-center py-10">
-                          <Loader2 className="h-6 w-6 animate-spin text-cyan-400" />
-                        </div>
-                      ) : stylists && stylists.length > 0 ? (
-                        <div className="grid gap-4 grid-cols-2 p-1">
-                          {stylists.map((s) => (
-                            <motion.button
-                              key={s.id}
-                              type="button"
-                              onClick={() => handleStylistSelect(s.id)}
-                              initial={false}
-                              animate={stylistId === s.id ? {
-                                scale: [1, 1.08, 1.05],
-                                boxShadow: [
-                                  "0 0 15px rgba(167,139,250,0.25)",
-                                  "0 0 40px rgba(167,139,250,0.7)",
-                                  "0 0 30px rgba(167,139,250,0.5)"
-                                ]
-                              } : { scale: 1 }}
-                              transition={{ duration: 0.4, ease: "easeOut" }}
-                              whileHover={{ scale: stylistId === s.id ? 1.05 : 1.03 }}
-                              whileTap={{ scale: 0.98 }}
-                              className={cn(
-                                "flex items-center gap-3 rounded-2xl border-2 border-violet-500/40 bg-slate-800/80 px-5 py-4 text-left transition-colors duration-200 shadow-[0_0_15px_rgba(167,139,250,0.25)] hover:border-violet-400/60 focus:outline-none",
-                                stylistId === s.id && "border-violet-400 bg-slate-700/70"
-                              )}
-                            >
-                              <motion.span
-                                className={cn(
-                                  "h-2.5 w-2.5 rounded-full flex-shrink-0",
-                                  stylistId === s.id ? "bg-cyan-400" : "bg-cyan-500/70"
-                                )}
-                                animate={stylistId === s.id ? {
-                                  boxShadow: ["0 0 4px rgba(34,211,238,0.5)", "0 0 12px rgba(34,211,238,1)", "0 0 8px rgba(34,211,238,0.8)"]
-                                } : {}}
-                                transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-                              />
-                              <span className="text-xl font-bold text-white truncate">
-                                {s.name}
-                              </span>
-                            </motion.button>
-                          ))}
-                        </div>
-                      ) : (
-                        <div className="rounded-2xl border border-slate-700/70 bg-slate-800/80 p-5 text-center text-sm text-slate-300">
-                          Aucun coiffeur disponible.
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </PopoverContent>
-              </Popover>
-            </div>
-          </div>
         </div>
 
 
