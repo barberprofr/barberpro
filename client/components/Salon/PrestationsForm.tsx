@@ -883,55 +883,27 @@ export default function PrestationsForm() {
         </div>
 
         {/* Pilules PRESTATIONS et PRODUITS - affichées après sélection du coiffeur */}
-        <AnimatePresence>
-          {stylistId && !amount && (
-            <motion.div
-              initial={{ opacity: 0, y: 20, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -10, scale: 0.95 }}
-              transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-              className="flex justify-center gap-4 mt-4"
+        {stylistId && !amount && (
+          <div className="flex justify-center gap-3 mt-4">
+            {/* Pilule PRESTATIONS - outline violet */}
+            <button
+              type="button"
+              onClick={() => setServicesPickerOpen(true)}
+              className="rounded-full border border-violet-500/70 bg-transparent px-6 py-2.5 text-violet-400 font-medium transition-all duration-200 hover:border-violet-400 hover:text-violet-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400/50"
             >
-              {/* Pilule PRESTATIONS */}
-              <motion.button
-                type="button"
-                onClick={() => setServicesPickerOpen(true)}
-                whileHover={{ scale: 1.05, y: -2 }}
-                whileTap={{ scale: 0.98 }}
-                className="group relative overflow-hidden rounded-full border-2 border-indigo-400/60 bg-gradient-to-r from-indigo-600/90 via-violet-500/80 to-purple-500/70 px-6 py-3 shadow-[0_12px_35px_rgba(99,102,241,0.4)] backdrop-blur-xl transition-all duration-300 hover:border-indigo-300/80 hover:shadow-[0_18px_45px_rgba(99,102,241,0.55)]"
-              >
-                <span className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.25),transparent_60%)] opacity-80" />
-                <span className="relative flex items-center gap-2">
-                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/20 text-white shadow-inner">
-                    <Sparkles className="h-4 w-4" />
-                  </span>
-                  <span className="text-base font-black uppercase tracking-wide text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]">
-                    Prestations
-                  </span>
-                </span>
-              </motion.button>
+              Prestations
+            </button>
 
-              {/* Pilule PRODUITS */}
-              <motion.button
-                type="button"
-                onClick={() => setProductsPickerOpen(true)}
-                whileHover={{ scale: 1.05, y: -2 }}
-                whileTap={{ scale: 0.98 }}
-                className="group relative overflow-hidden rounded-full border-2 border-emerald-400/60 bg-gradient-to-r from-emerald-600/90 via-teal-500/80 to-cyan-500/70 px-6 py-3 shadow-[0_12px_35px_rgba(16,185,129,0.4)] backdrop-blur-xl transition-all duration-300 hover:border-emerald-300/80 hover:shadow-[0_18px_45px_rgba(16,185,129,0.55)]"
-              >
-                <span className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.25),transparent_60%)] opacity-80" />
-                <span className="relative flex items-center gap-2">
-                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/20 text-white shadow-inner">
-                    <Sparkles className="h-4 w-4" />
-                  </span>
-                  <span className="text-base font-black uppercase tracking-wide text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]">
-                    Produits
-                  </span>
-                </span>
-              </motion.button>
-            </motion.div>
-          )}
-        </AnimatePresence>
+            {/* Pilule PRODUITS - filled avec texte orange */}
+            <button
+              type="button"
+              onClick={() => setProductsPickerOpen(true)}
+              className="rounded-full border border-slate-700 bg-slate-900/90 px-6 py-2.5 text-amber-500 font-medium transition-all duration-200 hover:border-slate-600 hover:text-amber-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/50"
+            >
+              Produits
+            </button>
+          </div>
+        )}
 
         {amount ? (
           <div className="flex justify-center w-full mt-6">
