@@ -714,6 +714,15 @@ export default function PrestationsForm() {
     }
   }, [servicesPickerOpen, productsPickerOpen, paymentPickerOpen]);
 
+  useEffect(() => {
+    if (showSuccess) {
+      const timer = window.setTimeout(() => {
+        setShowSuccess(false);
+      }, 4000);
+      return () => window.clearTimeout(timer);
+    }
+  }, [showSuccess]);
+
   const handleBackgroundClick = useCallback((e: React.MouseEvent) => {
     if (servicesPickerOpen || productsPickerOpen || paymentPickerOpen || dialogWasOpenRef.current) {
       return;
@@ -798,23 +807,9 @@ export default function PrestationsForm() {
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.35, type: "spring" }}
-              className="text-5xl font-bold text-white mb-8"
+              className="text-5xl font-bold text-white"
             >
               {lastTransactionAmount.toFixed(2)} €
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.45 }}
-            >
-              <Button
-                type="button"
-                onClick={() => setShowSuccess(false)}
-                className="px-12 py-6 text-lg font-semibold rounded-full bg-gradient-to-r from-pink-500 via-fuchsia-500 to-purple-500 hover:from-pink-600 hover:via-fuchsia-600 hover:to-purple-600 text-white shadow-[0_10px_40px_rgba(236,72,153,0.4)] transition-all duration-300 hover:scale-105"
-              >
-                Terminer
-              </Button>
             </motion.div>
           </motion.div>
         </DialogContent>
