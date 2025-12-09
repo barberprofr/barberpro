@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Loader2, Check, ChevronDown, CircleDollarSign, CreditCard, FileText, Sparkles, ArrowLeft } from "lucide-react";
+import { Loader2, Check, ChevronDown, CircleDollarSign, CreditCard, FileText, Sparkles, ArrowLeft, Scissors } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Input } from "@/components/ui/input";
@@ -757,52 +757,37 @@ export default function PrestationsForm() {
         />
         <div className="flex gap-4 sm:flex-row flex-col">
           <div className="space-y-2">
-            <div
-              className={cn(
-                "group relative w-full max-w-[20rem] overflow-hidden rounded-3xl border border-slate-600/50 bg-gradient-to-br from-slate-800/95 via-indigo-900/60 to-teal-900/40 px-4 pb-4 shadow-lg transition-all duration-300",
-                stylistId ? "border-teal-500/50" : null
-              )}
-            >
-              <div className="relative flex items-center justify-end pt-3">
-                <motion.button
-                  type="button"
-                  whileTap={{ scale: 0.97 }}
-                  onClick={refreshStylists}
-                  disabled={isRefreshing}
-                  title="Rafraîchir"
-                  className="inline-flex items-center gap-1 rounded-full border border-teal-400/50 bg-teal-500/20 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-teal-300 transition-all duration-200 hover:bg-teal-500/30 focus:outline-none disabled:cursor-wait disabled:opacity-80"
-                >
-                  <span>Rafraîchir</span>
-                  <AnimatePresence initial={false}>
-                    {isRefreshing ? (
-                      <motion.span
-                        key="refreshing-spinner"
-                        initial={{ opacity: 0, rotate: -45 }}
-                        animate={{ opacity: 1, rotate: 0 }}
-                        exit={{ opacity: 0, rotate: 45 }}
-                        transition={{ duration: 0.2 }}
-                        className="inline-flex"
-                      >
-                        <Loader2 className="h-2.5 w-2.5 animate-spin text-teal-300" />
-                      </motion.span>
-                    ) : null}
-                  </AnimatePresence>
-                </motion.button>
-              </div>
               <Popover open={stylistPickerOpen} onOpenChange={setStylistPickerOpen}>
                 <PopoverTrigger asChild>
-                  <button
+                  <motion.button
                     type="button"
+                    whileHover={{ scale: 1.03 }}
+                    whileTap={{ scale: 0.98 }}
                     className={cn(
-                      "group relative z-10 mt-3 flex w-full items-center justify-center gap-2 overflow-hidden rounded-full border border-slate-500/50 bg-gradient-to-r from-slate-700/80 via-indigo-800/60 to-teal-800/50 px-6 py-3.5 text-center text-lg font-semibold text-white shadow-md transition-all duration-300 hover:shadow-lg focus:outline-none",
-                      stylistId ? "border-teal-400/60 shadow-[0_0_15px_rgba(20,184,166,0.3)]" : null
+                      "group relative flex flex-col items-center justify-center gap-4 w-full max-w-[16rem] rounded-3xl border border-slate-700/60 bg-slate-900/95 px-8 py-8 transition-all duration-300 focus:outline-none",
+                      stylistId 
+                        ? "border-cyan-400/60 shadow-[0_0_30px_rgba(34,211,238,0.4)] scale-[1.02]" 
+                        : "hover:border-slate-600"
                     )}
                   >
-                    <span className="h-2 w-2 rounded-full bg-teal-400" />
-                    <span className="uppercase tracking-wider">
+                    <motion.div
+                      animate={stylistId ? { 
+                        filter: ["drop-shadow(0 0 8px rgba(34,211,238,0.6))", "drop-shadow(0 0 20px rgba(34,211,238,0.9))", "drop-shadow(0 0 8px rgba(34,211,238,0.6))"]
+                      } : {}}
+                      transition={stylistId ? { duration: 2, repeat: Infinity, ease: "easeInOut" } : {}}
+                    >
+                      <Scissors className={cn(
+                        "h-12 w-12 transition-all duration-300",
+                        stylistId ? "text-cyan-400" : "text-cyan-500/80"
+                      )} />
+                    </motion.div>
+                    <span className={cn(
+                      "text-lg font-semibold transition-all duration-300",
+                      stylistId ? "text-white" : "text-slate-300"
+                    )}>
                       {selectedStylist ? selectedStylist.name : "Coiffeur"}
                     </span>
-                  </button>
+                  </motion.button>
                 </PopoverTrigger>
                 <PopoverContent side="bottom" align="center" className="w-[min(90vw,36rem)] overflow-hidden rounded-3xl border border-white/15 bg-[linear-gradient(140deg,rgba(7,12,30,0.96)0%,rgba(67,56,202,0.65)55%,rgba(16,185,129,0.45)100%)] p-0 text-slate-50 shadow-[0_40px_95px_rgba(8,15,40,0.7)] backdrop-blur-2xl">
                   <div className="space-y-5 p-5">
@@ -871,7 +856,6 @@ export default function PrestationsForm() {
                   </div>
                 </PopoverContent>
               </Popover>
-            </div>
           </div>
         </div>
 
