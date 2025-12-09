@@ -765,24 +765,29 @@ export default function PrestationsForm() {
                     whileHover={{ scale: 1.03 }}
                     whileTap={{ scale: 0.98 }}
                     className={cn(
-                      "group relative flex items-center justify-center w-full rounded-3xl border border-slate-700/60 bg-slate-900/95 px-8 py-6 transition-all duration-300 focus:outline-none",
+                      "group relative flex flex-col items-center justify-center gap-4 w-full rounded-3xl border border-slate-700/60 bg-slate-900/95 px-8 py-8 transition-all duration-300 focus:outline-none",
                       stylistId 
                         ? "border-cyan-400/60 shadow-[0_0_30px_rgba(34,211,238,0.4)] scale-[1.02]" 
                         : "hover:border-slate-600"
                     )}
                   >
-                    <motion.span 
-                      className={cn(
-                        "text-lg font-semibold transition-all duration-300",
-                        stylistId ? "text-cyan-400" : "text-slate-300"
-                      )}
+                    <motion.div
                       animate={stylistId ? { 
-                        textShadow: ["0 0 8px rgba(34,211,238,0.6)", "0 0 20px rgba(34,211,238,0.9)", "0 0 8px rgba(34,211,238,0.6)"]
+                        filter: ["drop-shadow(0 0 8px rgba(34,211,238,0.6))", "drop-shadow(0 0 20px rgba(34,211,238,0.9))", "drop-shadow(0 0 8px rgba(34,211,238,0.6))"]
                       } : {}}
                       transition={stylistId ? { duration: 2, repeat: Infinity, ease: "easeInOut" } : {}}
                     >
+                      <Scissors className={cn(
+                        "h-12 w-12 transition-all duration-300",
+                        stylistId ? "text-cyan-400" : "text-cyan-500/80"
+                      )} />
+                    </motion.div>
+                    <span className={cn(
+                      "text-lg font-semibold transition-all duration-300",
+                      stylistId ? "text-white" : "text-slate-300"
+                    )}>
                       {selectedStylist ? selectedStylist.name : "Coiffeur"}
-                    </motion.span>
+                    </span>
                   </motion.button>
                 </PopoverTrigger>
                 <PopoverContent side="bottom" align="center" className="w-[min(90vw,36rem)] overflow-hidden rounded-3xl border border-white/15 bg-[linear-gradient(140deg,rgba(7,12,30,0.96)0%,rgba(67,56,202,0.65)55%,rgba(16,185,129,0.45)100%)] p-0 text-slate-50 shadow-[0_40px_95px_rgba(8,15,40,0.7)] backdrop-blur-2xl">
