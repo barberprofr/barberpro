@@ -757,8 +757,8 @@ export default function PrestationsForm() {
 
   return (
     <Card className="border-none shadow-md bg-slate-900/40 backdrop-blur-xl" onClick={handleBackgroundClick}>
-      <CardHeader>
-        <div className="flex items-center justify-center">
+      <CardHeader className="pt-2 pb-0">
+        <div className="flex items-center justify-center -mt-2">
           <span 
             className="text-base font-semibold text-black" 
             title={salonDisplayName}
