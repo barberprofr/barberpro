@@ -711,8 +711,38 @@ export default function PrestationsForm() {
     }
   }, []);
 
+  const dialogWasOpenRef = useRef(false);
+  
+  useEffect(() => {
+    if (servicesPickerOpen || productsPickerOpen || paymentPickerOpen) {
+      dialogWasOpenRef.current = true;
+    }
+  }, [servicesPickerOpen, productsPickerOpen, paymentPickerOpen]);
+
+  useEffect(() => {
+    if (dialogWasOpenRef.current && !servicesPickerOpen && !productsPickerOpen && !paymentPickerOpen) {
+      const timer = setTimeout(() => {
+        dialogWasOpenRef.current = false;
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [servicesPickerOpen, productsPickerOpen, paymentPickerOpen]);
+
+  const handleBackgroundClick = useCallback((e: React.MouseEvent) => {
+    if (servicesPickerOpen || productsPickerOpen || paymentPickerOpen || dialogWasOpenRef.current) {
+      return;
+    }
+    const target = e.target as HTMLElement;
+    if (target.closest('[data-stylist-card]') || target.closest('[data-pill-button]')) {
+      return;
+    }
+    if (stylistId && !amount) {
+      refreshStylists();
+    }
+  }, [stylistId, amount, refreshStylists, servicesPickerOpen, productsPickerOpen, paymentPickerOpen]);
+
   return (
-    <Card className="border-none shadow-md bg-card">
+    <Card className="border-none shadow-md bg-card" onClick={handleBackgroundClick}>
       <CardHeader>
         <div className="flex items-center justify-end gap-3">
           <div className="flex items-center gap-2 rounded-full bg-slate-800/80 px-4 py-1.5 text-sm text-slate-100">
