@@ -20,9 +20,10 @@ interface ProductsPickerProps {
   externalOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
   disabled?: boolean;
+  customTrigger?: React.ReactNode;
 }
 
-export default function ProductsPicker({ onProductSelect, onReset, externalOpen, onOpenChange, disabled }: ProductsPickerProps) {
+export default function ProductsPicker({ onProductSelect, onReset, externalOpen, onOpenChange, disabled, customTrigger }: ProductsPickerProps) {
   const { data: productTypes = [] } = useProductTypes();
   const { toast } = useToast();
   const [internalOpen, setInternalOpen] = useState(false);
@@ -96,29 +97,31 @@ export default function ProductsPicker({ onProductSelect, onReset, externalOpen,
   return (
     <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
       <PopoverTrigger asChild>
-        <button
-          type="button"
-          disabled={disabled}
-          onClick={(e) => {
-            if (disabled) {
-              e.preventDefault();
-              e.stopPropagation();
-              toast({
-                title: "Action requise",
-                description: "Veuillez sélectionner un coiffeur avant de choisir les produits.",
-                variant: "destructive",
-              });
-            }
-          }}
-          className={cn(
-            "w-full rounded-2xl border border-white/18 bg-[linear-gradient(135deg,rgba(12,18,45,0.95)0%,rgba(16,185,129,0.68)52%,rgba(99,102,241,0.52)100%)] px-4 py-3 text-lg font-black text-white transition-all hover:bg-[linear-gradient(135deg,rgba(12,18,45,0.95)0%,rgba(16,185,129,0.75)52%,rgba(99,102,241,0.6)100%)] shadow-[0_10px_24px_rgba(8,15,40,0.3)]",
-            "flex justify-between items-center",
-            disabled && "opacity-50 cursor-not-allowed grayscale"
-          )}
-        >
-          <span>PRODUITS</span>
-          <ChevronDown className={cn("h-4 w-4 transition-transform", popoverOpen ? "rotate-180" : "")} />
-        </button>
+        {customTrigger || (
+          <button
+            type="button"
+            disabled={disabled}
+            onClick={(e) => {
+              if (disabled) {
+                e.preventDefault();
+                e.stopPropagation();
+                toast({
+                  title: "Action requise",
+                  description: "Veuillez sélectionner un coiffeur avant de choisir les produits.",
+                  variant: "destructive",
+                });
+              }
+            }}
+            className={cn(
+              "w-full rounded-2xl border border-white/18 bg-[linear-gradient(135deg,rgba(12,18,45,0.95)0%,rgba(16,185,129,0.68)52%,rgba(99,102,241,0.52)100%)] px-4 py-3 text-lg font-black text-white transition-all hover:bg-[linear-gradient(135deg,rgba(12,18,45,0.95)0%,rgba(16,185,129,0.75)52%,rgba(99,102,241,0.6)100%)] shadow-[0_10px_24px_rgba(8,15,40,0.3)]",
+              "flex justify-between items-center",
+              disabled && "opacity-50 cursor-not-allowed grayscale"
+            )}
+          >
+            <span>PRODUITS</span>
+            <ChevronDown className={cn("h-4 w-4 transition-transform", popoverOpen ? "rotate-180" : "")} />
+          </button>
+        )}
       </PopoverTrigger>
       <PopoverContent side="bottom" align="center" className="w-[min(90vw,36rem)] rounded-2xl border border-white/15 bg-[linear-gradient(135deg,rgba(4,11,46,0.92)0%,rgba(11,77,43,0.78)55%,rgba(16,115,45,0.58)100%)] shadow-[0_40px_95px_rgba(8,15,40,0.7)] backdrop-blur-xl p-0">
         {hasProducts ? (
