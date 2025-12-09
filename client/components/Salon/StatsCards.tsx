@@ -338,7 +338,7 @@ export default function StatsCards() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
             onClick={() => setPrestationsPopupOpen(false)}
           >
             <motion.div
@@ -347,19 +347,17 @@ export default function StatsCards() {
               exit={{ opacity: 0, scale: 0.95, y: 10 }}
               transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
               onClick={(e) => e.stopPropagation()}
-              className="relative w-[90%] max-w-sm rounded-3xl bg-gradient-to-br from-slate-900/98 via-indigo-900/60 to-slate-800/98 border border-indigo-500/30 shadow-[0_25px_80px_rgba(0,0,0,0.6),0_0_40px_rgba(99,102,241,0.2)] backdrop-blur-xl p-8"
+              className="relative w-[90%] max-w-md overflow-hidden rounded-2xl border border-fuchsia-500/20 bg-slate-900/40 backdrop-blur-2xl shadow-[0_30px_100px_rgba(0,0,0,0.5),0_0_60px_rgba(217,70,239,0.15)]"
+              style={{ transform: "perspective(1000px) rotateX(2deg)" }}
             >
-              <button
-                type="button"
-                onClick={() => setPrestationsPopupOpen(false)}
-                className="absolute top-4 right-4 flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/5 text-slate-400 transition hover:bg-white/10 hover:text-white"
-              >
-                <ChevronDown className="h-5 w-5" />
-              </button>
-              <div className="flex flex-col items-center text-center">
-                <span className="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-300/80 mb-1">PRESTATIONS</span>
-                <span className="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-300/80 mb-6">AUJOURD'HUI</span>
-                <div className="text-5xl font-bold text-white tracking-tight">{summary?.dailyCount ?? 0}</div>
+              <div className="px-6 py-4 border-b border-fuchsia-500/20">
+                <h3 className="text-lg font-bold uppercase tracking-wider text-white/90">Prestations</h3>
+              </div>
+              <div className="flex items-center justify-between px-6 py-5 bg-gradient-to-r from-slate-800/60 via-fuchsia-900/20 to-slate-800/60">
+                <span className="text-base font-medium text-white/70">Total</span>
+                <span className="text-4xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-400 via-pink-400 to-fuchsia-300 drop-shadow-[0_0_20px_rgba(217,70,239,0.5)]">
+                  {summary?.dailyCount ?? 0}
+                </span>
               </div>
             </motion.div>
           </motion.div>
