@@ -909,15 +909,15 @@ export default function PrestationsForm() {
                     </span>
                   </motion.button>
                 </PopoverTrigger>
-                <PopoverContent side="bottom" align="center" className="w-[min(90vw,28rem)] overflow-hidden rounded-3xl border border-slate-700/50 bg-slate-900/95 p-0 text-slate-50 shadow-[0_25px_60px_rgba(0,0,0,0.5)] backdrop-blur-xl">
-                  <div className="p-4">
-                    <div className="max-h-[50vh] overflow-y-auto scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+                <PopoverContent side="bottom" align="center" className="w-[min(90vw,30rem)] overflow-visible rounded-3xl border border-slate-700/50 bg-slate-900/95 p-0 text-slate-50 shadow-[0_25px_60px_rgba(0,0,0,0.5)] backdrop-blur-xl">
+                  <div className="p-5">
+                    <div className="max-h-[50vh] overflow-y-auto overflow-x-visible scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
                       {stylistsLoading ? (
                         <div className="flex items-center justify-center py-10">
                           <Loader2 className="h-6 w-6 animate-spin text-cyan-400" />
                         </div>
                       ) : stylists && stylists.length > 0 ? (
-                        <div className="grid gap-3 grid-cols-2">
+                        <div className="grid gap-4 grid-cols-2 p-1">
                           {stylists.map((s) => (
                             <motion.button
                               key={s.id}
