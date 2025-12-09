@@ -1156,8 +1156,8 @@ export default function PrestationsForm() {
           </motion.button>
         </div>
 
-        {/* Rangée du bas: Total CA, Prestations, Produits - boutons pilules - position fixe en bas */}
-        <div className="fixed bottom-2 left-0 right-0 flex justify-center items-center gap-3 px-4 z-40">
+        {/* Rangée du bas: Total CA, Prestations, Produits - boutons pilules */}
+        <div className="flex justify-center items-center gap-3 mt-24 px-4">
           {/* Bouton Total CA - jaune/orange */}
           <motion.button
             type="button"
@@ -1165,7 +1165,7 @@ export default function PrestationsForm() {
             onClick={() => setTotalCAPopupOpen(true)}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="flex items-center gap-2 px-4 py-2 rounded-full border-2 border-amber-500/60 bg-slate-900/80 backdrop-blur-sm transition-all duration-300 hover:border-amber-400 hover:shadow-[0_0_20px_rgba(245,158,11,0.4)]"
+            className="flex items-center gap-2 px-4 py-2 rounded-full border-2 border-amber-500/60 bg-transparent transition-all duration-300 hover:border-amber-400 hover:shadow-[0_0_20px_rgba(245,158,11,0.4)]"
           >
             <Euro className="h-4 w-4 text-amber-500" />
             <span className="text-sm font-medium text-amber-500">Total CA</span>
@@ -1178,7 +1178,7 @@ export default function PrestationsForm() {
             onClick={() => setPrestationsPopupOpen(true)}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="flex items-center gap-2 px-4 py-2 rounded-full border-2 border-emerald-500/60 bg-slate-900/80 backdrop-blur-sm transition-all duration-300 hover:border-emerald-400 hover:shadow-[0_0_20px_rgba(16,185,129,0.4)]"
+            className="flex items-center gap-2 px-4 py-2 rounded-full border-2 border-emerald-500/60 bg-transparent transition-all duration-300 hover:border-emerald-400 hover:shadow-[0_0_20px_rgba(16,185,129,0.4)]"
           >
             <span className="text-sm font-medium text-emerald-500">Prestations</span>
           </motion.button>
@@ -1190,7 +1190,7 @@ export default function PrestationsForm() {
             onClick={() => setProduitsPopupOpen(true)}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="flex items-center gap-2 px-4 py-2 rounded-full border-2 border-orange-500/60 bg-slate-900/80 backdrop-blur-sm transition-all duration-300 hover:border-orange-400 hover:shadow-[0_0_20px_rgba(249,115,22,0.4)]"
+            className="flex items-center gap-2 px-4 py-2 rounded-full border-2 border-orange-500/60 bg-transparent transition-all duration-300 hover:border-orange-400 hover:shadow-[0_0_20px_rgba(249,115,22,0.4)]"
           >
             <span className="text-sm font-medium text-orange-500">Produits</span>
           </motion.button>
