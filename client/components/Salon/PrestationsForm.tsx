@@ -759,19 +759,18 @@ export default function PrestationsForm() {
           <div className="space-y-2">
             <div
               className={cn(
-                "group relative w-full max-w-[20rem] overflow-hidden rounded-3xl border border-white/18 bg-[linear-gradient(135deg,rgba(12,18,45,0.95)0%,rgba(99,102,241,0.68)52%,rgba(16,185,129,0.52)100%)] px-4 pb-4 shadow-[0_28px_72px_rgba(8,15,40,0.55)] backdrop-blur-2xl transition-all duration-300",
-                stylistId ? "border-emerald-300/70 shadow-[0_36px_92px_rgba(16,185,129,0.45)]" : null
+                "group relative w-full max-w-[20rem] overflow-hidden rounded-3xl border border-slate-600/50 bg-gradient-to-br from-slate-800/95 via-indigo-900/60 to-teal-900/40 px-4 pb-4 shadow-lg transition-all duration-300",
+                stylistId ? "border-teal-500/50" : null
               )}
             >
-              <span className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.28),transparent_55%)] opacity-80 transition-opacity duration-300 group-hover:opacity-100" />
-              <div className="relative flex items-center justify-end pt-4">
+              <div className="relative flex items-center justify-end pt-3">
                 <motion.button
                   type="button"
                   whileTap={{ scale: 0.97 }}
                   onClick={refreshStylists}
                   disabled={isRefreshing}
                   title="Rafraîchir"
-                  className="inline-flex items-center gap-0.5 rounded-full border border-violet-300/60 bg-white/10 px-1.5 py-0.25 text-[8px] font-semibold uppercase tracking-wide text-white transition-all duration-200 hover:bg-white/15 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-300 disabled:cursor-wait disabled:opacity-80"
+                  className="inline-flex items-center gap-1 rounded-full border border-teal-400/50 bg-teal-500/20 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-teal-300 transition-all duration-200 hover:bg-teal-500/30 focus:outline-none disabled:cursor-wait disabled:opacity-80"
                 >
                   <span>Rafraîchir</span>
                   <AnimatePresence initial={false}>
@@ -784,7 +783,7 @@ export default function PrestationsForm() {
                         transition={{ duration: 0.2 }}
                         className="inline-flex"
                       >
-                        <Loader2 className="h-2 w-2 animate-spin text-white" />
+                        <Loader2 className="h-2.5 w-2.5 animate-spin text-teal-300" />
                       </motion.span>
                     ) : null}
                   </AnimatePresence>
@@ -795,19 +794,13 @@ export default function PrestationsForm() {
                   <button
                     type="button"
                     className={cn(
-                      "group relative z-10 mt-3 flex w-full items-center justify-between gap-4 overflow-hidden rounded-3xl border border-white/18 bg-white/10 px-6 py-4 text-left text-xl font-semibold text-white shadow-[0_32px_80px_rgba(8,15,40,0.58)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_40px_100px_rgba(79,70,229,0.48)] focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300/80",
-                      stylistId ? "border-emerald-300/70 bg-emerald-400/15 shadow-[0_40px_100px_rgba(16,185,129,0.48)]" : null
+                      "group relative z-10 mt-3 flex w-full items-center justify-center gap-2 overflow-hidden rounded-full border border-slate-500/50 bg-gradient-to-r from-slate-700/80 via-indigo-800/60 to-teal-800/50 px-6 py-3.5 text-center text-lg font-semibold text-white shadow-md transition-all duration-300 hover:shadow-lg focus:outline-none",
+                      stylistId ? "border-teal-400/60 shadow-[0_0_15px_rgba(20,184,166,0.3)]" : null
                     )}
                   >
-                    <span className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.28),transparent_55%)] opacity-80 transition-opacity duration-300 group-hover:opacity-100" />
-                    <div className="relative flex flex-col text-left gap-1">
-                      <span className="min-h-[2.25rem] text-2xl font-black leading-tight text-white drop-shadow-[0_2px_14px_rgba(8,15,40,0.6)]">
-                        {selectedStylist ? selectedStylist.name : ""}
-                      </span>
-                    </div>
-                    <span className="relative inline-flex items-center gap-1.5 rounded-full border border-emerald-200/60 bg-[linear-gradient(135deg,rgba(16,185,129,0.45)0%,rgba(79,70,229,0.35)100%)] px-4 py-2 text-base font-semibold uppercase tracking-wide text-emerald-50 shadow-[0_12px_28px_rgba(16,185,129,0.38)]">
-                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-100" />
-                      Coiffeur
+                    <span className="h-2 w-2 rounded-full bg-teal-400" />
+                    <span className="uppercase tracking-wider">
+                      {selectedStylist ? selectedStylist.name : "Coiffeur"}
                     </span>
                   </button>
                 </PopoverTrigger>
