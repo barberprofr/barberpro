@@ -1013,14 +1013,14 @@ export default function PrestationsForm() {
                 </motion.button>
               </PopoverTrigger>
               <PopoverContent side="bottom" align="center" className="w-[min(95vw,38rem)] overflow-visible rounded-3xl border border-slate-700/50 bg-slate-900/95 p-0 text-slate-50 shadow-[0_25px_60px_rgba(0,0,0,0.5)] backdrop-blur-xl">
-                <div className="p-6">
+                <div className="p-8 overflow-visible">
                   <div className="max-h-[55vh] overflow-y-auto overflow-x-visible scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
                     {stylistsLoading ? (
                       <div className="flex items-center justify-center py-12">
                         <Loader2 className="h-8 w-8 animate-spin text-cyan-400" />
                       </div>
                     ) : stylists && stylists.length > 0 ? (
-                      <div className="grid gap-5 grid-cols-2 p-1">
+                      <div className="grid gap-5 grid-cols-2 p-4 overflow-visible">
                         {stylists.map((s) => (
                           <motion.button
                             key={s.id}
