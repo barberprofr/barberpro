@@ -711,32 +711,8 @@ export default function PrestationsForm() {
     }
   }, []);
 
-  const dialogClosedTimeRef = useRef<number>(0);
-  
-  useEffect(() => {
-    if (!servicesPickerOpen && !productsPickerOpen) {
-      dialogClosedTimeRef.current = Date.now();
-    }
-  }, [servicesPickerOpen, productsPickerOpen]);
-
-  const handleBackgroundClick = useCallback((e: React.MouseEvent) => {
-    if (servicesPickerOpen || productsPickerOpen || paymentPickerOpen) {
-      return;
-    }
-    if (Date.now() - dialogClosedTimeRef.current < 300) {
-      return;
-    }
-    const target = e.target as HTMLElement;
-    if (target.closest('[data-stylist-card]') || target.closest('[data-popover-content]') || target.closest('[data-pill-button]') || target.closest('[role="dialog"]') || target.closest('[data-radix-dialog-overlay]')) {
-      return;
-    }
-    if (stylistId && !amount) {
-      refreshStylists();
-    }
-  }, [stylistId, amount, refreshStylists, servicesPickerOpen, productsPickerOpen, paymentPickerOpen]);
-
   return (
-    <Card className="border-none shadow-md bg-card" onClick={handleBackgroundClick}>
+    <Card className="border-none shadow-md bg-card">
       <CardHeader>
         <div className="flex items-center justify-end gap-3">
           <div className="flex items-center gap-2 rounded-full bg-slate-800/80 px-4 py-1.5 text-sm text-slate-100">
