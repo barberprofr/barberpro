@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { ChevronDown, ChevronLeft } from "lucide-react";
+import { ChevronDown, ChevronLeft, Euro } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useDashboardSummary, useStylists, useStylistBreakdown, useConfig, apiPath, useProducts } from "@/lib/api";
@@ -219,6 +219,9 @@ export default function StatsCards() {
   const paymentTotalAmount = summary?.dailyPayments?.total?.amount ?? summary?.dailyAmount ?? 0;
   const methodsStats = summary?.dailyPayments?.methods as Record<string, { amount?: number; count?: number }> | undefined;
   const [openId, setOpenId] = useState<string>("");
+  const [totalCAPopupOpen, setTotalCAPopupOpen] = useState(false);
+  const [prestationsPopupOpen, setPrestationsPopupOpen] = useState(false);
+  const [produitsPopupOpen, setProduitsPopupOpen] = useState(false);
 
   return (
     <div className="space-y-4">
@@ -240,6 +243,150 @@ export default function StatsCards() {
           <StylistsList stylists={stylistsList} config={config} hasStylists={hasStylists} />
         </PopoverContent>
       </Popover>
+
+      {/* Boutons pilules: Total CA, Prestations, Produits */}
+      <div className="flex justify-center items-center gap-3 mt-6 px-4">
+        <motion.button
+          type="button"
+          onClick={() => setTotalCAPopupOpen(true)}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          className="flex items-center gap-2 px-4 py-2 rounded-full border-2 border-amber-500/60 bg-transparent transition-all duration-300 hover:border-amber-400 hover:shadow-[0_0_20px_rgba(245,158,11,0.4)]"
+        >
+          <Euro className="h-4 w-4 text-amber-500" />
+          <span className="text-sm font-medium text-amber-500">Total CA</span>
+        </motion.button>
+
+        <motion.button
+          type="button"
+          onClick={() => setPrestationsPopupOpen(true)}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          className="flex items-center gap-2 px-4 py-2 rounded-full border-2 border-emerald-500/60 bg-transparent transition-all duration-300 hover:border-emerald-400 hover:shadow-[0_0_20px_rgba(16,185,129,0.4)]"
+        >
+          <span className="text-sm font-medium text-emerald-500">Prestations</span>
+        </motion.button>
+
+        <motion.button
+          type="button"
+          onClick={() => setProduitsPopupOpen(true)}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          className="flex items-center gap-2 px-4 py-2 rounded-full border-2 border-orange-500/60 bg-transparent transition-all duration-300 hover:border-orange-400 hover:shadow-[0_0_20px_rgba(249,115,22,0.4)]"
+        >
+          <span className="text-sm font-medium text-orange-500">Produits</span>
+        </motion.button>
+      </div>
+
+      {/* Popup Total CA */}
+      <AnimatePresence>
+        {totalCAPopupOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+            onClick={() => setTotalCAPopupOpen(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+              onClick={(e) => e.stopPropagation()}
+              className="relative w-[90%] max-w-sm rounded-3xl bg-gradient-to-br from-slate-900/98 via-cyan-900/60 to-slate-800/98 border border-cyan-500/30 shadow-[0_25px_80px_rgba(0,0,0,0.6),0_0_40px_rgba(6,182,212,0.2)] backdrop-blur-xl p-8"
+            >
+              <button
+                type="button"
+                onClick={() => setTotalCAPopupOpen(false)}
+                className="absolute top-4 right-4 flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/5 text-slate-400 transition hover:bg-white/10 hover:text-white"
+              >
+                <ChevronDown className="h-5 w-5" />
+              </button>
+              <div className="flex flex-col items-center text-center">
+                <span className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-300/80 mb-1">TOTAL CA</span>
+                <span className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-300/80 mb-6">AUJOURD'HUI</span>
+                <div className="text-5xl font-bold text-white tracking-tight">
+                  {(summary?.dailyAmount ?? 0).toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Popup Prestations */}
+      <AnimatePresence>
+        {prestationsPopupOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+            onClick={() => setPrestationsPopupOpen(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+              onClick={(e) => e.stopPropagation()}
+              className="relative w-[90%] max-w-sm rounded-3xl bg-gradient-to-br from-slate-900/98 via-indigo-900/60 to-slate-800/98 border border-indigo-500/30 shadow-[0_25px_80px_rgba(0,0,0,0.6),0_0_40px_rgba(99,102,241,0.2)] backdrop-blur-xl p-8"
+            >
+              <button
+                type="button"
+                onClick={() => setPrestationsPopupOpen(false)}
+                className="absolute top-4 right-4 flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/5 text-slate-400 transition hover:bg-white/10 hover:text-white"
+              >
+                <ChevronDown className="h-5 w-5" />
+              </button>
+              <div className="flex flex-col items-center text-center">
+                <span className="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-300/80 mb-1">PRESTATIONS</span>
+                <span className="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-300/80 mb-6">AUJOURD'HUI</span>
+                <div className="text-5xl font-bold text-white tracking-tight">{summary?.dailyCount ?? 0}</div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Popup Produits */}
+      <AnimatePresence>
+        {produitsPopupOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+            onClick={() => setProduitsPopupOpen(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+              onClick={(e) => e.stopPropagation()}
+              className="relative w-[90%] max-w-sm rounded-3xl bg-gradient-to-br from-slate-900/98 via-violet-900/60 to-slate-800/98 border border-violet-500/30 shadow-[0_25px_80px_rgba(0,0,0,0.6),0_0_40px_rgba(139,92,246,0.2)] backdrop-blur-xl p-8"
+            >
+              <button
+                type="button"
+                onClick={() => setProduitsPopupOpen(false)}
+                className="absolute top-4 right-4 flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/5 text-slate-400 transition hover:bg-white/10 hover:text-white"
+              >
+                <ChevronDown className="h-5 w-5" />
+              </button>
+              <div className="flex flex-col items-center text-center">
+                <span className="text-xs font-semibold uppercase tracking-[0.2em] text-violet-300/80 mb-1">PRODUITS</span>
+                <span className="text-xs font-semibold uppercase tracking-[0.2em] text-violet-300/80 mb-6">AUJOURD'HUI</span>
+                <div className="text-5xl font-bold text-white tracking-tight">{dailyProductCount}</div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
