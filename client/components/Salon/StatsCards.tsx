@@ -434,7 +434,6 @@ function StylistsList({ stylists, config, hasStylists }: { stylists: any[], conf
             </span>
             <div>
               <h3 className="text-lg font-bold text-white">{selectedStylist.name}</h3>
-              <p className="text-xs text-white/50">Statistiques détaillées</p>
             </div>
           </div>
           <StylistDailySection id={selectedStylist.id} commissionPct={((selectedStylist as any).commissionPct ?? config?.commissionDefault ?? 0)} />
