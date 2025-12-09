@@ -909,70 +909,52 @@ export default function PrestationsForm() {
                     </span>
                   </motion.button>
                 </PopoverTrigger>
-                <PopoverContent side="bottom" align="center" className="w-[min(90vw,36rem)] overflow-hidden rounded-3xl border border-white/15 bg-[linear-gradient(140deg,rgba(7,12,30,0.96)0%,rgba(67,56,202,0.65)55%,rgba(16,185,129,0.45)100%)] p-0 text-slate-50 shadow-[0_40px_95px_rgba(8,15,40,0.7)] backdrop-blur-2xl">
-                  <div className="space-y-5 p-5">
-                    <div className="space-y-1 text-left">
-                      <p className="text-2xl font-bold text-slate-50">Choisir un coiffeur</p>
-                    </div>
-                    <div className="max-h-[45vh] overflow-y-auto pr-1">
+                <PopoverContent side="bottom" align="center" className="w-[min(90vw,28rem)] overflow-hidden rounded-3xl border border-slate-700/50 bg-slate-900/95 p-0 text-slate-50 shadow-[0_25px_60px_rgba(0,0,0,0.5)] backdrop-blur-xl">
+                  <div className="p-4">
+                    <div className="max-h-[50vh] overflow-y-auto">
                       {stylistsLoading ? (
                         <div className="flex items-center justify-center py-10">
-                          <Loader2 className="h-6 w-6 animate-spin text-emerald-300" />
+                          <Loader2 className="h-6 w-6 animate-spin text-cyan-400" />
                         </div>
                       ) : stylists && stylists.length > 0 ? (
-                        <div className="grid gap-3 sm:grid-cols-2">
+                        <div className="grid gap-3 grid-cols-2">
                           {stylists.map((s) => (
                             <button
                               key={s.id}
                               type="button"
                               onClick={() => handleStylistSelect(s.id)}
                               className={cn(
-                                "group relative flex h-full flex-col justify-between overflow-hidden rounded-3xl border border-white/15 bg-[linear-gradient(140deg,rgba(7,12,30,0.96)0%,rgba(15,23,42,0.92)55%,rgba(2,6,23,0.88)100%)] p-5 text-left text-white shadow-[0_24px_60px_rgba(8,15,40,0.45)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_32px_78px_rgba(15,23,42,0.55)] focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300/80 backdrop-blur-xl",
-                                stylistId === s.id && "border-emerald-300/70 shadow-[0_36px_88px_rgba(16,185,129,0.45)]"
+                                "flex items-center gap-3 rounded-2xl border border-slate-700/60 bg-slate-800/80 px-5 py-4 text-left transition-all duration-200 hover:bg-slate-700/60 hover:border-slate-600 focus:outline-none",
+                                stylistId === s.id && "border-cyan-400/60 bg-slate-700/70 shadow-[0_0_20px_rgba(34,211,238,0.25)]"
                               )}
                             >
-                              <span className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.14),transparent_55%)] opacity-80 transition-opacity duration-300 group-hover:opacity-100" />
-                              <div className="relative flex flex-col gap-4">
-                                <span className="flex items-center gap-2 text-3xl font-black tracking-wide text-white">
-                                  <span
-                                    className={cn(
-                                      "h-2 w-2 rounded-full transition-colors",
-                                      stylistId === s.id ? "bg-emerald-300" : "bg-sky-300/80"
-                                    )}
-                                  />
-                                  {s.name}
-                                </span>
-                                {stylistId === s.id ? (
-                                  <span className="inline-flex items-center gap-2 self-start rounded-full border border-emerald-300/70 bg-emerald-400/25 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-emerald-100 shadow-[0_12px_28px_rgba(16,185,129,0.35)]">
-                                    Sélectionné
-                                  </span>
-                                ) : (
-                                  <span className="min-h-[1.75rem]" aria-hidden="true" />
+                              <span
+                                className={cn(
+                                  "h-2.5 w-2.5 rounded-full flex-shrink-0 transition-colors",
+                                  stylistId === s.id ? "bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.8)]" : "bg-cyan-500/70"
                                 )}
-                              </div>
+                              />
+                              <span className="text-xl font-bold text-white truncate">
+                                {s.name}
+                              </span>
                             </button>
                           ))}
                         </div>
                       ) : (
-                        <div className="rounded-2xl border border-slate-700/70 bg-slate-900/80 p-5 text-center text-sm text-slate-300">
-                          Aucun coiffeur disponible. Ajoutez les coiffeurs dans Paramètres &gt; Ajouter un coiffeur.
+                        <div className="rounded-2xl border border-slate-700/70 bg-slate-800/80 p-5 text-center text-sm text-slate-300">
+                          Aucun coiffeur disponible.
                         </div>
                       )}
                     </div>
                   </div>
-                  <div className="flex flex-col gap-3 rounded-b-3xl border-t border-white/10 bg-slate-950/80 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
-                    {selectedStylist ? (
-                      <p className="text-sm text-slate-300">Coiffeur sélectionné : {selectedStylist.name}</p>
-                    ) : null}
-                    <Button
+                  <div className="border-t border-slate-700/50 bg-slate-900/80 px-4 py-3">
+                    <button
                       type="button"
-                      variant="ghost"
-                      size="sm"
-                      className="text-slate-300 hover:text-slate-50"
+                      className="text-sm text-slate-400 hover:text-white transition-colors"
                       onClick={() => setStylistPickerOpen(false)}
                     >
                       Fermer
-                    </Button>
+                    </button>
                   </div>
                 </PopoverContent>
               </Popover>
