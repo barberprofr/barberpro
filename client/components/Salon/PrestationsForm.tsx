@@ -1075,8 +1075,8 @@ export default function PrestationsForm() {
           </div>
         </div>
 
-        {/* Boutons Client, Total CA et Nouveau Client */}
-        <div className="flex justify-between items-center mt-4 px-4">
+        {/* Rangée du milieu: Client et Nouveau Client */}
+        <div className="flex justify-between items-center mt-6 px-8">
           {/* Bouton Client - cyan */}
           <motion.button
             type="button"
@@ -1090,13 +1090,13 @@ export default function PrestationsForm() {
             className="flex flex-col items-center gap-2 focus:outline-none transition-all duration-300"
           >
             <div className={cn(
-              "relative flex h-14 w-14 items-center justify-center rounded-full border-2 transition-all duration-300",
+              "relative flex h-16 w-16 items-center justify-center rounded-full border-2 transition-all duration-300",
               clientId
                 ? "border-cyan-400 shadow-[0_0_25px_rgba(34,211,238,0.6),inset_0_0_15px_rgba(34,211,238,0.2)]"
                 : "border-cyan-500/50 shadow-[0_0_15px_rgba(34,211,238,0.3)]"
             )}>
               <Users className={cn(
-                "h-6 w-6 transition-all duration-300",
+                "h-7 w-7 transition-all duration-300",
                 clientId ? "text-cyan-400" : "text-cyan-500"
               )} />
               {clientId && (
@@ -1108,61 +1108,10 @@ export default function PrestationsForm() {
               )}
             </div>
             <span className={cn(
-              "font-bold transition-all duration-300 max-w-[100px] truncate text-center",
-              clientId ? "text-base text-fuchsia-400 drop-shadow-[0_0_8px_rgba(232,121,249,0.6)]" : "text-xs text-cyan-500"
+              "font-medium transition-all duration-300 max-w-[100px] truncate text-center",
+              clientId ? "text-sm text-fuchsia-400 drop-shadow-[0_0_8px_rgba(232,121,249,0.6)]" : "text-xs text-cyan-500"
             )}>
               {selectedClient ? selectedClient.name.split(' ')[0] : "Client"}
-            </span>
-          </motion.button>
-
-          {/* Bouton Prestations - indigo */}
-          <motion.button
-            type="button"
-            data-pill-button
-            onClick={() => setPrestationsPopupOpen(true)}
-            whileHover={{ scale: 1.08 }}
-            whileTap={{ scale: 0.95 }}
-            className="flex flex-col items-center gap-2 focus:outline-none transition-all duration-300"
-          >
-            <div className="relative flex h-14 w-14 items-center justify-center rounded-full border-2 border-indigo-500/50 shadow-[0_0_15px_rgba(99,102,241,0.3)] transition-all duration-300 hover:border-indigo-400 hover:shadow-[0_0_25px_rgba(99,102,241,0.6)]">
-              <ClipboardList className="h-6 w-6 text-indigo-500 transition-all duration-300" />
-            </div>
-            <span className="text-xs font-medium text-indigo-500 transition-all duration-300">
-              Prestations
-            </span>
-          </motion.button>
-
-          {/* Bouton Total CA - emerald/vert */}
-          <motion.button
-            type="button"
-            data-pill-button
-            onClick={() => setTotalCAPopupOpen(true)}
-            whileHover={{ scale: 1.08 }}
-            whileTap={{ scale: 0.95 }}
-            className="flex flex-col items-center gap-2 focus:outline-none transition-all duration-300"
-          >
-            <div className="relative flex h-14 w-14 items-center justify-center rounded-full border-2 border-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.3)] transition-all duration-300 hover:border-emerald-400 hover:shadow-[0_0_25px_rgba(16,185,129,0.6)]">
-              <Euro className="h-6 w-6 text-emerald-500 transition-all duration-300" />
-            </div>
-            <span className="text-xs font-medium text-emerald-500 transition-all duration-300">
-              Total CA
-            </span>
-          </motion.button>
-
-          {/* Bouton Produits - violet */}
-          <motion.button
-            type="button"
-            data-pill-button
-            onClick={() => setProduitsPopupOpen(true)}
-            whileHover={{ scale: 1.08 }}
-            whileTap={{ scale: 0.95 }}
-            className="flex flex-col items-center gap-2 focus:outline-none transition-all duration-300"
-          >
-            <div className="relative flex h-14 w-14 items-center justify-center rounded-full border-2 border-violet-500/50 shadow-[0_0_15px_rgba(139,92,246,0.3)] transition-all duration-300 hover:border-violet-400 hover:shadow-[0_0_25px_rgba(139,92,246,0.6)]">
-              <Package className="h-6 w-6 text-violet-500 transition-all duration-300" />
-            </div>
-            <span className="text-xs font-medium text-violet-500 transition-all duration-300">
-              Produits
             </span>
           </motion.button>
 
@@ -1181,13 +1130,13 @@ export default function PrestationsForm() {
             className="flex flex-col items-center gap-2 focus:outline-none transition-all duration-300"
           >
             <div className={cn(
-              "relative flex h-14 w-14 items-center justify-center rounded-full border-2 transition-all duration-300",
+              "relative flex h-16 w-16 items-center justify-center rounded-full border-2 transition-all duration-300",
               usingNewClient && newClientFormComplete
                 ? "border-amber-400 shadow-[0_0_25px_rgba(251,191,36,0.6),inset_0_0_15px_rgba(251,191,36,0.2)]"
                 : "border-amber-500/50 shadow-[0_0_15px_rgba(251,191,36,0.3)]"
             )}>
               <UserPlus className={cn(
-                "h-6 w-6 transition-all duration-300",
+                "h-7 w-7 transition-all duration-300",
                 usingNewClient && newClientFormComplete ? "text-amber-400" : "text-amber-500"
               )} />
               {usingNewClient && newClientFormComplete && (
@@ -1202,8 +1151,48 @@ export default function PrestationsForm() {
               "text-xs font-medium transition-all duration-300 max-w-[80px] truncate text-center",
               usingNewClient && newClientFormComplete ? "text-amber-400" : "text-amber-500"
             )}>
-              {usingNewClient && newClientFormComplete ? sanitizedNewClientFirstName : "Nouveau"}
+              {usingNewClient && newClientFormComplete ? sanitizedNewClientFirstName : "Nouveau Client"}
             </span>
+          </motion.button>
+        </div>
+
+        {/* Rangée du bas: Total CA, Prestations, Produits - boutons pilules */}
+        <div className="flex justify-center items-center gap-3 mt-6 px-4">
+          {/* Bouton Total CA - jaune/orange */}
+          <motion.button
+            type="button"
+            data-pill-button
+            onClick={() => setTotalCAPopupOpen(true)}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="flex items-center gap-2 px-4 py-2 rounded-full border-2 border-amber-500/60 bg-transparent transition-all duration-300 hover:border-amber-400 hover:shadow-[0_0_20px_rgba(245,158,11,0.4)]"
+          >
+            <Euro className="h-4 w-4 text-amber-500" />
+            <span className="text-sm font-medium text-amber-500">Total CA</span>
+          </motion.button>
+
+          {/* Bouton Prestations - vert */}
+          <motion.button
+            type="button"
+            data-pill-button
+            onClick={() => setPrestationsPopupOpen(true)}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="flex items-center gap-2 px-4 py-2 rounded-full border-2 border-emerald-500/60 bg-transparent transition-all duration-300 hover:border-emerald-400 hover:shadow-[0_0_20px_rgba(16,185,129,0.4)]"
+          >
+            <span className="text-sm font-medium text-emerald-500">Prestations</span>
+          </motion.button>
+
+          {/* Bouton Produits - orange */}
+          <motion.button
+            type="button"
+            data-pill-button
+            onClick={() => setProduitsPopupOpen(true)}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="flex items-center gap-2 px-4 py-2 rounded-full border-2 border-orange-500/60 bg-transparent transition-all duration-300 hover:border-orange-400 hover:shadow-[0_0_20px_rgba(249,115,22,0.4)]"
+          >
+            <span className="text-sm font-medium text-orange-500">Produits</span>
           </motion.button>
         </div>
 
