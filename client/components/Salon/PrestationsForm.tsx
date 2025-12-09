@@ -1054,8 +1054,8 @@ export default function PrestationsForm() {
           </div>
         </div>
 
-        {/* Boutons Client et Nouveau Client en bas, plus petits */}
-        <div className="flex justify-center gap-12 mt-4">
+        {/* Boutons Client et Nouveau Client aux extrémités */}
+        <div className="flex justify-between items-center mt-4 px-4">
           {/* Bouton Client - cyan */}
           <motion.button
             type="button"
