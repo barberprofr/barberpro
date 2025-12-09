@@ -222,18 +222,7 @@ export default function StatsCards() {
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
-        <RevenuePopoverCard
-          label="CA aujourd'hui"
-          value={eur.format(summary?.dailyAmount ?? 0)}
-          subtext="Chiffre d'affaires généré sur la journée"
-          gradient="from-emerald-500/35 via-emerald-400/10 to-slate-950/85"
-          accentClass="bg-emerald-200"
-          metaLabel="Aujourd'hui"
-          paymentTotalAmount={paymentTotalAmount}
-          paymentMethodOrder={paymentMethodOrder}
-          methodsStats={methodsStats}
-        />
+      <div className="grid grid-cols-2 gap-2.5">
         <SummaryHighlightCard
           label="Prestations (J)"
           value={`${summary?.dailyCount ?? 0}`}
