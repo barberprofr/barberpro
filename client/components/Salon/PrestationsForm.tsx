@@ -919,25 +919,41 @@ export default function PrestationsForm() {
                       ) : stylists && stylists.length > 0 ? (
                         <div className="grid gap-3 grid-cols-2">
                           {stylists.map((s) => (
-                            <button
+                            <motion.button
                               key={s.id}
                               type="button"
                               onClick={() => handleStylistSelect(s.id)}
+                              initial={false}
+                              animate={stylistId === s.id ? {
+                                scale: [1, 1.08, 1.05],
+                                boxShadow: [
+                                  "0 0 15px rgba(167,139,250,0.25)",
+                                  "0 0 40px rgba(167,139,250,0.7)",
+                                  "0 0 30px rgba(167,139,250,0.5)"
+                                ]
+                              } : { scale: 1 }}
+                              transition={{ duration: 0.4, ease: "easeOut" }}
+                              whileHover={{ scale: stylistId === s.id ? 1.05 : 1.03 }}
+                              whileTap={{ scale: 0.98 }}
                               className={cn(
-                                "flex items-center gap-3 rounded-2xl border-2 border-violet-500/40 bg-slate-800/80 px-5 py-4 text-left transition-all duration-200 shadow-[0_0_15px_rgba(167,139,250,0.25)] hover:border-violet-400/60 hover:shadow-[0_0_22px_rgba(167,139,250,0.4)] focus:outline-none",
-                                stylistId === s.id && "border-violet-400 bg-slate-700/70 shadow-[0_0_30px_rgba(167,139,250,0.5)] scale-105"
+                                "flex items-center gap-3 rounded-2xl border-2 border-violet-500/40 bg-slate-800/80 px-5 py-4 text-left transition-colors duration-200 shadow-[0_0_15px_rgba(167,139,250,0.25)] hover:border-violet-400/60 focus:outline-none",
+                                stylistId === s.id && "border-violet-400 bg-slate-700/70"
                               )}
                             >
-                              <span
+                              <motion.span
                                 className={cn(
-                                  "h-2.5 w-2.5 rounded-full flex-shrink-0 transition-colors",
-                                  stylistId === s.id ? "bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.8)]" : "bg-cyan-500/70"
+                                  "h-2.5 w-2.5 rounded-full flex-shrink-0",
+                                  stylistId === s.id ? "bg-cyan-400" : "bg-cyan-500/70"
                                 )}
+                                animate={stylistId === s.id ? {
+                                  boxShadow: ["0 0 4px rgba(34,211,238,0.5)", "0 0 12px rgba(34,211,238,1)", "0 0 8px rgba(34,211,238,0.8)"]
+                                } : {}}
+                                transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
                               />
                               <span className="text-xl font-bold text-white truncate">
                                 {s.name}
                               </span>
-                            </button>
+                            </motion.button>
                           ))}
                         </div>
                       ) : (
