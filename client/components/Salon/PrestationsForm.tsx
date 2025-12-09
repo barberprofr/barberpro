@@ -1028,15 +1028,15 @@ export default function PrestationsForm() {
                             onClick={() => handleStylistSelect(s.id)}
                             initial={false}
                             animate={stylistId === s.id ? {
-                              scale: [1, 1.08, 1.05],
+                              scale: 1.15,
                               boxShadow: [
                                 "0 0 25px rgba(232,121,249,0.5)",
                                 "0 0 55px rgba(232,121,249,0.9)",
                                 "0 0 40px rgba(232,121,249,0.7)"
                               ]
                             } : { scale: 1 }}
-                            transition={{ duration: 0.4, ease: "easeOut" }}
-                            whileHover={{ scale: stylistId === s.id ? 1.05 : 1.03 }}
+                            transition={{ duration: 0.3, ease: "easeOut" }}
+                            whileHover={{ scale: stylistId === s.id ? 1.18 : 1.05 }}
                             whileTap={{ scale: 0.98 }}
                             className={cn(
                               "flex items-center gap-4 rounded-2xl border-2 border-slate-400/80 bg-slate-800/80 px-6 py-5 text-left transition-colors duration-200 shadow-[0_0_20px_rgba(148,163,184,0.4)] hover:border-fuchsia-400 hover:shadow-[0_0_25px_rgba(232,121,249,0.6)] focus:outline-none",
