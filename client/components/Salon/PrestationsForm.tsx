@@ -757,14 +757,12 @@ export default function PrestationsForm() {
 
   return (
     <Card className="border-none shadow-md bg-slate-900/40 backdrop-blur-xl" onClick={handleBackgroundClick}>
-      <CardHeader className="pt-2 pb-0">
-        <div className="flex items-center justify-center -mt-2">
-          <span 
-            className="text-base font-semibold text-black" 
-            title={salonDisplayName}
-          >
-            {salonDisplayName}
-          </span>
+      <CardHeader>
+        <div className="flex items-center justify-end gap-3">
+          <div className="flex items-center gap-2 rounded-full bg-slate-800/80 px-4 py-1.5 text-sm text-slate-100">
+            <span className="grid h-8 w-8 place-items-center rounded-full bg-slate-700 text-sm font-semibold uppercase">{salonInitials}</span>
+            <span className="font-semibold max-w-[9rem] truncate" title={salonDisplayName}>{salonDisplayName}</span>
+          </div>
         </div>
       </CardHeader>
       <AnimatePresence>

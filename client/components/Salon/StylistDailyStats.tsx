@@ -26,11 +26,11 @@ function StylistDaily({ id, date, commissionPct }: { id: string; date?: string; 
     const dailyProductCount = (data as any)?.dailyProductCount ?? 0;
     const salary = (prestationTotal?.amount || 0) * (commissionPct ?? 0) / 100;
     return (
-        <div className="rounded-3xl border border-white/25 bg-slate-500/35 p-4 shadow-inner text-sm space-y-4 backdrop-blur-sm">
+        <div className="rounded-3xl border border-white/10 bg-slate-950/50 p-4 shadow-inner text-sm space-y-4">
             <div className="space-y-3">
                 <div className="flex items-center justify-between text-slate-100">
                     <span className="text-lg font-black tracking-wide">CA du jour</span>
-                    <span className="text-5xl font-black tracking-wide text-fuchsia-300/80 [-webkit-text-stroke:1px_black] [text-shadow:0_0_10px_rgba(232,121,249,0.6),0_0_20px_rgba(232,121,249,0.4)]">{eur.format(total?.amount || 0)}</span>
+                    <span className="text-2xl font-black tracking-wide">{eur.format(total?.amount || 0)}</span>
                 </div>
                 <div className="text-xs text-slate-300">{prestationTotal?.count || 0} prestation{(prestationTotal?.count ?? 0) > 1 ? "s" : ""}{dailyProductCount ? `, ${dailyProductCount} produit${dailyProductCount > 1 ? "s" : ""}` : ""}</div>
             </div>
@@ -41,11 +41,11 @@ function StylistDaily({ id, date, commissionPct }: { id: string; date?: string; 
                     <div className="px-3 py-2"><span className="inline-flex items-center px-2 py-0.5 rounded-full border-2 border-amber-300 bg-amber-50 text-amber-900 text-xs font-semibold">Chèque</span></div>
                     <div className="px-3 py-2"><span className="inline-flex items-center px-2 py-0.5 rounded-full border-2 border-indigo-300 bg-indigo-50 text-indigo-900 text-xs font-semibold">Carte</span></div>
                 </div>
-                <div className="grid grid-cols-4 border-t border-white/10">
+                <div className="grid grid-cols-4 text-sm border-t border-white/10">
                     <div className="px-3 py-3" aria-hidden="true" />
-                    <div className="px-3 py-3"><span className="text-xl font-black text-cyan-300 [-webkit-text-stroke:1px_black] [text-shadow:0_0_6px_rgba(34,211,238,0.35),0_0_12px_rgba(34,211,238,0.2)]">{eur.format(d?.methods.cash.amount || 0)}</span></div>
-                    <div className="px-3 py-3"><span className="text-xl font-black text-cyan-300 [-webkit-text-stroke:1px_black] [text-shadow:0_0_6px_rgba(34,211,238,0.35),0_0_12px_rgba(34,211,238,0.2)]">{eur.format(d?.methods.check.amount || 0)}</span></div>
-                    <div className="px-3 py-3"><span className="text-xl font-black text-cyan-300 [-webkit-text-stroke:1px_black] [text-shadow:0_0_6px_rgba(34,211,238,0.35),0_0_12px_rgba(34,211,238,0.2)]">{eur.format(d?.methods.card.amount || 0)}</span></div>
+                    <div className="px-3 py-3">{eur.format(d?.methods.cash.amount || 0)}</div>
+                    <div className="px-3 py-3">{eur.format(d?.methods.check.amount || 0)}</div>
+                    <div className="px-3 py-3">{eur.format(d?.methods.card.amount || 0)}</div>
                 </div>
             </div>
         </div>

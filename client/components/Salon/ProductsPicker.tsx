@@ -112,7 +112,7 @@ export default function ProductsPicker({ onProductSelect, onReset, externalOpen,
                 >
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-semibold text-emerald-100">Total</span>
-                    <span className="text-5xl font-black text-fuchsia-400/60 [-webkit-text-stroke:1px_black] [text-shadow:0_0_10px_rgba(232,121,249,0.6),0_0_20px_rgba(232,121,249,0.4)]">{total.toFixed(2)}€</span>
+                    <span className="text-2xl font-black text-emerald-300">{total.toFixed(2)}€</span>
                   </div>
                 </motion.div>
               )}
