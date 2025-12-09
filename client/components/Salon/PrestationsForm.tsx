@@ -712,6 +712,9 @@ export default function PrestationsForm() {
   }, []);
 
   const handleBackgroundClick = useCallback((e: React.MouseEvent) => {
+    if (servicesPickerOpen || productsPickerOpen || paymentPickerOpen) {
+      return;
+    }
     const target = e.target as HTMLElement;
     if (target.closest('[data-stylist-card]') || target.closest('[data-popover-content]') || target.closest('[data-pill-button]')) {
       return;
@@ -719,7 +722,7 @@ export default function PrestationsForm() {
     if (stylistId && !amount) {
       refreshStylists();
     }
-  }, [stylistId, amount, refreshStylists]);
+  }, [stylistId, amount, refreshStylists, servicesPickerOpen, productsPickerOpen, paymentPickerOpen]);
 
   return (
     <Card className="border-none shadow-md bg-card" onClick={handleBackgroundClick}>
