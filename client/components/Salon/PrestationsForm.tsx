@@ -901,17 +901,17 @@ export default function PrestationsForm() {
               Prestations
             </motion.button>
 
-            {/* Pilule PRODUITS - filled avec texte orange */}
+            {/* Pilule PRODUITS - outline orange (identique à Prestations) */}
             <motion.button
               type="button"
               onClick={() => setProductsPickerOpen(true)}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95, y: 2 }}
               className={cn(
-                "rounded-full border px-6 py-2.5 font-medium transition-all duration-200 focus:outline-none",
+                "rounded-full border px-6 py-2.5 font-medium transition-all duration-200 focus:outline-none bg-transparent",
                 productsPickerOpen
-                  ? "border-amber-400 bg-slate-900/90 text-amber-400 shadow-[0_0_20px_rgba(251,191,36,0.6)] animate-pulse"
-                  : "border-slate-700 bg-slate-900/90 text-amber-500 hover:border-slate-600 hover:text-amber-400"
+                  ? "border-amber-400 text-amber-300 shadow-[0_0_20px_rgba(251,191,36,0.6)] animate-pulse"
+                  : "border-amber-500/70 text-amber-500 hover:border-amber-400 hover:text-amber-400"
               )}
             >
               Produits
