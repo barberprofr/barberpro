@@ -1087,10 +1087,10 @@ export default function PrestationsForm() {
               )}
             </div>
             <span className={cn(
-              "text-xs font-medium transition-all duration-300",
+              "text-xs font-medium transition-all duration-300 max-w-[80px] truncate text-center",
               clientId ? "text-cyan-400" : "text-cyan-500"
             )}>
-              Client
+              {selectedClient ? selectedClient.name.split(' ')[0] : "Client"}
             </span>
           </motion.button>
 
@@ -1127,10 +1127,10 @@ export default function PrestationsForm() {
               )}
             </div>
             <span className={cn(
-              "text-xs font-medium transition-all duration-300",
+              "text-xs font-medium transition-all duration-300 max-w-[80px] truncate text-center",
               usingNewClient && newClientFormComplete ? "text-amber-400" : "text-amber-500"
             )}>
-              Nouveau Client
+              {usingNewClient && newClientFormComplete ? sanitizedNewClientFirstName : "Nouveau"}
             </span>
           </motion.button>
         </div>
