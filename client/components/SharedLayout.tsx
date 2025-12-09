@@ -95,8 +95,8 @@ export default function SharedLayout({ children }: PropsWithChildren) {
   return (
     <div className="relative min-h-screen bg-gradient-to-br from-blue-950 via-sky-800 to-amber-700">
       <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-15 pointer-events-none"
-        style={{ backgroundImage: "url('/barber-bg.jpg')" }}
+        className="fixed inset-0 bg-cover bg-center bg-no-repeat opacity-20 pointer-events-none"
+        style={{ backgroundImage: "url('/barber-bg.webp')" }}
       />
       {hasActiveSubscription && (
         <header className="sticky top-0 z-10 bg-background/80 backdrop-blur border-b">
