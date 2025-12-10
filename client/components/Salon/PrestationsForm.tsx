@@ -1079,7 +1079,7 @@ export default function PrestationsForm() {
         </div>
 
         {/* Rangée du milieu: Client et Nouveau Client */}
-        <div className="flex justify-between items-center mt-6 px-8">
+        <div className="flex justify-center items-center gap-12 sm:gap-16 mt-6 px-4">
           {/* Bouton Client - cyan */}
           <motion.button
             type="button"
@@ -1151,10 +1151,10 @@ export default function PrestationsForm() {
               )}
             </div>
             <span className={cn(
-              "text-xs font-medium transition-all duration-300 max-w-[80px] truncate text-center",
+              "text-xs font-medium transition-all duration-300 max-w-[70px] sm:max-w-[80px] truncate text-center leading-tight",
               usingNewClient && newClientFormComplete ? "text-amber-400" : "text-amber-500"
             )}>
-              {usingNewClient && newClientFormComplete ? sanitizedNewClientFirstName : "Nouveau Client"}
+              {usingNewClient && newClientFormComplete ? sanitizedNewClientFirstName : "Nouveau Cli..."}
             </span>
           </motion.button>
         </div>
