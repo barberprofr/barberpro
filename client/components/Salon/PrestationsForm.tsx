@@ -966,7 +966,18 @@ export default function PrestationsForm() {
           const isPopover = target.closest('[data-radix-popper-content-wrapper]');
           const isDialog = target.closest('[role="dialog"]');
           const isInput = target.closest('input');
-          if (!isButton && !isPopover && !isDialog && !isInput) {
+          const isStylistCard = target.closest('[data-stylist-card]');
+          if (!isButton && !isPopover && !isDialog && !isInput && !isStylistCard) {
+            // Réinitialiser le formulaire quand on clique sur l'arrière-plan
+            setShowTypePickerPopup(false);
+            setStylistId("");
+            setSelectedServiceName("");
+            setSelectedServiceId("");
+            setSelectedProductName("");
+            setSelectedProductTypeId("");
+            setStylistPickerOpen(false);
+            setServicesPickerOpen(false);
+            setProductsPickerOpen(false);
             refreshStylists();
           }
         }}
