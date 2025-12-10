@@ -996,8 +996,8 @@ export default function Settings() {
     );
   };
 
-  const adminShellClasses = "relative overflow-hidden rounded-2xl border border-white/12 bg-[linear-gradient(135deg,rgba(9,14,30,0.88)0%,rgba(76,29,149,0.58)45%,rgba(16,185,129,0.35)100%)] p-3 shadow-[0_22px_60px_rgba(8,15,40,0.42)] backdrop-blur-2xl space-y-2.5";
-  const glassPanelClasses = "relative overflow-hidden rounded-2xl border border-white/10 bg-[linear-gradient(145deg,rgba(15,23,42,0.76)0%,rgba(30,41,59,0.68)45%,rgba(12,74,110,0.58)100%)] p-2.5 shadow-[0_18px_48px_rgba(8,15,40,0.35)] backdrop-blur-xl";
+  const adminShellClasses = "relative overflow-hidden rounded-2xl border border-white/20 bg-black/12 p-3 shadow-[0_22px_60px_rgba(8,15,40,0.2)] backdrop-blur-md space-y-2.5";
+  const glassPanelClasses = "relative overflow-hidden rounded-2xl border border-white/20 bg-black/12 p-2.5 shadow-[0_18px_48px_rgba(8,15,40,0.2)] backdrop-blur-md";
   const pillHeadingClasses = "inline-flex items-center gap-1.5 rounded-full border border-white/18 bg-white/15 px-2.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.2em] text-white/80 shadow-[0_6px_18px_rgba(79,70,229,0.32)]";
   const badgeSoftClasses = "inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/12 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-white/80 shadow-[0_8px_20px_rgba(15,23,42,0.36)]";
   const inputShellClasses = "group relative flex items-center gap-1.5 rounded-xl border border-white/12 bg-white/10 px-2 py-1.5 shadow-[0_12px_28px_rgba(8,15,40,0.34)] backdrop-blur-xl";
@@ -1407,7 +1407,7 @@ export default function Settings() {
               className="space-y-2.5"
             >
               <AccordionItem value="settings-config" className="border-none">
-                <div className={cn(glassPanelClasses, "space-y-0 overflow-hidden p-2 sm:p-3 bg-[linear-gradient(145deg,rgba(79,70,229,0.6)30%,rgba(16,185,129,0.45)100%)]")}
+                <div className={cn(glassPanelClasses, "space-y-0 overflow-hidden p-2 sm:p-3 ")}
                 >
                   <AccordionTrigger className="flex w-full items-center justify-between rounded-xl border-2 border-emerald-400/60 bg-[linear-gradient(135deg,rgba(16,185,129,0.25)0%,rgba(79,70,229,0.2)100%)] px-4 py-4 text-left text-base font-bold text-emerald-50 shadow-[0_16px_42px_rgba(16,185,129,0.35)] transition hover:no-underline hover:border-emerald-300 hover:bg-[linear-gradient(135deg,rgba(16,185,129,0.35)0%,rgba(79,70,229,0.28)100%)]">
                     <span className={cn("inline-flex items-center gap-2 rounded-full border border-emerald-300/70 bg-emerald-500/20 px-4 py-2 text-sm font-bold uppercase tracking-[0.15em] text-emerald-100")}>
@@ -1520,7 +1520,7 @@ export default function Settings() {
               </AccordionItem>
             </Accordion>
 
-            <div className={cn(glassPanelClasses, "space-y-3 bg-[linear-gradient(145deg,rgba(8,15,40,0.88)0%,rgba(16,185,129,0.45)100%)]")}>
+            <div className={cn(glassPanelClasses, "space-y-3 ")}>
               <div className={pillHeadingClasses}>Chiffre d’affaires (jour)</div>
               <div className="grid gap-2 sm:grid-cols-3">
                 <div className="relative overflow-hidden rounded-xl border border-white/18 bg-white/12 p-3 shadow-[0_16px_44px_rgba(16,185,129,0.28)]">
@@ -1586,7 +1586,7 @@ export default function Settings() {
               className="space-y-2.5"
             >
               <AccordionItem value="exports-marketing">
-                <div className={cn(glassPanelClasses, "space-y-2.5 bg-[linear-gradient(145deg,rgba(8,15,40,0.88)0%,rgba(79,70,229,0.5)55%,rgba(14,165,233,0.38)100%)]")}>
+                <div className={cn(glassPanelClasses, "space-y-2.5 ")}>
                   <AccordionTrigger className="flex w-full items-center justify-between rounded-xl border border-white/18 bg-white/12 px-3 py-1.5 text-xs font-semibold text-white shadow-[0_14px_32px_rgba(79,70,229,0.3)] transition hover:no-underline">
                     <span>Exports fichier clients</span>
                   </AccordionTrigger>
@@ -1596,7 +1596,7 @@ export default function Settings() {
                 </div>
               </AccordionItem>
               <AccordionItem value="points-manager">
-                <div className={cn(glassPanelClasses, "space-y-2.5 bg-[linear-gradient(145deg,rgba(8,15,40,0.88)0%,rgba(16,185,129,0.5)55%,rgba(52,211,153,0.38)100%)]")}>
+                <div className={cn(glassPanelClasses, "space-y-2.5 ")}>
                   <AccordionTrigger className="flex w-full items-center justify-between rounded-xl border border-white/18 bg-white/12 px-3 py-1.5 text-xs font-semibold text-white shadow-[0_14px_32px_rgba(16,185,129,0.3)] transition hover:no-underline">
                     <span>Gestion des Points</span>
                   </AccordionTrigger>
@@ -1606,7 +1606,7 @@ export default function Settings() {
                 </div>
               </AccordionItem>
               <AccordionItem value="coiff-ca">
-                <div className={cn(glassPanelClasses, "space-y-3.5 px-3 py-4 bg-[linear-gradient(145deg,rgba(8,15,40,0.88)0%,rgba(79,70,229,0.5)55%,rgba(14,165,233,0.38)100%)]")}>
+                <div className={cn(glassPanelClasses, "space-y-3.5 px-3 py-4 ")}>
                   <AccordionTrigger className="flex w-full items-center justify-center rounded-xl border border-white/20 bg-[linear-gradient(135deg,rgba(124,58,237,0.82)0%,rgba(244,114,182,0.65)100%)] px-5 py-3 text-sm font-semibold text-white shadow-[0_16px_42px_rgba(168,85,247,0.38)] transition hover:no-underline">
                     Chiffre d’affaires coiffeur
                   </AccordionTrigger>
@@ -1681,7 +1681,7 @@ export default function Settings() {
               </AccordionItem>
 
               <AccordionItem value="daily">
-                <div className={cn(glassPanelClasses, "space-y-3.5 px-3 py-4 bg-[linear-gradient(145deg,rgba(8,15,40,0.88)0%,rgba(56,189,248,0.4)55%,rgba(16,185,129,0.4)100%)]")}>
+                <div className={cn(glassPanelClasses, "space-y-3.5 px-3 py-4 ")}>
                   <AccordionTrigger className="flex w-full items-center justify-center rounded-xl border border-white/20 bg-[linear-gradient(135deg,rgba(56,189,248,0.82)0%,rgba(16,185,129,0.65)100%)] px-5 py-3 text-sm font-semibold text-white shadow-[0_16px_42px_rgba(56,189,248,0.34)] transition hover:no-underline">
                     Chiffre d’affaires (jour)
                   </AccordionTrigger>
@@ -1692,7 +1692,7 @@ export default function Settings() {
               </AccordionItem>
 
               <AccordionItem value="monthly">
-                <div className={cn(glassPanelClasses, "space-y-3.5 px-3 py-4 bg-[linear-gradient(145deg,rgba(8,15,40,0.88)0%,rgba(236,72,153,0.45)55%,rgba(59,130,246,0.4)100%)]")}>
+                <div className={cn(glassPanelClasses, "space-y-3.5 px-3 py-4 ")}>
                   <AccordionTrigger className="flex w-full items-center justify-center rounded-xl border border-white/20 bg-[linear-gradient(135deg,rgba(236,72,153,0.82)0%,rgba(124,58,237,0.66)100%)] px-5 py-3 text-sm font-semibold text-white shadow-[0_16px_42px_rgba(236,72,153,0.38)] transition hover:no-underline">
                     Chiffre d’affaires (mois)
                   </AccordionTrigger>
@@ -1708,7 +1708,7 @@ export default function Settings() {
 
 
               <AccordionItem value="year">
-                <div className={cn(glassPanelClasses, "space-y-3.5 px-3 py-4 bg-[linear-gradient(145deg,rgba(8,15,40,0.9)0%,rgba(244,114,182,0.45)55%,rgba(249,115,22,0.4)100%)]")}>
+                <div className={cn(glassPanelClasses, "space-y-3.5 px-3 py-4 ")}>
                   <AccordionTrigger className="flex w-full items-center justify-center rounded-xl border border-white/20 bg-[linear-gradient(135deg,rgba(249,115,22,0.82)0%,rgba(244,114,182,0.64)100%)] px-5 py-3 text-sm font-semibold text-white shadow-[0_16px_42px_rgba(249,115,22,0.38)] transition hover:no-underline">
                     Chiffre d’affaires (année)
                   </AccordionTrigger>
@@ -1719,7 +1719,7 @@ export default function Settings() {
               </AccordionItem>
 
               <AccordionItem value="points-usage">
-                <div className={cn(glassPanelClasses, "space-y-2 bg-[linear-gradient(145deg,rgba(8,15,40,0.9)0%,rgba(14,165,233,0.42)55%,rgba(56,189,248,0.32)100%)]")}>
+                <div className={cn(glassPanelClasses, "space-y-2 ")}>
                   <AccordionTrigger className="flex w-full items-center justify-center rounded-xl border border-white/20 bg-[linear-gradient(135deg,rgba(14,165,233,0.78)0%,rgba(16,185,129,0.6)100%)] px-3.5 py-1.5 text-sm font-semibold text-white shadow-[0_14px_38px_rgba(16,185,129,0.36)] transition hover:no-underline">
                     Utilisation des points
                   </AccordionTrigger>
