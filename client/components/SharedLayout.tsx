@@ -1,6 +1,6 @@
 import type { PropsWithChildren } from "react";
 import { useEffect, useState, useRef } from "react";
-import { Home, Users, Settings, Scissors, LogOut, HelpCircle } from "lucide-react";
+import { Home, Users, Settings, LogOut, HelpCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useConfig, createCheckoutSession } from "@/lib/api";
 import AuthGate from "./auth/AuthGate";
@@ -102,15 +102,16 @@ export default function SharedLayout({ children }: PropsWithChildren) {
       {hasActiveSubscription && (
         <header className="sticky top-0 z-10 bg-background/80 backdrop-blur border-b">
           <div className="container flex items-center justify-between py-3">
-            <Link to="/app" className="flex items-center gap-2">
-              <div className="h-9 w-9 rounded-full bg-primary text-primary-foreground grid place-items-center shadow">
-                <Scissors className="h-5 w-5" />
+            <Link to="/app" className="flex items-center gap-1.5">
+              <div className="h-9 w-9 grid place-items-center">
+                <svg viewBox="0 0 60 60" className="h-9 w-9" aria-hidden>
+                  <text x="50%" y="55%" dominantBaseline="middle" textAnchor="middle" className="fill-slate-800" style={{ fontSize: '48px', fontWeight: 800, fontFamily: 'system-ui, sans-serif' }}>B</text>
+                  <rect x="18" y="14" width="6" height="6" rx="1" className="fill-slate-800" />
+                </svg>
               </div>
-              <div>
-                <h1 className="text-base font-semibold tracking-tight">
-                  Barber<span aria-hidden="true" className="mx-1 inline-block h-0.5 w-0.5 rounded-full bg-red-500 align-baseline" />Pro
-                </h1>
-              </div>
+              <h1 className="text-base font-bold tracking-tight text-slate-800">
+                BarBerpro<svg viewBox="0 0 16 16" className="inline-block h-3 w-3 ml-0.5 -mt-0.5" aria-hidden><path d="M13.5 2L6 12l-3.5-3.5" fill="none" stroke="#dc2626" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              </h1>
             </Link>
             <div className="flex items-center gap-2">
               <button
@@ -242,7 +243,7 @@ export default function SharedLayout({ children }: PropsWithChildren) {
               <PopoverTrigger asChild>
                 <button
                   type="button"
-                  aria-label="Aide Barber.Pro"
+                  aria-label="Aide BarBerpro"
                   className="flex flex-col items-center justify-center gap-2 px-3 text-sm font-semibold text-slate-900 transition-colors hover:text-primary"
                 >
                   <HelpCircle className="h-5 w-5" />
@@ -256,7 +257,7 @@ export default function SharedLayout({ children }: PropsWithChildren) {
                 className="w-[220px] rounded-2xl border border-slate-200 bg-slate-900/95 px-4 py-3 text-[11px] leading-snug text-white shadow-lg"
               >
                 <p className="font-semibold">
-                  Assistance Barber<span aria-hidden="true" className="mx-1 inline-block h-0.5 w-0.5 rounded-full bg-red-500 align-baseline" />Pro
+                  Assistance BarBerpro<svg viewBox="0 0 16 16" className="inline-block h-3 w-3 ml-0.5" aria-hidden><path d="M13.5 2L6 12l-3.5-3.5" fill="none" stroke="#dc2626" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
                 </p>
                 <p className="mt-1 text-white/80">
                   Email : <span className="font-medium text-white">barberpro.fr@hotmail.com</span>
