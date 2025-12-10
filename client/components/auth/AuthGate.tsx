@@ -297,7 +297,7 @@ function Login({ onSwitchSignup, onRecover }: { onSwitchSignup: () => void; onRe
   return (
     <Card className="border border-white/20 shadow-[0_24px_68px_rgba(15,23,42,0.3)] min-h-[380px] bg-white/8 text-gray-100 backdrop-blur-sm rounded-[2rem]">
       <CardHeader>
-        <CardTitle className="text-center">Se connecter</CardTitle>
+        <CardTitle className="text-center text-lg">Se connecter</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="relative">
