@@ -1253,17 +1253,48 @@ export default function PrestationsForm() {
           <DialogContent className="w-[min(90vw,24rem)] overflow-hidden rounded-2xl border border-white/25 bg-black/10 p-0 shadow-[0_25px_60px_rgba(0,0,0,0.15),inset_0_1px_0_rgba(255,255,255,0.2)] backdrop-blur-[3px]">
             <div className="p-5 space-y-5">
               {/* Barre de recherche */}
-              <div className="relative rounded-xl p-[2px]" style={{
+              <motion.div 
+                className="relative rounded-xl p-[2px]"
+                initial={{ scale: 1 }}
+                whileFocus={{ scale: 1.03 }}
+                transition={{ type: "spring", stiffness: 400, damping: 20 }}
+                style={{
                   background: "linear-gradient(90deg, #e879f9 0%, #f0abfc 15%, rgba(255,255,255,0.4) 50%, #f0abfc 85%, #e879f9 100%)"
-                }}>
-                <Input
-                  placeholder="Rechercher par nom ou téléphone"
-                  autoFocus
-                  value={clientSearch}
-                  onChange={(e) => setClientSearch(e.target.value)}
-                  className="h-12 w-full rounded-[10px] border-0 bg-slate-900/80 pl-4 pr-4 text-base text-white font-medium text-center placeholder:text-white/50 placeholder:text-center focus:ring-0 focus:bg-slate-900/90 backdrop-blur-sm focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none"
-                />
-              </div>
+                }}
+              >
+                <motion.div
+                  initial={{ boxShadow: "0 0 0px rgba(232, 121, 249, 0)" }}
+                  whileTap={{ scale: 1.02 }}
+                  animate={clientSearch ? { 
+                    boxShadow: "0 0 25px rgba(232, 121, 249, 0.6), 0 0 50px rgba(240, 171, 252, 0.3)",
+                    scale: 1.02
+                  } : {}}
+                  transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                  className="rounded-xl"
+                >
+                  <Input
+                    placeholder="Rechercher par nom ou téléphone"
+                    autoFocus
+                    value={clientSearch}
+                    onChange={(e) => setClientSearch(e.target.value)}
+                    onFocus={(e) => {
+                      const parent = e.target.parentElement?.parentElement;
+                      if (parent) {
+                        parent.style.transform = "scale(1.03)";
+                        parent.style.boxShadow = "0 0 30px rgba(232, 121, 249, 0.7), 0 0 60px rgba(240, 171, 252, 0.4)";
+                      }
+                    }}
+                    onBlur={(e) => {
+                      const parent = e.target.parentElement?.parentElement;
+                      if (parent) {
+                        parent.style.transform = "scale(1)";
+                        parent.style.boxShadow = "none";
+                      }
+                    }}
+                    className="h-12 w-full rounded-[10px] border-0 bg-slate-900/80 pl-4 pr-4 text-base text-white font-medium text-center placeholder:text-white/50 placeholder:text-center focus:ring-0 focus:bg-slate-900/90 backdrop-blur-sm focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none transition-all duration-200"
+                  />
+                </motion.div>
+              </motion.div>
 
               {/* Liste des clients */}
               <div className="max-h-[40vh] overflow-y-auto">
