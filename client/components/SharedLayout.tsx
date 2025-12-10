@@ -109,7 +109,7 @@ export default function SharedLayout({ children }: PropsWithChildren) {
                   <rect x="18" y="14" width="6" height="6" rx="1" className="fill-slate-800" />
                 </svg>
               </div>
-              <h1 className="text-lg font-bold tracking-tight text-white">
+              <h1 className="text-lg font-bold tracking-tight" style={{ color: '#ffffff' }}>
                 BarBerpro<svg viewBox="0 0 16 16" className="inline-block h-3.5 w-3.5 ml-0.5 -mt-0.5" aria-hidden><path d="M13.5 2L6 12l-3.5-3.5" fill="none" stroke="#dc2626" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
               </h1>
             </Link>
