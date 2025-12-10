@@ -118,8 +118,7 @@ function Signup({ onSwitchLogin }: { onSwitchLogin: () => void }) {
 
   return (
     <div className="relative">
-      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(135deg,rgba(15,23,42,0.95)0%,rgba(30,20,60,0.85)25%,rgba(20,25,50,0.9)50%,rgba(15,30,40,0.85)75%,rgba(10,20,35,0.95)100%)] -z-10 rounded-[24px]" />
-      <Card className="relative overflow-hidden rounded-[24px] border border-white/20 bg-gradient-to-br from-white/12 via-white/6 to-transparent backdrop-blur-xl shadow-[0_32px_96px_rgba(8,15,40,0.52)] text-gray-100">
+      <Card className="relative overflow-hidden rounded-[2rem] border border-white/20 bg-white/8 backdrop-blur-sm shadow-[0_24px_68px_rgba(15,23,42,0.3)] text-gray-100">
         <CardHeader>
           <CardTitle className="text-center">Créer un compte</CardTitle>
         </CardHeader>
