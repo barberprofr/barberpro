@@ -162,7 +162,7 @@ export default function ServicesPicker({ onServiceSelect, onReset, externalOpen,
                         <span className="text-lg font-bold text-white">
                           {service.name}
                         </span>
-                        <span className="text-sm font-semibold text-white/80">
+                        <span className="text-lg font-semibold text-white/80">
                           {service.price.toFixed(2)}€
                         </span>
                       </div>

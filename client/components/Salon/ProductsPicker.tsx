@@ -159,7 +159,7 @@ export default function ProductsPicker({ onProductSelect, onReset, externalOpen,
                         <span className="text-lg font-bold text-white">
                           {product.name}
                         </span>
-                        <span className="text-sm font-semibold text-white/80">
+                        <span className="text-lg font-semibold text-white/80">
                           {product.price.toFixed(2)}€
                         </span>
                       </div>
