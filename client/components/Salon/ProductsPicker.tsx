@@ -256,14 +256,14 @@ export default function ProductsPicker({ onProductSelect, onReset, externalOpen,
                   <motion.button
                     type="button"
                     onClick={handleValidate}
-                    whileHover={{ scale: 1.03 }}
-                    whileTap={{ scale: 1.08, y: -3 }}
-                    transition={{ type: "spring", stiffness: 400, damping: 15 }}
-                    className="relative w-full overflow-hidden rounded-xl py-6 text-lg font-black text-white transition-all"
-                    style={{
-                      background: "linear-gradient(90deg, #22c55e 0%, #10b981 20%, #059669 50%, #10b981 80%, #22c55e 100%)",
-                      boxShadow: "0 0 30px rgba(34,197,94,0.5), -10px 0 25px rgba(34,197,94,0.6), 10px 0 25px rgba(34,197,94,0.6), 0 20px 40px rgba(16,185,129,0.4)"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ 
+                      scale: 1.08, 
+                      y: -3,
+                      boxShadow: "0 0 40px rgba(34,197,94,0.7), -15px 0 35px rgba(34,197,94,0.8), 15px 0 35px rgba(34,197,94,0.8), 0 25px 50px rgba(16,185,129,0.5)"
                     }}
+                    transition={{ type: "spring", stiffness: 400, damping: 15 }}
+                    className="relative w-full overflow-hidden rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 py-6 text-lg font-black text-white shadow-[0_15px_30px_rgba(16,185,129,0.3)] transition-all"
                   >
                     <span className="relative z-10">Valider ({selectedProducts.size} produit{selectedProducts.size > 1 ? 's' : ''})</span>
                   </motion.button>
