@@ -1079,7 +1079,7 @@ export default function PrestationsForm() {
         </div>
 
         {/* Rangée du milieu: Client et Nouveau Client */}
-        <div className="flex justify-center items-center gap-12 sm:gap-16 mt-6 px-4">
+        <div className="flex justify-center items-center gap-8 sm:gap-16 mt-4 mb-4 px-4">
           {/* Bouton Client - cyan */}
           <motion.button
             type="button"
