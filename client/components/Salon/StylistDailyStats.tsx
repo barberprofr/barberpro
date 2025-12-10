@@ -32,7 +32,7 @@ function StylistDaily({ id, date, commissionPct }: { id: string; date?: string; 
                     <span className="text-lg font-black tracking-wide [-webkit-text-stroke:0.5px_black]">CA du jour</span>
                     <span className="text-5xl font-black tracking-wide text-fuchsia-300" style={{ WebkitTextStroke: '0.5px black' }}>{eur.format(total?.amount || 0)}</span>
                 </div>
-                <div className="text-xs text-slate-300">{prestationTotal?.count || 0} prestation{(prestationTotal?.count ?? 0) > 1 ? "s" : ""}{dailyProductCount ? `, ${dailyProductCount} produit${dailyProductCount > 1 ? "s" : ""}` : ""}</div>
+                <div className="text-xs text-white">{prestationTotal?.count || 0} prestation{(prestationTotal?.count ?? 0) > 1 ? "s" : ""}{dailyProductCount ? `, ${dailyProductCount} produit${dailyProductCount > 1 ? "s" : ""}` : ""}</div>
             </div>
             <div className="rounded-2xl border border-white/10 bg-slate-900/40 overflow-hidden">
                 <div className="grid grid-cols-4 text-sm bg-white/5">
