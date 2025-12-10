@@ -206,14 +206,14 @@ export default function SharedLayout({ children }: PropsWithChildren) {
       )}
       {hasActiveSubscription && (
         <nav
-          className="fixed bottom-0 inset-x-0 z-50 h-[90px] border-t border-amber-200 bg-gradient-to-r from-sky-100 to-amber-100 text-slate-900 shadow-[0_-8px_32px_rgba(15,23,42,0.45)]"
+          className="fixed bottom-0 inset-x-0 z-50 h-[90px] border-t border-white/10 bg-black/15 backdrop-blur-md text-white shadow-[0_-8px_32px_rgba(0,0,0,0.3)]"
         >
           <div className="mx-auto flex h-full w-full max-w-md items-stretch pb-[env(safe-area-inset-bottom,0px)]">
             <Link
               to="/app"
               className={cn(
                 "flex-1 flex flex-col items-center justify-center gap-2 text-sm font-semibold transition-colors duration-200",
-                current.startsWith("/app") ? "text-primary" : "text-slate-900 hover:text-primary"
+                current.startsWith("/app") ? "text-primary" : "text-white/80 hover:text-primary"
               )}
             >
               <Home className="h-5 w-5" />
@@ -223,7 +223,7 @@ export default function SharedLayout({ children }: PropsWithChildren) {
               to="/clients"
               className={cn(
                 "flex-1 flex flex-col items-center justify-center gap-2 text-sm font-semibold transition-colors duration-200",
-                current.startsWith("/clients") ? "text-primary" : "text-slate-900 hover:text-primary"
+                current.startsWith("/clients") ? "text-primary" : "text-white/80 hover:text-primary"
               )}
             >
               <Users className="h-5 w-5" />
@@ -233,7 +233,7 @@ export default function SharedLayout({ children }: PropsWithChildren) {
               to="/settings"
               className={cn(
                 "flex-1 flex flex-col items-center justify-center gap-2 text-sm font-semibold transition-colors duration-200",
-                current.startsWith("/settings") ? "text-primary" : "text-slate-900 hover:text-primary"
+                current.startsWith("/settings") ? "text-primary" : "text-white/80 hover:text-primary"
               )}
             >
               <Settings className="h-5 w-5" />
@@ -244,7 +244,7 @@ export default function SharedLayout({ children }: PropsWithChildren) {
                 <button
                   type="button"
                   aria-label="Aide BarBerpro"
-                  className="flex flex-col items-center justify-center gap-2 px-3 text-sm font-semibold text-slate-900 transition-colors hover:text-primary"
+                  className="flex flex-col items-center justify-center gap-2 px-3 text-sm font-semibold text-white/80 transition-colors hover:text-primary"
                 >
                   <HelpCircle className="h-5 w-5" />
                   Aide
