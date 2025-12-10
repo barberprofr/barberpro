@@ -248,7 +248,7 @@ export default function StatsCards() {
             </div>
           </motion.button>
         </PopoverTrigger>
-        <PopoverContent side="bottom" align="center" className="w-[min(90vw,36rem)] max-h-[80vh] overflow-y-auto rounded-2xl border border-white/15 bg-[linear-gradient(135deg,rgba(4,11,46,0.92)0%,rgba(11,27,77,0.78)55%,rgba(16,45,115,0.58)100%)] p-4 shadow-[0_40px_95px_rgba(8,15,40,0.7)] backdrop-blur-xl [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
+        <PopoverContent side="bottom" align="center" className="w-[min(90vw,36rem)] max-h-[80vh] overflow-y-auto rounded-2xl border border-white/20 bg-[linear-gradient(135deg,rgba(4,11,46,0.12)0%,rgba(11,27,77,0.10)55%,rgba(16,45,115,0.08)100%)] p-4 shadow-[0_40px_95px_rgba(8,15,40,0.3)] backdrop-blur-sm [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
           <StylistsList stylists={stylistsList} config={config} hasStylists={hasStylists} />
         </PopoverContent>
       </Popover>
