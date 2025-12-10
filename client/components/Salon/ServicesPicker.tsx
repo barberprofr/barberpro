@@ -183,7 +183,7 @@ export default function ServicesPicker({ onServiceSelect, onReset, externalOpen,
                                 e.stopPropagation();
                                 setCalculatorServiceId(service.id);
                               }}
-                              className="relative flex items-center gap-1 rounded-lg border border-emerald-400/50 bg-emerald-950/40 px-3 py-1.5 hover:bg-emerald-900/50 transition cursor-pointer"
+                              className="relative flex items-center gap-1 rounded-lg border border-emerald-400/50 bg-emerald-950/40 px-3 py-1.5 hover:bg-emerald-900/50 transition cursor-pointer active:scale-110 active:brightness-125 active:border-white/80 active:shadow-[0_0_15px_rgba(52,211,153,0.6)]"
                             >
                               <span className="text-sm font-bold text-emerald-100">
                                 Qté: {selectedData.quantity}
