@@ -984,8 +984,8 @@ export default function PrestationsForm() {
         />
 
         {/* Grande carte Coiffeur centrée en haut */}
-        <div className="flex justify-center mb-4 sm:mb-6">
-          <div className="relative w-full max-w-[9rem] sm:max-w-[11rem]">
+        <div className="flex justify-center mb-6">
+          <div className="relative w-full max-w-[11rem]">
             <Popover open={stylistPickerOpen} onOpenChange={setStylistPickerOpen}>
               <PopoverTrigger asChild>
                 <motion.button
@@ -994,7 +994,7 @@ export default function PrestationsForm() {
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.98 }}
                   className={cn(
-                    "group relative flex flex-col items-center justify-center gap-1.5 sm:gap-2 w-full rounded-[2rem] sm:rounded-[2.5rem] border-2 bg-slate-950/75 px-3 py-3 sm:px-4 sm:py-4 transition-all duration-300 focus:outline-none backdrop-blur-sm",
+                    "group relative flex flex-col items-center justify-center gap-2 w-full rounded-[2.5rem] border-2 bg-slate-950/75 px-4 py-4 transition-all duration-300 focus:outline-none backdrop-blur-sm",
                     stylistId 
                       ? "border-cyan-400 shadow-[0_0_35px_rgba(34,211,238,0.5),0_0_60px_rgba(34,211,238,0.3),inset_0_0_20px_rgba(34,211,238,0.1)]" 
                       : "border-slate-700/70 shadow-[0_0_20px_rgba(0,0,0,0.4)] hover:border-cyan-500/50 hover:shadow-[0_0_28px_rgba(34,211,238,0.3)]"
@@ -1009,10 +1009,10 @@ export default function PrestationsForm() {
                     transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
                     className="rounded-full overflow-hidden"
                   >
-                    <img src="/assets/coiffeur-photo.jpg" alt="Coiffeur" className="h-28 w-28 sm:h-36 sm:w-36 object-contain rounded-full opacity-70" />
+                    <img src="/assets/coiffeur-photo.jpg" alt="Coiffeur" className="h-36 w-36 object-contain rounded-full opacity-70" />
                   </motion.div>
                   <span className={cn(
-                    "text-base sm:text-lg font-semibold transition-all duration-300",
+                    "text-lg font-semibold transition-all duration-300",
                     stylistId ? "text-white" : "text-slate-300"
                   )}>
                     {selectedStylist ? selectedStylist.name : "Coiffeur"}
@@ -1079,7 +1079,7 @@ export default function PrestationsForm() {
         </div>
 
         {/* Rangée du milieu: Client et Nouveau Client */}
-        <div className="flex justify-between items-center mt-4 sm:mt-6 px-4 sm:px-8">
+        <div className="flex justify-between items-center mt-6 px-8">
           {/* Bouton Client - cyan */}
           <motion.button
             type="button"
@@ -1090,16 +1090,16 @@ export default function PrestationsForm() {
             }}
             whileHover={{ scale: 1.08 }}
             whileTap={{ scale: 0.95 }}
-            className="flex flex-col items-center gap-1.5 sm:gap-2 focus:outline-none transition-all duration-300"
+            className="flex flex-col items-center gap-2 focus:outline-none transition-all duration-300"
           >
             <div className={cn(
-              "relative flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full border-2 transition-all duration-300",
+              "relative flex h-12 w-12 items-center justify-center rounded-full border-2 transition-all duration-300",
               clientId
                 ? "border-cyan-400 shadow-[0_0_25px_rgba(34,211,238,0.6),inset_0_0_15px_rgba(34,211,238,0.2)]"
                 : "border-cyan-500/50 shadow-[0_0_15px_rgba(34,211,238,0.3)]"
             )}>
               <Users className={cn(
-                "h-4 w-4 sm:h-5 sm:w-5 transition-all duration-300",
+                "h-5 w-5 transition-all duration-300",
                 clientId ? "text-cyan-400" : "text-cyan-500"
               )} />
               {clientId && (
@@ -1111,8 +1111,8 @@ export default function PrestationsForm() {
               )}
             </div>
             <span className={cn(
-              "font-bold transition-all duration-300 max-w-[80px] sm:max-w-[120px] truncate text-center",
-              clientId ? "text-base sm:text-lg text-fuchsia-400 drop-shadow-[0_0_8px_rgba(232,121,249,0.6)]" : "text-xs sm:text-sm text-cyan-500"
+              "font-bold transition-all duration-300 max-w-[120px] truncate text-center",
+              clientId ? "text-lg text-fuchsia-400 drop-shadow-[0_0_8px_rgba(232,121,249,0.6)]" : "text-sm text-cyan-500"
             )}>
               {selectedClient ? selectedClient.name.split(' ')[0] : "Client"}
             </span>
@@ -1130,16 +1130,16 @@ export default function PrestationsForm() {
             }}
             whileHover={{ scale: 1.08 }}
             whileTap={{ scale: 0.95 }}
-            className="flex flex-col items-center gap-1.5 sm:gap-2 focus:outline-none transition-all duration-300"
+            className="flex flex-col items-center gap-2 focus:outline-none transition-all duration-300"
           >
             <div className={cn(
-              "relative flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full border-2 transition-all duration-300",
+              "relative flex h-12 w-12 items-center justify-center rounded-full border-2 transition-all duration-300",
               usingNewClient && newClientFormComplete
                 ? "border-amber-400 shadow-[0_0_25px_rgba(251,191,36,0.6),inset_0_0_15px_rgba(251,191,36,0.2)]"
                 : "border-amber-500/50 shadow-[0_0_15px_rgba(251,191,36,0.3)]"
             )}>
               <UserPlus className={cn(
-                "h-4 w-4 sm:h-5 sm:w-5 transition-all duration-300",
+                "h-5 w-5 transition-all duration-300",
                 usingNewClient && newClientFormComplete ? "text-amber-400" : "text-amber-500"
               )} />
               {usingNewClient && newClientFormComplete && (
@@ -1151,10 +1151,10 @@ export default function PrestationsForm() {
               )}
             </div>
             <span className={cn(
-              "text-[10px] sm:text-xs font-medium transition-all duration-300 max-w-[70px] sm:max-w-[80px] truncate text-center",
+              "text-xs font-medium transition-all duration-300 max-w-[80px] truncate text-center",
               usingNewClient && newClientFormComplete ? "text-amber-400" : "text-amber-500"
             )}>
-              {usingNewClient && newClientFormComplete ? sanitizedNewClientFirstName : "Nouveau Cli..."}
+              {usingNewClient && newClientFormComplete ? sanitizedNewClientFirstName : "Nouveau Client"}
             </span>
           </motion.button>
         </div>
