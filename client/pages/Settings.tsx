@@ -963,7 +963,6 @@ export default function Settings() {
   const [dailyCaPopupOpen, setDailyCaPopupOpen] = useState(false);
   const [monthlyCaPopupOpen, setMonthlyCaPopupOpen] = useState(false);
   const [yearCaPopupOpen, setYearCaPopupOpen] = useState(false);
-  const [addStylistPopupOpen, setAddStylistPopupOpen] = useState(false);
 
   useEffect(() => {
     if (bestDaysAccordionValue === "") {
@@ -2018,158 +2017,126 @@ export default function Settings() {
                 onCloseParent={() => setAccordionValue("")}
               />
 
-              <div className={cn(glassPanelClasses, "space-y-3.5 px-4 py-4 bg-[linear-gradient(145deg,rgba(8,15,40,0.9)0%,rgba(30,58,138,0.35)60%,rgba(37,99,235,0.25)100%)]")}>
-                <button
-                  type="button"
-                  onClick={() => setAddStylistPopupOpen(true)}
-                  className="relative flex items-center justify-center rounded-full border-2 border-blue-600 bg-black/30 w-24 h-24 mx-auto text-sm font-semibold uppercase tracking-[0.2em] text-white shadow-[0_0_15px_rgba(59,130,246,0.5),0_0_30px_rgba(30,58,138,0.3)] transition-all duration-300 overflow-hidden hover:scale-110 hover:border-blue-400 hover:shadow-[0_0_25px_rgba(59,130,246,0.8),0_0_50px_rgba(30,58,138,0.6),0_0_75px_rgba(59,130,246,0.4)] group"
-                >
-                  <span className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(59,130,246,0.2),transparent_70%)] group-hover:bg-[radial-gradient(circle_at_center,rgba(59,130,246,0.4),transparent_60%)] transition-all duration-300" />
-                  <span className="pointer-events-none absolute -inset-0.5 rounded-full border border-blue-500/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300 animate-pulse" />
-                  <span className="relative z-10 text-center px-2 flex flex-col items-center gap-2">
-                    <UserRound className="w-7 h-7 text-blue-300" />
-                    <span className="text-sm font-semibold leading-snug tracking-wide text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.4)]">Ajouter un coiffeur</span>
-                  </span>
-                </button>
-              </div>
-              <AnimatePresence>
-                {addStylistPopupOpen && (
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.15 }}
-                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
-                    onClick={() => setAddStylistPopupOpen(false)}
-                  >
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.95 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.95 }}
-                      transition={{ duration: 0.2 }}
-                      className="w-full max-w-lg max-h-[80vh] overflow-y-auto rounded-2xl border border-white/20 bg-black/5 backdrop-blur-md p-4 shadow-[0_25px_80px_rgba(0,0,0,0.6)]"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <div className="flex items-center justify-between mb-4">
-                        <span className="text-lg font-bold text-white">Ajouter un coiffeur</span>
-                        <button
-                          type="button"
-                          onClick={() => setAddStylistPopupOpen(false)}
-                          className="flex h-8 w-8 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition hover:bg-white/20"
+              <AccordionItem value="add-stylist">
+                <div className={cn(glassPanelClasses, "space-y-3.5 px-4 py-4 bg-[linear-gradient(145deg,rgba(8,15,40,0.9)0%,rgba(30,58,138,0.35)60%,rgba(37,99,235,0.25)100%)]")}>
+                  <AccordionTrigger className="relative flex items-center justify-center rounded-full border-2 border-blue-600 bg-black/30 w-24 h-24 mx-auto text-sm font-semibold uppercase tracking-[0.2em] text-white shadow-[0_0_15px_rgba(59,130,246,0.5),0_0_30px_rgba(30,58,138,0.3)] transition-all duration-300 overflow-hidden hover:scale-110 hover:border-blue-400 hover:shadow-[0_0_25px_rgba(59,130,246,0.8),0_0_50px_rgba(30,58,138,0.6),0_0_75px_rgba(59,130,246,0.4)] group">
+                    <span className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(59,130,246,0.2),transparent_70%)] group-hover:bg-[radial-gradient(circle_at_center,rgba(59,130,246,0.4),transparent_60%)] transition-all duration-300" />
+                    <span className="pointer-events-none absolute -inset-0.5 rounded-full border border-blue-500/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300 animate-pulse" />
+                    <span className="relative z-10 text-center px-2 flex flex-col items-center gap-2">
+                      <UserRound className="w-7 h-7 text-blue-300" />
+                      <span className="text-sm font-semibold leading-snug tracking-wide text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.4)]">Ajouter un<br className="hidden" /> <span className="inline">coiffeur</span></span>
+                    </span>
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <div className="space-y-3.5">
+                      <div className="flex flex-wrap gap-3">
+                        <div className="flex-1 min-w-[14rem]">
+                          <Input
+                            placeholder="Nom du coiffeur"
+                            value={stylistName}
+                            onChange={(e) => setStylistName(e.target.value)}
+                            className={cn(inputFieldClasses, "h-10 w-full bg-slate-950/70 px-4 text-base font-semibold text-white caret-emerald-200 placeholder:text-white/60")}
+                          />
+                        </div>
+                        <Select
+                          value={commissionPct || undefined}
+                          onValueChange={(value) => setCommissionPct(value)}
                         >
-                          ✕
-                        </button>
+                          <SelectTrigger className={cn(selectTriggerClasses, "h-10 max-w-[6.5rem] bg-slate-950/70 px-3.5 text-xs font-semibold text-white uppercase tracking-[0.22em]")}>
+                            <SelectValue placeholder="%" />
+                          </SelectTrigger>
+                          <SelectContent className="w-[6.5rem] max-h-48 overflow-y-auto rounded-xl border border-emerald-300/50 bg-slate-950/95 text-slate-100">
+                            {STYLIST_COMMISSION_CHOICES.map((choice) => (
+                              <SelectItem key={choice} value={String(choice)}>
+                                {choice} %
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <Button
+                          className={addStylistButtonClasses}
+                          disabled={!stylistName.trim() || !commissionPct}
+                          aria-label="Ajouter un coiffeur"
+                          onClick={() => {
+                            const trimmed = stylistName.trim();
+                            if (!trimmed || !commissionPct) return;
+                            const pctValue = Math.max(0, Math.min(60, Number(commissionPct) || 0));
+                            addStylist.mutate({ name: trimmed, commissionPct: pctValue }, {
+                              onSuccess: () => {
+                                setStylistName("");
+                                setCommissionPct("");
+                                setAccordionValue("");
+                              },
+                            });
+                          }}
+                        >
+                          Ajouter
+                        </Button>
                       </div>
-                      <div className="space-y-3.5">
-                        <div className="flex flex-wrap gap-3">
-                          <div className="flex-1 min-w-[14rem]">
-                            <Input
-                              placeholder="Nom du coiffeur"
-                              value={stylistName}
-                              onChange={(e) => setStylistName(e.target.value)}
-                              className={cn(inputFieldClasses, "h-10 w-full bg-slate-950/70 px-4 text-base font-semibold text-white caret-emerald-200 placeholder:text-white/60")}
-                            />
-                          </div>
-                          <Select
-                            value={commissionPct || undefined}
-                            onValueChange={(value) => setCommissionPct(value)}
+                      <div className="h-px bg-white/25" />
+                      <div className="space-y-2.5">
+                        <div className="text-sm font-semibold text-white/85">Gérer un coiffeur</div>
+                        <div className="flex flex-wrap items-center gap-2.5">
+                          <select
+                            className={cn(
+                              "h-10 rounded-2xl border px-3 text-sm font-semibold transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300/70",
+                              manageStylistId
+                                ? "border-emerald-300/70 bg-emerald-400/20 text-emerald-100 shadow-[0_14px_34px_rgba(16,185,129,0.3)]"
+                                : "border-white/18 bg-slate-950/70 text-white"
+                            )}
+                            value={manageStylistId}
+                            onChange={(e) => setManageStylistId(e.target.value)}
                           >
-                            <SelectTrigger className={cn(selectTriggerClasses, "h-10 max-w-[6.5rem] bg-slate-950/70 px-3.5 text-xs font-semibold text-white uppercase tracking-[0.22em]")}>
-                              <SelectValue placeholder="%" />
-                            </SelectTrigger>
-                            <SelectContent className="w-[6.5rem] max-h-48 overflow-y-auto rounded-xl border border-emerald-300/50 bg-slate-950/95 text-slate-100">
-                              {STYLIST_COMMISSION_CHOICES.map((choice) => (
-                                <SelectItem key={choice} value={String(choice)}>
-                                  {choice} %
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                            <option value="">Sélectionner</option>
+                            {stylists?.map((s) => (
+                              <option key={s.id} value={s.id}>{s.name}</option>
+                            ))}
+                          </select>
+                          <Input
+                            className={cn(inputFieldClasses, "flex-1 min-w-[160px] bg-slate-950/70 text-sm font-semibold text-white caret-emerald-200 placeholder:text-white/60")}
+                            placeholder="Nom du coiffeur"
+                            value={manageName}
+                            onChange={(e) => setManageName(e.target.value)}
+                            disabled={!manageStylistId}
+                          />
                           <Button
-                            className={addStylistButtonClasses}
-                            disabled={!stylistName.trim() || !commissionPct}
-                            aria-label="Ajouter un coiffeur"
+                            className={cn(gradientButtonClasses, "min-h-10 px-4")}
+                            disabled={!manageStylistId || !manageName.trim()}
                             onClick={() => {
-                              const trimmed = stylistName.trim();
-                              if (!trimmed || !commissionPct) return;
-                              const pctValue = Math.max(0, Math.min(60, Number(commissionPct) || 0));
-                              addStylist.mutate({ name: trimmed, commissionPct: pctValue }, {
+                              if (!manageStylistId) return;
+                              const trimmedName = manageName.trim();
+                              if (!trimmedName) return;
+                              updateStylist.mutate({ id: manageStylistId, name: trimmedName }, {
                                 onSuccess: () => {
-                                  setStylistName("");
-                                  setCommissionPct("");
-                                  setAddStylistPopupOpen(false);
-                                },
+                                  setManageStylistId("");
+                                  setManageName("");
+                                  setAccordionValue("");
+                                }
                               });
                             }}
                           >
-                            Ajouter
+                            Enregistrer
+                          </Button>
+                          <Button
+                            disabled={!manageStylistId}
+                            className="min-h-10 rounded-2xl border border-white/25 bg-[linear-gradient(135deg,rgba(239,68,68,0.82)0%,rgba(250,204,21,0.62)100%)] px-3.5 text-xs font-semibold uppercase tracking-[0.22em] text-white shadow-[0_20px_52px_rgba(239,68,68,0.38)]"
+                            onClick={() => {
+                              if (!manageStylistId) return;
+                              const s = stylists?.find(st => st.id === manageStylistId);
+                              if (!s) return;
+                              if (!confirm(`Supprimer ${s.name} ?`)) return;
+                              if (!confirm("Confirmer la suppression ?")) return;
+                              delStylist.mutate(manageStylistId, { onSuccess: () => { setManageStylistId(""); setManageName(""); setAccordionValue(""); } });
+                            }}
+                          >
+                            Supprimer
                           </Button>
                         </div>
-                        <div className="h-px bg-white/25" />
-                        <div className="space-y-2.5">
-                          <div className="text-sm font-semibold text-white/85">Gérer un coiffeur</div>
-                          <div className="flex flex-wrap items-center gap-2.5">
-                            <select
-                              className={cn(
-                                "h-10 rounded-2xl border px-3 text-sm font-semibold transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300/70",
-                                manageStylistId
-                                  ? "border-emerald-300/70 bg-emerald-400/20 text-emerald-100 shadow-[0_14px_34px_rgba(16,185,129,0.3)]"
-                                  : "border-white/18 bg-slate-950/70 text-white"
-                              )}
-                              value={manageStylistId}
-                              onChange={(e) => setManageStylistId(e.target.value)}
-                            >
-                              <option value="">Sélectionner</option>
-                              {stylists?.map((s) => (
-                                <option key={s.id} value={s.id}>{s.name}</option>
-                              ))}
-                            </select>
-                            <Input
-                              className={cn(inputFieldClasses, "flex-1 min-w-[160px] bg-slate-950/70 text-sm font-semibold text-white caret-emerald-200 placeholder:text-white/60")}
-                              placeholder="Nom du coiffeur"
-                              value={manageName}
-                              onChange={(e) => setManageName(e.target.value)}
-                              disabled={!manageStylistId}
-                            />
-                            <Button
-                              className={cn(gradientButtonClasses, "min-h-10 px-4")}
-                              disabled={!manageStylistId || !manageName.trim()}
-                              onClick={() => {
-                                if (!manageStylistId) return;
-                                const trimmedName = manageName.trim();
-                                if (!trimmedName) return;
-                                updateStylist.mutate({ id: manageStylistId, name: trimmedName }, {
-                                  onSuccess: () => {
-                                    setManageStylistId("");
-                                    setManageName("");
-                                    setAddStylistPopupOpen(false);
-                                  }
-                                });
-                              }}
-                            >
-                              Enregistrer
-                            </Button>
-                            <Button
-                              disabled={!manageStylistId}
-                              className="min-h-10 rounded-2xl border border-white/25 bg-[linear-gradient(135deg,rgba(239,68,68,0.82)0%,rgba(250,204,21,0.62)100%)] px-3.5 text-xs font-semibold uppercase tracking-[0.22em] text-white shadow-[0_20px_52px_rgba(239,68,68,0.38)]"
-                              onClick={() => {
-                                if (!manageStylistId) return;
-                                const s = stylists?.find(st => st.id === manageStylistId);
-                                if (!s) return;
-                                if (!confirm(`Supprimer ${s.name} ?`)) return;
-                                if (!confirm("Confirmer la suppression ?")) return;
-                                delStylist.mutate(manageStylistId, { onSuccess: () => { setManageStylistId(""); setManageName(""); setAddStylistPopupOpen(false); } });
-                              }}
-                            >
-                              Supprimer
-                            </Button>
-                          </div>
-                        </div>
                       </div>
-                    </motion.div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+                    </div>
+                  </AccordionContent>
+                </div>
+              </AccordionItem>
             </Accordion>
           </CardContent>
         </Card>
