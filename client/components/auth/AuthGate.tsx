@@ -19,7 +19,7 @@ export default function AuthGate() {
   return (
     <div className="mx-auto max-w-sm">
       <div className="flex flex-col items-center justify-center mb-4">
-        <img src="/assets/barberpro-logo.jpg" alt="BarBerPro" className="h-14 w-auto rounded-lg" />
+        <img src="/assets/barberpro-logo.jpg" alt="BarBerPro" className="h-14 w-auto rounded-lg opacity-70" />
       </div>
       {mode === "signup" && <Signup onSwitchLogin={()=>setMode("login")} />}
       {mode === "login" && <Login onSwitchSignup={()=>setMode("signup")} onRecover={()=>setMode("recover-ask")} />}
