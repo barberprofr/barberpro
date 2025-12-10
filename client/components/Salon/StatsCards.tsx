@@ -251,7 +251,7 @@ export default function StatsCards() {
       </Popover>
 
       {/* Boutons style glassmorphisme avec icônes 3D */}
-      <div className="flex justify-center items-center gap-4 mt-6 px-4">
+      <div className="flex justify-center items-center gap-4 mt-6 mb-4 px-4">
         <motion.button
           type="button"
           onClick={() => setTotalCAPopupOpen(true)}
