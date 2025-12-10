@@ -19,8 +19,8 @@ export default function AuthGate() {
   return (
     <div className="mx-auto max-w-sm">
       <div className="flex flex-col items-center justify-center mb-4">
-        <div className="h-14 w-14 grid place-items-center">
-          <svg viewBox="0 0 60 60" className="h-14 w-14" aria-hidden>
+        <div className="h-10 w-10 grid place-items-center">
+          <svg viewBox="0 0 60 60" className="h-10 w-10" aria-hidden>
             <text x="50%" y="55%" dominantBaseline="middle" textAnchor="middle" fill="white" style={{ fontSize: '48px', fontWeight: 800, fontFamily: 'system-ui, sans-serif' }}>B</text>
             <rect x="18" y="14" width="6" height="6" rx="1" fill="white" />
           </svg>
