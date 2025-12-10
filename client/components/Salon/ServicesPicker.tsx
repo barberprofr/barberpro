@@ -114,7 +114,7 @@ export default function ServicesPicker({ onServiceSelect, onReset, externalOpen,
                 >
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-semibold text-emerald-100">Total</span>
-                    <span className="text-5xl font-black text-fuchsia-300 [-webkit-text-stroke:1px_rgba(0,0,0,0.5)] [text-shadow:0_0_2px_rgba(232,121,249,1),0_0_15px_rgba(232,121,249,0.8),0_0_40px_rgba(232,121,249,0.5),-3px_0_20px_rgba(232,121,249,0.9),3px_0_20px_rgba(232,121,249,0.9)]">{total.toFixed(2)}€</span>
+                    <span className="text-5xl font-black text-fuchsia-300 [-webkit-text-stroke:1px_rgba(0,0,0,0.4)] [text-shadow:0_0_1px_rgba(232,121,249,0.8),0_0_8px_rgba(232,121,249,0.4),-2px_0_10px_rgba(232,121,249,0.5),2px_0_10px_rgba(232,121,249,0.5)]">{total.toFixed(2)}€</span>
                   </div>
                 </motion.div>
               )}
