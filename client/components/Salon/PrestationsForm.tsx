@@ -756,26 +756,7 @@ export default function PrestationsForm() {
   }, [stylistId, amount, refreshStylists, servicesPickerOpen, productsPickerOpen, paymentPickerOpen]);
 
   return (
-    {/* Overlay invisible pour capturer les clics sur l'arrière-plan */}
-      {(stylistId || showTypePickerPopup) && (
-        <div 
-          className="fixed inset-0 z-[5]" 
-          onClick={() => {
-            setShowTypePickerPopup(false);
-            setStylistId("");
-            setSelectedServiceName("");
-            setSelectedServiceId("");
-            setSelectedProductName("");
-            setSelectedProductTypeId("");
-            setStylistPickerOpen(false);
-            setServicesPickerOpen(false);
-            setProductsPickerOpen(false);
-            refreshStylists();
-          }}
-        />
-      )}
-      
-      <Card className="relative z-10 border-none shadow-md bg-slate-900/20 backdrop-blur-sm" onClick={handleBackgroundClick}>
+    <Card className="border-none shadow-md bg-slate-900/20 backdrop-blur-sm" onClick={handleBackgroundClick}>
       <CardHeader>
         <div className="flex items-center justify-center">
           <span 
@@ -890,14 +871,9 @@ export default function PrestationsForm() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.15 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
             onClick={() => {
               setShowTypePickerPopup(false);
-              setStylistId("");
-              setSelectedServiceName("");
-              setSelectedServiceId("");
-              setSelectedProductName("");
-              setSelectedProductTypeId("");
               refreshStylists();
             }}
           >
@@ -985,18 +961,7 @@ export default function PrestationsForm() {
           const isPopover = target.closest('[data-radix-popper-content-wrapper]');
           const isDialog = target.closest('[role="dialog"]');
           const isInput = target.closest('input');
-          const isStylistCard = target.closest('[data-stylist-card]');
-          if (!isButton && !isPopover && !isDialog && !isInput && !isStylistCard) {
-            // Réinitialiser le formulaire quand on clique sur l'arrière-plan
-            setShowTypePickerPopup(false);
-            setStylistId("");
-            setSelectedServiceName("");
-            setSelectedServiceId("");
-            setSelectedProductName("");
-            setSelectedProductTypeId("");
-            setStylistPickerOpen(false);
-            setServicesPickerOpen(false);
-            setProductsPickerOpen(false);
+          if (!isButton && !isPopover && !isDialog && !isInput) {
             refreshStylists();
           }
         }}
