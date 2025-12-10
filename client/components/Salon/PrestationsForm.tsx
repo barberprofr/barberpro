@@ -1253,17 +1253,15 @@ export default function PrestationsForm() {
           <DialogContent className="w-[min(90vw,24rem)] overflow-hidden rounded-2xl border border-white/25 bg-black/10 p-0 shadow-[0_25px_60px_rgba(0,0,0,0.15),inset_0_1px_0_rgba(255,255,255,0.2)] backdrop-blur-[3px]">
             <div className="p-5 space-y-5">
               {/* Barre de recherche */}
-              <div className="relative">
+              <div className="relative rounded-xl p-[2px]" style={{
+                  background: "linear-gradient(90deg, #e879f9 0%, #f0abfc 15%, rgba(255,255,255,0.4) 50%, #f0abfc 85%, #e879f9 100%)"
+                }}>
                 <Input
                   placeholder="Rechercher par nom ou téléphone"
                   autoFocus
                   value={clientSearch}
                   onChange={(e) => setClientSearch(e.target.value)}
-                  className="h-12 w-full rounded-xl border-2 border-transparent bg-white/10 pl-4 pr-4 text-base text-white font-medium text-center placeholder:text-white/50 placeholder:text-center focus:ring-0 focus:bg-white/20 backdrop-blur-sm"
-                  style={{
-                    borderImage: "linear-gradient(90deg, #e879f9 0%, #f0abfc 15%, rgba(255,255,255,0.3) 50%, #f0abfc 85%, #e879f9 100%) 1",
-                    borderImageSlice: 1
-                  }}
+                  className="h-12 w-full rounded-[10px] border-0 bg-slate-900/80 pl-4 pr-4 text-base text-white font-medium text-center placeholder:text-white/50 placeholder:text-center focus:ring-0 focus:bg-slate-900/90 backdrop-blur-sm"
                 />
               </div>
 
