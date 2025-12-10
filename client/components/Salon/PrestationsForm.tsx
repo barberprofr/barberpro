@@ -756,7 +756,26 @@ export default function PrestationsForm() {
   }, [stylistId, amount, refreshStylists, servicesPickerOpen, productsPickerOpen, paymentPickerOpen]);
 
   return (
-    <Card className="border-none shadow-md bg-slate-900/20 backdrop-blur-sm" onClick={handleBackgroundClick}>
+    {/* Overlay invisible pour capturer les clics sur l'arrière-plan */}
+      {(stylistId || showTypePickerPopup) && (
+        <div 
+          className="fixed inset-0 z-[5]" 
+          onClick={() => {
+            setShowTypePickerPopup(false);
+            setStylistId("");
+            setSelectedServiceName("");
+            setSelectedServiceId("");
+            setSelectedProductName("");
+            setSelectedProductTypeId("");
+            setStylistPickerOpen(false);
+            setServicesPickerOpen(false);
+            setProductsPickerOpen(false);
+            refreshStylists();
+          }}
+        />
+      )}
+      
+      <Card className="relative z-10 border-none shadow-md bg-slate-900/20 backdrop-blur-sm" onClick={handleBackgroundClick}>
       <CardHeader>
         <div className="flex items-center justify-center">
           <span 
