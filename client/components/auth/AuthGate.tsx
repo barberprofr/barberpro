@@ -29,11 +29,11 @@ export default function AuthGate() {
           BarBerpro<svg viewBox="0 0 16 16" className="inline-block h-4 w-4 ml-0.5 -mt-1" aria-hidden><path d="M13.5 2L6 12l-3.5-3.5" fill="none" stroke="#dc2626" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
         </h1>
       </div>
-      <p className="text-center text-xs text-white -mt-2 mb-4">plateforme de gestion de salon de coiffure</p>
       {mode === "signup" && <Signup onSwitchLogin={()=>setMode("login")} />}
       {mode === "login" && <Login onSwitchSignup={()=>setMode("signup")} onRecover={()=>setMode("recover-ask")} />}
       {mode === "recover-ask" && <RecoverAsk onNext={()=>setMode("recover-verify")} onBack={()=>setMode("login")} />}
       {mode === "recover-verify" && <RecoverVerify onBack={()=>setMode("login")} />}
+      <p className="text-center text-xs text-white mt-6">plateforme de gestion de salon de coiffure</p>
     </div>
   );
 }
