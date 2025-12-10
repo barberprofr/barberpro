@@ -984,7 +984,7 @@ export default function PrestationsForm() {
         />
 
         {/* Grande carte Coiffeur centrée en haut */}
-        <div className="flex justify-center mb-6">
+        <div className="flex justify-center mb-4">
           <div className="relative w-full max-w-[11rem]">
             <Popover open={stylistPickerOpen} onOpenChange={setStylistPickerOpen}>
               <PopoverTrigger asChild>
@@ -1079,7 +1079,7 @@ export default function PrestationsForm() {
         </div>
 
         {/* Rangée du milieu: Client et Nouveau Client */}
-        <div className="flex justify-between items-center mt-6 px-8">
+        <div className="flex justify-between items-center mt-10 mb-8 px-8">
           {/* Bouton Client - cyan */}
           <motion.button
             type="button"
