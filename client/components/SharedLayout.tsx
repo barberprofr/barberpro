@@ -206,7 +206,7 @@ export default function SharedLayout({ children }: PropsWithChildren) {
       )}
       {hasActiveSubscription && (
         <nav
-          className="fixed bottom-0 inset-x-0 z-50 h-[90px] border-t border-white/3 bg-black/[0.02] text-white"
+          className="fixed bottom-0 inset-x-0 z-50 h-[90px] bg-transparent text-white"
         >
           <div className="mx-auto flex h-full w-full max-w-md items-stretch pb-[env(safe-area-inset-bottom,0px)]">
             <Link
