@@ -103,14 +103,14 @@ export default function SharedLayout({ children }: PropsWithChildren) {
         <header className="sticky top-0 z-10 bg-background/80 backdrop-blur border-b">
           <div className="container flex items-center justify-between py-3">
             <Link to="/app" className="flex items-center gap-1.5">
-              <div className="h-9 w-9 rounded-full bg-white grid place-items-center shadow">
-                <svg viewBox="0 0 60 60" className="h-7 w-7" aria-hidden>
+              <div className="h-11 w-11 rounded-full bg-white grid place-items-center shadow">
+                <svg viewBox="0 0 60 60" className="h-8 w-8" aria-hidden>
                   <text x="50%" y="55%" dominantBaseline="middle" textAnchor="middle" className="fill-slate-800" style={{ fontSize: '48px', fontWeight: 800, fontFamily: 'system-ui, sans-serif' }}>B</text>
                   <rect x="18" y="14" width="6" height="6" rx="1" className="fill-slate-800" />
                 </svg>
               </div>
-              <h1 className="text-base font-bold tracking-tight text-white">
-                BarBerpro<svg viewBox="0 0 16 16" className="inline-block h-3 w-3 ml-0.5 -mt-0.5" aria-hidden><path d="M13.5 2L6 12l-3.5-3.5" fill="none" stroke="#dc2626" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              <h1 className="text-xl font-bold tracking-tight text-white">
+                BarBerpro<svg viewBox="0 0 16 16" className="inline-block h-4 w-4 ml-0.5 -mt-0.5" aria-hidden><path d="M13.5 2L6 12l-3.5-3.5" fill="none" stroke="#dc2626" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
               </h1>
             </Link>
             <div className="flex items-center gap-2">
