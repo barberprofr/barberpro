@@ -634,7 +634,7 @@ function RevenueByDay({ fallbackMonthly, stylists, defaultCommissionPct }: { fal
   const years = Array.from({ length: Math.max(0, endYear - currentYear + 1) }, (_, i) => currentYear + i);
   const monthLabels = [
     "janvier", "février", "mars", "avril", "mai", "juin",
-    "juillet", "ao��t", "septembre", "octobre", "novembre", "d����cembre"
+    "juillet", "août", "septembre", "octobre", "novembre", "décembre"
   ];
   const days = data?.days ?? [];
   const monthlyTotalAmount = data?.total?.amount ?? fallbackMonthly?.total?.amount ?? days.reduce((sum, d) => sum + d.amount, 0);
