@@ -1018,7 +1018,7 @@ export default function PrestationsForm() {
                   </span>
                 </motion.button>
               </PopoverTrigger>
-              <PopoverContent side="bottom" align="center" className="w-[min(95vw,38rem)] overflow-visible rounded-3xl border border-white/20 bg-white/10 p-0 text-slate-50 shadow-[0_25px_60px_rgba(0,0,0,0.3)] backdrop-blur-sm">
+              <PopoverContent side="bottom" align="center" className="w-[min(95vw,38rem)] overflow-visible rounded-3xl border border-white/20 bg-slate-900/70 p-0 text-slate-50 shadow-[0_25px_60px_rgba(0,0,0,0.4)] backdrop-blur-md">
                 <div className="p-8 overflow-visible">
                   <div className="max-h-[55vh] overflow-y-auto overflow-x-visible scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
                     {stylistsLoading ? (
@@ -1045,8 +1045,8 @@ export default function PrestationsForm() {
                             whileHover={{ scale: stylistId === s.id ? 1.18 : 1.05 }}
                             whileTap={{ scale: 0.98 }}
                             className={cn(
-                              "flex items-center gap-4 rounded-2xl border-2 border-white/25 bg-white/10 px-6 py-5 text-left transition-colors duration-200 shadow-[0_0_20px_rgba(148,163,184,0.2)] hover:border-fuchsia-400 hover:bg-white/15 hover:shadow-[0_0_25px_rgba(232,121,249,0.6)] focus:outline-none",
-                              stylistId === s.id && "border-fuchsia-400 bg-white/20 shadow-[0_0_35px_rgba(232,121,249,0.7)]"
+                              "flex items-center gap-4 rounded-2xl border-2 border-white/30 bg-slate-800/60 px-6 py-5 text-left transition-colors duration-200 shadow-[0_0_20px_rgba(148,163,184,0.2)] hover:border-fuchsia-400 hover:bg-slate-700/70 hover:shadow-[0_0_25px_rgba(232,121,249,0.6)] focus:outline-none",
+                              stylistId === s.id && "border-fuchsia-400 bg-slate-700/70 shadow-[0_0_35px_rgba(232,121,249,0.7)]"
                             )}
                           >
                             <motion.span
