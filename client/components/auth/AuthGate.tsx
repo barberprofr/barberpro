@@ -19,14 +19,14 @@ export default function AuthGate() {
   return (
     <div className="mx-auto max-w-sm">
       <div className="flex flex-col items-center justify-center mb-4">
-        <div className="h-14 w-14 grid place-items-center">
-          <svg viewBox="0 0 60 60" className="h-14 w-14" aria-hidden>
+        <div className="h-10 w-10 grid place-items-center">
+          <svg viewBox="0 0 60 60" className="h-10 w-10" aria-hidden>
             <text x="50%" y="55%" dominantBaseline="middle" textAnchor="middle" fill="white" style={{ fontSize: '48px', fontWeight: 800, fontFamily: 'system-ui, sans-serif' }}>B</text>
             <rect x="18" y="14" width="6" height="6" rx="1" fill="white" />
           </svg>
         </div>
-        <h1 className="text-2xl font-extrabold tracking-tight text-white">
-          BarBerpro<svg viewBox="0 0 16 16" className="inline-block h-4 w-4 ml-0.5 -mt-1" aria-hidden><path d="M13.5 2L6 12l-3.5-3.5" fill="none" stroke="#dc2626" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+        <h1 className="text-lg font-extrabold tracking-tight text-white">
+          BarBerpro<svg viewBox="0 0 16 16" className="inline-block h-3 w-3 ml-0.5 -mt-1" aria-hidden><path d="M13.5 2L6 12l-3.5-3.5" fill="none" stroke="#dc2626" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
         </h1>
       </div>
       {mode === "signup" && <Signup onSwitchLogin={()=>setMode("login")} />}
