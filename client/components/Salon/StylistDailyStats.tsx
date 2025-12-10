@@ -30,7 +30,7 @@ function StylistDaily({ id, date, commissionPct }: { id: string; date?: string; 
             <div className="space-y-3">
                 <div className="flex items-center justify-between text-slate-100">
                     <span className="text-lg font-black tracking-wide [-webkit-text-stroke:0.5px_black]">CA du jour</span>
-                    <span className="text-5xl font-black tracking-wide text-fuchsia-400/50" style={{ WebkitTextStroke: '2px black' }}>{eur.format(total?.amount || 0)}</span>
+                    <span className="text-5xl font-black tracking-wide text-fuchsia-400/40" style={{ WebkitTextStroke: '3px black' }}>{eur.format(total?.amount || 0)}</span>
                 </div>
                 <div className="text-xs text-slate-300">{prestationTotal?.count || 0} prestation{(prestationTotal?.count ?? 0) > 1 ? "s" : ""}{dailyProductCount ? `, ${dailyProductCount} produit${dailyProductCount > 1 ? "s" : ""}` : ""}</div>
             </div>
