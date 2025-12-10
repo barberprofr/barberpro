@@ -235,9 +235,8 @@ export default function StatsCards() {
           >
             <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 via-transparent to-transparent pointer-events-none" />
             <div className="relative flex items-center gap-4">
-              <div className="relative flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-400 via-green-500 to-teal-600 shadow-[0_6px_24px_rgba(16,185,129,0.5),inset_0_2px_4px_rgba(255,255,255,0.3)]">
-                <div className="absolute inset-1 rounded-xl bg-gradient-to-br from-emerald-300 via-green-400 to-teal-500 shadow-[inset_0_-4px_10px_rgba(0,0,0,0.3)]" />
-                <Users className="relative h-7 w-7 text-white drop-shadow-lg" />
+              <div className="relative flex items-center justify-center w-16 h-16 rounded-2xl overflow-hidden bg-gradient-to-br from-emerald-400 via-green-500 to-teal-600 shadow-[0_6px_24px_rgba(16,185,129,0.5),inset_0_2px_4px_rgba(255,255,255,0.3)]">
+                <img src="/assets/client-photo.jpg" alt="Coiffeurs" className="h-full w-full object-cover" />
               </div>
               <div className="flex flex-col items-start">
                 <span className="text-lg font-black text-white uppercase tracking-wide">Coiffeurs</span>

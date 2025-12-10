@@ -1093,12 +1093,15 @@ export default function PrestationsForm() {
             className="flex flex-col items-center gap-2 focus:outline-none transition-all duration-300"
           >
             <div className={cn(
-              "relative flex h-12 w-12 items-center justify-center rounded-full border-2 overflow-hidden transition-all duration-300",
+              "relative flex h-12 w-12 items-center justify-center rounded-full border-2 transition-all duration-300",
               clientId
                 ? "border-cyan-400 shadow-[0_0_25px_rgba(34,211,238,0.6),inset_0_0_15px_rgba(34,211,238,0.2)]"
                 : "border-cyan-500/50 shadow-[0_0_15px_rgba(34,211,238,0.3)]"
             )}>
-              <img src="/assets/client-photo.jpg" alt="Client" className="h-full w-full object-cover" />
+              <Users className={cn(
+                "h-5 w-5 transition-all duration-300",
+                clientId ? "text-cyan-400" : "text-cyan-500"
+              )} />
               {clientId && (
                 <motion.div
                   className="absolute inset-0 rounded-full border-2 border-cyan-400/50"
