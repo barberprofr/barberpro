@@ -159,7 +159,7 @@ export function StylistMonthly({ id, commissionPct }: { id: string; commissionPc
                     <span className="text-base font-bold">{eur.format(total?.amount || 0)}</span>
                 </div>
                 <div className="flex items-center justify-between text-slate-100">
-                    <span className="font-semibold">Salaire ({commissionPct}%)</span>
+                    <span className="text-xs font-semibold">Salaire ({commissionPct}%)</span>
                     <span className="text-base font-bold">{eur.format(salary)}</span>
                 </div>
                 <div className="text-xs text-slate-300">{prestationTotal?.count || 0} prestation{(prestationTotal?.count ?? 0) > 1 ? "s" : ""}{monthlyProductCount ? `, ${monthlyProductCount} produit${monthlyProductCount > 1 ? "s" : ""}` : ""}</div>
