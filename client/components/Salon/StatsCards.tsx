@@ -489,7 +489,7 @@ function StylistCard({ s, config, onClick }: { s: any, config: any, onClick: () 
               Salaire {salary}
             </span>
           </div>
-          <div className="text-right">
+          <div className="flex flex-col items-end justify-center">
             <div className="text-2xl font-extrabold text-primary transition-all duration-300">
               {eur.format(s.stats?.dailyAmount ?? 0)}
             </div>
