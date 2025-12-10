@@ -177,18 +177,20 @@ export default function ServicesPicker({ onServiceSelect, onReset, externalOpen,
                             onClick={(e) => e.stopPropagation()}
                           >
                             {/* Quantity display - clickable to open calculator */}
-                            <button
+                            <motion.button
                               type="button"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                setCalculatorServiceId(service.id);
+                                setTimeout(() => setCalculatorServiceId(service.id), 150);
                               }}
-                              className="relative flex items-center gap-1 rounded-lg border border-emerald-400/50 bg-emerald-950/40 px-3 py-1.5 hover:bg-emerald-900/50 transition cursor-pointer active:scale-110 active:brightness-125 active:border-white/80 active:shadow-[0_0_15px_rgba(52,211,153,0.6)]"
+                              whileTap={{ scale: 1.15, boxShadow: "0 0 20px rgba(52,211,153,0.8)" }}
+                              transition={{ type: "spring", stiffness: 400, damping: 15 }}
+                              className="relative flex items-center gap-1 rounded-lg border border-emerald-400/50 bg-emerald-950/40 px-3 py-1.5 hover:bg-emerald-900/50 transition cursor-pointer"
                             >
                               <span className="text-sm font-bold text-emerald-100">
                                 Qté: {selectedData.quantity}
                               </span>
-                            </button>
+                            </motion.button>
 
                             {/* Deselect button */}
                             <button
