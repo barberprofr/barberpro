@@ -190,7 +190,7 @@ export default function Clients() {
         )}
       </AnimatePresence>
       <div className="mx-auto max-w-md space-y-4">
-        <Card className="border-none shadow-md bg-card">
+        <Card className="border border-white/20 shadow-md bg-black/12 backdrop-blur-md rounded-[22px]">
           <CardHeader>
             <CardTitle className="text-lg">Clients & Fidélité</CardTitle>
           </CardHeader>
@@ -201,7 +201,7 @@ export default function Clients() {
                 boxShadow: refreshPulse ? "0 0 0 6px rgba(56, 189, 248, 0.28)" : "0 0 0 0 rgba(0,0,0,0)",
               }}
               transition={{ type: "spring", stiffness: 260, damping: 24 }}
-              className="overflow-hidden rounded-3xl border border-white/12 bg-gradient-to-br from-slate-950/85 via-indigo-900/60 to-emerald-800/35 p-4 shadow-[0_26px_60px_rgba(8,15,40,0.55)] backdrop-blur-xl"
+              className="overflow-hidden rounded-3xl border border-white/20 bg-black/15 p-4 shadow-[0_26px_60px_rgba(8,15,40,0.3)] backdrop-blur-md"
             >
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <button
