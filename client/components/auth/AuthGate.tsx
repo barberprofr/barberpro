@@ -19,15 +19,7 @@ export default function AuthGate() {
   return (
     <div className="mx-auto max-w-sm">
       <div className="flex flex-col items-center justify-center mb-4">
-        <div className="h-14 w-14 grid place-items-center mb-1">
-          <svg viewBox="0 0 60 60" className="h-14 w-14" aria-hidden>
-            <text x="50%" y="55%" dominantBaseline="middle" textAnchor="middle" fill="white" style={{ fontSize: '42px', fontWeight: 800, fontFamily: 'system-ui, sans-serif' }}>B</text>
-            <rect x="20" y="12" width="5" height="5" rx="1" fill="white" />
-          </svg>
-        </div>
-        <h1 className="text-2xl font-extrabold tracking-tight text-white">
-          BarBerPro<svg viewBox="0 0 16 16" className="inline-block h-4 w-4 ml-0.5 -mt-1" aria-hidden><path d="M13.5 2L6 12l-3.5-3.5" fill="none" stroke="#dc2626" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-        </h1>
+        <img src="/assets/barberpro-logo.jpg" alt="BarBerPro" className="h-20 w-auto rounded-lg" />
       </div>
       {mode === "signup" && <Signup onSwitchLogin={()=>setMode("login")} />}
       {mode === "login" && <Login onSwitchSignup={()=>setMode("signup")} onRecover={()=>setMode("recover-ask")} />}
