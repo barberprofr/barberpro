@@ -14,7 +14,6 @@ import { useAddClient, useAddPrestation, useAddProduct, useClients, useConfig, u
 import ServicesPicker from "./ServicesPicker";
 import ProductsPicker from "./ProductsPicker";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import BarberproLogo from "@/components/BarberproLogo";
 
 
 const PHONE_DIGITS_REQUIRED = 10;
@@ -760,7 +759,12 @@ export default function PrestationsForm() {
     <Card className="border-none shadow-md bg-slate-900/20 backdrop-blur-sm" onClick={handleBackgroundClick}>
       <CardHeader>
         <div className="flex items-center justify-center">
-          <BarberproLogo className="scale-90" />
+          <span 
+            className="text-base font-bold text-cyan-400 [-webkit-text-stroke:0.5px_black] [text-shadow:0_0_6px_rgba(34,211,238,0.6),0_1px_2px_rgba(0,0,0,0.8)]" 
+            title={salonDisplayName}
+          >
+            {salonDisplayName}
+          </span>
         </div>
       </CardHeader>
       <AnimatePresence>
