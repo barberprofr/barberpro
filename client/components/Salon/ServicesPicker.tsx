@@ -97,7 +97,7 @@ export default function ServicesPicker({ onServiceSelect, onReset, externalOpen,
 
   return (
     <Dialog open={popoverOpen} onOpenChange={setPopoverOpen}>
-      <DialogContent className="max-w-[min(90vw,36rem)] rounded-2xl border border-white/20 bg-[linear-gradient(135deg,rgba(4,11,46,0.4)0%,rgba(11,27,77,0.35)55%,rgba(16,45,115,0.25)100%)] shadow-[0_40px_95px_rgba(8,15,40,0.5)] backdrop-blur-md p-0">
+      <DialogContent className="max-w-[min(90vw,36rem)] rounded-2xl border border-white/25 bg-black/15 shadow-[0_40px_95px_rgba(8,15,40,0.3)] backdrop-blur-[4px] p-0">
         <DialogHeader className="px-4 pt-4 pb-2">
           <DialogTitle className="text-xl font-black text-white">PRESTATIONS</DialogTitle>
         </DialogHeader>
@@ -132,10 +132,10 @@ export default function ServicesPicker({ onServiceSelect, onReset, externalOpen,
                     layout
                     onClick={() => !isSelected && toggleService(service.id, service.name, service.price)}
                     className={cn(
-                      "group relative w-full overflow-hidden rounded-2xl border p-3 shadow-[0_18px_45px_rgba(15,23,42,0.2)] backdrop-blur-sm transition",
+                      "group relative w-full overflow-hidden rounded-2xl border p-3 shadow-[0_10px_30px_rgba(15,23,42,0.15)] backdrop-blur-[2px] transition",
                       isSelected
-                        ? "border-emerald-400/60 bg-[linear-gradient(140deg,rgba(16,185,129,0.2)0%,rgba(5,150,105,0.15)100%)]"
-                        : "border-white/20 bg-[linear-gradient(140deg,rgba(8,15,40,0.4)0%,rgba(27,51,122,0.35)55%,rgba(46,91,181,0.3)100%)] cursor-pointer hover:border-white/40"
+                        ? "border-emerald-400/50 bg-emerald-900/20"
+                        : "border-white/25 bg-slate-900/25 cursor-pointer hover:border-white/40 hover:bg-slate-800/30"
                     )}
                   >
                     <div className="flex items-center gap-3">
