@@ -1045,8 +1045,7 @@ export default function Settings() {
     return (
       <SharedLayout>
         <div className="mx-auto max-w-sm space-y-3 px-3 pb-10 sm:px-0">
-          <Card className="relative overflow-hidden rounded-[22px] border border-white/14 bg-[linear-gradient(145deg,rgba(7,12,30,0.88)0%,rgba(67,56,202,0.66)45%,rgba(16,185,129,0.4)100%)] shadow-[0_28px_82px_rgba(8,15,40,0.5)] backdrop-blur-3xl">
-            <span className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.25),transparent_60%)] opacity-80" />
+          <Card className="relative overflow-hidden rounded-[22px] border border-white/20 bg-black/12 shadow-[0_28px_82px_rgba(8,15,40,0.3)] backdrop-blur-md">
             <CardHeader className="relative z-10 flex flex-col space-y-2 p-4 pb-2.5 text-white">
               <span className="inline-flex w-fit items-center gap-1.5 rounded-full border border-amber-400/50 bg-gradient-to-r from-amber-500/20 to-amber-400/10 px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-amber-100 shadow-[0_10px_24px_rgba(217,119,6,0.25),inset_0_1px_1px_rgba(255,255,255,0.2)]">🔒 Sécurité</span>
               <CardTitle className="text-2xl font-black tracking-tight text-white drop-shadow-[0_10px_22px_rgba(15,23,42,0.5)]">{adminCodeNotSet ? "Créer votre code admin" : "Déverrouiller les paramètres"}</CardTitle>
