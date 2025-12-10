@@ -221,10 +221,7 @@ export default function Clients() {
                     "Recherche client"
                   )}
                 </button>
-                <span className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-white/80">
-                  <Sparkles className="h-3 w-3 text-amber-200" />Actualiser
-                </span>
-              </div>
+                              </div>
               <div className="relative mt-4">
                 <div className="pointer-events-none absolute inset-0 rounded-2xl border border-white/15 bg-white/10 opacity-80" />
                 <Input
