@@ -1321,7 +1321,7 @@ export default function PrestationsForm() {
                         className="flex w-full items-center justify-between rounded-xl border border-white/15 bg-black/25 px-4 py-3 text-left transition hover:border-emerald-400/50 hover:bg-black/40"
                       >
                         <div className="flex flex-col gap-0.5">
-                          <span className="text-sm font-bold text-white">{c.name}</span>
+                          <span className="text-xl font-bold text-white">{c.name}</span>
                           {c.phone && (
                             <span className="text-xs font-medium text-white/60">{c.phone}</span>
                           )}
