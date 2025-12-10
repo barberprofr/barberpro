@@ -97,7 +97,7 @@ export default function ServicesPicker({ onServiceSelect, onReset, externalOpen,
 
   return (
     <Dialog open={popoverOpen} onOpenChange={setPopoverOpen}>
-      <DialogContent className="max-w-[min(90vw,36rem)] rounded-2xl border border-white/15 bg-[linear-gradient(135deg,rgba(4,11,46,0.92)0%,rgba(11,27,77,0.78)55%,rgba(16,45,115,0.58)100%)] shadow-[0_40px_95px_rgba(8,15,40,0.7)] backdrop-blur-xl p-0">
+      <DialogContent className="max-w-[min(90vw,36rem)] rounded-2xl border border-white/20 bg-[linear-gradient(135deg,rgba(4,11,46,0.4)0%,rgba(11,27,77,0.35)55%,rgba(16,45,115,0.25)100%)] shadow-[0_40px_95px_rgba(8,15,40,0.5)] backdrop-blur-md p-0">
         <DialogHeader className="px-4 pt-4 pb-2">
           <DialogTitle className="text-xl font-black text-white">PRESTATIONS</DialogTitle>
         </DialogHeader>
