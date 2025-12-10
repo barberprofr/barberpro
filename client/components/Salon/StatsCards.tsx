@@ -240,9 +240,6 @@ export default function StatsCards() {
               </div>
               <div className="flex flex-col items-start">
                 <span className="text-lg font-black text-white uppercase tracking-wide">Coiffeurs</span>
-                <span className="text-sm font-semibold text-emerald-300/80">
-                  {hasStylists ? `${stylistCount} coiffeur${stylistCount > 1 ? "s" : ""}` : "Aucun coiffeur"}
-                </span>
               </div>
             </div>
           </motion.button>
