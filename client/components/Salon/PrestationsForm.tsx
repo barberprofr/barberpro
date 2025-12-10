@@ -882,7 +882,7 @@ export default function PrestationsForm() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 10 }}
               transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-              className="relative sm:max-w-lg w-[90%] rounded-2xl border border-slate-700/50 bg-gradient-to-br from-slate-900/98 via-slate-800/98 to-slate-900/98 backdrop-blur-xl shadow-[0_25px_80px_rgba(0,0,0,0.6)] p-8"
+              className="relative sm:max-w-lg w-[90%] rounded-2xl border border-slate-700/50 bg-gradient-to-br from-slate-900/50 via-slate-800/50 to-slate-900/50 backdrop-blur-sm shadow-[0_25px_80px_rgba(0,0,0,0.6)] p-8"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex flex-col items-center justify-center">
@@ -900,7 +900,7 @@ export default function PrestationsForm() {
                     }}
                     whileHover={{ scale: 1.05, y: -4 }}
                     whileTap={{ scale: 0.97 }}
-                    className="group relative flex flex-col items-center justify-center w-44 h-44 rounded-2xl border border-white/10 bg-gradient-to-br from-slate-800/80 via-slate-900/90 to-slate-800/80 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.4)] transition-all duration-300 hover:border-violet-400/40 hover:shadow-[0_12px_40px_rgba(139,92,246,0.25)]"
+                    className="group relative flex flex-col items-center justify-center w-44 h-44 rounded-2xl border border-white/10 bg-gradient-to-br from-slate-800/50 via-slate-900/50 to-slate-800/50 backdrop-blur-sm shadow-[0_8px_32px_rgba(0,0,0,0.4)] transition-all duration-300 hover:border-violet-400/40 hover:shadow-[0_12px_40px_rgba(139,92,246,0.25)]"
                   >
                     {/* Halo lumineux derrière l'icône */}
                     <div className="relative flex items-center justify-center mb-4">
@@ -927,7 +927,7 @@ export default function PrestationsForm() {
                     }}
                     whileHover={{ scale: 1.05, y: -4 }}
                     whileTap={{ scale: 0.97 }}
-                    className="group relative flex flex-col items-center justify-center w-32 h-32 rounded-2xl border border-white/10 bg-gradient-to-br from-slate-800/80 via-slate-900/90 to-slate-800/80 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.4)] transition-all duration-300 hover:border-cyan-400/40 hover:shadow-[0_12px_40px_rgba(34,211,238,0.25)]"
+                    className="group relative flex flex-col items-center justify-center w-32 h-32 rounded-2xl border border-white/10 bg-gradient-to-br from-slate-800/50 via-slate-900/50 to-slate-800/50 backdrop-blur-sm shadow-[0_8px_32px_rgba(0,0,0,0.4)] transition-all duration-300 hover:border-cyan-400/40 hover:shadow-[0_12px_40px_rgba(34,211,238,0.25)]"
                   >
                     {/* Halo lumineux derrière l'icône */}
                     <div className="relative flex items-center justify-center mb-2">
