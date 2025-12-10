@@ -33,7 +33,7 @@ export default function AuthGate() {
       {mode === "login" && <Login onSwitchSignup={()=>setMode("signup")} onRecover={()=>setMode("recover-ask")} />}
       {mode === "recover-ask" && <RecoverAsk onNext={()=>setMode("recover-verify")} onBack={()=>setMode("login")} />}
       {mode === "recover-verify" && <RecoverVerify onBack={()=>setMode("login")} />}
-      <p className="text-center text-xs text-white mt-6">plateforme de gestion de salon de coiffure</p>
+      <p className="text-center text-xs text-white mt-16">plateforme de gestion de salon de coiffure</p>
     </div>
   );
 }
