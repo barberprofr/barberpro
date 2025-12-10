@@ -69,7 +69,7 @@ export default function ServicesManager({ accordionValue = "", onAccordionChange
     );
   };
 
-  const glassPanelClasses = "relative rounded-3xl border border-white/16 bg-gradient-to-br from-white/12 via-white/6 to-transparent backdrop-blur-3xl shadow-[0_32px_96px_rgba(8,15,40,0.52)]";
+  const glassPanelClasses = "relative rounded-3xl border border-white/10 bg-gradient-to-br from-white/5 via-white/3 to-transparent backdrop-blur-sm shadow-[0_32px_96px_rgba(8,15,40,0.25)]";
   const pillHeadingClasses = "inline-flex items-center gap-2 rounded-full border-2 border-purple-300/30 bg-purple-500/10 backdrop-blur-sm px-4 py-2 text-sm font-bold uppercase tracking-[0.15em] text-purple-100 transition-all duration-200 hover:scale-[1.02] hover:shadow-[0_20px_50px_rgba(168,85,247,0.4)] active:scale-105 active:border-white/80 active:shadow-[0_0_20px_rgba(168,85,247,0.8),0_25px_60px_rgba(168,85,247,0.6)] active:brightness-125";
   const pillHeadingProductsClasses = "inline-flex items-center gap-2 rounded-full border-2 border-cyan-300/30 bg-cyan-500/10 backdrop-blur-sm px-4 py-2 text-sm font-bold uppercase tracking-[0.15em] text-cyan-100 transition-all duration-200 hover:scale-[1.02] hover:shadow-[0_20px_50px_rgba(6,182,212,0.4)] active:scale-105 active:border-white/80 active:shadow-[0_0_20px_rgba(6,182,212,0.8),0_25px_60px_rgba(6,182,212,0.6)] active:brightness-125";
 
