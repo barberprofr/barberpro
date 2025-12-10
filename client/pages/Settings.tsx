@@ -1611,7 +1611,7 @@ export default function Settings() {
                 <button
                   type="button"
                   onClick={() => setCoiffCaPopupOpen(true)}
-                  className="flex w-full items-center justify-center rounded-xl border border-white/20 bg-[linear-gradient(135deg,rgba(124,58,237,0.82)0%,rgba(244,114,182,0.65)100%)] px-5 py-3 text-sm font-semibold text-white shadow-[0_16px_42px_rgba(168,85,247,0.38)] transition hover:opacity-90"
+                  className="flex w-full items-center justify-center rounded-xl border border-white/20 bg-[linear-gradient(135deg,rgba(124,58,237,0.25)0%,rgba(244,114,182,0.2)100%)] backdrop-blur-sm px-5 py-3 text-sm font-semibold text-white shadow-[0_16px_42px_rgba(168,85,247,0.2)] transition hover:opacity-90"
                 >
                   Chiffre d'affaires coiffeur
                 </button>
