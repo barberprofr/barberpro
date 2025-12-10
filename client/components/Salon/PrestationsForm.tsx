@@ -774,14 +774,14 @@ export default function PrestationsForm() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.15 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
           >
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-              className="relative sm:max-w-md w-[90%] rounded-2xl border-0 bg-gradient-to-br from-slate-900/98 via-slate-800/98 to-slate-900/98 backdrop-blur-xl shadow-[0_25px_80px_rgba(0,0,0,0.6)] p-8"
+              className="relative sm:max-w-md w-[90%] rounded-2xl border border-white/20 bg-black/5 backdrop-blur-md shadow-[0_25px_80px_rgba(0,0,0,0.6)] p-8"
             >
               <div className="flex flex-col items-center justify-center">
                 <div className="relative mb-6">
