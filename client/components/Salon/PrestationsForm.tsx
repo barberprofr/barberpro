@@ -1250,7 +1250,7 @@ export default function PrestationsForm() {
             setClientSearch("");
           }
         }}>
-          <DialogContent className="w-[min(90vw,24rem)] overflow-hidden rounded-2xl border border-white/15 bg-black/40 p-0 shadow-[0_25px_60px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.1)] backdrop-blur-md">
+          <DialogContent className="w-[min(90vw,24rem)] overflow-hidden rounded-2xl border border-white/20 bg-black/20 p-0 shadow-[0_25px_60px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.15)] backdrop-blur-sm">
             <div className="p-5 space-y-5">
               {/* Barre de recherche */}
               <div className="relative">
@@ -1324,7 +1324,7 @@ export default function PrestationsForm() {
             setClientAccordion("");
           }
         }}>
-          <DialogContent className="w-[min(90vw,24rem)] overflow-hidden rounded-2xl border border-white/15 bg-black/40 p-0 shadow-[0_25px_60px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.1)] backdrop-blur-md">
+          <DialogContent className="w-[min(90vw,24rem)] overflow-hidden rounded-2xl border border-white/20 bg-black/20 p-0 shadow-[0_25px_60px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.15)] backdrop-blur-sm">
             <div className="p-5 space-y-4">
               <h3 className="text-lg font-bold text-white text-center">Nouveau client</h3>
               
