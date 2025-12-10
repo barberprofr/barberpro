@@ -94,7 +94,7 @@ export default function SharedLayout({ children }: PropsWithChildren) {
     }
   }, [config, hasActiveSubscription]);
   return (
-    <div className="relative min-h-screen flex flex-col bg-gradient-to-br from-blue-950 via-sky-800 to-amber-700">
+    <div className="relative min-h-screen bg-gradient-to-br from-blue-950 via-sky-800 to-amber-700">
       <div 
         className="fixed inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-40 pointer-events-none"
         style={{ backgroundImage: `url(${barberBg})` }}
@@ -157,7 +157,7 @@ export default function SharedLayout({ children }: PropsWithChildren) {
           )}
         </header>
       )}
-      <main className="relative z-10 container flex-1 pt-4 pb-4 overflow-y-auto">
+      <main className="relative z-10 container pt-4 pb-[calc(8rem+env(safe-area-inset-bottom,0px))] overflow-y-auto" style={{ maxHeight: 'calc(100vh - 90px)' }}>
         <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={location.pathname}
@@ -206,7 +206,7 @@ export default function SharedLayout({ children }: PropsWithChildren) {
       )}
       {hasActiveSubscription && (
         <nav
-          className="sticky bottom-0 inset-x-0 z-50 h-[90px] bg-transparent text-white"
+          className="fixed bottom-0 inset-x-0 z-50 h-[90px] bg-transparent text-white"
         >
           <div className="mx-auto flex h-full w-full max-w-md items-stretch pb-[env(safe-area-inset-bottom,0px)]">
             <Link
