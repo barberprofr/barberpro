@@ -47,6 +47,7 @@ export default function ProductsPicker({ onProductSelect, onReset, externalOpen,
 
   const [selectedProducts, setSelectedProducts] = useState<Map<string, SelectedProduct>>(new Map());
   const [calculatorProductId, setCalculatorProductId] = useState<string | null>(null);
+  const [animatingQtyId, setAnimatingQtyId] = useState<string | null>(null);
 
   useEffect(() => {
     onReset?.(() => {
@@ -178,9 +179,13 @@ export default function ProductsPicker({ onProductSelect, onReset, externalOpen,
                               type="button"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                setTimeout(() => setCalculatorProductId(product.id), 150);
+                                setAnimatingQtyId(product.id);
+                                setTimeout(() => {
+                                  setAnimatingQtyId(null);
+                                  setCalculatorProductId(product.id);
+                                }, 200);
                               }}
-                              whileTap={{ scale: 1.15, boxShadow: "0 0 20px rgba(52,211,153,0.8)" }}
+                              animate={animatingQtyId === product.id ? { scale: 1.15, boxShadow: "0 0 20px rgba(52,211,153,0.8)" } : { scale: 1, boxShadow: "0 0 0px rgba(52,211,153,0)" }}
                               transition={{ type: "spring", stiffness: 400, damping: 15 }}
                               className="relative flex items-center gap-1 rounded-lg border border-emerald-400/50 bg-emerald-950/40 px-3 py-1.5 hover:bg-emerald-900/50 transition cursor-pointer"
                             >
