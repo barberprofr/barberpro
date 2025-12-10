@@ -293,7 +293,7 @@ function Login({ onSwitchSignup, onRecover }: { onSwitchSignup: () => void; onRe
   const [loginError, setLoginError] = useState("");
   const can = /.+@.+\..+/.test(email) && pwd.length >= 1;
   return (
-    <Card className="border border-white/15 shadow-[0_24px_68px_rgba(15,23,42,0.55)] min-h-[380px] bg-white/12 text-gray-100 backdrop-blur-2xl">
+    <Card className="border border-white/20 shadow-[0_24px_68px_rgba(15,23,42,0.3)] min-h-[380px] bg-white/8 text-gray-100 backdrop-blur-sm">
       <CardHeader>
         <CardTitle className="text-center">Se connecter</CardTitle>
       </CardHeader>
