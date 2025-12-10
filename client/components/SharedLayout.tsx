@@ -103,10 +103,10 @@ export default function SharedLayout({ children }: PropsWithChildren) {
         <header className="sticky top-0 z-10 bg-black/5 border-b border-white/5">
           <div className="container flex items-center justify-between py-3">
             <Link to="/app" className="flex items-center gap-1.5">
-              <div className="h-10 w-10 rounded-full bg-white grid place-items-center shadow">
+              <div className="h-10 w-10 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 grid place-items-center">
                 <svg viewBox="0 0 60 60" className="h-8 w-8" aria-hidden>
-                  <text x="50%" y="55%" dominantBaseline="middle" textAnchor="middle" className="fill-slate-800" style={{ fontSize: '48px', fontWeight: 800, fontFamily: 'system-ui, sans-serif' }}>B</text>
-                  <rect x="18" y="14" width="6" height="6" rx="1" className="fill-slate-800" />
+                  <text x="50%" y="55%" dominantBaseline="middle" textAnchor="middle" style={{ fontSize: '48px', fontWeight: 800, fontFamily: 'system-ui, sans-serif', fill: '#ffffff' }}>B</text>
+                  <rect x="18" y="14" width="6" height="6" rx="1" style={{ fill: '#ffffff' }} />
                 </svg>
               </div>
               <h1 className="text-lg font-bold tracking-tight" style={{ color: '#ffffff' }}>
