@@ -471,11 +471,11 @@ function StylistCard({ s, config, onClick }: { s: any, config: any, onClick: () 
       onClick={onClick}
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
-      className="w-full rounded-3xl border border-white/20 bg-[linear-gradient(140deg,rgba(8,15,40,0.15)0%,rgba(27,51,122,0.12)55%,rgba(46,91,181,0.10)100%)] p-3 shadow-[0_18px_45px_rgba(15,23,42,0.2)] backdrop-blur-sm transition hover:border-white/35 hover:bg-[linear-gradient(140deg,rgba(8,15,40,0.25)0%,rgba(27,51,122,0.20)55%,rgba(46,91,181,0.18)100%)] text-left"
+      className="w-full rounded-2xl border border-white/20 bg-[linear-gradient(140deg,rgba(8,15,40,0.15)0%,rgba(27,51,122,0.12)55%,rgba(46,91,181,0.10)100%)] p-2 shadow-[0_18px_45px_rgba(15,23,42,0.2)] backdrop-blur-sm transition hover:border-white/35 hover:bg-[linear-gradient(140deg,rgba(8,15,40,0.25)0%,rgba(27,51,122,0.20)55%,rgba(46,91,181,0.18)100%)] text-left"
     >
-      <div className="flex w-full flex-col gap-3">
+      <div className="flex w-full flex-col gap-1.5">
         <div className="flex items-center justify-center">
-          <span className="inline-flex items-center gap-2 rounded-full border border-white/35 bg-white/15 px-5 py-2 text-xl font-black text-white">
+          <span className="inline-flex items-center gap-2 rounded-full border border-white/35 bg-white/15 px-4 py-1 text-lg font-black text-white">
             <span className="h-2 w-2 rounded-full bg-emerald-400" />
             {s.name}
           </span>
