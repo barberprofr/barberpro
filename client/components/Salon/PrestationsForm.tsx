@@ -1009,7 +1009,7 @@ export default function PrestationsForm() {
                     transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
                     className="rounded-full overflow-hidden"
                   >
-                    <img src="/assets/coiffeur-photo.jpg" alt="Coiffeur" className="h-24 w-24 object-contain rounded-full opacity-60" />
+                    <img src="/assets/coiffeur-photo.jpg" alt="Coiffeur" className="h-28 w-28 object-contain rounded-full opacity-60" />
                   </motion.div>
                   <span className={cn(
                     "text-lg font-semibold transition-all duration-300",
