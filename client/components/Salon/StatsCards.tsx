@@ -235,7 +235,7 @@ export default function StatsCards() {
           >
             <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 via-transparent to-transparent pointer-events-none" />
             <div className="relative flex items-center gap-4">
-              <div className="relative flex items-center justify-center w-12 h-12 rounded-full overflow-hidden bg-emerald-900 shadow-[0_6px_24px_rgba(16,185,129,0.5)]">
+              <div className="relative flex items-center justify-center w-12 h-12 rounded-full overflow-hidden bg-emerald-900/50 shadow-[0_6px_24px_rgba(16,185,129,0.5)]">
                 <img src="/assets/barber-logo.jpg" alt="Coiffeurs" className="h-10 w-10 object-contain" />
               </div>
               <div className="flex flex-col items-start">
