@@ -1910,7 +1910,7 @@ export default function Settings() {
                               type="month"
                               value={pointsMonth}
                               max={currentParisMonth}
-                              className="relative z-10 h-9 rounded-lg border border-transparent bg-slate-950/70 pl-9 pr-3 text-xs font-semibold tracking-wide text-slate-100 shadow-[0_12px_28px_rgba(79,70,229,0.22)] transition focus-visible:ring focus-visible:ring-[#8c7cff]/80 focus-visible:ring-offset-0"
+                              className="relative z-10 h-9 rounded-lg border border-transparent bg-slate-950/70 pl-9 pr-3 text-xs font-semibold tracking-wide text-slate-100 shadow-[0_12px_28px_rgba(79,70,229,0.22)] transition outline-none focus:outline-none focus-visible:outline-none focus-visible:ring-0"
                               onClick={() => {
                                 if (isMonthUsageVisible) {
                                   setHasOpenedDayUsage(false);
