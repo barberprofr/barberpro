@@ -132,10 +132,10 @@ export default function ServicesPicker({ onServiceSelect, onReset, externalOpen,
                     layout
                     onClick={() => !isSelected && toggleService(service.id, service.name, service.price)}
                     className={cn(
-                      "group relative w-full overflow-hidden rounded-2xl border p-3 shadow-[0_18px_45px_rgba(15,23,42,0.35)] backdrop-blur-xl transition",
+                      "group relative w-full overflow-hidden rounded-2xl border p-3 shadow-[0_18px_45px_rgba(15,23,42,0.2)] backdrop-blur-sm transition",
                       isSelected
-                        ? "border-emerald-400/60 bg-[linear-gradient(140deg,rgba(16,185,129,0.25)0%,rgba(5,150,105,0.18)100%)]"
-                        : "border-white/12 bg-[linear-gradient(140deg,rgba(8,15,40,0.88)0%,rgba(27,51,122,0.7)55%,rgba(46,91,181,0.55)100%)] cursor-pointer hover:border-white/30"
+                        ? "border-emerald-400/60 bg-[linear-gradient(140deg,rgba(16,185,129,0.2)0%,rgba(5,150,105,0.15)100%)]"
+                        : "border-white/20 bg-[linear-gradient(140deg,rgba(8,15,40,0.4)0%,rgba(27,51,122,0.35)55%,rgba(46,91,181,0.3)100%)] cursor-pointer hover:border-white/40"
                     )}
                   >
                     <div className="flex items-center gap-3">
