@@ -961,6 +961,8 @@ export default function Settings() {
   const [openStylistId, setOpenStylistId] = useState<string | null>(null);
   const [coiffCaPopupOpen, setCoiffCaPopupOpen] = useState(false);
   const [dailyCaPopupOpen, setDailyCaPopupOpen] = useState(false);
+  const [monthlyCaPopupOpen, setMonthlyCaPopupOpen] = useState(false);
+  const [yearCaPopupOpen, setYearCaPopupOpen] = useState(false);
 
   useEffect(() => {
     if (bestDaysAccordionValue === "") {
@@ -1757,32 +1759,100 @@ export default function Settings() {
                 )}
               </AnimatePresence>
 
-              <AccordionItem value="monthly">
-                <div className={cn(glassPanelClasses, "space-y-3.5 px-3 py-4 ")}>
-                  <AccordionTrigger className="flex w-full items-center justify-center rounded-xl border border-white/20 bg-[linear-gradient(135deg,rgba(236,72,153,0.82)0%,rgba(124,58,237,0.66)100%)] px-5 py-3 text-sm font-semibold text-white shadow-[0_16px_42px_rgba(236,72,153,0.38)] transition hover:no-underline">
-                    Chiffre d’affaires (mois)
-                  </AccordionTrigger>
-                  <AccordionContent className="text-white/80">
-                    <RevenueByDay
-                      fallbackMonthly={summary?.monthlyPayments}
-                      stylists={stylists}
-                      defaultCommissionPct={typeof config?.commissionDefault === "number" ? config.commissionDefault : undefined}
-                    />
-                  </AccordionContent>
-                </div>
-              </AccordionItem>
+              <div className={cn(glassPanelClasses, "space-y-3.5 px-3 py-4 ")}>
+                <button
+                  type="button"
+                  onClick={() => setMonthlyCaPopupOpen(true)}
+                  className="flex w-full items-center justify-center rounded-xl border border-white/20 bg-[linear-gradient(135deg,rgba(236,72,153,0.82)0%,rgba(124,58,237,0.66)100%)] px-5 py-3 text-sm font-semibold text-white shadow-[0_16px_42px_rgba(236,72,153,0.38)] transition hover:opacity-90"
+                >
+                  Chiffre d'affaires (mois)
+                </button>
+              </div>
+              <AnimatePresence>
+                {monthlyCaPopupOpen && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.15 }}
+                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
+                    onClick={() => setMonthlyCaPopupOpen(false)}
+                  >
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      transition={{ duration: 0.2 }}
+                      className="w-full max-w-2xl max-h-[80vh] overflow-y-auto rounded-2xl border border-white/20 bg-black/5 backdrop-blur-md p-4 shadow-[0_25px_80px_rgba(0,0,0,0.6)]"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <div className="flex items-center justify-between mb-4">
+                        <span className="text-lg font-bold text-white">Chiffre d'affaires (mois)</span>
+                        <button
+                          type="button"
+                          onClick={() => setMonthlyCaPopupOpen(false)}
+                          className="flex h-8 w-8 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition hover:bg-white/20"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                      <div className="text-white/80">
+                        <RevenueByDay
+                          fallbackMonthly={summary?.monthlyPayments}
+                          stylists={stylists}
+                          defaultCommissionPct={typeof config?.commissionDefault === "number" ? config.commissionDefault : undefined}
+                        />
+                      </div>
+                    </motion.div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
 
-              <AccordionItem value="year">
-                <div className={cn(glassPanelClasses, "space-y-3.5 px-3 py-4 ")}>
-                  <AccordionTrigger className="flex w-full items-center justify-center rounded-xl border border-white/20 bg-[linear-gradient(135deg,rgba(249,115,22,0.82)0%,rgba(244,114,182,0.64)100%)] px-5 py-3 text-sm font-semibold text-white shadow-[0_16px_42px_rgba(249,115,22,0.38)] transition hover:no-underline">
-                    Chiffre d’affaires (année)
-                  </AccordionTrigger>
-                  <AccordionContent className="text-white/80">
-                    <RevenueByMonth />
-                  </AccordionContent>
-                </div>
-              </AccordionItem>
+              <div className={cn(glassPanelClasses, "space-y-3.5 px-3 py-4 ")}>
+                <button
+                  type="button"
+                  onClick={() => setYearCaPopupOpen(true)}
+                  className="flex w-full items-center justify-center rounded-xl border border-white/20 bg-[linear-gradient(135deg,rgba(249,115,22,0.82)0%,rgba(244,114,182,0.64)100%)] px-5 py-3 text-sm font-semibold text-white shadow-[0_16px_42px_rgba(249,115,22,0.38)] transition hover:opacity-90"
+                >
+                  Chiffre d'affaires (année)
+                </button>
+              </div>
+              <AnimatePresence>
+                {yearCaPopupOpen && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.15 }}
+                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
+                    onClick={() => setYearCaPopupOpen(false)}
+                  >
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      transition={{ duration: 0.2 }}
+                      className="w-full max-w-2xl max-h-[80vh] overflow-y-auto rounded-2xl border border-white/20 bg-black/5 backdrop-blur-md p-4 shadow-[0_25px_80px_rgba(0,0,0,0.6)]"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <div className="flex items-center justify-between mb-4">
+                        <span className="text-lg font-bold text-white">Chiffre d'affaires (année)</span>
+                        <button
+                          type="button"
+                          onClick={() => setYearCaPopupOpen(false)}
+                          className="flex h-8 w-8 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition hover:bg-white/20"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                      <div className="text-white/80">
+                        <RevenueByMonth />
+                      </div>
+                    </motion.div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
               <AccordionItem value="points-usage">
                 <div className={cn(glassPanelClasses, "space-y-2 ")}>
