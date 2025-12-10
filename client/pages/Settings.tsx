@@ -960,6 +960,7 @@ export default function Settings() {
   const [servicesAccordionValue, setServicesAccordionValue] = useState<string>("");
   const [openStylistId, setOpenStylistId] = useState<string | null>(null);
   const [coiffCaPopupOpen, setCoiffCaPopupOpen] = useState(false);
+  const [dailyCaPopupOpen, setDailyCaPopupOpen] = useState(false);
 
   useEffect(() => {
     if (bestDaysAccordionValue === "") {
@@ -1711,16 +1712,50 @@ export default function Settings() {
                 )}
               </AnimatePresence>
 
-              <AccordionItem value="daily">
-                <div className={cn(glassPanelClasses, "space-y-3.5 px-3 py-4 ")}>
-                  <AccordionTrigger className="flex w-full items-center justify-center rounded-xl border border-white/20 bg-[linear-gradient(135deg,rgba(56,189,248,0.82)0%,rgba(16,185,129,0.65)100%)] px-5 py-3 text-sm font-semibold text-white shadow-[0_16px_42px_rgba(56,189,248,0.34)] transition hover:no-underline">
-                    Chiffre d’affaires (jour)
-                  </AccordionTrigger>
-                  <AccordionContent className="text-white/80">
-                    <RevenueBySingleDay summary={summary} />
-                  </AccordionContent>
-                </div>
-              </AccordionItem>
+              <div className={cn(glassPanelClasses, "space-y-3.5 px-3 py-4 ")}>
+                <button
+                  type="button"
+                  onClick={() => setDailyCaPopupOpen(true)}
+                  className="flex w-full items-center justify-center rounded-xl border border-white/20 bg-[linear-gradient(135deg,rgba(56,189,248,0.82)0%,rgba(16,185,129,0.65)100%)] px-5 py-3 text-sm font-semibold text-white shadow-[0_16px_42px_rgba(56,189,248,0.34)] transition hover:opacity-90"
+                >
+                  Chiffre d'affaires (jour)
+                </button>
+              </div>
+              <AnimatePresence>
+                {dailyCaPopupOpen && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.15 }}
+                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
+                    onClick={() => setDailyCaPopupOpen(false)}
+                  >
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      transition={{ duration: 0.2 }}
+                      className="w-full max-w-lg max-h-[80vh] overflow-y-auto rounded-2xl border border-white/20 bg-black/5 backdrop-blur-md p-4 shadow-[0_25px_80px_rgba(0,0,0,0.6)]"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <div className="flex items-center justify-between mb-4">
+                        <span className="text-lg font-bold text-white">Chiffre d'affaires (jour)</span>
+                        <button
+                          type="button"
+                          onClick={() => setDailyCaPopupOpen(false)}
+                          className="flex h-8 w-8 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition hover:bg-white/20"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                      <div className="text-white/80">
+                        <RevenueBySingleDay summary={summary} />
+                      </div>
+                    </motion.div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
               <AccordionItem value="monthly">
                 <div className={cn(glassPanelClasses, "space-y-3.5 px-3 py-4 ")}>
