@@ -17,7 +17,7 @@ export default function AuthGate() {
   const [mode, setMode] = useState<AuthMode>("login");
 
   return (
-    <div className="mx-auto max-w-lg">
+    <div className="mx-auto max-w-sm">
       <div className="flex items-center justify-center gap-2 mb-4">
         <div className="h-10 w-10 rounded-full bg-primary text-primary-foreground grid place-items-center shadow">
           <Scissors className="h-5 w-5" aria-hidden />
