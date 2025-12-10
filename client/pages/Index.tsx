@@ -8,7 +8,7 @@ export default function Index() {
   // and block access if subscription is not valid (active, trialing, or paid)
   return (
     <SharedLayout>
-      <div className="mx-auto max-w-md space-y-6 pb-8">
+      <div className="mx-auto max-w-md space-y-4">
         <PrestationsForm />
         <StatsCards />
       </div>
