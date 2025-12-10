@@ -26,7 +26,7 @@ function StylistDaily({ id, date, commissionPct }: { id: string; date?: string; 
     const dailyProductCount = (data as any)?.dailyProductCount ?? 0;
     const salary = (prestationTotal?.amount || 0) * (commissionPct ?? 0) / 100;
     return (
-        <div className="rounded-3xl border border-white/25 bg-slate-500/35 p-4 shadow-inner text-sm space-y-4 backdrop-blur-sm">
+        <div className="rounded-3xl border border-white/25 bg-slate-800/70 p-4 shadow-inner text-sm space-y-4 backdrop-blur-sm">
             <div className="space-y-3">
                 <div className="flex items-center justify-between text-slate-100">
                     <span className="text-lg font-black tracking-wide [-webkit-text-stroke:0.5px_black]">CA du jour</span>
@@ -34,7 +34,7 @@ function StylistDaily({ id, date, commissionPct }: { id: string; date?: string; 
                 </div>
                 <div className="text-xs text-white">{prestationTotal?.count || 0} prestation{(prestationTotal?.count ?? 0) > 1 ? "s" : ""}{dailyProductCount ? `, ${dailyProductCount} produit${dailyProductCount > 1 ? "s" : ""}` : ""}</div>
             </div>
-            <div className="rounded-2xl border border-white/10 bg-slate-900/40 overflow-hidden">
+            <div className="rounded-2xl border border-white/10 bg-slate-900/70 overflow-hidden">
                 <div className="grid grid-cols-4 text-sm bg-white/5">
                     <div className="px-3 py-2" aria-hidden="true" />
                     <div className="px-3 py-2"><span className="inline-flex items-center px-2 py-0.5 rounded-full border-2 border-emerald-300 bg-emerald-50 text-emerald-900 text-xs font-semibold">Espèces</span></div>
@@ -63,8 +63,8 @@ function StylistEncaissements({ id, date }: { id: string; date?: string }) {
     };
 
     return (
-        <div className="text-sm border border-gray-700 rounded-md overflow-hidden">
-            <div className="grid grid-cols-3 bg-gray-800 text-gray-100 px-3 py-2 font-medium">
+        <div className="text-sm border border-gray-700 rounded-md overflow-hidden bg-slate-900/70">
+            <div className="grid grid-cols-3 bg-slate-800/80 text-gray-100 px-3 py-2 font-medium">
                 <div>Heure</div>
                 <div>Mode</div>
                 <div>Montant</div>
