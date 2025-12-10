@@ -482,10 +482,10 @@ function StylistCard({ s, config, onClick }: { s: any, config: any, onClick: () 
         </div>
         <div className="flex items-center justify-between">
           <div className="flex flex-col gap-1">
-            <span className="text-xs font-semibold text-emerald-100">
+            <span className="text-sm font-semibold text-emerald-100">
               {s.stats?.dailyCount ?? 0} prestation{(s.stats?.dailyCount ?? 0) > 1 ? "s" : ""}{(s.stats as any)?.dailyProductCount ? `, ${(s.stats as any).dailyProductCount} produit${(s.stats as any).dailyProductCount > 1 ? "s" : ""}` : ""}
             </span>
-            <span className="text-xs font-semibold text-emerald-100">
+            <span className="text-sm font-semibold text-emerald-100">
               Salaire {salary}
             </span>
           </div>
