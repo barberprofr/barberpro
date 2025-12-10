@@ -665,7 +665,7 @@ function RevenueByDay({ fallbackMonthly, stylists, defaultCommissionPct }: { fal
         <Popover open={open} onOpenChange={setOpen}>
           <PopoverTrigger asChild>
             <button
-              className="relative overflow-hidden rounded-xl border border-indigo-400/40 bg-gradient-to-r from-indigo-600 via-blue-600 to-cyan-500 px-4 py-2 text-left font-semibold text-white shadow-lg transition-transform duration-200 hover:scale-[1.02] hover:shadow-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300"
+              className="relative overflow-hidden rounded-xl border border-indigo-400/40 bg-gradient-to-r from-indigo-600/50 via-blue-600/50 to-cyan-500/50 backdrop-blur-sm px-4 py-2 text-left font-semibold text-white shadow-lg transition-transform duration-200 hover:scale-[1.02] hover:shadow-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300"
             >
               <span className="relative z-10">Voir le détail (mois {monthLabels[month - 1]} {year})</span>
               <span className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.4),_transparent_60%)]" />
