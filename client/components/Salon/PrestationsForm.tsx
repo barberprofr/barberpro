@@ -1163,7 +1163,7 @@ export default function PrestationsForm() {
             <div className="flex flex-col items-center gap-1 text-center w-full max-w-md">
 
               {paymentPickerOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 animate-in fade-in duration-200">
                   <div className="w-full max-w-md rounded-3xl border border-white/20 bg-black/5 p-6 text-slate-50 shadow-[0_40px_100px_rgba(8,15,40,0.8)] backdrop-blur-md animate-in zoom-in-95 duration-200">
                     <div className="mb-4 flex items-center gap-3">
                       <button
