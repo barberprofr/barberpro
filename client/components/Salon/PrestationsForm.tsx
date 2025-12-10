@@ -985,7 +985,7 @@ export default function PrestationsForm() {
 
         {/* Grande carte Coiffeur centrée en haut */}
         <div className="flex justify-center mb-6">
-          <div className="relative w-full max-w-[9rem]">
+          <div className="relative w-full max-w-[10rem]">
             <Popover open={stylistPickerOpen} onOpenChange={setStylistPickerOpen}>
               <PopoverTrigger asChild>
                 <motion.button
@@ -994,7 +994,7 @@ export default function PrestationsForm() {
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.98 }}
                   className={cn(
-                    "group relative flex flex-col items-center justify-center gap-1 w-full rounded-3xl border-2 bg-slate-950 px-3 py-3 transition-all duration-300 focus:outline-none",
+                    "group relative flex flex-col items-center justify-center gap-2 w-full rounded-3xl border-2 bg-slate-950 px-4 py-4 transition-all duration-300 focus:outline-none",
                     stylistId 
                       ? "border-cyan-400 shadow-[0_0_35px_rgba(34,211,238,0.5),0_0_60px_rgba(34,211,238,0.3),inset_0_0_20px_rgba(34,211,238,0.1)]" 
                       : "border-slate-700/70 shadow-[0_0_20px_rgba(0,0,0,0.4)] hover:border-cyan-500/50 hover:shadow-[0_0_28px_rgba(34,211,238,0.3)]"
@@ -1009,7 +1009,7 @@ export default function PrestationsForm() {
                     transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
                     className="rounded-full overflow-hidden"
                   >
-                    <img src="/assets/coiffeur-photo.jpg" alt="Coiffeur" className="h-20 w-20 object-contain rounded-full opacity-60" />
+                    <img src="/assets/coiffeur-photo.jpg" alt="Coiffeur" className="h-[5.5rem] w-[5.5rem] object-contain rounded-full opacity-60" />
                   </motion.div>
                   <span className={cn(
                     "text-lg font-semibold transition-all duration-300",
