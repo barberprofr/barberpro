@@ -100,7 +100,7 @@ export default function SharedLayout({ children }: PropsWithChildren) {
         style={{ backgroundImage: `url(${barberBg})` }}
       />
       {hasActiveSubscription && (
-        <header className="sticky top-0 z-10 bg-black/20 backdrop-blur-sm border-b border-white/10">
+        <header className="sticky top-0 z-10 bg-black/10 backdrop-blur-sm border-b border-white/5">
           <div className="container flex items-center justify-between py-3">
             <Link to="/app" className="flex items-center gap-1.5">
               <div className="h-10 w-10 rounded-full bg-white grid place-items-center shadow">
