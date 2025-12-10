@@ -261,13 +261,12 @@ export default function ServicesPicker({ onServiceSelect, onReset, externalOpen,
                     onClick={handleValidate}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ 
-                      scale: 1.12, 
-                      y: -5,
-                      rotate: [0, -1, 1, 0],
-                      boxShadow: "0 0 50px rgba(20,184,166,0.9), -20px 0 40px rgba(6,182,212,0.9), 20px 0 40px rgba(6,182,212,0.9), 0 30px 60px rgba(20,184,166,0.6)"
+                      scale: 1.08, 
+                      y: -3,
+                      boxShadow: "0 0 40px rgba(34,197,94,0.7), -15px 0 35px rgba(34,197,94,0.8), 15px 0 35px rgba(34,197,94,0.8), 0 25px 50px rgba(16,185,129,0.5)"
                     }}
-                    transition={{ type: "spring", stiffness: 300, damping: 12 }}
-                    className="relative w-full overflow-hidden rounded-xl bg-gradient-to-r from-cyan-400 via-teal-500 to-cyan-400 py-6 text-lg font-black text-white shadow-[0_0_25px_rgba(6,182,212,0.5),-10px_0_30px_rgba(20,184,166,0.6),10px_0_30px_rgba(20,184,166,0.6)] transition-all"
+                    transition={{ type: "spring", stiffness: 400, damping: 15 }}
+                    className="relative w-full overflow-hidden rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 py-6 text-lg font-black text-white shadow-[0_15px_30px_rgba(16,185,129,0.3)] transition-all"
                   >
                     <span className="relative z-10">Valider ({selectedPrestations.size} prestation{selectedPrestations.size > 1 ? 's' : ''})</span>
                   </motion.button>
