@@ -485,6 +485,9 @@ function StylistCard({ s, config, onClick }: { s: any, config: any, onClick: () 
             <span className="text-sm font-semibold text-emerald-100">
               {s.stats?.dailyCount ?? 0} prestation{(s.stats?.dailyCount ?? 0) > 1 ? "s" : ""}{(s.stats as any)?.dailyProductCount ? `, ${(s.stats as any).dailyProductCount} produit${(s.stats as any).dailyProductCount > 1 ? "s" : ""}` : ""}
             </span>
+            <span className="text-sm font-semibold text-emerald-100">
+              Salaire {salary}
+            </span>
           </div>
           <div className="flex flex-col items-end justify-center">
             <div className="text-2xl font-extrabold text-primary transition-all duration-300 [-webkit-text-stroke:0.3px_black]">
@@ -496,11 +499,6 @@ function StylistCard({ s, config, onClick }: { s: any, config: any, onClick: () 
               </div>
             )}
           </div>
-        </div>
-        <div className="flex justify-center">
-          <span className="text-sm font-semibold text-emerald-100">
-            Salaire {salary}
-          </span>
         </div>
       </div>
     </motion.button>
