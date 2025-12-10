@@ -19,15 +19,15 @@ export default function AuthGate() {
   return (
     <div className="mx-auto max-w-sm">
       <div className="flex flex-col items-center justify-center mb-4">
-        <svg viewBox="0 0 100 70" className="h-20 w-auto" aria-label="BarBerpro">
+        <svg viewBox="0 0 180 50" className="h-12 w-auto" aria-label="BarBerpro">
           {/* B stylisé */}
-          <text x="50" y="32" textAnchor="middle" fill="#2d3436" style={{ fontSize: '32px', fontWeight: 900, fontFamily: 'system-ui, sans-serif' }}>B</text>
+          <text x="18" y="38" textAnchor="middle" fill="#2d3436" style={{ fontSize: '40px', fontWeight: 900, fontFamily: 'system-ui, sans-serif' }}>B</text>
           {/* Petit carré en haut à droite du B */}
-          <rect x="60" y="6" width="5" height="5" rx="1" fill="#2d3436" />
+          <rect x="30" y="8" width="8" height="8" rx="1.5" fill="#2d3436" />
           {/* Texte BarBerpro */}
-          <text x="50" y="55" textAnchor="middle" fill="#4a5568" style={{ fontSize: '12px', fontWeight: 600, fontFamily: 'system-ui, sans-serif', letterSpacing: '0.5px' }}>BarBerpro</text>
-          {/* Check rouge petit */}
-          <path d="M82 50 L85 54 L91 46" fill="none" stroke="#dc2626" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          <text x="95" y="32" textAnchor="middle" fill="#4a5568" style={{ fontSize: '18px', fontWeight: 600, fontFamily: 'system-ui, sans-serif' }}>BarBerpro</text>
+          {/* Check rouge */}
+          <path d="M152 24 L158 32 L170 18" fill="none" stroke="#dc2626" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
       </div>
       {mode === "signup" && <Signup onSwitchLogin={()=>setMode("login")} />}
