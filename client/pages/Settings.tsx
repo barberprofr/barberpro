@@ -18,7 +18,7 @@ import { cn } from "@/lib/utils";
 import { useState, useEffect, useMemo } from "react";
 import { CreditCard, Coins, FileText, ChevronDown, CalendarDays, Sun, Scissors, UserRound, TrendingUp, Crown, Search } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 
 const eur = new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" });
@@ -959,6 +959,7 @@ export default function Settings() {
   const [bestDaysAccordionValue, setBestDaysAccordionValue] = useState<string>("");
   const [servicesAccordionValue, setServicesAccordionValue] = useState<string>("");
   const [openStylistId, setOpenStylistId] = useState<string | null>(null);
+  const [coiffCaPopupOpen, setCoiffCaPopupOpen] = useState(false);
 
   useEffect(() => {
     if (bestDaysAccordionValue === "") {
@@ -1603,80 +1604,112 @@ export default function Settings() {
                   </AccordionContent>
                 </div>
               </AccordionItem>
-              <AccordionItem value="coiff-ca">
-                <div className={cn(glassPanelClasses, "space-y-3.5 px-3 py-4 ")}>
-                  <AccordionTrigger className="flex w-full items-center justify-center rounded-xl border border-white/20 bg-[linear-gradient(135deg,rgba(124,58,237,0.82)0%,rgba(244,114,182,0.65)100%)] px-5 py-3 text-sm font-semibold text-white shadow-[0_16px_42px_rgba(168,85,247,0.38)] transition hover:no-underline">
-                    Chiffre d’affaires coiffeur
-                  </AccordionTrigger>
-                  <AccordionContent>
-                    <div className="space-y-2.5">
-                      {stylists?.map((s) => {
-                        const stylistCommissionPct = typeof (s as any).commissionPct === "number" ? (s as any).commissionPct : (config?.commissionDefault ?? 0);
-                        return (
-                          <div key={s.id} className="rounded-2xl border border-white/14 bg-white/8 p-2.5 shadow-[0_18px_48px_rgba(8,15,40,0.38)] backdrop-blur-xl">
-                            <div className="flex flex-wrap items-center justify-between gap-2.5">
-                              <div className="flex items-center gap-2">
-                                <Popover open={openStylistId === s.id} onOpenChange={(open) => setOpenStylistId(open ? s.id : null)}>
-                                  <PopoverTrigger asChild>
-                                    <button
-                                      className="group relative flex items-center justify-center gap-2 overflow-hidden rounded-xl border border-white/22 bg-[linear-gradient(135deg,rgba(79,70,229,0.52)0%,rgba(14,165,233,0.42)100%)] px-3 py-1.5 text-xs font-semibold text-white shadow-[0_14px_36px_rgba(59,130,246,0.3)] transition-all duration-300 hover:-translate-y-0.5"
-                                    >
-                                      <span className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(79,70,229,0.35),transparent_55%)] opacity-80 transition-opacity duration-300 group-hover:opacity-100" />
-                                      <span className="relative z-10 inline-flex items-center gap-1.5 text-xs font-semibold">
-                                        <span className={cn(badgeSoftClasses, "border-white/25 bg-white/15 px-2 py-0.5 text-sm font-bold text-white")}>{s.name}</span>
-                                      </span>
-                                      <span className="relative z-10 text-[9px] font-semibold uppercase tracking-[0.2em] text-white/80">
-                                        Voir
-                                      </span>
-                                    </button>
-                                  </PopoverTrigger>
-                                  <PopoverContent className="w-auto rounded-xl border border-white/14 bg-black/15 backdrop-blur-md p-3 space-y-2.5 shadow-[0_20px_50px_rgba(8,15,40,0.6)]" align="start" sideOffset={8}>
-                                    <StylistTotals id={s.id} commissionPct={stylistCommissionPct} />
-                                    <div className="flex flex-wrap items-center gap-1.5 text-[11px]">
-                                      <a className="inline-flex items-center gap-1.5 rounded-lg border border-white/20 bg-white/12 px-2 py-0.5 font-semibold uppercase tracking-[0.16em] text-white/80 transition hover:bg-white/18" href={"/api" + apiPath(`/reports/stylists/${s.id}.csv`)}>CSV</a>
-                                      <a className="inline-flex items-center gap-1.5 rounded-lg border border-white/20 bg-white/12 px-2 py-0.5 font-semibold uppercase tracking-[0.16em] text-white/80 transition hover:bg-white/18" href={"/api" + apiPath(`/reports/stylists/${s.id}.pdf`)}>PDF</a>
-                                    </div>
-                                  </PopoverContent>
-                                </Popover>
-                                <Popover open={openDaily[s.id]} onOpenChange={(open) => { setOpenDaily(m => ({ ...m, [s.id]: open })); setOpenMonthly(m => ({ ...m, [s.id]: false })); }}>
-                                  <PopoverTrigger asChild>
-                                    <button
-                                      className="inline-flex items-center rounded-xl border border-white/20 bg-[linear-gradient(135deg,rgba(14,165,233,0.82)0%,rgba(16,185,129,0.62)100%)] px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-white shadow-[0_14px_36px_rgba(14,165,233,0.3)] hover:-translate-y-0.5 hover:opacity-95"
-                                    >
-                                      Journalier
-                                    </button>
-                                  </PopoverTrigger>
-                                  <PopoverContent className="w-auto rounded-xl border border-white/14 bg-black/15 backdrop-blur-md p-3 space-y-2.5 shadow-[0_20px_50px_rgba(8,15,40,0.6)]" align="start" sideOffset={8}>
-                                    <div className="max-h-96 overflow-y-auto">
-                                      <StylistDailySection id={s.id} commissionPct={stylistCommissionPct} />
-                                    </div>
-                                  </PopoverContent>
-                                </Popover>
-                                <Popover open={openMonthly[s.id]} onOpenChange={(open) => { setOpenMonthly(m => ({ ...m, [s.id]: open })); setOpenDaily(m => ({ ...m, [s.id]: false })); }}>
-                                  <PopoverTrigger asChild>
-                                    <button
-                                      className="inline-flex items-center rounded-xl border border-white/20 bg-[linear-gradient(135deg,rgba(236,72,153,0.82)0%,rgba(124,58,237,0.66)100%)] px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-white shadow-[0_14px_36px_rgba(236,72,153,0.3)] hover:-translate-y-0.5 hover:opacity-95"
-                                    >
-                                      Mensuel
-                                    </button>
-                                  </PopoverTrigger>
-                                  <PopoverContent className="w-auto rounded-xl border border-white/14 bg-black/15 backdrop-blur-md p-3 space-y-2.5 shadow-[0_20px_50px_rgba(8,15,40,0.6)]" align="start" sideOffset={8}>
-                                    <StylistMonthly id={s.id} commissionPct={stylistCommissionPct} />
-                                  </PopoverContent>
-                                </Popover>
-                              </div>
-                              <div className="flex items-center gap-1.5 text-[11px] text-white/70">
-                                <span className={cn(badgeSoftClasses, "border-white/25 bg-white/15 px-2 py-0.5 text-white/75")}>Rémunération</span>
-                                <span className="text-sm font-semibold text-white">{String(stylistCommissionPct)}%</span>
+              <div className={cn(glassPanelClasses, "space-y-3.5 px-3 py-4 ")}>
+                <button
+                  type="button"
+                  onClick={() => setCoiffCaPopupOpen(true)}
+                  className="flex w-full items-center justify-center rounded-xl border border-white/20 bg-[linear-gradient(135deg,rgba(124,58,237,0.82)0%,rgba(244,114,182,0.65)100%)] px-5 py-3 text-sm font-semibold text-white shadow-[0_16px_42px_rgba(168,85,247,0.38)] transition hover:opacity-90"
+                >
+                  Chiffre d'affaires coiffeur
+                </button>
+              </div>
+              <AnimatePresence>
+                {coiffCaPopupOpen && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.15 }}
+                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
+                    onClick={() => setCoiffCaPopupOpen(false)}
+                  >
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      transition={{ duration: 0.2 }}
+                      className="w-full max-w-lg max-h-[80vh] overflow-y-auto rounded-2xl border border-white/20 bg-black/5 backdrop-blur-md p-4 shadow-[0_25px_80px_rgba(0,0,0,0.6)]"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <div className="flex items-center justify-between mb-4">
+                        <span className="text-lg font-bold text-white">Chiffre d'affaires coiffeur</span>
+                        <button
+                          type="button"
+                          onClick={() => setCoiffCaPopupOpen(false)}
+                          className="flex h-8 w-8 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition hover:bg-white/20"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                      <div className="space-y-2.5">
+                        {stylists?.map((s) => {
+                          const stylistCommissionPct = typeof (s as any).commissionPct === "number" ? (s as any).commissionPct : (config?.commissionDefault ?? 0);
+                          return (
+                            <div key={s.id} className="rounded-2xl border border-white/14 bg-white/8 p-2.5 shadow-[0_18px_48px_rgba(8,15,40,0.38)] backdrop-blur-xl">
+                              <div className="flex flex-wrap items-center justify-between gap-2.5">
+                                <div className="flex items-center gap-2">
+                                  <Popover open={openStylistId === s.id} onOpenChange={(open) => setOpenStylistId(open ? s.id : null)}>
+                                    <PopoverTrigger asChild>
+                                      <button
+                                        className="group relative flex items-center justify-center gap-2 overflow-hidden rounded-xl border border-white/22 bg-[linear-gradient(135deg,rgba(79,70,229,0.52)0%,rgba(14,165,233,0.42)100%)] px-3 py-1.5 text-xs font-semibold text-white shadow-[0_14px_36px_rgba(59,130,246,0.3)] transition-all duration-300 hover:-translate-y-0.5"
+                                      >
+                                        <span className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(79,70,229,0.35),transparent_55%)] opacity-80 transition-opacity duration-300 group-hover:opacity-100" />
+                                        <span className="relative z-10 inline-flex items-center gap-1.5 text-xs font-semibold">
+                                          <span className={cn(badgeSoftClasses, "border-white/25 bg-white/15 px-2 py-0.5 text-sm font-bold text-white")}>{s.name}</span>
+                                        </span>
+                                        <span className="relative z-10 text-[9px] font-semibold uppercase tracking-[0.2em] text-white/80">
+                                          Voir
+                                        </span>
+                                      </button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-auto rounded-xl border border-white/14 bg-black/15 backdrop-blur-md p-3 space-y-2.5 shadow-[0_20px_50px_rgba(8,15,40,0.6)]" align="start" sideOffset={8}>
+                                      <StylistTotals id={s.id} commissionPct={stylistCommissionPct} />
+                                      <div className="flex flex-wrap items-center gap-1.5 text-[11px]">
+                                        <a className="inline-flex items-center gap-1.5 rounded-lg border border-white/20 bg-white/12 px-2 py-0.5 font-semibold uppercase tracking-[0.16em] text-white/80 transition hover:bg-white/18" href={"/api" + apiPath(`/reports/stylists/${s.id}.csv`)}>CSV</a>
+                                        <a className="inline-flex items-center gap-1.5 rounded-lg border border-white/20 bg-white/12 px-2 py-0.5 font-semibold uppercase tracking-[0.16em] text-white/80 transition hover:bg-white/18" href={"/api" + apiPath(`/reports/stylists/${s.id}.pdf`)}>PDF</a>
+                                      </div>
+                                    </PopoverContent>
+                                  </Popover>
+                                  <Popover open={openDaily[s.id]} onOpenChange={(open) => { setOpenDaily(m => ({ ...m, [s.id]: open })); setOpenMonthly(m => ({ ...m, [s.id]: false })); }}>
+                                    <PopoverTrigger asChild>
+                                      <button
+                                        className="inline-flex items-center rounded-xl border border-white/20 bg-[linear-gradient(135deg,rgba(14,165,233,0.82)0%,rgba(16,185,129,0.62)100%)] px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-white shadow-[0_14px_36px_rgba(14,165,233,0.3)] hover:-translate-y-0.5 hover:opacity-95"
+                                      >
+                                        Journalier
+                                      </button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-auto rounded-xl border border-white/14 bg-black/15 backdrop-blur-md p-3 space-y-2.5 shadow-[0_20px_50px_rgba(8,15,40,0.6)]" align="start" sideOffset={8}>
+                                      <div className="max-h-96 overflow-y-auto">
+                                        <StylistDailySection id={s.id} commissionPct={stylistCommissionPct} />
+                                      </div>
+                                    </PopoverContent>
+                                  </Popover>
+                                  <Popover open={openMonthly[s.id]} onOpenChange={(open) => { setOpenMonthly(m => ({ ...m, [s.id]: open })); setOpenDaily(m => ({ ...m, [s.id]: false })); }}>
+                                    <PopoverTrigger asChild>
+                                      <button
+                                        className="inline-flex items-center rounded-xl border border-white/20 bg-[linear-gradient(135deg,rgba(236,72,153,0.82)0%,rgba(124,58,237,0.66)100%)] px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-white shadow-[0_14px_36px_rgba(236,72,153,0.3)] hover:-translate-y-0.5 hover:opacity-95"
+                                      >
+                                        Mensuel
+                                      </button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-auto rounded-xl border border-white/14 bg-black/15 backdrop-blur-md p-3 space-y-2.5 shadow-[0_20px_50px_rgba(8,15,40,0.6)]" align="start" sideOffset={8}>
+                                      <StylistMonthly id={s.id} commissionPct={stylistCommissionPct} />
+                                    </PopoverContent>
+                                  </Popover>
+                                </div>
+                                <div className="flex items-center gap-1.5 text-[11px] text-white/70">
+                                  <span className={cn(badgeSoftClasses, "border-white/25 bg-white/15 px-2 py-0.5 text-white/75")}>Rémunération</span>
+                                  <span className="text-sm font-semibold text-white">{String(stylistCommissionPct)}%</span>
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </AccordionContent>
-                </div>
-              </AccordionItem>
+                          );
+                        })}
+                      </div>
+                    </motion.div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
               <AccordionItem value="daily">
                 <div className={cn(glassPanelClasses, "space-y-3.5 px-3 py-4 ")}>
