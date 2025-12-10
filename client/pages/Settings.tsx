@@ -1718,7 +1718,7 @@ export default function Settings() {
                 <button
                   type="button"
                   onClick={() => setDailyCaPopupOpen(true)}
-                  className="flex w-full items-center justify-center rounded-xl border border-white/20 bg-[linear-gradient(135deg,rgba(56,189,248,0.82)0%,rgba(16,185,129,0.65)100%)] px-5 py-3 text-sm font-semibold text-white shadow-[0_16px_42px_rgba(56,189,248,0.34)] transition hover:opacity-90"
+                  className="flex w-full items-center justify-center rounded-xl border border-white/20 bg-[linear-gradient(135deg,rgba(56,189,248,0.25)0%,rgba(16,185,129,0.2)100%)] backdrop-blur-sm px-5 py-3 text-sm font-semibold text-white shadow-[0_16px_42px_rgba(56,189,248,0.2)] transition hover:opacity-90"
                 >
                   Chiffre d'affaires (jour)
                 </button>
@@ -1763,7 +1763,7 @@ export default function Settings() {
                 <button
                   type="button"
                   onClick={() => setMonthlyCaPopupOpen(true)}
-                  className="flex w-full items-center justify-center rounded-xl border border-white/20 bg-[linear-gradient(135deg,rgba(236,72,153,0.82)0%,rgba(124,58,237,0.66)100%)] px-5 py-3 text-sm font-semibold text-white shadow-[0_16px_42px_rgba(236,72,153,0.38)] transition hover:opacity-90"
+                  className="flex w-full items-center justify-center rounded-xl border border-white/20 bg-[linear-gradient(135deg,rgba(236,72,153,0.25)0%,rgba(124,58,237,0.2)100%)] backdrop-blur-sm px-5 py-3 text-sm font-semibold text-white shadow-[0_16px_42px_rgba(236,72,153,0.2)] transition hover:opacity-90"
                 >
                   Chiffre d'affaires (mois)
                 </button>
@@ -1813,7 +1813,7 @@ export default function Settings() {
                 <button
                   type="button"
                   onClick={() => setYearCaPopupOpen(true)}
-                  className="flex w-full items-center justify-center rounded-xl border border-white/20 bg-[linear-gradient(135deg,rgba(249,115,22,0.82)0%,rgba(244,114,182,0.64)100%)] px-5 py-3 text-sm font-semibold text-white shadow-[0_16px_42px_rgba(249,115,22,0.38)] transition hover:opacity-90"
+                  className="flex w-full items-center justify-center rounded-xl border border-white/20 bg-[linear-gradient(135deg,rgba(249,115,22,0.25)0%,rgba(244,114,182,0.2)100%)] backdrop-blur-sm px-5 py-3 text-sm font-semibold text-white shadow-[0_16px_42px_rgba(249,115,22,0.2)] transition hover:opacity-90"
                 >
                   Chiffre d'affaires (année)
                 </button>
@@ -1856,7 +1856,7 @@ export default function Settings() {
 
               <AccordionItem value="points-usage">
                 <div className={cn(glassPanelClasses, "space-y-2 ")}>
-                  <AccordionTrigger className="flex w-full items-center justify-center rounded-xl border border-white/20 bg-[linear-gradient(135deg,rgba(14,165,233,0.78)0%,rgba(16,185,129,0.6)100%)] px-3.5 py-1.5 text-sm font-semibold text-white shadow-[0_14px_38px_rgba(16,185,129,0.36)] transition hover:no-underline">
+                  <AccordionTrigger className="flex w-full items-center justify-center rounded-xl border border-white/20 bg-[linear-gradient(135deg,rgba(14,165,233,0.25)0%,rgba(16,185,129,0.2)100%)] backdrop-blur-sm px-3.5 py-1.5 text-sm font-semibold text-white shadow-[0_14px_38px_rgba(16,185,129,0.2)] transition hover:no-underline">
                     Utilisation des points
                   </AccordionTrigger>
                   <AccordionContent>
