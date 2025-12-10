@@ -1504,7 +1504,7 @@ export default function Settings() {
                         }}>
                           <AccordionItem value="best-days-stats" className="border-0">
                             <AccordionTrigger className="flex items-center gap-2 py-0 hover:no-underline">
-                              <span className="inline-flex items-center gap-2 rounded-full border border-purple-300/70 bg-purple-500/20 px-4 py-2 text-sm font-bold uppercase tracking-[0.15em] text-purple-100">
+                              <span className="inline-flex items-center gap-2 rounded-full border-2 border-purple-300/30 bg-purple-500/10 backdrop-blur-sm px-4 py-2 text-sm font-bold uppercase tracking-[0.15em] text-purple-100 transition-all duration-200 hover:scale-[1.02] hover:shadow-[0_20px_50px_rgba(168,85,247,0.4)] active:scale-105 active:border-white/80 active:shadow-[0_0_20px_rgba(168,85,247,0.8),0_25px_60px_rgba(168,85,247,0.6)] active:brightness-125">
                                 <span className="h-2.5 w-2.5 rounded-full bg-purple-300 animate-pulse" />
                                 <TrendingUp className="h-5 w-5" />
                                 Statistiques meilleurs jours du mois
