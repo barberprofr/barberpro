@@ -235,7 +235,7 @@ export default function StatsCards() {
           >
             <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 via-transparent to-transparent pointer-events-none" />
             <div className="relative flex items-center gap-4">
-              <div className="relative flex items-center justify-center w-16 h-16 rounded-2xl overflow-hidden bg-gradient-to-br from-emerald-400 via-green-500 to-teal-600 shadow-[0_6px_24px_rgba(16,185,129,0.5),inset_0_2px_4px_rgba(255,255,255,0.3)]">
+              <div className="relative flex items-center justify-center w-12 h-12 rounded-xl overflow-hidden bg-gradient-to-br from-emerald-400 via-green-500 to-teal-600 shadow-[0_6px_24px_rgba(16,185,129,0.5),inset_0_2px_4px_rgba(255,255,255,0.3)]">
                 <img src="/assets/client-photo.jpg" alt="Coiffeurs" className="h-full w-full object-cover" />
               </div>
               <div className="flex flex-col items-start">
