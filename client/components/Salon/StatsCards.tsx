@@ -475,7 +475,7 @@ function StylistCard({ s, config, onClick }: { s: any, config: any, onClick: () 
     >
       <div className="flex w-full flex-col gap-1.5">
         <div className="flex items-center justify-center">
-          <span className="inline-flex items-center gap-2 rounded-full border border-white/35 bg-white/15 px-4 py-1 text-lg font-black text-white">
+          <span className="inline-flex items-center gap-2 rounded-full border border-white/35 bg-white/15 px-4 py-0.5 text-lg font-black text-white">
             <span className="h-2 w-2 rounded-full bg-emerald-400" />
             {s.name}
           </span>
