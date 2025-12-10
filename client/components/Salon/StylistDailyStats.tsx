@@ -151,7 +151,7 @@ export function StylistMonthly({ id, commissionPct }: { id: string; commissionPc
         <div className="space-y-2">
             <div className="flex items-center gap-2 text-sm">
                 <span className="text-muted-foreground">Mois</span>
-                <input type="month" value={month} onChange={(e) => setMonth(e.target.value)} className="border rounded px-2 py-1 bg-gray-900 border-gray-700 text-gray-100" />
+                <input type="month" value={month} onChange={(e) => setMonth(e.target.value)} className="border rounded px-2 py-1 bg-gray-900 border-gray-700 text-gray-100 outline-none focus:outline-none" />
             </div>
             <div className="rounded-3xl border border-white/10 bg-slate-950/50 p-4 shadow-inner text-sm space-y-3">
                 <div className="flex items-center justify-between text-slate-100">
