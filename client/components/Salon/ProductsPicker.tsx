@@ -156,7 +156,7 @@ export default function ProductsPicker({ onProductSelect, onReset, externalOpen,
 
                       {/* Product name and price */}
                       <div className="flex-1 flex items-center justify-between gap-3">
-                        <span className="text-base font-bold text-white">
+                        <span className="text-lg font-bold text-white">
                           {product.name}
                         </span>
                         <span className="text-sm font-semibold text-white/80">
