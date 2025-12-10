@@ -157,7 +157,7 @@ export default function SharedLayout({ children }: PropsWithChildren) {
           )}
         </header>
       )}
-      <main className="relative z-10 container pt-4 pb-[calc(8rem+env(safe-area-inset-bottom,0px))] overflow-y-auto" style={{ maxHeight: 'calc(100vh - 90px)' }}>
+      <main className="relative z-10 container pt-4 pb-[calc(7.5rem+env(safe-area-inset-bottom,0px))]">
         <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={location.pathname}
