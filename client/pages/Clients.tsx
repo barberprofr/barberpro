@@ -284,9 +284,9 @@ export default function Clients() {
               >
                 <AccordionItem
                   value="stylist"
-                  className="overflow-hidden rounded-3xl border border-transparent bg-[#050b18]/95 shadow-[0_26px_60px_rgba(5,11,24,0.65)] backdrop-blur-2xl transition duration-300 data-[state=open]:border-white/25"
+                  className="overflow-hidden rounded-3xl border border-transparent bg-[#050b18]/40 shadow-[0_26px_60px_rgba(5,11,24,0.35)] backdrop-blur-sm transition duration-300 data-[state=open]:border-white/25"
                 >
-                  <AccordionTrigger className="relative px-4 py-3 text-sm font-semibold text-slate-100 before:absolute before:inset-0 before:-z-10 before:bg-[linear-gradient(135deg,rgba(9,14,30,0.92)0%,rgba(24,34,85,0.78)45%,rgba(12,111,91,0.55)100%)] before:opacity-95 before:transition before:duration-300">
+                  <AccordionTrigger className="relative px-4 py-3 text-sm font-semibold text-slate-100 before:absolute before:inset-0 before:-z-10 before:bg-[linear-gradient(135deg,rgba(9,14,30,0.40)0%,rgba(24,34,85,0.35)45%,rgba(12,111,91,0.25)100%)] before:opacity-95 before:transition before:duration-300">
                     <div className="flex w-full items-center justify-between gap-3">
                       <span className="inline-flex items-center gap-2 rounded-full border border-white/45 bg-white/20 px-3.5 py-1 text-[11px] font-semibold text-white shadow-[0_8px_18px_rgba(79,70,229,0.35)]">
                         <Sparkles className="h-3 w-3 text-amber-200" />
