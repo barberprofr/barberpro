@@ -452,7 +452,7 @@ function StylistsList({ stylists, config, hasStylists }: { stylists: any[], conf
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: 20 }}
-      className="space-y-3"
+      className="space-y-1"
     >
       {stylists.map((s) => (
         <StylistCard key={s.id} s={s} config={config} onClick={() => setSelectedId(s.id)} />
