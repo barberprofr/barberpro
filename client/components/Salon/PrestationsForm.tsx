@@ -1259,7 +1259,11 @@ export default function PrestationsForm() {
                   autoFocus
                   value={clientSearch}
                   onChange={(e) => setClientSearch(e.target.value)}
-                  className="h-12 w-full rounded-xl border border-white/30 bg-white/10 pl-4 pr-4 text-base text-white font-medium text-center placeholder:text-white/50 placeholder:text-center focus:border-white/50 focus:ring-0 focus:bg-white/20 backdrop-blur-sm"
+                  className="h-12 w-full rounded-xl border-2 border-transparent bg-white/10 pl-4 pr-4 text-base text-white font-medium text-center placeholder:text-white/50 placeholder:text-center focus:ring-0 focus:bg-white/20 backdrop-blur-sm"
+                  style={{
+                    borderImage: "linear-gradient(90deg, #e879f9 0%, #f0abfc 15%, rgba(255,255,255,0.3) 50%, #f0abfc 85%, #e879f9 100%) 1",
+                    borderImageSlice: 1
+                  }}
                 />
               </div>
 
