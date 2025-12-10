@@ -2018,8 +2018,8 @@ export default function Settings() {
               />
 
               <AccordionItem value="add-stylist">
-                <div className={cn(glassPanelClasses, "space-y-3.5 px-4 py-4 bg-[linear-gradient(145deg,rgba(8,15,40,0.9)0%,rgba(30,58,138,0.35)60%,rgba(37,99,235,0.25)100%)]")}>
-                  <AccordionTrigger className="relative flex items-center justify-center rounded-full border-2 border-blue-600 bg-black/30 w-24 h-24 mx-auto text-sm font-semibold uppercase tracking-[0.2em] text-white shadow-[0_0_15px_rgba(59,130,246,0.5),0_0_30px_rgba(30,58,138,0.3)] transition-all duration-300 overflow-hidden hover:scale-110 hover:border-blue-400 hover:shadow-[0_0_25px_rgba(59,130,246,0.8),0_0_50px_rgba(30,58,138,0.6),0_0_75px_rgba(59,130,246,0.4)] group">
+                <div className={cn(glassPanelClasses, "space-y-3.5 px-4 py-4 bg-[linear-gradient(145deg,rgba(8,15,40,0.15)0%,rgba(30,58,138,0.1)60%,rgba(37,99,235,0.08)100%)]")}>
+                  <AccordionTrigger className="relative flex items-center justify-center rounded-full border-2 border-blue-400/30 bg-black/10 backdrop-blur-sm w-24 h-24 mx-auto text-sm font-semibold uppercase tracking-[0.2em] text-white shadow-[0_0_15px_rgba(59,130,246,0.3),0_0_30px_rgba(30,58,138,0.2)] transition-all duration-300 overflow-hidden hover:scale-110 hover:border-blue-400/60 hover:shadow-[0_0_25px_rgba(59,130,246,0.6),0_0_50px_rgba(30,58,138,0.4)] active:scale-105 active:border-white/80 active:shadow-[0_0_20px_rgba(59,130,246,0.8),0_25px_60px_rgba(59,130,246,0.6)] active:brightness-125 group">
                     <span className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(59,130,246,0.2),transparent_70%)] group-hover:bg-[radial-gradient(circle_at_center,rgba(59,130,246,0.4),transparent_60%)] transition-all duration-300" />
                     <span className="pointer-events-none absolute -inset-0.5 rounded-full border border-blue-500/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300 animate-pulse" />
                     <span className="relative z-10 text-center px-2 flex flex-col items-center gap-2">
