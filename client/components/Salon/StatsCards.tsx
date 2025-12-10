@@ -471,7 +471,7 @@ function StylistCard({ s, config, onClick }: { s: any, config: any, onClick: () 
       onClick={onClick}
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
-      className="w-full rounded-3xl border border-white/12 bg-[linear-gradient(140deg,rgba(8,15,40,0.88)0%,rgba(27,51,122,0.7)55%,rgba(46,91,181,0.55)100%)] p-3 shadow-[0_18px_45px_rgba(15,23,42,0.35)] backdrop-blur-xl transition hover:border-white/30 hover:bg-[linear-gradient(140deg,rgba(8,15,40,0.92)0%,rgba(27,51,122,0.78)55%,rgba(46,91,181,0.62)100%)] text-left"
+      className="w-full rounded-3xl border border-white/20 bg-[linear-gradient(140deg,rgba(8,15,40,0.15)0%,rgba(27,51,122,0.12)55%,rgba(46,91,181,0.10)100%)] p-3 shadow-[0_18px_45px_rgba(15,23,42,0.2)] backdrop-blur-sm transition hover:border-white/35 hover:bg-[linear-gradient(140deg,rgba(8,15,40,0.25)0%,rgba(27,51,122,0.20)55%,rgba(46,91,181,0.18)100%)] text-left"
     >
       <div className="flex w-full flex-col gap-3">
         <div className="flex items-center justify-center">
