@@ -1589,7 +1589,7 @@ export default function Settings() {
             >
               <AccordionItem value="exports-marketing">
                 <div className={cn(glassPanelClasses, "space-y-2.5 ")}>
-                  <AccordionTrigger className="flex w-full items-center justify-between rounded-xl border border-white/18 bg-white/12 px-3 py-1.5 text-xs font-semibold text-white shadow-[0_14px_32px_rgba(79,70,229,0.3)] transition hover:no-underline">
+                  <AccordionTrigger className="flex w-full items-center justify-between rounded-xl border-2 border-indigo-400/30 bg-indigo-500/10 backdrop-blur-sm px-3 py-1.5 text-xs font-semibold text-white shadow-[0_14px_32px_rgba(79,70,229,0.2)] transition-all duration-200 hover:no-underline hover:scale-[1.02] hover:border-indigo-300/60 hover:shadow-[0_20px_50px_rgba(79,70,229,0.4)] active:scale-105 active:border-white/80 active:shadow-[0_0_20px_rgba(79,70,229,0.8),0_25px_60px_rgba(79,70,229,0.6)] active:brightness-125">
                     <span>Exports fichier clients</span>
                   </AccordionTrigger>
                   <AccordionContent className="pt-3 text-sm text-white/80">
@@ -1599,7 +1599,7 @@ export default function Settings() {
               </AccordionItem>
               <AccordionItem value="points-manager">
                 <div className={cn(glassPanelClasses, "space-y-2.5 ")}>
-                  <AccordionTrigger className="flex w-full items-center justify-between rounded-xl border border-white/18 bg-white/12 px-3 py-1.5 text-xs font-semibold text-white shadow-[0_14px_32px_rgba(16,185,129,0.3)] transition hover:no-underline">
+                  <AccordionTrigger className="flex w-full items-center justify-between rounded-xl border-2 border-emerald-400/30 bg-emerald-500/10 backdrop-blur-sm px-3 py-1.5 text-xs font-semibold text-white shadow-[0_14px_32px_rgba(16,185,129,0.2)] transition-all duration-200 hover:no-underline hover:scale-[1.02] hover:border-emerald-300/60 hover:shadow-[0_20px_50px_rgba(16,185,129,0.4)] active:scale-105 active:border-white/80 active:shadow-[0_0_20px_rgba(16,185,129,0.8),0_25px_60px_rgba(16,185,129,0.6)] active:brightness-125">
                     <span>Gestion des Points</span>
                   </AccordionTrigger>
                   <AccordionContent className="pt-3 text-sm text-white/80">
