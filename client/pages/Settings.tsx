@@ -459,7 +459,7 @@ function RevenueBySingleDay({ summary }: { summary?: DashboardSummary }) {
           <input
             type="date"
             max={todayParis}
-            className="border rounded px-2 py-1 bg-gray-900 border-gray-700 text-gray-100"
+            className="border rounded px-2 py-1 bg-gray-900 border-gray-700 text-gray-100 outline-none focus:outline-none"
             value={selectedDate}
             onChange={(event) => {
               const value = event.target.value;
@@ -519,7 +519,7 @@ function BestDaysOfMonth() {
       <div className="flex items-center gap-2 flex-wrap">
         <span className="text-muted-foreground text-sm">Mois</span>
         <select
-          className="border rounded px-2 py-1 bg-gray-900 border-gray-700 text-gray-100 text-sm"
+          className="border rounded px-2 py-1 bg-gray-900 border-gray-700 text-gray-100 text-sm outline-none focus:outline-none"
           value={month}
           onChange={(e) => setMonth(Number(e.target.value))}
         >
@@ -529,7 +529,7 @@ function BestDaysOfMonth() {
         </select>
         <span className="text-muted-foreground text-sm">Année</span>
         <select
-          className="border rounded px-2 py-1 bg-gray-900 border-gray-700 text-gray-100 text-sm"
+          className="border rounded px-2 py-1 bg-gray-900 border-gray-700 text-gray-100 text-sm outline-none focus:outline-none"
           value={year}
           onChange={(e) => setYear(Number(e.target.value))}
         >
@@ -706,7 +706,7 @@ function RevenueByDay({ fallbackMonthly, stylists, defaultCommissionPct }: { fal
         <div className="flex items-center gap-2 text-sm">
           <span className="text-muted-foreground">Mois</span>
           <select
-            className="border rounded px-2 py-1 bg-gray-900 border-gray-700 text-gray-100"
+            className="border rounded px-2 py-1 bg-gray-900 border-gray-700 text-gray-100 outline-none focus:outline-none"
             value={month}
             onChange={(e) => setMonth(Number(e.target.value))}
           >
@@ -716,7 +716,7 @@ function RevenueByDay({ fallbackMonthly, stylists, defaultCommissionPct }: { fal
           </select>
           <span className="text-muted-foreground">Année</span>
           <select
-            className="border rounded px-2 py-1 bg-gray-900 border-gray-700 text-gray-100"
+            className="border rounded px-2 py-1 bg-gray-900 border-gray-700 text-gray-100 outline-none focus:outline-none"
             value={year}
             onChange={(e) => setYear(Number(e.target.value))}
           >
@@ -800,7 +800,7 @@ function RevenueByMonth() {
         <div className="flex items-center gap-2 text-sm">
           <span className="text-muted-foreground">Année</span>
           <select
-            className="border rounded px-2 py-1 bg-gray-900 border-gray-700 text-gray-100"
+            className="border rounded px-2 py-1 bg-gray-900 border-gray-700 text-gray-100 outline-none focus:outline-none"
             value={year}
             onChange={(e) => setYear(Number(e.target.value))}
           >
