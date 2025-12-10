@@ -300,11 +300,11 @@ function Login({ onSwitchSignup, onRecover }: { onSwitchSignup: () => void; onRe
       <CardContent className="space-y-4">
         <div className="relative">
           <label className="absolute -top-2.5 left-3 px-1 text-xs font-medium text-fuchsia-400 bg-transparent z-10">Email</label>
-          <Input type="email" value={email} onChange={(e)=>{ setEmail(e.target.value); setLoginError(""); }} autoComplete="email" className="pt-4 pb-3 bg-gray-800/50 border-gray-600 rounded-xl text-gray-100 placeholder:text-gray-400" />
+          <Input type="email" value={email} onChange={(e)=>{ setEmail(e.target.value); setLoginError(""); }} autoComplete="email" className="pt-5 pb-4 px-4 bg-gray-800/50 border-gray-600 rounded-2xl text-gray-100 placeholder:text-gray-400" />
         </div>
         <div className="relative">
           <label className="absolute -top-2.5 left-3 px-1 text-xs font-medium text-fuchsia-400 bg-transparent z-10">Mot de passe personnalisé</label>
-          <PasswordInput value={pwd} onChange={(e)=>{ setPwd(e.target.value); setLoginError(""); }} autoComplete="current-password" placeholder="Votre mot de passe créé" className="pt-4 pb-3 bg-gray-800/50 border-gray-600 rounded-xl text-gray-100 placeholder:text-gray-400" />
+          <PasswordInput value={pwd} onChange={(e)=>{ setPwd(e.target.value); setLoginError(""); }} autoComplete="current-password" placeholder="Votre mot de passe créé" className="pt-5 pb-4 px-4 bg-gray-800/50 border-gray-600 rounded-2xl text-gray-100 placeholder:text-gray-400" />
         </div>
         <Button
           className="w-full"
