@@ -1007,8 +1007,9 @@ export default function PrestationsForm() {
                         : ["drop-shadow(0 0 8px rgba(34,211,238,0.5))", "drop-shadow(0 0 15px rgba(34,211,238,0.7))", "drop-shadow(0 0 8px rgba(34,211,238,0.5))"]
                     }}
                     transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                    className="rounded-full overflow-hidden"
                   >
-                    <Scissors className="h-12 w-12 text-cyan-400 transition-all duration-300" />
+                    <img src="/assets/coiffeur-photo.jpg" alt="Coiffeur" className="h-16 w-16 object-cover rounded-full opacity-60" />
                   </motion.div>
                   <span className={cn(
                     "text-lg font-semibold transition-all duration-300",
