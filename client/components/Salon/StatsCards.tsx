@@ -231,7 +231,7 @@ export default function StatsCards() {
             type="button"
             whileHover={{ scale: 1.02, y: -2 }}
             whileTap={{ scale: 0.98 }}
-            className="relative w-full overflow-hidden rounded-3xl border border-emerald-400/40 bg-gradient-to-br from-slate-800/90 via-slate-900/95 to-slate-950 backdrop-blur-xl shadow-[0_12px_40px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.1)] p-4 transition-all duration-300 hover:shadow-[0_16px_50px_rgba(16,185,129,0.3)]"
+            className="relative w-full overflow-hidden rounded-3xl border border-emerald-400/40 bg-gradient-to-br from-slate-800/40 via-slate-900/50 to-slate-950/40 backdrop-blur-sm shadow-[0_12px_40px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.1)] p-4 transition-all duration-300 hover:shadow-[0_16px_50px_rgba(16,185,129,0.3)]"
           >
             <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 via-transparent to-transparent pointer-events-none" />
             <div className="relative flex items-center gap-4">
