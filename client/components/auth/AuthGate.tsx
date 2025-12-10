@@ -17,7 +17,7 @@ export default function AuthGate() {
   const [mode, setMode] = useState<AuthMode>("login");
 
   return (
-    <div className="mx-auto max-w-sm">
+    <div className="mx-auto max-w-sm py-8 min-h-screen flex flex-col justify-center">
       <div className="flex flex-col items-center justify-center mb-4">
         <img src="/assets/barberpro-logo.png" alt="BarBerpro" className="h-24 w-auto" />
       </div>
