@@ -1411,8 +1411,8 @@ export default function Settings() {
               <AccordionItem value="settings-config" className="border-none">
                 <div className={cn(glassPanelClasses, "space-y-0 overflow-hidden p-2 sm:p-3 ")}
                 >
-                  <AccordionTrigger className="flex w-full items-center justify-between rounded-xl border-2 border-emerald-400/60 bg-[linear-gradient(135deg,rgba(16,185,129,0.25)0%,rgba(79,70,229,0.2)100%)] px-4 py-4 text-left text-base font-bold text-emerald-50 shadow-[0_16px_42px_rgba(16,185,129,0.35)] transition hover:no-underline hover:border-emerald-300 hover:bg-[linear-gradient(135deg,rgba(16,185,129,0.35)0%,rgba(79,70,229,0.28)100%)]">
-                    <span className={cn("inline-flex items-center gap-2 rounded-full border border-emerald-300/70 bg-emerald-500/20 px-4 py-2 text-sm font-bold uppercase tracking-[0.15em] text-emerald-100")}>
+                  <AccordionTrigger className="flex w-full items-center justify-between rounded-xl border-2 border-emerald-400/30 bg-[linear-gradient(135deg,rgba(16,185,129,0.1)0%,rgba(79,70,229,0.08)100%)] backdrop-blur-sm px-4 py-4 text-left text-base font-bold text-emerald-50 shadow-[0_16px_42px_rgba(16,185,129,0.2)] transition-all duration-200 hover:no-underline hover:scale-[1.02] hover:border-emerald-300/60 hover:shadow-[0_20px_50px_rgba(16,185,129,0.4)] active:scale-105 active:border-white/80 active:shadow-[0_0_20px_rgba(16,185,129,0.8),0_25px_60px_rgba(16,185,129,0.6)] active:brightness-125">
+                    <span className={cn("inline-flex items-center gap-2 rounded-full border-2 border-emerald-300/30 bg-emerald-500/10 backdrop-blur-sm px-4 py-2 text-sm font-bold uppercase tracking-[0.15em] text-emerald-100")}>
                       <span className="h-2 w-2 rounded-full bg-emerald-300 animate-pulse" />
                       Réglages de paramètres
                     </span>
