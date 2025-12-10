@@ -1164,7 +1164,7 @@ export default function PrestationsForm() {
 
               {paymentPickerOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-                  <div className="w-full max-w-md rounded-3xl border border-emerald-400/50 bg-gradient-to-br from-slate-950/95 via-indigo-900/70 to-emerald-800/40 p-6 text-slate-50 shadow-[0_40px_100px_rgba(8,15,40,0.8)] backdrop-blur-2xl animate-in zoom-in-95 duration-200">
+                  <div className="w-full max-w-md rounded-3xl border border-white/20 bg-black/12 p-6 text-slate-50 shadow-[0_40px_100px_rgba(8,15,40,0.8)] backdrop-blur-2xl animate-in zoom-in-95 duration-200">
                     <div className="mb-4 flex items-center gap-3">
                       <button
                         type="button"
@@ -1208,7 +1208,7 @@ export default function PrestationsForm() {
                               whileHover={{ scale: isSelected ? 1.2 : 1.05 }}
                               whileTap={{ scale: 0.95 }}
                               className={cn(
-                                "flex w-full items-center justify-center gap-4 rounded-2xl border-2 border-slate-700/70 bg-slate-900/90 px-6 py-5 text-center text-lg font-bold transition-colors duration-200 hover:border-cyan-400/80 hover:bg-cyan-500/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 shadow-[0_8px_25px_rgba(8,15,40,0.3)]",
+                                "flex w-full items-center justify-center gap-4 rounded-2xl border-2 border-white/20 bg-black/12 px-6 py-5 text-center text-lg font-bold transition-colors duration-200 hover:border-cyan-400/80 hover:bg-cyan-500/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 shadow-[0_8px_25px_rgba(8,15,40,0.3)] backdrop-blur-sm",
                                 isSelected && "border-cyan-400 bg-gradient-to-r from-cyan-500/30 via-cyan-400/40 to-cyan-500/30 text-cyan-100 [background-size:200%_100%] animate-[shimmer_2s_ease-in-out_infinite]"
                               )}
                               style={isSelected ? {
@@ -1218,7 +1218,7 @@ export default function PrestationsForm() {
                               } : undefined}
                             >
                               <span className={cn(
-                                "flex h-12 w-12 items-center justify-center rounded-2xl border border-slate-700/80 bg-slate-800/80 text-slate-200 transition-all",
+                                "flex h-12 w-12 items-center justify-center rounded-2xl border border-white/20 bg-black/12 text-slate-200 transition-all",
                                 isSelected && "border-cyan-400/90 bg-cyan-500/30 text-cyan-200 shadow-[0_4px_20px_rgba(34,211,238,0.6)]"
                               )}>
                                 <Icon className="h-7 w-7" />
