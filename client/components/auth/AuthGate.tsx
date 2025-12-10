@@ -299,11 +299,11 @@ function Login({ onSwitchSignup, onRecover }: { onSwitchSignup: () => void; onRe
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="relative">
-          <label className="absolute -top-2.5 left-3 px-2 text-xs font-medium text-cyan-300 bg-slate-800/90 rounded z-10">Email</label>
+          <label className="absolute top-1 left-4 text-xs font-medium text-cyan-300 z-10">Email</label>
           <Input type="email" value={email} onChange={(e)=>{ setEmail(e.target.value); setLoginError(""); }} autoComplete="email" className="pt-6 pb-5 px-5 bg-gray-600/40 border-gray-500 rounded-2xl text-gray-100 placeholder:text-gray-300" />
         </div>
         <div className="relative">
-          <label className="absolute -top-2.5 left-3 px-2 text-xs font-medium text-cyan-300 bg-slate-800/90 rounded z-10">Mot de passe personnalisé</label>
+          <label className="absolute top-1 left-4 text-xs font-medium text-cyan-300 z-10">Mot de passe personnalisé</label>
           <PasswordInput value={pwd} onChange={(e)=>{ setPwd(e.target.value); setLoginError(""); }} autoComplete="current-password" placeholder="Votre mot de passe créé" className="pt-6 pb-5 px-5 bg-gray-600/40 border-gray-500 rounded-2xl text-gray-100 placeholder:text-gray-300" />
         </div>
         <Button
