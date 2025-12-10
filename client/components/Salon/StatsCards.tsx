@@ -490,7 +490,7 @@ function StylistCard({ s, config, onClick }: { s: any, config: any, onClick: () 
             </span>
           </div>
           <div className="flex flex-col items-end justify-center">
-            <div className="text-2xl font-extrabold text-fuchsia-400 transition-all duration-300">
+            <div className="text-2xl font-extrabold text-primary transition-all duration-300">
               {eur.format(s.stats?.dailyAmount ?? 0)}
             </div>
             {dailyPointsUsed > 0 && (
