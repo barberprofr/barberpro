@@ -19,16 +19,15 @@ export default function AuthGate() {
   return (
     <div className="mx-auto max-w-sm">
       <div className="flex flex-col items-center justify-center mb-4">
-        <svg viewBox="0 0 100 70" className="h-20 w-auto" aria-label="BarBerpro">
-          {/* B stylisé */}
-          <text x="50" y="32" textAnchor="middle" fill="#2d3436" style={{ fontSize: '32px', fontWeight: 900, fontFamily: 'system-ui, sans-serif' }}>B</text>
-          {/* Petit carré en haut à gauche du B */}
-          <rect x="34" y="8" width="6" height="6" rx="1" fill="#2d3436" />
-          {/* Texte BarBerpro */}
-          <text x="50" y="55" textAnchor="middle" fill="#4a5568" style={{ fontSize: '12px', fontWeight: 600, fontFamily: 'system-ui, sans-serif', letterSpacing: '0.5px' }}>BarBerpro</text>
-          {/* Check rouge petit */}
-          <path d="M82 50 L85 54 L91 46" fill="none" stroke="#dc2626" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
+        <div className="h-14 w-14 grid place-items-center">
+          <svg viewBox="0 0 60 60" className="h-14 w-14" aria-hidden>
+            <text x="50%" y="55%" dominantBaseline="middle" textAnchor="middle" fill="white" style={{ fontSize: '48px', fontWeight: 800, fontFamily: 'system-ui, sans-serif' }}>B</text>
+            <rect x="18" y="14" width="6" height="6" rx="1" fill="white" />
+          </svg>
+        </div>
+        <h1 className="text-2xl font-extrabold tracking-tight text-white">
+          BarBerpro<svg viewBox="0 0 16 16" className="inline-block h-4 w-4 ml-0.5 -mt-1" aria-hidden><path d="M13.5 2L6 12l-3.5-3.5" fill="none" stroke="#dc2626" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+        </h1>
       </div>
       {mode === "signup" && <Signup onSwitchLogin={()=>setMode("login")} />}
       {mode === "login" && <Login onSwitchSignup={()=>setMode("signup")} onRecover={()=>setMode("recover-ask")} />}
