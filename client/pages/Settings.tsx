@@ -1148,9 +1148,7 @@ export default function Settings() {
   return (
     <SharedLayout>
       <div className="mx-auto max-w-2xl space-y-3 px-3 pb-8 lg:px-0 relative">
-        <div className="pointer-events-none fixed inset-0 bg-[linear-gradient(135deg,rgba(15,23,42,0.9)0%,rgba(30,20,60,0.8)25%,rgba(20,25,50,0.85)50%,rgba(15,30,40,0.8)75%,rgba(10,20,35,0.9)100%)] -z-10" />
-        <Card className="relative overflow-hidden rounded-[24px] border border-white/25 bg-gradient-to-br from-white/12 via-white/6 to-white/3 backdrop-blur-3xl shadow-[0_32px_96px_rgba(8,15,40,0.4),0_0_40px_rgba(79,70,229,0.15)]">
-          <span className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.25),transparent_65%)] opacity-70" />
+        <Card className="relative overflow-hidden rounded-[24px] border border-white/20 bg-black/12 backdrop-blur-md shadow-[0_32px_96px_rgba(8,15,40,0.2)]">
           <CardHeader className="relative z-10 flex flex-col space-y-2 p-4 pb-2.5 text-white">
             <span className="inline-flex w-fit items-center gap-1.5 rounded-full border border-emerald-400/50 bg-gradient-to-r from-emerald-500/20 to-emerald-400/10 px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-emerald-100 shadow-[0_10px_24px_rgba(16,185,129,0.3),inset_0_1px_1px_rgba(255,255,255,0.2)]">🔐 Espace administration</span>
             <CardTitle className="text-2xl font-black tracking-tight text-white drop-shadow-[0_10px_24px_rgba(15,23,42,0.5)]">Paramètres du salon</CardTitle>
