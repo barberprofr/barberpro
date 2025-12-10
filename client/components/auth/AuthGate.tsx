@@ -17,9 +17,18 @@ export default function AuthGate() {
   const [mode, setMode] = useState<AuthMode>("login");
 
   return (
-    <div className="mx-auto max-w-sm py-8 min-h-screen flex flex-col justify-center">
+    <div className="mx-auto max-w-sm">
       <div className="flex flex-col items-center justify-center mb-4">
-        <img src="/assets/barberpro-logo.png" alt="BarBerpro" className="h-24 w-auto" />
+        <svg viewBox="0 0 180 50" className="h-12 w-auto" aria-label="BarBerpro">
+          {/* B stylisé */}
+          <text x="18" y="38" textAnchor="middle" fill="#2d3436" style={{ fontSize: '40px', fontWeight: 900, fontFamily: 'system-ui, sans-serif' }}>B</text>
+          {/* Petit carré en haut à droite du B */}
+          <rect x="30" y="8" width="8" height="8" rx="1.5" fill="#2d3436" />
+          {/* Texte BarBerpro */}
+          <text x="95" y="32" textAnchor="middle" fill="#4a5568" style={{ fontSize: '18px', fontWeight: 600, fontFamily: 'system-ui, sans-serif' }}>BarBerpro</text>
+          {/* Check rouge */}
+          <path d="M152 24 L158 32 L170 18" fill="none" stroke="#dc2626" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
       </div>
       {mode === "signup" && <Signup onSwitchLogin={()=>setMode("login")} />}
       {mode === "login" && <Login onSwitchSignup={()=>setMode("signup")} onRecover={()=>setMode("recover-ask")} />}
