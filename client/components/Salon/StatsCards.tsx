@@ -480,6 +480,11 @@ function StylistCard({ s, config, onClick }: { s: any, config: any, onClick: () 
             {s.name}
           </span>
         </div>
+        <div className="flex items-center justify-center">
+          <div className="text-2xl font-extrabold text-primary transition-all duration-300">
+            {eur.format(s.stats?.dailyAmount ?? 0)}
+          </div>
+        </div>
         <div className="flex items-center justify-between">
           <div className="flex flex-col gap-1">
             <span className="text-xs font-semibold text-emerald-100">
@@ -489,16 +494,11 @@ function StylistCard({ s, config, onClick }: { s: any, config: any, onClick: () 
               Salaire {salary}
             </span>
           </div>
-          <div className="flex flex-col items-end justify-center">
-            <div className="text-2xl font-extrabold text-primary transition-all duration-300">
-              {eur.format(s.stats?.dailyAmount ?? 0)}
+          {dailyPointsUsed > 0 && (
+            <div className="text-[10px] uppercase tracking-wide text-muted-foreground">
+              Points utilisés {pointsFmt.format(dailyPointsUsed)} pts
             </div>
-            {dailyPointsUsed > 0 && (
-              <div className="text-[10px] uppercase tracking-wide text-muted-foreground">
-                Points utilisés {pointsFmt.format(dailyPointsUsed)} pts
-              </div>
-            )}
-          </div>
+          )}
         </div>
       </div>
     </motion.button>
