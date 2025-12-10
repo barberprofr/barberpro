@@ -95,8 +95,8 @@ function formatContact(value?: string | null) {
 function PointsUsageScopeSection({ title, emptyLabel, groups, variant = "default" }: PointsUsageScopeSectionProps) {
   const totalPoints = groups.reduce((sum, group) => sum + group.totalPoints, 0);
   const containerClasses = variant === "month"
-    ? "rounded-3xl border border-white/10 bg-gradient-to-br from-[#0f172a]/85 via-[#1e1b4b]/70 to-[#0ea5e9]/35 p-4 space-y-4 shadow-[0_28px_60px_rgba(15,23,42,0.45)] backdrop-blur"
-    : "rounded-2xl border border-white/10 bg-slate-950/40 p-3 space-y-3";
+    ? "rounded-3xl border border-white/20 bg-black/12 p-4 space-y-4 shadow-[0_28px_60px_rgba(15,23,42,0.3)] backdrop-blur-md"
+    : "rounded-2xl border border-white/20 bg-black/12 p-3 space-y-3 backdrop-blur-md";
   const itemClasses = variant === "month"
     ? "rounded-2xl border border-white/12 bg-white/10 backdrop-blur-lg transition hover:border-white/35"
     : "rounded-xl border border-white/10 bg-slate-900/40";
@@ -326,7 +326,7 @@ function StylistTotals({ id, commissionPct }: { id: string; commissionPct: numbe
   const salaryMonth = (prestationM?.amount || 0) * (commissionPct ?? 0) / 100;
   return (
     <div className="grid grid-cols-2 gap-2 text-sm">
-      <div className="rounded-3xl border border-white/10 bg-slate-950/50 p-4 shadow-inner text-sm space-y-3">
+      <div className="rounded-3xl border border-white/20 bg-black/12 p-4 shadow-inner text-sm space-y-3 backdrop-blur-md">
         <div className="text-xs text-slate-300 text-center whitespace-nowrap overflow-hidden text-ellipsis min-h-[20px]">
           Total jour
           <span className="ml-1 italic text-slate-400">— {new Date().toLocaleDateString("fr-FR", { timeZone: "Europe/Paris", weekday: "long", year: "numeric", month: "long", day: "2-digit" })}</span>
@@ -336,7 +336,7 @@ function StylistTotals({ id, commissionPct }: { id: string; commissionPct: numbe
         <div className="text-base font-semibold text-center text-slate-100 whitespace-nowrap overflow-hidden text-ellipsis min-h-[20px]">Salaire {eur.format(salaryAmount)}</div>
         <div className="text-xs text-slate-300 text-center">{prestationD?.count || 0} prest.{dailyProductCount ? `, ${dailyProductCount} prod.` : ""}</div>
       </div>
-      <div className="rounded-3xl border border-white/10 bg-slate-950/50 p-4 shadow-inner text-sm space-y-3">
+      <div className="rounded-3xl border border-white/20 bg-black/12 p-4 shadow-inner text-sm space-y-3 backdrop-blur-md">
         <div className="text-xs text-slate-300 text-center whitespace-nowrap overflow-hidden text-ellipsis min-h-[20px]">
           Total mois
           <span className="ml-1 italic text-slate-400">— {new Date().toLocaleDateString("fr-FR", { timeZone: "Europe/Paris", year: "numeric", month: "long" })}</span>
@@ -409,7 +409,7 @@ function RevenueBySingleDay({ summary }: { summary?: DashboardSummary }) {
               <span className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.4),_transparent_60%)]" />
             </button>
           </PopoverTrigger>
-          <PopoverContent className="w-auto max-w-2xl rounded-xl border border-white/14 bg-gradient-to-br from-[#0f172a]/95 via-[#1e1b4b]/90 to-[#0ea5e9]/30 p-3 space-y-2.5 shadow-[0_20px_50px_rgba(8,15,40,0.6)]" align="start" sideOffset={8}>
+          <PopoverContent className="w-auto max-w-2xl rounded-xl border border-white/14 bg-black/15 backdrop-blur-md p-3 space-y-2.5 shadow-[0_20px_50px_rgba(8,15,40,0.6)]" align="start" sideOffset={8}>
             <div className="space-y-3">
               <div className="rounded-2xl border-2 border-primary/40 bg-primary/10 px-4 py-3 text-center">
                 <div className="text-xs uppercase tracking-wide text-primary">Total journée</div>
@@ -541,7 +541,7 @@ function BestDaysOfMonth() {
 
       {bestStylist && (bestStylist.stats?.monthlyAmount ?? 0) > 0 && (
         <motion.div
-          className="rounded-2xl border border-amber-400/50 bg-gradient-to-br from-amber-500/20 to-amber-400/10 p-4 backdrop-blur-sm"
+          className="rounded-2xl border border-white/20 bg-black/12 p-4 backdrop-blur-md"
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.4 }}
@@ -570,7 +570,7 @@ function BestDaysOfMonth() {
         </motion.div>
       ) : (
         <motion.div
-          className="rounded-2xl border border-white/15 bg-gradient-to-br from-slate-900/60 via-slate-800/40 to-slate-900/60 p-4 backdrop-blur-sm"
+          className="rounded-2xl border border-white/20 bg-black/12 p-4 backdrop-blur-md"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
@@ -671,7 +671,7 @@ function RevenueByDay({ fallbackMonthly, stylists, defaultCommissionPct }: { fal
               <span className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.4),_transparent_60%)]" />
             </button>
           </PopoverTrigger>
-          <PopoverContent className="w-auto max-w-2xl rounded-xl border border-white/14 bg-gradient-to-br from-[#0f172a]/95 via-[#1e1b4b]/90 to-[#0ea5e9]/30 p-3 space-y-2.5 shadow-[0_20px_50px_rgba(8,15,40,0.6)]" align="start" sideOffset={8}>
+          <PopoverContent className="w-auto max-w-2xl rounded-xl border border-white/14 bg-black/15 backdrop-blur-md p-3 space-y-2.5 shadow-[0_20px_50px_rgba(8,15,40,0.6)]" align="start" sideOffset={8}>
             <div className="space-y-3">
               <div className="rounded-2xl border-2 border-primary/40 bg-primary/10 px-4 py-3 text-center">
                 <div className="text-xs uppercase tracking-wide text-primary">Total mois</div>
@@ -767,7 +767,7 @@ function RevenueByMonth() {
               <span className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.4),_transparent_60%)]" />
             </button>
           </PopoverTrigger>
-          <PopoverContent className="w-auto max-w-2xl rounded-xl border border-white/14 bg-gradient-to-br from-[#0f172a]/95 via-[#1e1b4b]/90 to-[#0ea5e9]/30 p-3 space-y-2.5 shadow-[0_20px_50px_rgba(8,15,40,0.6)]" align="start" sideOffset={8}>
+          <PopoverContent className="w-auto max-w-2xl rounded-xl border border-white/14 bg-black/15 backdrop-blur-md p-3 space-y-2.5 shadow-[0_20px_50px_rgba(8,15,40,0.6)]" align="start" sideOffset={8}>
             <div className="space-y-3">
               <div className="rounded-2xl border-2 border-primary/40 bg-primary/10 px-4 py-3 text-center">
                 <div className="text-xs uppercase tracking-wide text-primary">Total année</div>
@@ -1632,7 +1632,7 @@ export default function Settings() {
                                       </span>
                                     </button>
                                   </PopoverTrigger>
-                                  <PopoverContent className="w-auto rounded-xl border border-white/14 bg-gradient-to-br from-[#0f172a]/95 via-[#1e1b4b]/90 to-[#0ea5e9]/30 p-3 space-y-2.5 shadow-[0_20px_50px_rgba(8,15,40,0.6)]" align="start" sideOffset={8}>
+                                  <PopoverContent className="w-auto rounded-xl border border-white/14 bg-black/15 backdrop-blur-md p-3 space-y-2.5 shadow-[0_20px_50px_rgba(8,15,40,0.6)]" align="start" sideOffset={8}>
                                     <StylistTotals id={s.id} commissionPct={stylistCommissionPct} />
                                     <div className="flex flex-wrap items-center gap-1.5 text-[11px]">
                                       <a className="inline-flex items-center gap-1.5 rounded-lg border border-white/20 bg-white/12 px-2 py-0.5 font-semibold uppercase tracking-[0.16em] text-white/80 transition hover:bg-white/18" href={"/api" + apiPath(`/reports/stylists/${s.id}.csv`)}>CSV</a>
@@ -1648,7 +1648,7 @@ export default function Settings() {
                                       Journalier
                                     </button>
                                   </PopoverTrigger>
-                                  <PopoverContent className="w-auto rounded-xl border border-white/14 bg-gradient-to-br from-[#0f172a]/95 via-[#1e1b4b]/90 to-[#0ea5e9]/30 p-3 space-y-2.5 shadow-[0_20px_50px_rgba(8,15,40,0.6)]" align="start" sideOffset={8}>
+                                  <PopoverContent className="w-auto rounded-xl border border-white/14 bg-black/15 backdrop-blur-md p-3 space-y-2.5 shadow-[0_20px_50px_rgba(8,15,40,0.6)]" align="start" sideOffset={8}>
                                     <div className="max-h-96 overflow-y-auto">
                                       <StylistDailySection id={s.id} commissionPct={stylistCommissionPct} />
                                     </div>
@@ -1662,7 +1662,7 @@ export default function Settings() {
                                       Mensuel
                                     </button>
                                   </PopoverTrigger>
-                                  <PopoverContent className="w-auto rounded-xl border border-white/14 bg-gradient-to-br from-[#0f172a]/95 via-[#1e1b4b]/90 to-[#0ea5e9]/30 p-3 space-y-2.5 shadow-[0_20px_50px_rgba(8,15,40,0.6)]" align="start" sideOffset={8}>
+                                  <PopoverContent className="w-auto rounded-xl border border-white/14 bg-black/15 backdrop-blur-md p-3 space-y-2.5 shadow-[0_20px_50px_rgba(8,15,40,0.6)]" align="start" sideOffset={8}>
                                     <StylistMonthly id={s.id} commissionPct={stylistCommissionPct} />
                                   </PopoverContent>
                                 </Popover>
