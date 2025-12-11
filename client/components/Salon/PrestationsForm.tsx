@@ -17,6 +17,30 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 
 
 const PHONE_DIGITS_REQUIRED = 10;
+
+const playSuccessSound = () => {
+  try {
+    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    oscillator.frequency.setValueAtTime(880, audioContext.currentTime);
+    oscillator.frequency.setValueAtTime(1100, audioContext.currentTime + 0.1);
+    oscillator.frequency.setValueAtTime(1320, audioContext.currentTime + 0.2);
+    
+    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.4);
+    
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + 0.4);
+  } catch (e) {
+    console.log("Audio not supported");
+  }
+};
+
 const PAYMENT_OPTIONS: { value: "cash" | "check" | "card"; label: string; icon: LucideIcon }[] = [
   { value: "cash", label: "Espèces", icon: CircleDollarSign },
   { value: "card", label: "Carte", icon: CreditCard },
@@ -525,6 +549,7 @@ export default function PrestationsForm() {
           }
           setIsSubmitting(false);
           setShowSuccess(true);
+          playSuccessSound();
           dialogsOpenedForSessionRef.current = false;
           qc.invalidateQueries({ queryKey: ["summary"] });
           qc.invalidateQueries({ queryKey: ["stylists"] });
@@ -577,6 +602,7 @@ export default function PrestationsForm() {
               }
               setIsSubmitting(false);
               setShowSuccess(true);
+              playSuccessSound();
               dialogsOpenedForSessionRef.current = false;
               qc.invalidateQueries({ queryKey: ["summary"] });
               qc.invalidateQueries({ queryKey: ["stylists"] });
@@ -641,6 +667,7 @@ export default function PrestationsForm() {
           }
           setIsSubmitting(false);
           setShowSuccess(true);
+          playSuccessSound();
           dialogsOpenedForSessionRef.current = false;
 
           qc.invalidateQueries({ queryKey: ["summary"] });
@@ -693,6 +720,7 @@ export default function PrestationsForm() {
               }
               setIsSubmitting(false);
               setShowSuccess(true);
+              playSuccessSound();
               dialogsOpenedForSessionRef.current = false;
               qc.invalidateQueries({ queryKey: ["summary"] });
               qc.invalidateQueries({ queryKey: ["stylists"] });
