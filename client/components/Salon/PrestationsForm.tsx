@@ -1088,7 +1088,7 @@ export default function PrestationsForm() {
                               } : {}}
                               transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
                             />
-                            <span className="text-2xl font-bold text-white truncate" style={{ WebkitTextStroke: '0.5px black' }}>
+                            <span className="text-lg sm:text-2xl font-bold text-white break-words" style={{ WebkitTextStroke: '0.5px black' }}>
                               {s.name}
                             </span>
                           </motion.button>
