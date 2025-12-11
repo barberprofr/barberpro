@@ -62,19 +62,19 @@ type PaymentSummaryItem = PaymentSummaryMeta & { amount: number; count: number }
 function PaymentSummaryGrid({ items }: { items: PaymentSummaryItem[] }) {
   if (!items.length) return null;
   return (
-    <div className="mt-3 grid gap-2 sm:grid-cols-3">
+    <div className="mt-3 grid gap-3 sm:grid-cols-3">
       {items.map((item) => (
-        <div key={item.key} className="flex items-center justify-between rounded-lg border border-white/10 bg-white/5 px-2.5 py-1">
-          <div className="flex items-center gap-1.5">
-            <span className={`inline-flex h-5 w-5 items-center justify-center rounded-full ${item.badgeClasses}`}>
-              <item.icon className={`h-2.5 w-2.5 ${item.iconClasses}`} />
+        <div key={item.key} className="flex items-center justify-between rounded-xl border border-white/15 bg-white/8 backdrop-blur-sm px-4 py-3">
+          <div className="flex items-center gap-2.5">
+            <span className={`inline-flex h-8 w-8 items-center justify-center rounded-full ${item.badgeClasses}`}>
+              <item.icon className={`h-4 w-4 ${item.iconClasses}`} />
             </span>
-            <div className="leading-none">
-              <div className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">{item.label}</div>
-              <div className="text-[9px] text-muted-foreground">{item.count} prest.</div>
+            <div className="leading-tight">
+              <div className="text-xs font-semibold uppercase tracking-wide text-white/80">{item.label}</div>
+              <div className="text-[11px] text-white/50">{item.count} prest.</div>
             </div>
           </div>
-          <span className="text-[11px] font-semibold">{eur.format(item.amount)}</span>
+          <span className="text-sm font-bold text-white">{eur.format(item.amount)}</span>
         </div>
       ))}
     </div>
