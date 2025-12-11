@@ -467,34 +467,32 @@ function StylistCard({ s, config, onClick }: { s: any, config: any, onClick: () 
       onClick={onClick}
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
-      className="w-full rounded-xl border border-white/25 bg-slate-900/60 px-2 py-0.5 shadow-[0_18px_45px_rgba(15,23,42,0.15)] backdrop-blur-sm transition hover:border-white/40 hover:bg-slate-900/70 text-left"
+      className="w-full rounded-xl border border-white/25 bg-slate-900/60 px-3 py-2 shadow-[0_18px_45px_rgba(15,23,42,0.15)] backdrop-blur-sm transition hover:border-white/40 hover:bg-slate-900/70 text-left"
     >
-      <div className="flex w-full flex-col gap-0 py-0">
+      <div className="flex w-full items-center justify-between">
+        <div className="flex flex-col gap-0.5">
+          <span className="text-sm font-semibold text-white">
+            {s.stats?.dailyCount ?? 0} prestation{(s.stats?.dailyCount ?? 0) > 1 ? "s" : ""}{(s.stats as any)?.dailyProductCount ? `, ${(s.stats as any).dailyProductCount} produit${(s.stats as any).dailyProductCount > 1 ? "s" : ""}` : ""}
+          </span>
+          <span className="text-xs font-semibold text-emerald-100">
+            Salaire {salary}
+          </span>
+        </div>
         <div className="flex items-center justify-center">
-          <span className="inline-flex items-center gap-2 rounded-full border border-white/35 bg-white/15 px-4 py-0.5 text-lg font-black text-white">
+          <span className="inline-flex items-center gap-2 rounded-full border border-white/35 bg-white/15 px-4 py-1 text-lg font-black text-white">
             <span className="h-2 w-2 rounded-full bg-emerald-400" />
             {s.name}
           </span>
         </div>
-        <div className="flex items-center justify-between">
-          <div className="flex flex-col gap-1">
-            <span className="text-sm font-semibold text-white">
-              {s.stats?.dailyCount ?? 0} prestation{(s.stats?.dailyCount ?? 0) > 1 ? "s" : ""}{(s.stats as any)?.dailyProductCount ? `, ${(s.stats as any).dailyProductCount} produit${(s.stats as any).dailyProductCount > 1 ? "s" : ""}` : ""}
-            </span>
-            <span className="text-xs font-semibold text-emerald-100">
-              Salaire {salary}
-            </span>
+        <div className="flex flex-col items-end justify-center">
+          <div className="text-2xl font-extrabold text-primary transition-all duration-300 [-webkit-text-stroke:0.3px_black]">
+            {eur.format(s.stats?.dailyAmount ?? 0)}
           </div>
-          <div className="flex flex-col items-end justify-center">
-            <div className="text-2xl font-extrabold text-primary transition-all duration-300 [-webkit-text-stroke:0.3px_black]">
-              {eur.format(s.stats?.dailyAmount ?? 0)}
+          {dailyPointsUsed > 0 && (
+            <div className="text-[10px] uppercase tracking-wide text-muted-foreground">
+              Points utilisés {pointsFmt.format(dailyPointsUsed)} pts
             </div>
-            {dailyPointsUsed > 0 && (
-              <div className="text-[10px] uppercase tracking-wide text-muted-foreground">
-                Points utilisés {pointsFmt.format(dailyPointsUsed)} pts
-              </div>
-            )}
-          </div>
+          )}
         </div>
       </div>
     </motion.button>
