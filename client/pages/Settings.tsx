@@ -1584,15 +1584,9 @@ export default function Settings() {
               <button
                 type="button"
                 onClick={() => setCoiffCaPopupOpen(true)}
-                className="group relative flex w-full flex-col items-center justify-center gap-2 rounded-[20px] border border-purple-500/30 bg-gradient-to-br from-purple-900/40 via-slate-900/60 to-slate-900/80 backdrop-blur-xl px-5 py-6 shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] transition-all duration-200 hover:scale-[1.02] hover:border-purple-400/50 hover:shadow-[0_12px_40px_rgba(147,51,234,0.3)] active:scale-[0.98]"
+                className="flex w-full items-center justify-center rounded-2xl border border-blue-400/30 bg-gradient-to-r from-blue-600/40 via-indigo-600/30 to-purple-600/20 backdrop-blur-xl px-5 py-4 shadow-[0_8px_32px_rgba(59,130,246,0.15)] transition-all duration-200 hover:border-blue-300/50 hover:shadow-[0_12px_40px_rgba(59,130,246,0.25)] active:scale-[0.98]"
               >
-                <div className="flex h-12 w-12 items-center justify-center rounded-full border border-purple-400/40 bg-purple-500/20">
-                  <svg className="h-6 w-6 text-purple-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
-                  </svg>
-                </div>
-                <span className="text-sm font-semibold text-white">CA Coiffeur</span>
-                <span className="text-xs text-white/50">Chiffre d'affaires</span>
+                <span className="text-sm font-semibold text-white">Chiffre d'affaires coiffeur</span>
               </button>
               <AnimatePresence>
                 {coiffCaPopupOpen && (
@@ -1682,15 +1676,9 @@ export default function Settings() {
               <button
                 type="button"
                 onClick={() => setDailyCaPopupOpen(true)}
-                className="group relative flex w-full flex-col items-center justify-center gap-2 rounded-[20px] border border-cyan-500/30 bg-gradient-to-br from-cyan-900/40 via-slate-900/60 to-slate-900/80 backdrop-blur-xl px-5 py-6 shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] transition-all duration-200 hover:scale-[1.02] hover:border-cyan-400/50 hover:shadow-[0_12px_40px_rgba(6,182,212,0.3)] active:scale-[0.98]"
+                className="flex w-full items-center justify-center rounded-2xl border border-blue-400/30 bg-gradient-to-r from-blue-600/40 via-indigo-600/30 to-purple-600/20 backdrop-blur-xl px-5 py-4 shadow-[0_8px_32px_rgba(59,130,246,0.15)] transition-all duration-200 hover:border-blue-300/50 hover:shadow-[0_12px_40px_rgba(59,130,246,0.25)] active:scale-[0.98]"
               >
-                <div className="flex h-12 w-12 items-center justify-center rounded-full border border-cyan-400/40 bg-cyan-500/20">
-                  <svg className="h-6 w-6 text-cyan-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z" />
-                  </svg>
-                </div>
-                <span className="text-sm font-semibold text-white">CA Jour</span>
-                <span className="text-xs text-white/50">Aujourd'hui</span>
+                <span className="text-sm font-semibold text-white">Chiffre d'affaires (jour)</span>
               </button>
               <AnimatePresence>
                 {dailyCaPopupOpen && (
@@ -1731,15 +1719,9 @@ export default function Settings() {
               <button
                 type="button"
                 onClick={() => setMonthlyCaPopupOpen(true)}
-                className="group relative flex w-full flex-col items-center justify-center gap-2 rounded-[20px] border border-pink-500/30 bg-gradient-to-br from-pink-900/40 via-slate-900/60 to-slate-900/80 backdrop-blur-xl px-5 py-6 shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] transition-all duration-200 hover:scale-[1.02] hover:border-pink-400/50 hover:shadow-[0_12px_40px_rgba(236,72,153,0.3)] active:scale-[0.98]"
+                className="flex w-full items-center justify-center rounded-2xl border border-blue-400/30 bg-gradient-to-r from-blue-600/40 via-indigo-600/30 to-purple-600/20 backdrop-blur-xl px-5 py-4 shadow-[0_8px_32px_rgba(59,130,246,0.15)] transition-all duration-200 hover:border-blue-300/50 hover:shadow-[0_12px_40px_rgba(59,130,246,0.25)] active:scale-[0.98]"
               >
-                <div className="flex h-12 w-12 items-center justify-center rounded-full border border-pink-400/40 bg-pink-500/20">
-                  <svg className="h-6 w-6 text-pink-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
-                  </svg>
-                </div>
-                <span className="text-sm font-semibold text-white">CA Mois</span>
-                <span className="text-xs text-white/50">Ce mois</span>
+                <span className="text-sm font-semibold text-white">Chiffre d'affaires (mois)</span>
               </button>
               <AnimatePresence>
                 {monthlyCaPopupOpen && (
@@ -1785,15 +1767,9 @@ export default function Settings() {
               <button
                 type="button"
                 onClick={() => setYearCaPopupOpen(true)}
-                className="group relative flex w-full flex-col items-center justify-center gap-2 rounded-[20px] border border-amber-500/30 bg-gradient-to-br from-amber-900/40 via-slate-900/60 to-slate-900/80 backdrop-blur-xl px-5 py-6 shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] transition-all duration-200 hover:scale-[1.02] hover:border-amber-400/50 hover:shadow-[0_12px_40px_rgba(245,158,11,0.3)] active:scale-[0.98]"
+                className="flex w-full items-center justify-center rounded-2xl border border-blue-400/30 bg-gradient-to-r from-blue-600/40 via-indigo-600/30 to-purple-600/20 backdrop-blur-xl px-5 py-4 shadow-[0_8px_32px_rgba(59,130,246,0.15)] transition-all duration-200 hover:border-blue-300/50 hover:shadow-[0_12px_40px_rgba(59,130,246,0.25)] active:scale-[0.98]"
               >
-                <div className="flex h-12 w-12 items-center justify-center rounded-full border border-amber-400/40 bg-amber-500/20">
-                  <svg className="h-6 w-6 text-amber-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" />
-                  </svg>
-                </div>
-                <span className="text-sm font-semibold text-white">CA Année</span>
-                <span className="text-xs text-white/50">Cette année</span>
+                <span className="text-sm font-semibold text-white">Chiffre d'affaires (année)</span>
               </button>
               <AnimatePresence>
                 {yearCaPopupOpen && (
@@ -1833,14 +1809,8 @@ export default function Settings() {
 
               <AccordionItem value="points-usage">
                 <div className="space-y-2">
-                  <AccordionTrigger className="group relative flex w-full flex-col items-center justify-center gap-2 rounded-[20px] border border-emerald-500/30 bg-gradient-to-br from-emerald-900/40 via-slate-900/60 to-slate-900/80 backdrop-blur-xl px-5 py-6 shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] transition-all duration-200 hover:no-underline hover:scale-[1.02] hover:border-emerald-400/50 hover:shadow-[0_12px_40px_rgba(16,185,129,0.3)]">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-full border border-emerald-400/40 bg-emerald-500/20">
-                      <svg className="h-6 w-6 text-emerald-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z" />
-                      </svg>
-                    </div>
-                    <span className="text-sm font-semibold text-white">Points</span>
-                    <span className="text-xs text-white/50">Utilisation</span>
+                  <AccordionTrigger className="flex w-full items-center justify-center rounded-2xl border border-blue-400/30 bg-gradient-to-r from-blue-600/40 via-indigo-600/30 to-purple-600/20 backdrop-blur-xl px-5 py-4 shadow-[0_8px_32px_rgba(59,130,246,0.15)] transition-all duration-200 hover:no-underline hover:border-blue-300/50 hover:shadow-[0_12px_40px_rgba(59,130,246,0.25)]">
+                    <span className="text-sm font-semibold text-white">Utilisation des points</span>
                   </AccordionTrigger>
                   <AccordionContent>
                     <div className="space-y-1.5">
