@@ -1669,30 +1669,41 @@ export default function Settings() {
                           ✕
                         </button>
                       </div>
-                      <div className="grid grid-cols-2 gap-3">
+                      <div className="grid grid-cols-2 gap-4">
                         {stylists?.map((s, idx) => {
                           const stylistCommissionPct = typeof (s as any).commissionPct === "number" ? (s as any).commissionPct : (config?.commissionDefault ?? 0);
                           const colorSchemes = [
-                            { ring: "from-lime-400 via-yellow-300 to-green-500", inner: "from-lime-300 via-yellow-200 to-lime-400", glow: "shadow-[0_0_20px_rgba(163,230,53,0.5)]" },
-                            { ring: "from-orange-400 via-amber-300 to-red-400", inner: "from-orange-300 via-amber-200 to-orange-400", glow: "shadow-[0_0_20px_rgba(251,146,60,0.5)]" },
-                            { ring: "from-fuchsia-500 via-pink-400 to-purple-500", inner: "from-fuchsia-400 via-pink-300 to-fuchsia-500", glow: "shadow-[0_0_20px_rgba(217,70,239,0.5)]" },
-                            { ring: "from-cyan-400 via-teal-300 to-blue-500", inner: "from-cyan-300 via-teal-200 to-cyan-400", glow: "shadow-[0_0_20px_rgba(34,211,238,0.5)]" },
+                            { outer: "conic-gradient(from 160deg, #CAFF58, #74FF9C, #16C772, #CAFF58)", inner: "linear-gradient(140deg, #D9FF96 0%, #7DFFAF 60%, #1FAA7C 100%)", glow: "0 12px 30px rgba(116,255,156,0.45)", rgb: "116,255,156" },
+                            { outer: "conic-gradient(from 160deg, #FFD27A, #FF8A4C, #FF5A39, #FFD27A)", inner: "linear-gradient(140deg, #FFE0A1 0%, #FF9C5C 60%, #F1472A 100%)", glow: "0 12px 30px rgba(255,138,76,0.45)", rgb: "255,138,76" },
+                            { outer: "conic-gradient(from 160deg, #FF9BFF, #F55BC2, #C027BA, #FF9BFF)", inner: "linear-gradient(140deg, #FFB6FF 0%, #F872D7 60%, #C63CC7 100%)", glow: "0 12px 30px rgba(245,91,194,0.45)", rgb: "245,91,194" },
+                            { outer: "conic-gradient(from 160deg, #9DF3FF, #52C7FF, #2B7FFF, #9DF3FF)", inner: "linear-gradient(140deg, #BFF6FF 0%, #63DAFF 60%, #318EFF 100%)", glow: "0 12px 30px rgba(82,199,255,0.45)", rgb: "82,199,255" },
                           ];
                           const colors = colorSchemes[idx % colorSchemes.length];
                           return (
                             <Popover key={s.id} open={openStylistId === s.id} onOpenChange={(open) => setOpenStylistId(open ? s.id : null)}>
                               <PopoverTrigger asChild>
                                 <button
-                                  className="group relative flex h-28 w-full flex-col items-center justify-center gap-1.5 overflow-hidden rounded-2xl border border-white/15 bg-slate-700/40 shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_8px_32px_rgba(0,0,0,0.4)] backdrop-blur-sm transition-all duration-200 hover:scale-[1.03] hover:shadow-[0_12px_40px_rgba(0,0,0,0.5)] active:scale-105 active:brightness-110"
+                                  className="group relative flex h-36 w-full flex-col items-center justify-center gap-2 overflow-hidden rounded-[20px] border border-white/25 backdrop-blur-[26px] transition-all duration-200 hover:scale-[1.03] active:scale-105 active:brightness-110"
+                                  style={{ background: "linear-gradient(160deg, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.08) 100%)", boxShadow: "0 24px 45px -20px rgba(15,23,42,0.65)" }}
                                 >
-                                  <div className="absolute inset-x-2 top-2 h-1/3 rounded-t-xl bg-gradient-to-b from-white/10 to-transparent" />
-                                  <div className={`relative flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br ${colors.ring} p-0.5 ${colors.glow}`}>
-                                    <div className="absolute inset-0.5 rounded-full bg-slate-900 shadow-[inset_0_4px_12px_rgba(0,0,0,0.8)]" />
-                                    <div className={`relative flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br ${colors.inner} shadow-[0_2px_8px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.5)]`}>
-                                      <span className="text-base font-black text-slate-900/80">{s.name.charAt(0).toUpperCase()}</span>
+                                  <div className="absolute inset-x-4 top-2 h-10 rounded-full opacity-70" style={{ background: "linear-gradient(180deg, rgba(255,255,255,0.55), rgba(255,255,255,0))" }} />
+                                  <div
+                                    className="relative flex h-[72px] w-[72px] items-center justify-center rounded-full"
+                                    style={{ background: colors.outer, boxShadow: colors.glow }}
+                                  >
+                                    <div
+                                      className="absolute inset-[4px] rounded-full"
+                                      style={{ background: "radial-gradient(circle, rgba(15,23,42,0.92) 0%, rgba(30,41,59,0.78) 60%, rgba(15,23,42,0.55) 100%)", boxShadow: "inset 0 8px 20px rgba(255,255,255,0.08), inset 0 -14px 24px rgba(2,6,23,0.82)" }}
+                                    />
+                                    <div
+                                      className="relative flex h-10 w-10 items-center justify-center rounded-[12px] overflow-hidden"
+                                      style={{ background: colors.inner, boxShadow: `0 8px 20px rgba(${colors.rgb},0.4), inset 0 2px 4px rgba(255,255,255,0.3), inset 0 -6px 10px rgba(15,23,42,0.55)` }}
+                                    >
+                                      <div className="absolute inset-x-1 top-1 h-1/2 rounded-t-[10px] opacity-80" style={{ background: "linear-gradient(180deg, rgba(255,255,255,0.78), rgba(255,255,255,0))" }} />
+                                      <span className="relative z-10 text-lg font-black text-slate-900/90">{s.name.charAt(0).toUpperCase()}</span>
                                     </div>
                                   </div>
-                                  <span className="relative z-10 text-[11px] font-bold uppercase tracking-wide text-white/90">{s.name}</span>
+                                  <span className="relative z-10 text-xs font-bold uppercase tracking-wide text-white">{s.name}</span>
                                 </button>
                               </PopoverTrigger>
                               <PopoverContent className="w-auto rounded-xl border border-white/14 bg-black/15 backdrop-blur-md p-3 space-y-2.5 shadow-[0_20px_50px_rgba(8,15,40,0.6)]" align="center" sideOffset={8}>
