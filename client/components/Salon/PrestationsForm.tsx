@@ -1237,7 +1237,7 @@ export default function PrestationsForm() {
                               whileHover={{ scale: isSelected ? 1.2 : 1.05 }}
                               whileTap={{ scale: 0.95 }}
                               className={cn(
-                                "flex w-full items-center justify-center gap-4 rounded-2xl border-2 border-white/20 bg-black/5 px-6 py-5 text-center text-lg font-bold transition-colors duration-200 hover:border-cyan-400/80 hover:bg-cyan-500/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 shadow-[0_8px_25px_rgba(8,15,40,0.3)] backdrop-blur-sm",
+                                "flex w-full items-center justify-start gap-4 rounded-2xl border-2 border-white/20 bg-black/5 px-6 py-5 text-left text-lg font-bold transition-colors duration-200 hover:border-cyan-400/80 hover:bg-cyan-500/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 shadow-[0_8px_25px_rgba(8,15,40,0.3)] backdrop-blur-sm",
                                 isSelected && "border-cyan-400 bg-gradient-to-r from-cyan-500/30 via-cyan-400/40 to-cyan-500/30 text-cyan-100 [background-size:200%_100%] animate-[shimmer_2s_ease-in-out_infinite]"
                               )}
                               style={isSelected ? {
