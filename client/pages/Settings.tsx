@@ -1310,102 +1310,51 @@ export default function Settings() {
               </dl>
             </div>
 
-            <div className={cn(glassPanelClasses, "space-y-2.5 text-xs")}>
-              <div className={pillHeadingClasses}>Heure</div>
-              <div className="rounded-2xl border border-white/12 bg-white/10 p-2.5 shadow-[0_16px_42px_rgba(15,23,42,0.42)] backdrop-blur-xl space-y-1.5">
-                <div className="flex items-center justify-between">
-                  <div className="text-[10px] font-semibold uppercase tracking-[0.3em] text-white/70">Heure (Europe/Paris)</div>
-                  <div className="text-[9px] font-semibold uppercase tracking-[0.2em] text-white/60">{parisClock.timeZone}</div>
+            <div className={cn(glassPanelClasses, "space-y-1.5 text-xs p-2")}>
+              <div className="flex items-center justify-between">
+                <div className={pillHeadingClasses}>Heure</div>
+                <div className="text-[9px] font-semibold uppercase tracking-wide text-white/60">{parisClock.timeZone}</div>
+              </div>
+              <div className="flex items-center gap-3">
+                <svg
+                  className="h-10 w-10 text-slate-100 drop-shadow-[0_4px_10px_rgba(15,23,42,0.45)]"
+                  viewBox="0 0 64 64"
+                  role="img"
+                  aria-hidden="true"
+                >
+                  <defs>
+                    <radialGradient id="parisClockGradient" cx="50%" cy="36%" r="70%">
+                      <stop offset="0%" stopColor="rgba(248,250,252,0.98)" />
+                      <stop offset="55%" stopColor="rgba(203,213,225,0.45)" />
+                      <stop offset="100%" stopColor="rgba(15,23,42,0.85)" />
+                    </radialGradient>
+                  </defs>
+                  <g>
+                    <circle cx="32" cy="32" r="30" fill="url(#parisClockGradient)" stroke="rgba(148,163,184,0.45)" strokeWidth="1.5" />
+                    <circle cx="32" cy="32" r="26" fill="rgba(15,23,42,0.3)" stroke="rgba(148,163,184,0.35)" strokeWidth="1" />
+                    {hourTickAngles.map((angle) => (
+                      <line
+                        key={`hour-${angle}`}
+                        x1="32"
+                        y1="5"
+                        x2="32"
+                        y2="10"
+                        stroke="rgba(248,250,252,0.9)"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        transform={`rotate(${angle} 32 32)`}
+                      />
+                    ))}
+                    <line x1="32" y1="32" x2="32" y2="20" stroke="rgba(248,250,252,0.95)" strokeWidth="3" strokeLinecap="round" transform={`rotate(${hourAngle} 32 32)`} />
+                    <line x1="32" y1="32" x2="32" y2="14" stroke="rgba(236,241,255,0.9)" strokeWidth="2" strokeLinecap="round" transform={`rotate(${minuteAngle} 32 32)`} />
+                    <line x1="32" y1="34" x2="32" y2="9" stroke="#f87171" strokeWidth="1.2" strokeLinecap="round" transform={`rotate(${secondAngle} 32 32)`} />
+                    <circle cx="32" cy="32" r="2.5" fill="#f87171" stroke="rgba(248,250,252,0.9)" strokeWidth="0.8" />
+                  </g>
+                </svg>
+                <div className="flex flex-col">
+                  <span className="text-sm font-bold text-white">{parisClock.time}</span>
+                  <span className="text-[10px] text-white/60">{parisClock.label}</span>
                 </div>
-                <div className="flex items-center justify-between">
-                  <div className="relative flex items-center gap-3">
-                    <svg
-                      className="h-20 w-20 text-slate-100 drop-shadow-[0_8px_18px_rgba(15,23,42,0.45)]"
-                      viewBox="0 0 64 64"
-                      role="img"
-                      aria-hidden="true"
-                    >
-                      <defs>
-                        <radialGradient id="parisClockGradient" cx="50%" cy="36%" r="70%">
-                          <stop offset="0%" stopColor="rgba(248,250,252,0.98)" />
-                          <stop offset="55%" stopColor="rgba(203,213,225,0.45)" />
-                          <stop offset="100%" stopColor="rgba(15,23,42,0.85)" />
-                        </radialGradient>
-                      </defs>
-                      <g>
-                        <circle cx="32" cy="32" r="30" fill="url(#parisClockGradient)" stroke="rgba(148,163,184,0.45)" strokeWidth="1.5" />
-                        <circle cx="32" cy="32" r="26" fill="rgba(15,23,42,0.3)" stroke="rgba(148,163,184,0.35)" strokeWidth="1" />
-                        {minuteTickAngles.map((angle) => (
-                          <line
-                            key={`minute-${angle}`}
-                            x1="32"
-                            y1="6"
-                            x2="32"
-                            y2="9"
-                            stroke="rgba(148,163,184,0.5)"
-                            strokeWidth="1"
-                            strokeLinecap="round"
-                            transform={`rotate(${angle} 32 32)`}
-                          />
-                        ))}
-                        {hourTickAngles.map((angle) => (
-                          <line
-                            key={`hour-${angle}`}
-                            x1="32"
-                            y1="5"
-                            x2="32"
-                            y2="12"
-                            stroke="rgba(248,250,252,0.9)"
-                            strokeWidth="2.4"
-                            strokeLinecap="round"
-                            transform={`rotate(${angle} 32 32)`}
-                          />
-                        ))}
-                        <text x="32" y="17" textAnchor="middle" fontSize="6" fill="rgba(148,163,184,0.75)" fontFamily="'Inter', sans-serif">12</text>
-                        <text x="51" y="35" textAnchor="middle" fontSize="6" fill="rgba(148,163,184,0.75)" fontFamily="'Inter', sans-serif">3</text>
-                        <text x="32" y="54" textAnchor="middle" fontSize="6" fill="rgba(148,163,184,0.75)" fontFamily="'Inter', sans-serif">6</text>
-                        <text x="13" y="35" textAnchor="middle" fontSize="6" fill="rgba(148,163,184,0.75)" fontFamily="'Inter', sans-serif">9</text>
-                        <line
-                          x1="32"
-                          y1="32"
-                          x2="32"
-                          y2="20"
-                          stroke="rgba(248,250,252,0.95)"
-                          strokeWidth="3.2"
-                          strokeLinecap="round"
-                          transform={`rotate(${hourAngle} 32 32)`}
-                        />
-                        <line
-                          x1="32"
-                          y1="32"
-                          x2="32"
-                          y2="14"
-                          stroke="rgba(236,241,255,0.9)"
-                          strokeWidth="2.2"
-                          strokeLinecap="round"
-                          transform={`rotate(${minuteAngle} 32 32)`}
-                        />
-                        <line
-                          x1="32"
-                          y1="34"
-                          x2="32"
-                          y2="9"
-                          stroke="#f87171"
-                          strokeWidth="1.3"
-                          strokeLinecap="round"
-                          transform={`rotate(${secondAngle} 32 32)`}
-                        />
-                        <circle cx="32" cy="32" r="3" fill="#f87171" stroke="rgba(248,250,252,0.9)" strokeWidth="0.9" />
-                        <circle cx="32" cy="32" r="1.5" fill="rgba(248,250,252,0.95)" />
-                      </g>
-                    </svg>
-                    <span className="sr-only">{parisClock.time}</span>
-                    <span className="text-[10px] font-semibold uppercase tracking-[0.28em] text-white/70">Horloge analogique</span>
-                  </div>
-                  <span className="text-[10px] font-semibold uppercase tracking-[0.28em] text-white/60">Temps réel</span>
-                </div>
-                <div className="text-[11px] font-medium text-white/75">{parisClock.label}</div>
-                <div className="text-[10px] text-white/65">Horodatage: {parisClock.iso}</div>
               </div>
             </div>
 
