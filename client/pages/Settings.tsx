@@ -1673,38 +1673,28 @@ export default function Settings() {
                         {stylists?.map((s) => {
                           const stylistCommissionPct = typeof (s as any).commissionPct === "number" ? (s as any).commissionPct : (config?.commissionDefault ?? 0);
                           return (
-                            <div key={s.id} className="rounded-2xl border border-white/14 bg-white/8 p-2.5 shadow-[0_18px_48px_rgba(8,15,40,0.38)] backdrop-blur-xl">
-                              <div className="flex flex-wrap items-center justify-between gap-2.5">
-                                <div className="flex items-center gap-2">
-                                  <Popover open={openStylistId === s.id} onOpenChange={(open) => setOpenStylistId(open ? s.id : null)}>
-                                    <PopoverTrigger asChild>
-                                      <button
-                                        className="group relative flex items-center justify-center gap-2 overflow-hidden rounded-xl border border-white/22 bg-[linear-gradient(135deg,rgba(79,70,229,0.52)0%,rgba(14,165,233,0.42)100%)] px-3 py-1.5 text-xs font-semibold text-white shadow-[0_14px_36px_rgba(59,130,246,0.3)] transition-all duration-300 hover:-translate-y-0.5"
-                                      >
-                                        <span className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(79,70,229,0.35),transparent_55%)] opacity-80 transition-opacity duration-300 group-hover:opacity-100" />
-                                        <span className="relative z-10 inline-flex items-center gap-1.5 text-xs font-semibold">
-                                          <span className={cn(badgeSoftClasses, "border-white/25 bg-white/15 px-2 py-0.5 text-sm font-bold text-white")}>{s.name}</span>
-                                        </span>
-                                        <span className="relative z-10 text-[9px] font-semibold uppercase tracking-[0.2em] text-white/80">
-                                          Voir
-                                        </span>
-                                      </button>
-                                    </PopoverTrigger>
-                                    <PopoverContent className="w-auto rounded-xl border border-white/14 bg-black/15 backdrop-blur-md p-3 space-y-2.5 shadow-[0_20px_50px_rgba(8,15,40,0.6)]" align="start" sideOffset={8}>
-                                      <StylistTotals id={s.id} commissionPct={stylistCommissionPct} />
-                                      <div className="flex flex-wrap items-center gap-1.5 text-[11px]">
-                                        <a className="inline-flex items-center gap-1.5 rounded-lg border border-white/20 bg-white/12 px-2 py-0.5 font-semibold uppercase tracking-[0.16em] text-white/80 transition hover:bg-white/18" href={"/api" + apiPath(`/reports/stylists/${s.id}.csv`)}>CSV</a>
-                                        <a className="inline-flex items-center gap-1.5 rounded-lg border border-white/20 bg-white/12 px-2 py-0.5 font-semibold uppercase tracking-[0.16em] text-white/80 transition hover:bg-white/18" href={"/api" + apiPath(`/reports/stylists/${s.id}.pdf`)}>PDF</a>
-                                      </div>
-                                    </PopoverContent>
-                                  </Popover>
+                            <Popover open={openStylistId === s.id} onOpenChange={(open) => setOpenStylistId(open ? s.id : null)}>
+                              <PopoverTrigger asChild>
+                                <button
+                                  key={s.id}
+                                  className="flex w-full items-center justify-between rounded-full border border-indigo-400/30 bg-[rgba(30,41,82,0.85)] px-5 py-2.5 shadow-[0_8px_32px_rgba(30,41,82,0.5),inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-md transition-all duration-200 hover:bg-[rgba(40,52,100,0.9)] hover:shadow-[0_12px_40px_rgba(30,41,82,0.6)] active:scale-[1.02] active:brightness-110"
+                                >
+                                  <span className="text-sm font-bold uppercase tracking-wide text-white">{s.name}</span>
+                                  <span className="text-[10px] font-semibold uppercase tracking-[0.15em] text-white/60">Voir</span>
+                                </button>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-auto rounded-xl border border-white/14 bg-black/15 backdrop-blur-md p-3 space-y-2.5 shadow-[0_20px_50px_rgba(8,15,40,0.6)]" align="start" sideOffset={8}>
+                                <StylistTotals id={s.id} commissionPct={stylistCommissionPct} />
+                                <div className="flex flex-wrap items-center gap-1.5 text-[11px]">
+                                  <a className="inline-flex items-center gap-1.5 rounded-lg border border-white/20 bg-white/12 px-2 py-0.5 font-semibold uppercase tracking-[0.16em] text-white/80 transition hover:bg-white/18" href={"/api" + apiPath(`/reports/stylists/${s.id}.csv`)}>CSV</a>
+                                  <a className="inline-flex items-center gap-1.5 rounded-lg border border-white/20 bg-white/12 px-2 py-0.5 font-semibold uppercase tracking-[0.16em] text-white/80 transition hover:bg-white/18" href={"/api" + apiPath(`/reports/stylists/${s.id}.pdf`)}>PDF</a>
                                 </div>
-                                <div className="flex items-center gap-1.5 text-[11px] text-white/70">
-                                  <span className={cn(badgeSoftClasses, "border-white/25 bg-white/15 px-2 py-0.5 text-white/75")}>Rémunération</span>
+                                <div className="flex items-center gap-1.5 text-[11px] text-white/70 pt-1">
+                                  <span className="text-white/75">Rémunération:</span>
                                   <span className="text-sm font-semibold text-white">{String(stylistCommissionPct)}%</span>
                                 </div>
-                              </div>
-                            </div>
+                              </PopoverContent>
+                            </Popover>
                           );
                         })}
                       </div>
