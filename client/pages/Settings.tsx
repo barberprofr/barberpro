@@ -1703,7 +1703,7 @@ export default function Settings() {
                                       <span className="relative z-10 text-lg font-black text-slate-900/90">{s.name.charAt(0).toUpperCase()}</span>
                                     </div>
                                   </div>
-                                  <span className="relative z-10 text-xs font-bold uppercase tracking-wide text-white">{s.name}</span>
+                                  <span className="relative z-10 text-base font-black uppercase tracking-wider text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">{s.name}</span>
                                 </button>
                               </PopoverTrigger>
                               <PopoverContent className="w-auto rounded-xl border border-white/14 bg-black/15 backdrop-blur-md p-3 space-y-2.5 shadow-[0_20px_50px_rgba(8,15,40,0.6)]" align="center" sideOffset={8}>
