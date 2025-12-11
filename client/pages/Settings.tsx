@@ -349,18 +349,30 @@ function StylistTotals({ id, commissionPct }: { id: string; commissionPct: numbe
           <StylistDailySection id={id} commissionPct={commissionPct} />
         </PopoverContent>
       </Popover>
-      <div className="rounded-3xl border border-white/20 bg-black/12 p-4 shadow-inner text-sm space-y-3 backdrop-blur-md">
-        <div className="text-xs text-slate-300 text-center whitespace-nowrap overflow-hidden text-ellipsis min-h-[20px]">
-          Total mois
-          <span className="ml-1 italic text-slate-400">— {new Date().toLocaleDateString("fr-FR", { timeZone: "Europe/Paris", year: "numeric", month: "long" })}</span>
-        </div>
-        <div className="text-[10px] uppercase tracking-wide text-primary text-center">CA Mois</div>
-        <div className="text-3xl font-extrabold leading-tight text-center text-slate-100">{eur.format(m?.amount || 0)}</div>
-        <div className="text-base font-semibold text-center text-slate-100 whitespace-nowrap overflow-hidden text-ellipsis min-h-[20px]">
-          Salaire mois {eur.format(salaryMonth)}
-        </div>
-        <div className="text-xs text-slate-300 text-center">{prestationM?.count || 0} prest.{monthlyProductCount ? `, ${monthlyProductCount} prod.` : ""}</div>
-      </div>
+      <Popover>
+        <PopoverTrigger asChild>
+          <motion.button
+            type="button"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className="rounded-3xl border border-white/20 bg-black/12 p-4 shadow-inner text-sm space-y-3 backdrop-blur-md cursor-pointer transition-all hover:border-cyan-400/40 hover:shadow-[0_0_20px_rgba(34,211,238,0.2)]"
+          >
+            <div className="text-xs text-slate-300 text-center whitespace-nowrap overflow-hidden text-ellipsis min-h-[20px]">
+              Total mois
+              <span className="ml-1 italic text-slate-400">— {new Date().toLocaleDateString("fr-FR", { timeZone: "Europe/Paris", year: "numeric", month: "long" })}</span>
+            </div>
+            <div className="text-[10px] uppercase tracking-wide text-primary text-center">CA Mois</div>
+            <div className="text-3xl font-extrabold leading-tight text-center text-slate-100">{eur.format(m?.amount || 0)}</div>
+            <div className="text-base font-semibold text-center text-slate-100 whitespace-nowrap overflow-hidden text-ellipsis min-h-[20px]">
+              Salaire mois {eur.format(salaryMonth)}
+            </div>
+            <div className="text-xs text-slate-300 text-center">{prestationM?.count || 0} prest.{monthlyProductCount ? `, ${monthlyProductCount} prod.` : ""}</div>
+          </motion.button>
+        </PopoverTrigger>
+        <PopoverContent side="bottom" align="center" className="w-[min(95vw,28rem)] rounded-2xl border border-white/20 bg-slate-900/90 p-4 shadow-[0_25px_60px_rgba(0,0,0,0.5)] backdrop-blur-md">
+          <StylistMonthly id={id} commissionPct={commissionPct} />
+        </PopoverContent>
+      </Popover>
     </div>
   );
 }
