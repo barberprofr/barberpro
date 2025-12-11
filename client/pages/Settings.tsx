@@ -1696,11 +1696,10 @@ export default function Settings() {
                                       style={{ background: "radial-gradient(circle, rgba(15,23,42,0.92) 0%, rgba(30,41,59,0.78) 60%, rgba(15,23,42,0.55) 100%)", boxShadow: "inset 0 8px 20px rgba(255,255,255,0.08), inset 0 -14px 24px rgba(2,6,23,0.82)" }}
                                     />
                                     <div
-                                      className="relative flex h-10 w-10 items-center justify-center rounded-[12px] overflow-hidden"
+                                      className="relative h-10 w-10 rounded-[12px] overflow-hidden"
                                       style={{ background: colors.inner, boxShadow: `0 8px 20px rgba(${colors.rgb},0.4), inset 0 2px 4px rgba(255,255,255,0.3), inset 0 -6px 10px rgba(15,23,42,0.55)` }}
                                     >
                                       <div className="absolute inset-x-1 top-1 h-1/2 rounded-t-[10px] opacity-80" style={{ background: "linear-gradient(180deg, rgba(255,255,255,0.78), rgba(255,255,255,0))" }} />
-                                      <span className="relative z-10 text-lg font-black text-slate-900/90">{s.name.charAt(0).toUpperCase()}</span>
                                     </div>
                                   </div>
                                   <span className="relative z-10 text-base font-black uppercase tracking-wider text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">{s.name}</span>
