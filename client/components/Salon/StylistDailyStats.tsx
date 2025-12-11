@@ -114,15 +114,27 @@ function TransactionRow({ entry: e, fmt, onUpdate }: { entry: any, fmt: (ts: num
                 <Popover open={open} onOpenChange={setOpen}>
                     <PopoverTrigger asChild>
                         <button className={cn(
-                            "inline-flex items-center px-2 py-0.5 rounded-full border-2 text-xs font-semibold transition-transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-offset-slate-900",
-                            e.paymentMethod === "cash" ? "border-emerald-300 bg-emerald-50 text-emerald-900 focus:ring-emerald-400" :
-                                e.paymentMethod === "check" ? "border-amber-300 bg-amber-50 text-amber-900 focus:ring-amber-400" :
-                                    "border-indigo-300 bg-indigo-50 text-indigo-900 focus:ring-indigo-400"
+                            "flex items-center gap-1.5 rounded-lg border px-2 py-1 transition-all hover:scale-105 focus:outline-none",
+                            e.paymentMethod === "cash" ? "border-emerald-500/30 bg-gradient-to-br from-emerald-900/40 via-slate-900/60 to-slate-900/80" :
+                                e.paymentMethod === "check" ? "border-amber-500/30 bg-gradient-to-br from-amber-900/40 via-slate-900/60 to-slate-900/80" :
+                                    "border-indigo-500/30 bg-gradient-to-br from-indigo-900/40 via-slate-900/60 to-slate-900/80"
                         )}>
-                            {({ cash: "Espèces", check: "Chèque", card: "Carte" } as const)[e.paymentMethod as "cash" | "check" | "card"]}
+                            <span className={cn(
+                                "inline-flex h-5 w-5 items-center justify-center rounded-full border",
+                                e.paymentMethod === "cash" ? "border-emerald-400/40 bg-emerald-500/20" :
+                                    e.paymentMethod === "check" ? "border-amber-400/40 bg-amber-500/20" :
+                                        "border-indigo-400/40 bg-indigo-500/20"
+                            )}>
+                                {e.paymentMethod === "card" && <svg className="h-2.5 w-2.5 text-indigo-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><rect x="2" y="5" width="20" height="14" rx="2" /><path d="M2 10h20" /></svg>}
+                                {e.paymentMethod === "check" && <svg className="h-2.5 w-2.5 text-amber-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>}
+                                {e.paymentMethod === "cash" && <svg className="h-2.5 w-2.5 text-emerald-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><circle cx="12" cy="12" r="8" /><path d="M12 8v8m-4-4h8" /></svg>}
+                            </span>
+                            <span className="text-[9px] font-semibold uppercase tracking-wide text-white/80">
+                                {({ cash: "ESPÈCES", check: "CHÈQUE", card: "CARTE" } as const)[e.paymentMethod as "cash" | "check" | "card"]}
+                            </span>
                         </button>
                     </PopoverTrigger>
-                    <PopoverContent className="w-40 p-1 bg-slate-900 border-slate-700">
+                    <PopoverContent className="w-44 p-1.5 bg-slate-900/95 border-slate-700 backdrop-blur-xl">
                         <div className="grid gap-1">
                             {(["cash", "check", "card"] as const).map((method) => (
                                 <button
@@ -132,11 +144,23 @@ function TransactionRow({ entry: e, fmt, onUpdate }: { entry: any, fmt: (ts: num
                                         setOpen(false);
                                     }}
                                     className={cn(
-                                        "flex items-center w-full px-2 py-1.5 text-xs font-medium rounded-md transition-colors",
-                                        e.paymentMethod === method ? "bg-slate-800 text-white" : "text-slate-400 hover:bg-slate-800 hover:text-white"
+                                        "flex items-center gap-2 w-full px-2 py-1.5 rounded-lg transition-all",
+                                        e.paymentMethod === method ? "bg-slate-800 border border-white/20" : "hover:bg-slate-800/50"
                                     )}
                                 >
-                                    {({ cash: "Espèces", check: "Chèque", card: "Carte" } as const)[method]}
+                                    <span className={cn(
+                                        "inline-flex h-5 w-5 items-center justify-center rounded-full border",
+                                        method === "cash" ? "border-emerald-400/40 bg-emerald-500/20" :
+                                            method === "check" ? "border-amber-400/40 bg-amber-500/20" :
+                                                "border-indigo-400/40 bg-indigo-500/20"
+                                    )}>
+                                        {method === "card" && <svg className="h-2.5 w-2.5 text-indigo-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><rect x="2" y="5" width="20" height="14" rx="2" /><path d="M2 10h20" /></svg>}
+                                        {method === "check" && <svg className="h-2.5 w-2.5 text-amber-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>}
+                                        {method === "cash" && <svg className="h-2.5 w-2.5 text-emerald-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><circle cx="12" cy="12" r="8" /><path d="M12 8v8m-4-4h8" /></svg>}
+                                    </span>
+                                    <span className="text-[10px] font-semibold uppercase tracking-wide text-white/80">
+                                        {({ cash: "ESPÈCES", check: "CHÈQUE", card: "CARTE" } as const)[method]}
+                                    </span>
                                 </button>
                             ))}
                         </div>
