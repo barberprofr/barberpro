@@ -31,8 +31,8 @@ const playSuccessSound = () => {
     oscillator.frequency.setValueAtTime(1100, audioContext.currentTime + 0.1);
     oscillator.frequency.setValueAtTime(1320, audioContext.currentTime + 0.2);
     
-    gainNode.gain.setValueAtTime(0.8, audioContext.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+    gainNode.gain.setValueAtTime(1.0, audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.6);
     
     oscillator.start(audioContext.currentTime);
     oscillator.stop(audioContext.currentTime + 0.4);
