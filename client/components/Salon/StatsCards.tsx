@@ -471,8 +471,13 @@ function StylistCard({ s, config, onClick }: { s: any, config: any, onClick: () 
       layout
       onClick={onClick}
       whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
-      className="w-full rounded-xl border border-white/25 bg-slate-900/60 px-3 py-2 shadow-[0_18px_45px_rgba(15,23,42,0.15)] backdrop-blur-sm transition hover:border-white/40 hover:bg-slate-900/70 text-left"
+      whileTap={{ 
+        scale: 1.08,
+        boxShadow: "0 0 25px rgba(34,211,238,0.8), 0 0 50px rgba(34,211,238,0.5), inset 0 0 15px rgba(34,211,238,0.3)",
+        borderColor: "rgba(34,211,238,0.9)"
+      }}
+      transition={{ type: "spring", stiffness: 400, damping: 15 }}
+      className="w-full rounded-xl border-2 border-white/25 bg-slate-900/60 px-3 py-2 shadow-[0_18px_45px_rgba(15,23,42,0.15)] backdrop-blur-sm transition-colors hover:border-cyan-400/50 hover:bg-slate-900/70 hover:shadow-[0_0_20px_rgba(34,211,238,0.3)] text-left active:border-cyan-400 active:shadow-[0_0_30px_rgba(34,211,238,0.8),0_0_60px_rgba(34,211,238,0.4)]"
     >
       <div className="grid grid-cols-[1fr_auto_1fr] w-full items-center gap-2">
         <div className="flex flex-col gap-0.5">
