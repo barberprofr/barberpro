@@ -1669,21 +1669,32 @@ export default function Settings() {
                           ✕
                         </button>
                       </div>
-                      <div className="space-y-2.5">
-                        {stylists?.map((s) => {
+                      <div className="grid grid-cols-2 gap-3">
+                        {stylists?.map((s, idx) => {
                           const stylistCommissionPct = typeof (s as any).commissionPct === "number" ? (s as any).commissionPct : (config?.commissionDefault ?? 0);
+                          const colorSchemes = [
+                            { ring: "from-lime-400 via-yellow-400 to-green-500", inner: "from-lime-300 to-yellow-400", icon: "text-lime-900" },
+                            { ring: "from-orange-400 via-amber-400 to-red-400", inner: "from-orange-300 to-amber-400", icon: "text-orange-900" },
+                            { ring: "from-fuchsia-400 via-pink-400 to-purple-500", inner: "from-fuchsia-300 to-pink-400", icon: "text-fuchsia-900" },
+                            { ring: "from-cyan-400 via-teal-400 to-emerald-400", inner: "from-cyan-300 to-teal-400", icon: "text-cyan-900" },
+                          ];
+                          const colors = colorSchemes[idx % colorSchemes.length];
                           return (
-                            <Popover open={openStylistId === s.id} onOpenChange={(open) => setOpenStylistId(open ? s.id : null)}>
+                            <Popover key={s.id} open={openStylistId === s.id} onOpenChange={(open) => setOpenStylistId(open ? s.id : null)}>
                               <PopoverTrigger asChild>
                                 <button
-                                  key={s.id}
-                                  className="flex w-full items-center justify-between rounded-full border border-indigo-400/30 bg-[rgba(30,41,82,0.85)] px-5 py-2.5 shadow-[0_8px_32px_rgba(30,41,82,0.5),inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-md transition-all duration-200 hover:bg-[rgba(40,52,100,0.9)] hover:shadow-[0_12px_40px_rgba(30,41,82,0.6)] active:scale-[1.02] active:brightness-110"
+                                  className="group flex flex-col items-center gap-2 rounded-2xl border border-white/10 bg-slate-800/60 p-3 shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.05)] backdrop-blur-sm transition-all duration-200 hover:scale-[1.03] hover:shadow-[0_12px_40px_rgba(0,0,0,0.5)] active:scale-105 active:brightness-110"
                                 >
-                                  <span className="text-sm font-bold uppercase tracking-wide text-white">{s.name}</span>
-                                  <span className="text-[10px] font-semibold uppercase tracking-[0.15em] text-white/60">Voir</span>
+                                  <div className={`relative flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br ${colors.ring} p-1 shadow-[0_4px_20px_rgba(0,0,0,0.3)]`}>
+                                    <div className="absolute inset-1 rounded-full bg-slate-900/80 shadow-[inset_0_2px_8px_rgba(0,0,0,0.6)]" />
+                                    <div className={`relative flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br ${colors.inner} shadow-[0_2px_8px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.4)]`}>
+                                      <span className={`text-lg font-black ${colors.icon}`}>{s.name.charAt(0).toUpperCase()}</span>
+                                    </div>
+                                  </div>
+                                  <span className="text-xs font-bold uppercase tracking-wide text-white">{s.name}</span>
                                 </button>
                               </PopoverTrigger>
-                              <PopoverContent className="w-auto rounded-xl border border-white/14 bg-black/15 backdrop-blur-md p-3 space-y-2.5 shadow-[0_20px_50px_rgba(8,15,40,0.6)]" align="start" sideOffset={8}>
+                              <PopoverContent className="w-auto rounded-xl border border-white/14 bg-black/15 backdrop-blur-md p-3 space-y-2.5 shadow-[0_20px_50px_rgba(8,15,40,0.6)]" align="center" sideOffset={8}>
                                 <StylistTotals id={s.id} commissionPct={stylistCommissionPct} />
                                 <div className="flex flex-wrap items-center gap-1.5 text-[11px]">
                                   <a className="inline-flex items-center gap-1.5 rounded-lg border border-white/20 bg-white/12 px-2 py-0.5 font-semibold uppercase tracking-[0.16em] text-white/80 transition hover:bg-white/18" href={"/api" + apiPath(`/reports/stylists/${s.id}.csv`)}>CSV</a>
