@@ -1212,7 +1212,7 @@ export default function PrestationsForm() {
                       <span className="text-xl font-bold text-white">Moyen de paiement</span>
                     </div>
                     <div className="space-y-4">
-                      <div className="grid gap-4 sm:grid-cols-1">
+                      <div className="grid grid-cols-3 gap-4">
                         {PAYMENT_OPTIONS.map((option) => {
                           const Icon = option.icon;
                           const isSelected = payment === option.value;
