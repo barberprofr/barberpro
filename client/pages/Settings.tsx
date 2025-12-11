@@ -339,7 +339,7 @@ function StylistTotals({ id, commissionPct }: { id: string; commissionPct: numbe
               Total jour
               <span className="ml-1 italic text-slate-400">— {new Date().toLocaleDateString("fr-FR", { timeZone: "Europe/Paris", weekday: "long", year: "numeric", month: "long", day: "2-digit" })}</span>
             </div>
-            <div className="text-[10px] uppercase tracking-wide text-primary text-center">CA Jour</div>
+            <div className="text-base font-bold uppercase tracking-wide text-primary text-center">CA Jour</div>
             <div className="text-3xl font-extrabold leading-tight text-center text-slate-100">{eur.format(d?.amount || 0)}</div>
             <div className="text-base font-semibold text-center text-slate-100 whitespace-nowrap overflow-hidden text-ellipsis min-h-[20px]">Salaire {eur.format(salaryAmount)}</div>
             <div className="text-xs text-slate-300 text-center">{prestationD?.count || 0} prest.{dailyProductCount ? `, ${dailyProductCount} prod.` : ""}</div>
@@ -361,7 +361,7 @@ function StylistTotals({ id, commissionPct }: { id: string; commissionPct: numbe
               Total mois
               <span className="ml-1 italic text-slate-400">— {new Date().toLocaleDateString("fr-FR", { timeZone: "Europe/Paris", year: "numeric", month: "long" })}</span>
             </div>
-            <div className="text-[10px] uppercase tracking-wide text-primary text-center">CA Mois</div>
+            <div className="text-base font-bold uppercase tracking-wide text-primary text-center">CA Mois</div>
             <div className="text-3xl font-extrabold leading-tight text-center text-slate-100">{eur.format(m?.amount || 0)}</div>
             <div className="text-base font-semibold text-center text-slate-100 whitespace-nowrap overflow-hidden text-ellipsis min-h-[20px]">
               Salaire mois {eur.format(salaryMonth)}
