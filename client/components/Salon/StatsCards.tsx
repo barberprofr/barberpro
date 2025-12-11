@@ -484,7 +484,7 @@ function StylistCard({ s, config, onClick }: { s: any, config: any, onClick: () 
           <span className="text-sm font-semibold text-white">
             {s.stats?.dailyCount ?? 0} prestation{(s.stats?.dailyCount ?? 0) > 1 ? "s" : ""}{(s.stats as any)?.dailyProductCount ? `, ${(s.stats as any).dailyProductCount} produit${(s.stats as any).dailyProductCount > 1 ? "s" : ""}` : ""}
           </span>
-          <span className="text-xs font-semibold text-emerald-100">
+          <span className="text-[10px] font-medium text-emerald-100/80">
             Salaire {salary}
           </span>
         </div>
