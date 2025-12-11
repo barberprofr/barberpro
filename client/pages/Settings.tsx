@@ -314,7 +314,7 @@ function createParisClock(): ParisClockState {
 
 
 
-function StylistTotals({ id, commissionPct, onClose }: { id: string; commissionPct: number; onClose?: () => void }) {
+function StylistTotals({ id, commissionPct }: { id: string; commissionPct: number }) {
   const { data } = useStylistBreakdown(id);
   const d = data?.daily?.total;
   const m = data?.monthly?.total;
@@ -325,21 +325,9 @@ function StylistTotals({ id, commissionPct, onClose }: { id: string; commissionP
   const salaryAmount = (prestationD?.amount || 0) * (commissionPct ?? 0) / 100;
   const salaryMonth = (prestationM?.amount || 0) * (commissionPct ?? 0) / 100;
   const [dailyPopupOpen, setDailyPopupOpen] = useState(false);
-  const [monthlyPopupOpen, setMonthlyPopupOpen] = useState(false);
-
-  const handleDailyOpen = (open: boolean) => {
-    setDailyPopupOpen(open);
-    if (open && onClose) onClose();
-  };
-
-  const handleMonthlyOpen = (open: boolean) => {
-    setMonthlyPopupOpen(open);
-    if (open && onClose) onClose();
-  };
-
   return (
     <div className="grid grid-cols-2 gap-2 text-sm">
-      <Popover open={dailyPopupOpen} onOpenChange={handleDailyOpen}>
+      <Popover open={dailyPopupOpen} onOpenChange={setDailyPopupOpen}>
         <PopoverTrigger asChild>
           <motion.button
             type="button"
@@ -361,7 +349,7 @@ function StylistTotals({ id, commissionPct, onClose }: { id: string; commissionP
           <StylistDailySection id={id} commissionPct={commissionPct} />
         </PopoverContent>
       </Popover>
-      <Popover open={monthlyPopupOpen} onOpenChange={handleMonthlyOpen}>
+      <Popover>
         <PopoverTrigger asChild>
           <motion.button
             type="button"
@@ -1719,7 +1707,7 @@ export default function Settings() {
                                 </button>
                               </PopoverTrigger>
                               <PopoverContent className="w-auto rounded-xl border border-white/14 bg-black/15 backdrop-blur-md p-3 space-y-2.5 shadow-[0_20px_50px_rgba(8,15,40,0.6)]" align="center" sideOffset={8}>
-                                <StylistTotals id={s.id} commissionPct={stylistCommissionPct} onClose={() => setOpenStylistId(null)} />
+                                <StylistTotals id={s.id} commissionPct={stylistCommissionPct} />
                                 <div className="flex flex-wrap items-center gap-1.5 text-[11px]">
                                   <a className="inline-flex items-center gap-1.5 rounded-lg border border-white/20 bg-white/12 px-2 py-0.5 font-semibold uppercase tracking-[0.16em] text-white/80 transition hover:bg-white/18" href={"/api" + apiPath(`/reports/stylists/${s.id}.csv`)}>CSV</a>
                                   <a className="inline-flex items-center gap-1.5 rounded-lg border border-white/20 bg-white/12 px-2 py-0.5 font-semibold uppercase tracking-[0.16em] text-white/80 transition hover:bg-white/18" href={"/api" + apiPath(`/reports/stylists/${s.id}.pdf`)}>PDF</a>
