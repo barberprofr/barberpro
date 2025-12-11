@@ -1699,6 +1699,7 @@ export default function Settings() {
                                       className="relative h-10 w-10 rounded-[12px] overflow-hidden"
                                       style={{ background: colors.inner, boxShadow: `0 8px 20px rgba(${colors.rgb},0.4), inset 0 2px 4px rgba(255,255,255,0.3), inset 0 -6px 10px rgba(15,23,42,0.55)` }}
                                     >
+                                      <img src="/barber-icon.png" alt="" className="absolute inset-0 h-full w-full object-cover opacity-70" />
                                       <div className="absolute inset-x-1 top-1 h-1/2 rounded-t-[10px] opacity-80" style={{ background: "linear-gradient(180deg, rgba(255,255,255,0.78), rgba(255,255,255,0))" }} />
                                     </div>
                                   </div>
