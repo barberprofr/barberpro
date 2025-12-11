@@ -428,10 +428,15 @@ function RevenueBySingleDay({ summary }: { summary?: DashboardSummary }) {
         <Popover open={open} onOpenChange={setOpen}>
           <PopoverTrigger asChild>
             <button
-              className="relative overflow-hidden rounded-xl border border-indigo-400/40 bg-gradient-to-r from-indigo-600/50 via-blue-600/50 to-cyan-500/50 backdrop-blur-sm px-4 py-2 text-left font-semibold text-white shadow-lg transition-transform duration-200 hover:scale-[1.02] hover:shadow-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300"
+              className="group relative flex flex-col items-center justify-center gap-2 rounded-[20px] border border-amber-500/30 bg-gradient-to-br from-amber-900/40 via-slate-900/60 to-slate-900/80 backdrop-blur-xl px-6 py-5 shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] transition-all duration-200 hover:scale-[1.02] hover:border-amber-400/50 hover:shadow-[0_12px_40px_rgba(245,158,11,0.3)] active:scale-[0.98]"
             >
-              <span className="relative z-10">Voir le détail du {formattedDate}</span>
-              <span className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.4),_transparent_60%)]" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-full border border-amber-400/40 bg-amber-500/20">
+                <svg className="h-5 w-5 text-amber-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
+                </svg>
+              </div>
+              <span className="text-sm font-semibold text-white">Voir le détail</span>
+              <span className="text-xs text-white/50">{formattedDate}</span>
             </button>
           </PopoverTrigger>
           <PopoverContent className="w-auto max-w-2xl rounded-xl border border-white/14 bg-black/15 backdrop-blur-md p-3 space-y-2.5 shadow-[0_20px_50px_rgba(8,15,40,0.6)]" align="start" sideOffset={8}>
@@ -690,10 +695,15 @@ function RevenueByDay({ fallbackMonthly, stylists, defaultCommissionPct }: { fal
         <Popover open={open} onOpenChange={setOpen}>
           <PopoverTrigger asChild>
             <button
-              className="relative overflow-hidden rounded-xl border border-indigo-400/40 bg-gradient-to-r from-indigo-600/50 via-blue-600/50 to-cyan-500/50 backdrop-blur-sm px-4 py-2 text-left font-semibold text-white shadow-lg transition-transform duration-200 hover:scale-[1.02] hover:shadow-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300"
+              className="group relative flex flex-col items-center justify-center gap-2 rounded-[20px] border border-pink-500/30 bg-gradient-to-br from-pink-900/40 via-slate-900/60 to-slate-900/80 backdrop-blur-xl px-6 py-5 shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] transition-all duration-200 hover:scale-[1.02] hover:border-pink-400/50 hover:shadow-[0_12px_40px_rgba(236,72,153,0.3)] active:scale-[0.98]"
             >
-              <span className="relative z-10">Voir le détail (mois {monthLabels[month - 1]} {year})</span>
-              <span className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.4),_transparent_60%)]" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-full border border-pink-400/40 bg-pink-500/20">
+                <svg className="h-5 w-5 text-pink-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
+                </svg>
+              </div>
+              <span className="text-sm font-semibold text-white">Voir le détail</span>
+              <span className="text-xs text-white/50">Mois {monthLabels[month - 1]} {year}</span>
             </button>
           </PopoverTrigger>
           <PopoverContent className="w-auto max-w-2xl rounded-xl border border-white/14 bg-black/15 backdrop-blur-md p-3 space-y-2.5 shadow-[0_20px_50px_rgba(8,15,40,0.6)]" align="start" sideOffset={8}>
@@ -786,10 +796,15 @@ function RevenueByMonth() {
         <Popover open={open} onOpenChange={setOpen}>
           <PopoverTrigger asChild>
             <button
-              className="relative overflow-hidden rounded-xl border border-indigo-400/40 bg-gradient-to-r from-indigo-600/50 via-blue-600/50 to-cyan-500/50 backdrop-blur-sm px-4 py-2 text-left font-semibold text-white shadow-lg transition-transform duration-200 hover:scale-[1.02] hover:shadow-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300"
+              className="group relative flex flex-col items-center justify-center gap-2 rounded-[20px] border border-cyan-500/30 bg-gradient-to-br from-cyan-900/40 via-slate-900/60 to-slate-900/80 backdrop-blur-xl px-6 py-5 shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] transition-all duration-200 hover:scale-[1.02] hover:border-cyan-400/50 hover:shadow-[0_12px_40px_rgba(6,182,212,0.3)] active:scale-[0.98]"
             >
-              <span className="relative z-10">Voir le détail (année {year})</span>
-              <span className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.4),_transparent_60%)]" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-full border border-cyan-400/40 bg-cyan-500/20">
+                <svg className="h-5 w-5 text-cyan-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" />
+                </svg>
+              </div>
+              <span className="text-sm font-semibold text-white">Voir le détail</span>
+              <span className="text-xs text-white/50">Année {year}</span>
             </button>
           </PopoverTrigger>
           <PopoverContent className="w-auto max-w-2xl rounded-xl border border-white/14 bg-black/15 backdrop-blur-md p-3 space-y-2.5 shadow-[0_20px_50px_rgba(8,15,40,0.6)]" align="start" sideOffset={8}>
