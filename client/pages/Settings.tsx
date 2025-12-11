@@ -1698,32 +1698,6 @@ export default function Settings() {
                                       </div>
                                     </PopoverContent>
                                   </Popover>
-                                  <Popover open={openDaily[s.id]} onOpenChange={(open) => { setOpenDaily(m => ({ ...m, [s.id]: open })); setOpenMonthly(m => ({ ...m, [s.id]: false })); }}>
-                                    <PopoverTrigger asChild>
-                                      <button
-                                        className="inline-flex items-center rounded-xl border border-white/20 bg-[linear-gradient(135deg,rgba(14,165,233,0.82)0%,rgba(16,185,129,0.62)100%)] px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-white shadow-[0_14px_36px_rgba(14,165,233,0.3)] hover:-translate-y-0.5 hover:opacity-95"
-                                      >
-                                        Journalier
-                                      </button>
-                                    </PopoverTrigger>
-                                    <PopoverContent className="w-auto rounded-xl border border-white/14 bg-black/15 backdrop-blur-md p-3 space-y-2.5 shadow-[0_20px_50px_rgba(8,15,40,0.6)]" align="start" sideOffset={8}>
-                                      <div className="max-h-96 overflow-y-auto">
-                                        <StylistDailySection id={s.id} commissionPct={stylistCommissionPct} />
-                                      </div>
-                                    </PopoverContent>
-                                  </Popover>
-                                  <Popover open={openMonthly[s.id]} onOpenChange={(open) => { setOpenMonthly(m => ({ ...m, [s.id]: open })); setOpenDaily(m => ({ ...m, [s.id]: false })); }}>
-                                    <PopoverTrigger asChild>
-                                      <button
-                                        className="inline-flex items-center rounded-xl border border-white/20 bg-[linear-gradient(135deg,rgba(236,72,153,0.82)0%,rgba(124,58,237,0.66)100%)] px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-white shadow-[0_14px_36px_rgba(236,72,153,0.3)] hover:-translate-y-0.5 hover:opacity-95"
-                                      >
-                                        Mensuel
-                                      </button>
-                                    </PopoverTrigger>
-                                    <PopoverContent className="w-auto rounded-xl border border-white/14 bg-black/15 backdrop-blur-md p-3 space-y-2.5 shadow-[0_20px_50px_rgba(8,15,40,0.6)]" align="start" sideOffset={8}>
-                                      <StylistMonthly id={s.id} commissionPct={stylistCommissionPct} />
-                                    </PopoverContent>
-                                  </Popover>
                                 </div>
                                 <div className="flex items-center gap-1.5 text-[11px] text-white/70">
                                   <span className={cn(badgeSoftClasses, "border-white/25 bg-white/15 px-2 py-0.5 text-white/75")}>Rémunération</span>
