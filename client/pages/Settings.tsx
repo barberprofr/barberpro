@@ -1511,46 +1511,6 @@ export default function Settings() {
               </AccordionItem>
             </Accordion>
 
-            <div className={cn(glassPanelClasses, "space-y-3 ")}>
-              <div className={pillHeadingClasses}>Chiffre d’affaires (jour)</div>
-              <div className="grid gap-2 sm:grid-cols-3">
-                <div className="relative overflow-hidden rounded-xl border border-white/18 bg-white/12 p-3 shadow-[0_16px_44px_rgba(16,185,129,0.28)]">
-                  <span className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(16,185,129,0.28),transparent_58%)] opacity-80" />
-                  <div className="relative z-10 text-[10px] font-semibold uppercase tracking-[0.2em] text-white/70">CA aujourd’hui</div>
-                  <div className="relative z-10 text-2xl font-black tracking-tight text-white drop-shadow-[0_16px_38px_rgba(16,185,129,0.4)]">{eur.format(summary?.dailyAmount ?? 0)}</div>
-                </div>
-                <div className="relative overflow-hidden rounded-xl border border-white/18 bg-white/12 p-3 shadow-[0_16px_44px_rgba(56,189,248,0.28)]">
-                  <span className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.28),transparent_58%)] opacity-80" />
-                  <div className="relative z-10 text-[10px] font-semibold uppercase tracking-[0.2em] text-white/70">Prestations (jour)</div>
-                  <div className="relative z-10 text-2xl font-black tracking-tight text-white drop-shadow-[0_16px_38px_rgba(56,189,248,0.3)]">{summary?.dailyCount ?? 0}</div>
-                </div>
-                <div className="relative overflow-hidden rounded-xl border border-white/18 bg-white/12 p-3 shadow-[0_16px_44px_rgba(168,85,247,0.28)]">
-                  <span className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(168,85,247,0.28),transparent_58%)] opacity-80" />
-                  <div className="relative z-10 text-[10px] font-semibold uppercase tracking-[0.2em] text-white/70">Produits (jour)</div>
-                  <div className="relative z-10 text-2xl font-black tracking-tight text-white drop-shadow-[0_16px_38px_rgba(168,85,247,0.3)]">{(summary as any)?.dailyProductCount ?? 0}</div>
-                </div>
-              </div>
-              <div className="grid gap-2.5 text-xs sm:grid-cols-3">
-                <div className="relative overflow-hidden rounded-xl border border-emerald-300/35 bg-emerald-400/12 p-2.5 shadow-[0_14px_34px_rgba(16,185,129,0.28)]">
-                  <span className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(16,185,129,0.3),transparent_58%)] opacity-80" />
-                  <div className="relative z-10 text-[9px] font-semibold uppercase tracking-[0.2em] text-emerald-100">Espèces</div>
-                  <div className="relative z-10 text-base font-semibold text-white">{eur.format(summary?.dailyPayments.methods.cash.amount || 0)}</div>
-                  <div className="relative z-10 text-[9px] font-semibold uppercase tracking-[0.2em] text-emerald-100/80">{summary?.dailyPayments.methods.cash.count || 0} prest.</div>
-                </div>
-                <div className="relative overflow-hidden rounded-xl border border-amber-300/50 bg-amber-400/16 p-2.5 shadow-[0_14px_34px_rgba(253,186,116,0.28)]">
-                  <span className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(253,186,116,0.28),transparent_58%)] opacity-80" />
-                  <div className="relative z-10 text-[9px] font-semibold uppercase tracking-[0.2em] text-amber-100">Chèque</div>
-                  <div className="relative z-10 text-base font-semibold text-white">{eur.format(summary?.dailyPayments.methods.check.amount || 0)}</div>
-                  <div className="relative z-10 text-[9px] font-semibold uppercase tracking-[0.2em] text-amber-100/85">{summary?.dailyPayments.methods.check.count || 0} prest.</div>
-                </div>
-                <div className="relative overflow-hidden rounded-xl border border-indigo-300/50 bg-indigo-400/16 p-2.5 shadow-[0_14px_34px_rgba(129,140,248,0.28)]">
-                  <span className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(129,140,248,0.28),transparent_58%)] opacity-80" />
-                  <div className="relative z-10 text-[9px] font-semibold uppercase tracking-[0.2em] text-indigo-100">Carte</div>
-                  <div className="relative z-10 text-base font-semibold text-white">{eur.format(summary?.dailyPayments.methods.card.amount || 0)}</div>
-                  <div className="relative z-10 text-[9px] font-semibold uppercase tracking-[0.2em] text-indigo-100/85">{summary?.dailyPayments.methods.card.count || 0} prest.</div>
-                </div>
-              </div>
-            </div>
 
             <Accordion
               type="single"
