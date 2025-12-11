@@ -1584,7 +1584,7 @@ export default function Settings() {
               <button
                 type="button"
                 onClick={() => setCoiffCaPopupOpen(true)}
-                className="flex w-full items-center justify-center rounded-xl border border-white/15 bg-gradient-to-r from-[#3B3DE3]/80 via-[#344FD8]/70 to-[#2DD4BF]/60 backdrop-blur-md px-5 py-3.5 transition-all duration-200 hover:brightness-110 active:scale-[0.98]"
+                className="flex w-full items-center justify-center rounded-2xl border border-blue-400/30 bg-gradient-to-r from-blue-600/40 via-indigo-600/30 to-purple-600/20 backdrop-blur-xl px-5 py-4 shadow-[0_8px_32px_rgba(59,130,246,0.15)] transition-all duration-200 hover:border-blue-300/50 hover:shadow-[0_12px_40px_rgba(59,130,246,0.25)] active:scale-[0.98]"
               >
                 <span className="text-sm font-semibold text-white">Chiffre d'affaires coiffeur</span>
               </button>
@@ -1676,7 +1676,7 @@ export default function Settings() {
               <button
                 type="button"
                 onClick={() => setDailyCaPopupOpen(true)}
-                className="flex w-full items-center justify-center rounded-xl border border-white/15 bg-gradient-to-r from-[#3B3DE3]/80 via-[#344FD8]/70 to-[#2DD4BF]/60 backdrop-blur-md px-5 py-3.5 transition-all duration-200 hover:brightness-110 active:scale-[0.98]"
+                className="flex w-full items-center justify-center rounded-2xl border border-blue-400/30 bg-gradient-to-r from-blue-600/40 via-indigo-600/30 to-purple-600/20 backdrop-blur-xl px-5 py-4 shadow-[0_8px_32px_rgba(59,130,246,0.15)] transition-all duration-200 hover:border-blue-300/50 hover:shadow-[0_12px_40px_rgba(59,130,246,0.25)] active:scale-[0.98]"
               >
                 <span className="text-sm font-semibold text-white">Chiffre d'affaires (jour)</span>
               </button>
@@ -1719,7 +1719,7 @@ export default function Settings() {
               <button
                 type="button"
                 onClick={() => setMonthlyCaPopupOpen(true)}
-                className="flex w-full items-center justify-center rounded-xl border border-white/15 bg-gradient-to-r from-[#3B3DE3]/80 via-[#344FD8]/70 to-[#2DD4BF]/60 backdrop-blur-md px-5 py-3.5 transition-all duration-200 hover:brightness-110 active:scale-[0.98]"
+                className="flex w-full items-center justify-center rounded-2xl border border-blue-400/30 bg-gradient-to-r from-blue-600/40 via-indigo-600/30 to-purple-600/20 backdrop-blur-xl px-5 py-4 shadow-[0_8px_32px_rgba(59,130,246,0.15)] transition-all duration-200 hover:border-blue-300/50 hover:shadow-[0_12px_40px_rgba(59,130,246,0.25)] active:scale-[0.98]"
               >
                 <span className="text-sm font-semibold text-white">Chiffre d'affaires (mois)</span>
               </button>
@@ -1767,7 +1767,7 @@ export default function Settings() {
               <button
                 type="button"
                 onClick={() => setYearCaPopupOpen(true)}
-                className="flex w-full items-center justify-center rounded-xl border border-white/15 bg-gradient-to-r from-[#3B3DE3]/80 via-[#344FD8]/70 to-[#2DD4BF]/60 backdrop-blur-md px-5 py-3.5 transition-all duration-200 hover:brightness-110 active:scale-[0.98]"
+                className="flex w-full items-center justify-center rounded-2xl border border-blue-400/30 bg-gradient-to-r from-blue-600/40 via-indigo-600/30 to-purple-600/20 backdrop-blur-xl px-5 py-4 shadow-[0_8px_32px_rgba(59,130,246,0.15)] transition-all duration-200 hover:border-blue-300/50 hover:shadow-[0_12px_40px_rgba(59,130,246,0.25)] active:scale-[0.98]"
               >
                 <span className="text-sm font-semibold text-white">Chiffre d'affaires (année)</span>
               </button>
@@ -1809,7 +1809,7 @@ export default function Settings() {
 
               <AccordionItem value="points-usage">
                 <div className="space-y-2">
-                  <AccordionTrigger className="flex w-full items-center justify-center rounded-xl border border-white/15 bg-gradient-to-r from-[#3B3DE3]/80 via-[#344FD8]/70 to-[#2DD4BF]/60 backdrop-blur-md px-5 py-3.5 transition-all duration-200 hover:no-underline hover:brightness-110">
+                  <AccordionTrigger className="flex w-full items-center justify-center rounded-2xl border border-blue-400/30 bg-gradient-to-r from-blue-600/40 via-indigo-600/30 to-purple-600/20 backdrop-blur-xl px-5 py-4 shadow-[0_8px_32px_rgba(59,130,246,0.15)] transition-all duration-200 hover:no-underline hover:border-blue-300/50 hover:shadow-[0_12px_40px_rgba(59,130,246,0.25)]">
                     <span className="text-sm font-semibold text-white">Utilisation des points</span>
                   </AccordionTrigger>
                   <AccordionContent>
