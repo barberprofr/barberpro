@@ -1659,12 +1659,12 @@ export default function Settings() {
                       className="w-full max-w-lg max-h-[80vh] overflow-y-auto rounded-2xl border border-white/20 bg-black/5 backdrop-blur-md p-4 shadow-[0_25px_80px_rgba(0,0,0,0.6)]"
                       onClick={(e) => e.stopPropagation()}
                     >
-                      <div className="flex items-center justify-between mb-4">
-                        <span className="text-lg font-bold text-white">Chiffre d'affaires coiffeur</span>
+                      <div className="flex items-center justify-center mb-4 relative">
+                        <span className="text-2xl font-black uppercase tracking-wide text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">Chiffre d'affaires coiffeur</span>
                         <button
                           type="button"
                           onClick={() => setCoiffCaPopupOpen(false)}
-                          className="flex h-8 w-8 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition hover:bg-white/20"
+                          className="absolute right-0 flex h-8 w-8 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition hover:bg-white/20"
                         >
                           ✕
                         </button>
