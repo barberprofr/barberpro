@@ -113,9 +113,9 @@ export default function ServicesPicker({ onServiceSelect, onReset, externalOpen,
                   exit={{ opacity: 0, height: 0 }}
                   className="border-b border-white/15 bg-gradient-to-r from-emerald-500/20 to-emerald-600/20 px-4 py-3"
                 >
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center">
                     <span className="text-2xl font-bold text-emerald-100">Total</span>
-                    <span className="text-5xl font-black text-cyan-300" style={{ WebkitTextStroke: '0.5px black' }}>{total.toFixed(2)}€</span>
+                    <span className="flex-1 text-center text-5xl font-black text-cyan-300" style={{ WebkitTextStroke: '0.5px black' }}>{total.toFixed(2)}€</span>
                   </div>
                 </motion.div>
               )}
