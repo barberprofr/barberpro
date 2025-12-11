@@ -424,9 +424,15 @@ function StylistsList({ stylists, config, hasStylists }: { stylists: any[], conf
       >
         <div className="space-y-4">
           <div className="flex flex-col items-center justify-center border-b border-white/10 pb-4">
-            <span className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-300 ring-1 ring-emerald-500/50 mb-2">
-              <span className="h-3 w-3 rounded-full bg-emerald-400" />
-            </span>
+            <div className="relative flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-emerald-500/30 via-emerald-600/20 to-teal-500/30 ring-2 ring-emerald-400/50 shadow-[0_8px_32px_rgba(16,185,129,0.4),inset_0_2px_8px_rgba(255,255,255,0.1)] backdrop-blur-sm mb-2 overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-t from-emerald-900/40 to-transparent" />
+              <img 
+                src="/assets/coiffeur-avatar.jpg" 
+                alt="Coiffeur" 
+                className="h-12 w-12 object-cover rounded-full opacity-85 mix-blend-luminosity"
+              />
+              <span className="absolute bottom-1 right-1 h-3 w-3 rounded-full bg-emerald-400 ring-2 ring-slate-900/80 shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
+            </div>
             <h3 className="text-3xl font-black text-white text-center">{selectedStylist.name}</h3>
           </div>
           <StylistDailySection id={selectedStylist.id} commissionPct={((selectedStylist as any).commissionPct ?? config?.commissionDefault ?? 0)} />
