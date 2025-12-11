@@ -469,7 +469,7 @@ function StylistCard({ s, config, onClick }: { s: any, config: any, onClick: () 
       whileTap={{ scale: 0.98 }}
       className="w-full rounded-xl border border-white/25 bg-slate-900/60 px-2 py-0.5 shadow-[0_18px_45px_rgba(15,23,42,0.15)] backdrop-blur-sm transition hover:border-white/40 hover:bg-slate-900/70 text-left"
     >
-      <div className="flex w-full flex-col gap-1 py-1">
+      <div className="flex w-full flex-col gap-0 py-0">
         <div className="flex items-center justify-center">
           <span className="inline-flex items-center gap-2 rounded-full border border-white/35 bg-white/15 px-4 py-0.5 text-lg font-black text-white">
             <span className="h-2 w-2 rounded-full bg-emerald-400" />
