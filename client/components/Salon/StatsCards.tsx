@@ -478,10 +478,10 @@ function StylistCard({ s, config, onClick }: { s: any, config: any, onClick: () 
             Salaire {salary}
           </span>
         </div>
-        <div className="flex items-center justify-center">
-          <span className="inline-flex items-center gap-2 rounded-full border border-white/35 bg-white/15 px-4 py-1 text-lg font-black text-white">
-            <span className="h-2 w-2 rounded-full bg-emerald-400" />
-            {s.name}
+        <div className="flex items-center justify-center min-w-[120px]">
+          <span className="inline-flex items-center justify-center gap-2 rounded-full border border-white/35 bg-white/15 px-4 py-1.5 text-lg font-black text-white min-w-[100px]">
+            <span className="h-2 w-2 rounded-full bg-emerald-400 flex-shrink-0" />
+            <span className="text-center">{s.name}</span>
           </span>
         </div>
         <div className="flex flex-col items-end justify-center">
