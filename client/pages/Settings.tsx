@@ -1976,14 +1976,13 @@ export default function Settings() {
               />
 
               <AccordionItem value="add-stylist">
-                <div className={cn(glassPanelClasses, "space-y-3.5 px-4 py-4 bg-[linear-gradient(145deg,rgba(8,15,40,0.15)0%,rgba(30,58,138,0.1)60%,rgba(37,99,235,0.08)100%)]")}>
-                  <AccordionTrigger className="relative flex items-center justify-center rounded-full border-2 border-blue-400/30 bg-black/10 backdrop-blur-sm w-24 h-24 mx-auto text-sm font-semibold uppercase tracking-[0.2em] text-white shadow-[0_0_15px_rgba(59,130,246,0.3),0_0_30px_rgba(30,58,138,0.2)] transition-all duration-300 overflow-hidden hover:scale-110 hover:border-blue-400/60 hover:shadow-[0_0_25px_rgba(59,130,246,0.6),0_0_50px_rgba(30,58,138,0.4)] active:scale-105 active:border-white/80 active:shadow-[0_0_20px_rgba(59,130,246,0.8),0_25px_60px_rgba(59,130,246,0.6)] active:brightness-125 group">
-                    <span className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(59,130,246,0.2),transparent_70%)] group-hover:bg-[radial-gradient(circle_at_center,rgba(59,130,246,0.4),transparent_60%)] transition-all duration-300" />
-                    <span className="pointer-events-none absolute -inset-0.5 rounded-full border border-blue-500/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300 animate-pulse" />
-                    <span className="relative z-10 text-center px-2 flex flex-col items-center gap-2">
-                      <UserRound className="w-7 h-7 text-blue-300" />
-                      <span className="text-sm font-semibold leading-snug tracking-wide text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.4)]">Ajouter un<br className="hidden" /> <span className="inline">coiffeur</span></span>
-                    </span>
+                <div className={cn(glassPanelClasses, "space-y-3.5 px-4 py-4")}>
+                  <AccordionTrigger className="group relative flex flex-col items-center justify-center gap-2 rounded-[20px] border border-cyan-500/30 bg-gradient-to-br from-cyan-900/40 via-slate-900/60 to-slate-900/80 backdrop-blur-xl px-5 py-5 shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] transition-all duration-200 hover:scale-[1.02] hover:border-cyan-400/50 hover:shadow-[0_12px_40px_rgba(6,182,212,0.3)] active:scale-[0.98] w-full">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full border border-cyan-400/40 bg-cyan-500/20">
+                      <UserRound className="h-5 w-5 text-cyan-300" />
+                    </div>
+                    <span className="text-sm font-semibold text-white">Ajouter un Coiffeur</span>
+                    <span className="text-xs text-white/50">Nouveau membre</span>
                   </AccordionTrigger>
                   <AccordionContent>
                     <div className="space-y-3.5">
