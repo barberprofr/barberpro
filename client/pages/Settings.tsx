@@ -1673,20 +1673,26 @@ export default function Settings() {
                         {stylists?.map((s, idx) => {
                           const stylistCommissionPct = typeof (s as any).commissionPct === "number" ? (s as any).commissionPct : (config?.commissionDefault ?? 0);
                           const colorSchemes = [
-                            { bg: "from-emerald-500 to-emerald-600", border: "border-emerald-400/50" },
-                            { bg: "from-cyan-400 to-blue-500", border: "border-cyan-300/50" },
-                            { bg: "from-pink-500 to-rose-600", border: "border-pink-400/50" },
-                            { bg: "from-orange-400 to-orange-500", border: "border-orange-300/50" },
+                            { ring: "from-lime-400 via-yellow-300 to-green-500", inner: "from-lime-300 via-yellow-200 to-lime-400", glow: "shadow-[0_0_20px_rgba(163,230,53,0.5)]" },
+                            { ring: "from-orange-400 via-amber-300 to-red-400", inner: "from-orange-300 via-amber-200 to-orange-400", glow: "shadow-[0_0_20px_rgba(251,146,60,0.5)]" },
+                            { ring: "from-fuchsia-500 via-pink-400 to-purple-500", inner: "from-fuchsia-400 via-pink-300 to-fuchsia-500", glow: "shadow-[0_0_20px_rgba(217,70,239,0.5)]" },
+                            { ring: "from-cyan-400 via-teal-300 to-blue-500", inner: "from-cyan-300 via-teal-200 to-cyan-400", glow: "shadow-[0_0_20px_rgba(34,211,238,0.5)]" },
                           ];
                           const colors = colorSchemes[idx % colorSchemes.length];
                           return (
                             <Popover key={s.id} open={openStylistId === s.id} onOpenChange={(open) => setOpenStylistId(open ? s.id : null)}>
                               <PopoverTrigger asChild>
                                 <button
-                                  className={`group relative flex h-20 w-full items-center justify-center overflow-hidden rounded-2xl border ${colors.border} bg-gradient-to-b ${colors.bg} shadow-[0_6px_20px_rgba(0,0,0,0.4),inset_0_-3px_8px_rgba(0,0,0,0.2)] transition-all duration-200 hover:scale-[1.03] hover:shadow-[0_10px_30px_rgba(0,0,0,0.5)] active:scale-105 active:brightness-110`}
+                                  className="group relative flex h-28 w-full flex-col items-center justify-center gap-1.5 overflow-hidden rounded-2xl border border-white/15 bg-slate-700/40 shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_8px_32px_rgba(0,0,0,0.4)] backdrop-blur-sm transition-all duration-200 hover:scale-[1.03] hover:shadow-[0_12px_40px_rgba(0,0,0,0.5)] active:scale-105 active:brightness-110"
                                 >
-                                  <div className="absolute inset-x-1 top-1 h-1/3 rounded-t-xl bg-gradient-to-b from-white/50 to-transparent" />
-                                  <span className="relative z-10 text-lg font-black uppercase tracking-wide text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]">{s.name}</span>
+                                  <div className="absolute inset-x-2 top-2 h-1/3 rounded-t-xl bg-gradient-to-b from-white/10 to-transparent" />
+                                  <div className={`relative flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br ${colors.ring} p-0.5 ${colors.glow}`}>
+                                    <div className="absolute inset-0.5 rounded-full bg-slate-900 shadow-[inset_0_4px_12px_rgba(0,0,0,0.8)]" />
+                                    <div className={`relative flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br ${colors.inner} shadow-[0_2px_8px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.5)]`}>
+                                      <span className="text-base font-black text-slate-900/80">{s.name.charAt(0).toUpperCase()}</span>
+                                    </div>
+                                  </div>
+                                  <span className="relative z-10 text-[11px] font-bold uppercase tracking-wide text-white/90">{s.name}</span>
                                 </button>
                               </PopoverTrigger>
                               <PopoverContent className="w-auto rounded-xl border border-white/14 bg-black/15 backdrop-blur-md p-3 space-y-2.5 shadow-[0_20px_50px_rgba(8,15,40,0.6)]" align="center" sideOffset={8}>
