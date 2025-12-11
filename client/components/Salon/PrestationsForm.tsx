@@ -41,10 +41,10 @@ const playSuccessSound = () => {
   }
 };
 
-const PAYMENT_OPTIONS: { value: "cash" | "check" | "card"; label: string; icon: LucideIcon }[] = [
-  { value: "cash", label: "Espèces", icon: CircleDollarSign },
-  { value: "card", label: "Carte", icon: CreditCard },
-  { value: "check", label: "Chèque", icon: FileText },
+const PAYMENT_OPTIONS: { value: "cash" | "check" | "card"; label: string; icon: LucideIcon; colors: { outer: string; inner: string; glow: string } }[] = [
+  { value: "cash", label: "Espèces", icon: CircleDollarSign, colors: { outer: "conic-gradient(from 160deg, #CAFF58, #74FF9C, #16C772, #CAFF58)", inner: "linear-gradient(140deg, #D9FF96 0%, #7DFFAF 60%, #1FAA7C 100%)", glow: "0 8px 20px rgba(116,255,156,0.5)" } },
+  { value: "card", label: "Carte", icon: CreditCard, colors: { outer: "conic-gradient(from 160deg, #9DF3FF, #52C7FF, #2B7FFF, #9DF3FF)", inner: "linear-gradient(140deg, #BFF6FF 0%, #63DAFF 60%, #318EFF 100%)", glow: "0 8px 20px rgba(82,199,255,0.5)" } },
+  { value: "check", label: "Chèque", icon: FileText, colors: { outer: "conic-gradient(from 160deg, #FFD27A, #FF8A4C, #FF5A39, #FFD27A)", inner: "linear-gradient(140deg, #FFE0A1 0%, #FF9C5C 60%, #F1472A 100%)", glow: "0 8px 20px rgba(255,138,76,0.5)" } },
 ];
 
 export default function PrestationsForm() {
@@ -1246,11 +1246,20 @@ export default function PrestationsForm() {
                                 animation: "shimmer 2s ease-in-out infinite"
                               } : undefined}
                             >
-                              <span className={cn(
-                                "flex h-12 w-12 items-center justify-center rounded-2xl border border-white/20 bg-black/5 text-slate-200 transition-all",
-                                isSelected && "border-cyan-400/90 bg-cyan-500/30 text-cyan-200 shadow-[0_4px_20px_rgba(34,211,238,0.6)]"
-                              )}>
-                                <Icon className="h-7 w-7" />
+                              <span
+                                className="relative flex h-14 w-14 items-center justify-center rounded-full"
+                                style={{ background: option.colors.outer, boxShadow: option.colors.glow }}
+                              >
+                                <span
+                                  className="absolute inset-[3px] rounded-full"
+                                  style={{ background: "radial-gradient(circle, rgba(15,23,42,0.92) 0%, rgba(30,41,59,0.78) 60%, rgba(15,23,42,0.55) 100%)", boxShadow: "inset 0 6px 16px rgba(255,255,255,0.08), inset 0 -12px 20px rgba(2,6,23,0.82)" }}
+                                />
+                                <span
+                                  className="relative flex h-8 w-8 items-center justify-center rounded-lg overflow-hidden"
+                                  style={{ background: option.colors.inner, boxShadow: "inset 0 1px 0 rgba(255,255,255,0.5)" }}
+                                >
+                                  <Icon className="h-5 w-5 text-slate-900/80" />
+                                </span>
                               </span>
                               <span className={cn("text-xl font-black", isSelected && "text-cyan-300")}>{option.label}</span>
                               {isSelected ? (
