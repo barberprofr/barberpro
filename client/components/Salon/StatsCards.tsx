@@ -431,7 +431,6 @@ function StylistsList({ stylists, config, hasStylists }: { stylists: any[], conf
                 alt="Coiffeur" 
                 className="h-12 w-12 object-cover rounded-full opacity-85 mix-blend-luminosity"
               />
-              <span className="absolute bottom-1 right-1 h-3 w-3 rounded-full bg-emerald-400 ring-2 ring-slate-900/80 shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
             </div>
             <h3 className="text-3xl font-black text-white text-center">{selectedStylist.name}</h3>
           </div>
