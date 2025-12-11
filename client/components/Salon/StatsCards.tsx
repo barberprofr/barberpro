@@ -469,7 +469,7 @@ function StylistCard({ s, config, onClick }: { s: any, config: any, onClick: () 
       whileTap={{ scale: 0.98 }}
       className="w-full rounded-xl border border-white/25 bg-slate-900/60 px-3 py-2 shadow-[0_18px_45px_rgba(15,23,42,0.15)] backdrop-blur-sm transition hover:border-white/40 hover:bg-slate-900/70 text-left"
     >
-      <div className="flex w-full items-center justify-between">
+      <div className="grid grid-cols-[1fr_auto_1fr] w-full items-center gap-2">
         <div className="flex flex-col gap-0.5">
           <span className="text-sm font-semibold text-white">
             {s.stats?.dailyCount ?? 0} prestation{(s.stats?.dailyCount ?? 0) > 1 ? "s" : ""}{(s.stats as any)?.dailyProductCount ? `, ${(s.stats as any).dailyProductCount} produit${(s.stats as any).dailyProductCount > 1 ? "s" : ""}` : ""}
@@ -478,10 +478,10 @@ function StylistCard({ s, config, onClick }: { s: any, config: any, onClick: () 
             Salaire {salary}
           </span>
         </div>
-        <div className="flex items-center justify-center min-w-[120px]">
-          <span className="inline-flex items-center justify-center gap-2 rounded-full border border-white/35 bg-white/15 px-4 py-1.5 text-lg font-black text-white min-w-[100px]">
+        <div className="flex items-center justify-center w-[140px]">
+          <span className="inline-flex items-center justify-center gap-2 rounded-full border border-white/35 bg-white/15 px-4 py-1.5 text-lg font-black text-white w-full">
             <span className="h-2 w-2 rounded-full bg-emerald-400 flex-shrink-0" />
-            <span className="text-center">{s.name}</span>
+            <span className="text-center truncate">{s.name}</span>
           </span>
         </div>
         <div className="flex flex-col items-end justify-center">
