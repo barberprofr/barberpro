@@ -62,7 +62,7 @@ type PaymentSummaryItem = PaymentSummaryMeta & { amount: number; count: number }
 function PaymentSummaryGrid({ items }: { items: PaymentSummaryItem[] }) {
   if (!items.length) return null;
   return (
-    <div className="mt-3 grid gap-3 sm:grid-cols-3">
+    <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
       {items.map((item) => (
         <div key={item.key} className="flex items-center justify-between rounded-xl border border-white/15 bg-white/8 backdrop-blur-sm px-4 py-3">
           <div className="flex items-center gap-2.5">
