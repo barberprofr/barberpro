@@ -29,50 +29,50 @@ function StylistDaily({ id, date, commissionPct }: { id: string; date?: string; 
     const dailyProductCount = (data as any)?.dailyProductCount ?? 0;
     const salary = (prestationTotal?.amount || 0) * (commissionPct ?? 0) / 100;
     return (
-        <div className="rounded-3xl border border-white/25 bg-slate-800/70 p-4 shadow-inner text-sm space-y-4 backdrop-blur-sm">
-            <div className="space-y-3">
+        <div className="rounded-2xl border border-white/25 bg-slate-800/70 p-3 shadow-inner text-sm space-y-2 backdrop-blur-sm">
+            <div className="space-y-1">
                 <div className="flex items-center justify-between text-slate-100">
-                    <span className="text-lg font-black tracking-wide [-webkit-text-stroke:0.5px_black]">CA du jour</span>
-                    <span className="text-5xl font-black tracking-wide text-fuchsia-300" style={{ WebkitTextStroke: '0.5px black' }}>{eur.format(total?.amount || 0)}</span>
+                    <span className="text-base font-black tracking-wide [-webkit-text-stroke:0.5px_black]">CA du jour</span>
+                    <span className="text-4xl font-black tracking-wide text-fuchsia-300" style={{ WebkitTextStroke: '0.5px black' }}>{eur.format(total?.amount || 0)}</span>
                 </div>
                 <div className="text-xs text-white">{prestationTotal?.count || 0} prestation{(prestationTotal?.count ?? 0) > 1 ? "s" : ""}{dailyProductCount ? `, ${dailyProductCount} produit${dailyProductCount > 1 ? "s" : ""}` : ""}</div>
             </div>
-            <div className="flex flex-col gap-2">
-                <div className="flex items-center justify-between rounded-xl border border-indigo-500/30 bg-gradient-to-br from-indigo-900/40 via-slate-900/60 to-slate-900/80 backdrop-blur-xl px-4 py-3 shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)]">
-                    <div className="flex items-center gap-3">
-                        <span className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-indigo-400/40 bg-indigo-500/20 flex-shrink-0">
-                            <svg className="h-4 w-4 text-indigo-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><rect x="2" y="5" width="20" height="14" rx="2" /><path d="M2 10h20" /></svg>
+            <div className="flex flex-col gap-1.5">
+                <div className="flex items-center justify-between rounded-lg border border-indigo-500/30 bg-gradient-to-br from-indigo-900/40 via-slate-900/60 to-slate-900/80 backdrop-blur-xl px-3 py-2 shadow-[0_4px_16px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.1)]">
+                    <div className="flex items-center gap-2">
+                        <span className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-indigo-400/40 bg-indigo-500/20 flex-shrink-0">
+                            <svg className="h-3 w-3 text-indigo-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><rect x="2" y="5" width="20" height="14" rx="2" /><path d="M2 10h20" /></svg>
                         </span>
                         <div className="leading-tight">
-                            <div className="text-sm font-semibold uppercase tracking-wide text-white/80">CARTE</div>
-                            <div className="text-xs text-white/50">{d?.methods.card.count || 0} prest.</div>
+                            <div className="text-xs font-semibold uppercase tracking-wide text-white/80">CARTE</div>
+                            <div className="text-[10px] text-white/50">{d?.methods.card.count || 0} prest.</div>
                         </div>
                     </div>
-                    <span className="text-lg font-bold text-white">{eur.format(d?.methods.card.amount || 0)}</span>
+                    <span className="text-base font-bold text-white">{eur.format(d?.methods.card.amount || 0)}</span>
                 </div>
-                <div className="flex items-center justify-between rounded-xl border border-amber-500/30 bg-gradient-to-br from-amber-900/40 via-slate-900/60 to-slate-900/80 backdrop-blur-xl px-4 py-3 shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)]">
-                    <div className="flex items-center gap-3">
-                        <span className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-amber-400/40 bg-amber-500/20 flex-shrink-0">
-                            <svg className="h-4 w-4 text-amber-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                <div className="flex items-center justify-between rounded-lg border border-amber-500/30 bg-gradient-to-br from-amber-900/40 via-slate-900/60 to-slate-900/80 backdrop-blur-xl px-3 py-2 shadow-[0_4px_16px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.1)]">
+                    <div className="flex items-center gap-2">
+                        <span className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-amber-400/40 bg-amber-500/20 flex-shrink-0">
+                            <svg className="h-3 w-3 text-amber-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                         </span>
                         <div className="leading-tight">
-                            <div className="text-sm font-semibold uppercase tracking-wide text-white/80">EN LIGNE</div>
-                            <div className="text-xs text-white/50">{d?.methods.check.count || 0} prest.</div>
+                            <div className="text-xs font-semibold uppercase tracking-wide text-white/80">EN LIGNE</div>
+                            <div className="text-[10px] text-white/50">{d?.methods.check.count || 0} prest.</div>
                         </div>
                     </div>
-                    <span className="text-lg font-bold text-white">{eur.format(d?.methods.check.amount || 0)}</span>
+                    <span className="text-base font-bold text-white">{eur.format(d?.methods.check.amount || 0)}</span>
                 </div>
-                <div className="flex items-center justify-between rounded-xl border border-emerald-500/30 bg-gradient-to-br from-emerald-900/40 via-slate-900/60 to-slate-900/80 backdrop-blur-xl px-4 py-3 shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)]">
-                    <div className="flex items-center gap-3">
-                        <span className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-emerald-400/40 bg-emerald-500/20 flex-shrink-0">
-                            <svg className="h-4 w-4 text-emerald-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><rect x="2" y="6" width="20" height="12" rx="2" /><circle cx="12" cy="12" r="3" /><path d="M12 10v4m-1-3.5h2m-2 3h2" /></svg>
+                <div className="flex items-center justify-between rounded-lg border border-emerald-500/30 bg-gradient-to-br from-emerald-900/40 via-slate-900/60 to-slate-900/80 backdrop-blur-xl px-3 py-2 shadow-[0_4px_16px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.1)]">
+                    <div className="flex items-center gap-2">
+                        <span className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-emerald-400/40 bg-emerald-500/20 flex-shrink-0">
+                            <svg className="h-3 w-3 text-emerald-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><rect x="2" y="6" width="20" height="12" rx="2" /><circle cx="12" cy="12" r="3" /><path d="M12 10v4m-1-3.5h2m-2 3h2" /></svg>
                         </span>
                         <div className="leading-tight">
-                            <div className="text-sm font-semibold uppercase tracking-wide text-white/80">ESPÈCES</div>
-                            <div className="text-xs text-white/50">{d?.methods.cash.count || 0} prest.</div>
+                            <div className="text-xs font-semibold uppercase tracking-wide text-white/80">ESPÈCES</div>
+                            <div className="text-[10px] text-white/50">{d?.methods.cash.count || 0} prest.</div>
                         </div>
                     </div>
-                    <span className="text-lg font-bold text-white">{eur.format(d?.methods.cash.amount || 0)}</span>
+                    <span className="text-base font-bold text-white">{eur.format(d?.methods.cash.amount || 0)}</span>
                 </div>
             </div>
         </div>
@@ -212,20 +212,19 @@ export function StylistDailySection({ id, commissionPct, stylistName }: { id: st
             {/* Bouton pour ouvrir le popup des encaissements */}
             <motion.button
                 onClick={() => setEncaissementsOpen(true)}
-                whileHover={{ scale: 1.02, y: -2 }}
-                whileTap={{ scale: 1.05, boxShadow: "0 0 30px rgba(139,92,246,0.6)" }}
-                className="w-full flex items-center justify-between rounded-2xl border border-violet-500/40 bg-gradient-to-br from-violet-900/40 via-slate-900/60 to-slate-900/80 backdrop-blur-xl px-4 py-3 shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] transition-all hover:border-violet-400/60"
+                whileHover={{ scale: 1.02, y: -1 }}
+                whileTap={{ scale: 1.04, boxShadow: "0 0 20px rgba(139,92,246,0.6)" }}
+                className="w-full flex items-center justify-between rounded-xl border border-violet-500/40 bg-gradient-to-br from-violet-900/40 via-slate-900/60 to-slate-900/80 backdrop-blur-xl px-3 py-2 shadow-[0_4px_16px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.1)] transition-all hover:border-violet-400/60"
             >
-                <div className="flex items-center gap-3">
-                    <span className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-violet-400/40 bg-violet-500/20">
-                        <List className="h-5 w-5 text-violet-300" />
+                <div className="flex items-center gap-2">
+                    <span className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-violet-400/40 bg-violet-500/20">
+                        <List className="h-4 w-4 text-violet-300" />
                     </span>
                     <div className="text-left">
-                        <div className="text-sm font-semibold uppercase tracking-wide text-white/90">Encaissements du jour</div>
-                        <div className="text-xs text-white/50">Cliquez pour voir le détail</div>
+                        <div className="text-xs font-semibold uppercase tracking-wide text-white/90">Encaissements du jour</div>
                     </div>
                 </div>
-                <ChevronDown className="h-5 w-5 text-violet-300" />
+                <ChevronDown className="h-4 w-4 text-violet-300" />
             </motion.button>
 
             {/* Popup des encaissements */}
