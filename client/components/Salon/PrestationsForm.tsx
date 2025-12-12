@@ -1407,69 +1407,64 @@ export default function PrestationsForm() {
               {/* Popup Paiement Mixte */}
               {mixedPaymentPopupOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 animate-in fade-in duration-200" onClick={(e) => e.stopPropagation()}>
-                  <div className="w-full max-w-md rounded-3xl border border-white/20 bg-slate-900/95 p-6 text-slate-50 shadow-[0_40px_100px_rgba(8,15,40,0.8)] backdrop-blur-md animate-in zoom-in-95 duration-200" onClick={(e) => e.stopPropagation()}>
-                    <div className="mb-4 flex items-center gap-3">
+                  <div className="w-full max-w-xs rounded-2xl border border-white/20 bg-slate-900/95 p-4 text-slate-50 shadow-[0_20px_50px_rgba(8,15,40,0.8)] backdrop-blur-md animate-in zoom-in-95 duration-200" onClick={(e) => e.stopPropagation()}>
+                    <div className="mb-3 flex items-center gap-2">
                       <button
                         type="button"
                         onClick={() => {
                           setMixedPaymentPopupOpen(false);
                           setPaymentPickerOpen(true);
                         }}
-                        className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-slate-200 transition hover:bg-white/10 hover:scale-105 active:scale-95"
+                        className="flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/5 text-slate-200 transition hover:bg-white/10 hover:scale-105 active:scale-95"
                       >
-                        <ArrowLeft className="h-5 w-5" />
+                        <ArrowLeft className="h-4 w-4" />
                       </button>
-                      <span className="text-xl font-bold text-white">Paiement Mixte</span>
+                      <span className="text-lg font-bold text-white">Paiement Mixte</span>
+                      <span className="ml-auto text-lg font-bold text-white">{amount} €</span>
                     </div>
                     
-                    <div className="mb-4 text-center">
-                      <span className="text-2xl font-bold text-white">Total: {amount} €</span>
-                    </div>
-                    
-                    <div className="space-y-4">
-                      <div className="flex items-center gap-3 rounded-2xl border-2 border-green-500/30 bg-green-500/10 p-4">
-                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-green-400 to-emerald-600 shadow-lg shadow-green-500/30">
-                          <CircleDollarSign className="h-6 w-6 text-white" />
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2 rounded-xl border border-green-500/30 bg-green-500/10 p-2">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-green-400 to-emerald-600 shadow-md shadow-green-500/30">
+                          <CircleDollarSign className="h-5 w-5 text-white" />
                         </div>
                         <div className="flex-1">
-                          <label className="text-sm font-medium text-green-400">Espèces</label>
                           <Input
                             type="number"
                             step="0.01"
                             min="0"
-                            placeholder="0"
+                            placeholder="Espèces"
                             value={mixedCashAmount}
                             onChange={(e) => setMixedCashAmount(e.target.value)}
-                            className="mt-1 h-12 w-full rounded-xl border-0 bg-slate-900/80 text-xl font-bold text-white text-center placeholder:text-white/30 focus:ring-2 focus:ring-green-400"
+                            className="h-10 w-full rounded-lg border-0 bg-slate-900/80 text-lg font-bold text-white text-center placeholder:text-green-400/50 focus:ring-2 focus:ring-green-400"
                           />
                         </div>
                       </div>
                       
-                      <div className="flex items-center gap-3 rounded-2xl border-2 border-cyan-500/30 bg-cyan-500/10 p-4">
-                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-cyan-400 to-blue-600 shadow-lg shadow-cyan-500/30">
-                          <CreditCard className="h-6 w-6 text-white" />
+                      <div className="flex items-center gap-2 rounded-xl border border-cyan-500/30 bg-cyan-500/10 p-2">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-cyan-400 to-blue-600 shadow-md shadow-cyan-500/30">
+                          <CreditCard className="h-5 w-5 text-white" />
                         </div>
                         <div className="flex-1">
-                          <label className="text-sm font-medium text-cyan-400">Carte</label>
                           <Input
                             type="number"
                             step="0.01"
                             min="0"
-                            placeholder="0"
+                            placeholder="Carte"
                             value={mixedCardAmount}
                             onChange={(e) => setMixedCardAmount(e.target.value)}
-                            className="mt-1 h-12 w-full rounded-xl border-0 bg-slate-900/80 text-xl font-bold text-white text-center placeholder:text-white/30 focus:ring-2 focus:ring-cyan-400"
+                            className="h-10 w-full rounded-lg border-0 bg-slate-900/80 text-lg font-bold text-white text-center placeholder:text-cyan-400/50 focus:ring-2 focus:ring-cyan-400"
                           />
                         </div>
                       </div>
                       
                       <div className={cn(
-                        "text-center py-2 rounded-xl font-bold",
+                        "text-center py-1.5 rounded-lg text-sm font-bold",
                         isMixedTotalValid
                           ? "text-green-400 bg-green-500/20"
                           : "text-red-400 bg-red-500/20"
                       )}>
-                        Total saisi: {(Math.round(((parseFloat(mixedCashAmount) || 0) + (parseFloat(mixedCardAmount) || 0)) * 100) / 100).toFixed(2)} € / {amount} €
+                        {(Math.round(((parseFloat(mixedCashAmount) || 0) + (parseFloat(mixedCardAmount) || 0)) * 100) / 100).toFixed(2)} € / {amount} €
                       </div>
                       
                       <motion.button
@@ -1479,13 +1474,13 @@ export default function PrestationsForm() {
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                         className={cn(
-                          "w-full py-4 rounded-2xl font-bold text-lg transition-all duration-200",
+                          "w-full py-3 rounded-xl font-bold text-base transition-all duration-200",
                           isMixedTotalValid
-                            ? "bg-gradient-to-r from-purple-500 to-violet-600 text-white shadow-[0_0_30px_rgba(168,85,247,0.5)] hover:shadow-[0_0_40px_rgba(168,85,247,0.7)]"
+                            ? "bg-gradient-to-r from-purple-500 to-violet-600 text-white shadow-[0_0_20px_rgba(168,85,247,0.5)] hover:shadow-[0_0_30px_rgba(168,85,247,0.7)]"
                             : "bg-slate-700/50 text-slate-400 cursor-not-allowed"
                         )}
                       >
-                        Confirmer le paiement mixte
+                        Confirmer
                       </motion.button>
                     </div>
                   </div>
