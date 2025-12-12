@@ -140,22 +140,41 @@ export default function ProductsPicker({ onProductSelect, onReset, externalOpen,
                     )}
                   >
                     <div className="flex items-center gap-3">
-                      {/* Checkmark or Select Button */}
-                      <button
+                      {/* Checkmark or Select Button - 3D Style */}
+                      <motion.button
                         type="button"
                         onClick={(e) => {
                           e.stopPropagation();
                           toggleProduct(product.id, product.name, product.price);
                         }}
+                        animate={isSelected ? { 
+                          scale: [1, 1.2, 1],
+                          boxShadow: ["0 0 0px rgba(6,182,212,0)", "0 0 40px rgba(6,182,212,0.9)", "0 0 25px rgba(6,182,212,0.6)"]
+                        } : {}}
+                        transition={{ duration: 0.4 }}
                         className={cn(
-                          "flex h-8 w-8 items-center justify-center rounded-full border-2 transition-all flex-shrink-0",
+                          "relative flex h-10 w-10 items-center justify-center rounded-full flex-shrink-0 transition-all",
                           isSelected
-                            ? "border-emerald-400 bg-emerald-500 text-white"
-                            : "border-white/30 bg-white/10 text-white/50 hover:border-white/50 hover:bg-white/20"
+                            ? "bg-gradient-to-br from-cyan-400 via-cyan-500 to-teal-600 shadow-[0_0_25px_rgba(6,182,212,0.6),inset_0_2px_4px_rgba(255,255,255,0.4),inset_0_-2px_4px_rgba(0,0,0,0.2)]"
+                            : "bg-gradient-to-br from-white/20 via-white/10 to-white/5 shadow-[inset_0_2px_4px_rgba(255,255,255,0.2),inset_0_-2px_4px_rgba(0,0,0,0.1)] hover:from-white/30 hover:via-white/20 hover:to-white/10"
                         )}
+                        style={{
+                          border: isSelected ? "3px solid rgba(103,232,249,0.6)" : "2px solid rgba(255,255,255,0.3)",
+                        }}
                       >
-                        {isSelected && <Check className="h-5 w-5" />}
-                      </button>
+                        {/* Outer glow ring */}
+                        {isSelected && (
+                          <motion.div 
+                            className="absolute inset-[-4px] rounded-full border-2 border-cyan-400/50"
+                            initial={{ opacity: 0, scale: 0.8 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            style={{ boxShadow: "0 0 15px rgba(6,182,212,0.4)" }}
+                          />
+                        )}
+                        {/* Inner highlight */}
+                        <div className="absolute inset-1 rounded-full bg-gradient-to-b from-white/30 to-transparent pointer-events-none" style={{ height: "40%" }} />
+                        {isSelected && <Check className="h-5 w-5 text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]" />}
+                      </motion.button>
 
                       {/* Product name and price */}
                       <div className="flex-1 flex items-center justify-between gap-3">
