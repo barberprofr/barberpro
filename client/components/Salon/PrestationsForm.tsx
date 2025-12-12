@@ -1064,7 +1064,7 @@ export default function PrestationsForm() {
                       className="flex h-16 w-16 items-center justify-center rounded-full shadow-lg"
                       style={{ 
                         background: "conic-gradient(from 160deg, rgba(157,243,255,0.6), rgba(82,199,255,0.6), rgba(43,127,255,0.6), rgba(157,243,255,0.6))",
-                        boxShadow: "0 8px 20px rgba(82,199,255,0.4)"
+                        boxShadow: "0 0 25px rgba(82,199,255,0.7), 0 0 50px rgba(82,199,255,0.4), 0 8px 20px rgba(82,199,255,0.5)"
                       }}
                     >
                       <div 
