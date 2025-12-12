@@ -2,6 +2,9 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useStylistBreakdown, useUpdateTransactionPaymentMethod } from "@/lib/api";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { motion, AnimatePresence } from "framer-motion";
+import { ChevronDown, List } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const eur = new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" });
@@ -175,6 +178,7 @@ function TransactionRow({ entry: e, fmt, onUpdate }: { entry: any, fmt: (ts: num
 export function StylistDailySection({ id, commissionPct, stylistName }: { id: string; commissionPct: number; stylistName?: string }) {
     const today = parisDateString();
     const [date, setDate] = useState<string>(today);
+    const [encaissementsOpen, setEncaissementsOpen] = useState(false);
 
     const formatDateDisplay = (dateStr: string) => {
         const [year, month, day] = dateStr.split("-");
@@ -182,7 +186,7 @@ export function StylistDailySection({ id, commissionPct, stylistName }: { id: st
     };
 
     return (
-        <div className="space-y-2">
+        <div className="space-y-3">
             <div className="flex items-center gap-3 text-sm">
                 <span className="text-white/80 font-medium">Date</span>
                 <input
@@ -200,11 +204,74 @@ export function StylistDailySection({ id, commissionPct, stylistName }: { id: st
                             : "bg-slate-800/60 border-slate-600 text-white/70 hover:bg-slate-700/60 hover:text-white"
                     )}
                 >
-                    Aujourd'hui{stylistName ? ` — ${stylistName}` : ""}
+                    Aujourd'hui
                 </button>
             </div>
             <StylistDaily id={id} date={date} commissionPct={commissionPct} />
-            <StylistEncaissements id={id} date={date} />
+            
+            {/* Bouton pour ouvrir le popup des encaissements */}
+            <motion.button
+                onClick={() => setEncaissementsOpen(true)}
+                whileHover={{ scale: 1.02, y: -2 }}
+                whileTap={{ scale: 1.05, boxShadow: "0 0 30px rgba(139,92,246,0.6)" }}
+                className="w-full flex items-center justify-between rounded-2xl border border-violet-500/40 bg-gradient-to-br from-violet-900/40 via-slate-900/60 to-slate-900/80 backdrop-blur-xl px-4 py-3 shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] transition-all hover:border-violet-400/60"
+            >
+                <div className="flex items-center gap-3">
+                    <span className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-violet-400/40 bg-violet-500/20">
+                        <List className="h-5 w-5 text-violet-300" />
+                    </span>
+                    <div className="text-left">
+                        <div className="text-sm font-semibold uppercase tracking-wide text-white/90">Encaissements du jour</div>
+                        <div className="text-xs text-white/50">Cliquez pour voir le détail</div>
+                    </div>
+                </div>
+                <ChevronDown className="h-5 w-5 text-violet-300" />
+            </motion.button>
+
+            {/* Popup des encaissements */}
+            <AnimatePresence>
+                {encaissementsOpen && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+                        onClick={() => setEncaissementsOpen(false)}
+                    >
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                            onClick={(e) => e.stopPropagation()}
+                            className="relative w-[95%] max-w-md max-h-[80vh] overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900/98 via-violet-900/40 to-slate-800/98 border border-violet-500/30 shadow-[0_25px_80px_rgba(0,0,0,0.6),0_0_40px_rgba(139,92,246,0.2)] backdrop-blur-xl"
+                        >
+                            <div className="sticky top-0 z-10 flex items-center justify-between px-6 py-4 border-b border-white/10 bg-slate-900/80 backdrop-blur-sm">
+                                <div className="flex items-center gap-3">
+                                    <span className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-violet-400/40 bg-violet-500/20">
+                                        <List className="h-5 w-5 text-violet-300" />
+                                    </span>
+                                    <div>
+                                        <h3 className="text-lg font-bold text-white">Encaissements</h3>
+                                        <p className="text-xs text-white/50">{formatDateDisplay(date)}</p>
+                                    </div>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => setEncaissementsOpen(false)}
+                                    className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-slate-400 transition hover:bg-white/10 hover:text-white"
+                                >
+                                    <ChevronDown className="h-6 w-6" />
+                                </button>
+                            </div>
+                            <div className="p-4 overflow-y-auto max-h-[calc(80vh-80px)]">
+                                <StylistEncaissements id={id} date={date} />
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 }
