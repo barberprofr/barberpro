@@ -1314,9 +1314,9 @@ export default function PrestationsForm() {
                       </button>
                       <span className="text-xl font-bold text-white">Moyen de paiement</span>
                     </div>
-                    <div className="space-y-4">
-                      <div className="grid gap-4 sm:grid-cols-1">
-                        {PAYMENT_OPTIONS.map((option) => {
+                    <div className="flex items-start gap-4">
+                      <div className="flex-1 space-y-4">
+                        {PAYMENT_OPTIONS.filter(option => option.value !== "mixed").map((option) => {
                           const Icon = option.icon;
                           const isSelected = payment === option.value;
                           return (
@@ -1374,6 +1374,31 @@ export default function PrestationsForm() {
                           );
                         })}
                       </div>
+                      <motion.button
+                        type="button"
+                        onClick={() => handlePaymentSelect("mixed")}
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.95 }}
+                        className="flex flex-col items-center justify-center gap-2 mt-8"
+                      >
+                        <div 
+                          className="flex h-16 w-16 items-center justify-center rounded-full shadow-lg"
+                          style={{ 
+                            background: PAYMENT_OPTIONS.find(o => o.value === "mixed")?.colors.outer,
+                            boxShadow: PAYMENT_OPTIONS.find(o => o.value === "mixed")?.colors.glow
+                          }}
+                        >
+                          <div 
+                            className="flex h-10 w-10 items-center justify-center rounded-full"
+                            style={{ 
+                              background: PAYMENT_OPTIONS.find(o => o.value === "mixed")?.colors.inner
+                            }}
+                          >
+                            <ArrowLeftRight className="h-6 w-6 text-slate-900/80" />
+                          </div>
+                        </div>
+                        <span className="text-sm font-bold text-purple-400">Mixte</span>
+                      </motion.button>
                     </div>
                   </div>
                 </div>
