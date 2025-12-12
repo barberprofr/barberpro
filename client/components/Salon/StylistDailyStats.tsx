@@ -173,10 +173,36 @@ function TransactionRow({ entry: e, fmt, onUpdate }: { entry: any, fmt: (ts: num
 }
 
 export function StylistDailySection({ id, commissionPct }: { id: string; commissionPct: number }) {
-    // Force date to today, no state setter needed for user interaction
-    const date = parisDateString();
+    const today = parisDateString();
+    const [date, setDate] = useState<string>(today);
+
+    const formatDateDisplay = (dateStr: string) => {
+        const [year, month, day] = dateStr.split("-");
+        return `${day}/${month}/${year}`;
+    };
+
     return (
         <div className="space-y-2">
+            <div className="flex items-center gap-3 text-sm">
+                <span className="text-white/80 font-medium">Date</span>
+                <input
+                    type="date"
+                    value={date}
+                    onChange={(e) => setDate(e.target.value)}
+                    className="border rounded-lg px-3 py-1.5 bg-slate-900/80 border-slate-600 text-white outline-none focus:border-cyan-400 transition-colors"
+                />
+                <button
+                    onClick={() => setDate(today)}
+                    className={cn(
+                        "px-3 py-1.5 rounded-lg border font-medium transition-all",
+                        date === today
+                            ? "bg-cyan-500/20 border-cyan-400/50 text-cyan-300"
+                            : "bg-slate-800/60 border-slate-600 text-white/70 hover:bg-slate-700/60 hover:text-white"
+                    )}
+                >
+                    Aujourd'hui
+                </button>
+            </div>
             <StylistDaily id={id} date={date} commissionPct={commissionPct} />
             <StylistEncaissements id={id} date={date} />
         </div>
