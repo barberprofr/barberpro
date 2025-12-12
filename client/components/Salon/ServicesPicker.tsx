@@ -132,6 +132,9 @@ export default function ServicesPicker({ onServiceSelect, onReset, externalOpen,
                     key={service.id}
                     layout
                     onClick={() => !isSelected && toggleService(service.id, service.name, service.price)}
+                    whileHover={!isSelected ? { scale: 1.03, y: -2, boxShadow: "0 15px 40px rgba(15,23,42,0.25)" } : {}}
+                    whileTap={!isSelected ? { scale: 1.08, y: -6, boxShadow: "0 20px 50px rgba(52,211,153,0.3)" } : {}}
+                    transition={{ type: "spring", stiffness: 400, damping: 20 }}
                     className={cn(
                       "group relative w-full overflow-hidden rounded-2xl border p-3 shadow-[0_10px_30px_rgba(15,23,42,0.15)] backdrop-blur-[2px] transition",
                       isSelected
