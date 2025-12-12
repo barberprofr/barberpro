@@ -453,7 +453,7 @@ function StylistsList({ stylists, config, hasStylists }: { stylists: any[], conf
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: 20 }}
-      className="space-y-1"
+      className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3"
     >
       {stylists.map((s) => (
         <StylistCard key={s.id} s={s} config={config} onClick={() => setSelectedId(s.id)} />
@@ -470,41 +470,29 @@ function StylistCard({ s, config, onClick }: { s: any, config: any, onClick: () 
     <motion.button
       layout
       onClick={onClick}
-      whileHover={{ scale: 1.02 }}
+      whileHover={{ scale: 1.03 }}
       whileTap={{ 
         scale: 1.08,
-        boxShadow: "0 0 25px rgba(34,211,238,0.8), 0 0 50px rgba(34,211,238,0.5), inset 0 0 15px rgba(34,211,238,0.3)",
-        borderColor: "rgba(34,211,238,0.9)"
+        boxShadow: "0 0 25px rgba(251,191,36,0.8), 0 0 50px rgba(251,191,36,0.5), inset 0 0 15px rgba(251,191,36,0.3)",
+        borderColor: "rgba(251,191,36,0.9)"
       }}
       transition={{ type: "spring", stiffness: 400, damping: 15 }}
-      className="w-full rounded-xl border-2 border-white/25 bg-slate-900/60 px-3 py-2 shadow-[0_18px_45px_rgba(15,23,42,0.15)] backdrop-blur-sm transition-colors hover:border-cyan-400/50 hover:bg-slate-900/70 hover:shadow-[0_0_20px_rgba(34,211,238,0.3)] text-left active:border-cyan-400 active:shadow-[0_0_30px_rgba(34,211,238,0.8),0_0_60px_rgba(34,211,238,0.4)]"
+      className="flex flex-col items-center justify-center rounded-2xl border-2 border-amber-500/50 bg-black/50 backdrop-blur-xl p-4 shadow-[0_8px_32px_rgba(0,0,0,0.5)] aspect-square transition-colors hover:border-amber-400/70 hover:bg-black/60 hover:shadow-[0_0_20px_rgba(251,191,36,0.3)] active:border-amber-400 active:shadow-[0_0_30px_rgba(251,191,36,0.8)]"
     >
-      <div className="grid grid-cols-[1fr_auto_1fr] w-full items-center gap-2">
-        <div className="flex flex-col gap-0.5">
-          <span className="text-sm font-semibold text-white">
-            {s.stats?.dailyCount ?? 0} prestation{(s.stats?.dailyCount ?? 0) > 1 ? "s" : ""}{(s.stats as any)?.dailyProductCount ? `, ${(s.stats as any).dailyProductCount} produit${(s.stats as any).dailyProductCount > 1 ? "s" : ""}` : ""}
-          </span>
-          <span className="text-[10px] font-medium text-emerald-100/80 mt-1">
-            Salaire {salary}
-          </span>
-        </div>
-        <div className="flex items-center justify-center w-[140px]">
-          <span className="inline-flex items-center justify-center gap-2 rounded-full border border-white/35 bg-white/15 px-4 py-1.5 text-lg font-black text-white w-full">
-            <span className="h-2 w-2 rounded-full bg-emerald-400 flex-shrink-0" />
-            <span className="text-center truncate">{s.name}</span>
-          </span>
-        </div>
-        <div className="flex flex-col items-end justify-center">
-          <div className="text-2xl font-extrabold text-primary transition-all duration-300 [-webkit-text-stroke:0.3px_black]">
-            {eur.format(s.stats?.dailyAmount ?? 0)}
-          </div>
-          {dailyPointsUsed > 0 && (
-            <div className="text-[10px] uppercase tracking-wide text-muted-foreground">
-              Points utilisés {pointsFmt.format(dailyPointsUsed)} pts
-            </div>
-          )}
-        </div>
+      <svg className="h-10 w-10 text-amber-400/80 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+      </svg>
+      <div className="text-base font-bold text-white mb-1 text-center truncate w-full">{s.name}</div>
+      <div className="text-xs text-white/60 text-center">
+        {s.stats?.dailyCount ?? 0} prest.{(s.stats as any)?.dailyProductCount ? `, ${(s.stats as any).dailyProductCount} prod.` : ""}
       </div>
+      <div className="text-[10px] text-amber-300/80 mt-1">Salaire {salary}</div>
+      <div className="text-lg font-black text-amber-300 mt-2">{eur.format(s.stats?.dailyAmount ?? 0)}</div>
+      {dailyPointsUsed > 0 && (
+        <div className="text-[9px] uppercase tracking-wide text-white/50 mt-1">
+          {pointsFmt.format(dailyPointsUsed)} pts utilisés
+        </div>
+      )}
     </motion.button>
   );
 }
