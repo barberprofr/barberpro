@@ -295,7 +295,7 @@ export default function ServicesPicker({ onServiceSelect, onReset, externalOpen,
                   <motion.button
                     type="button"
                     onClick={handleValidate}
-                    whileHover={{ scale: 1.04, y: -4, boxShadow: "0 0 35px rgba(20,184,166,0.6), 0 20px 40px rgba(16,185,129,0.4)" }}
+                    whileHover={{ scale: 1.04, y: -4, boxShadow: "0 0 25px rgba(167,139,250,0.7), 0 0 50px rgba(139,92,246,0.5), -15px 0 30px rgba(167,139,250,0.6), 15px 0 30px rgba(167,139,250,0.6)" }}
                     whileTap={{ 
                       scale: 1.15, 
                       y: -10,
