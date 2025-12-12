@@ -1434,9 +1434,21 @@ export default function PrestationsForm() {
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 1.05, y: -2 }}
                         className="flex items-center gap-3 rounded-xl bg-green-500/10 p-3 border border-green-400/50 shadow-[0_0_15px_rgba(34,197,94,0.4)] transition-all cursor-pointer">
-                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-green-400/60 to-emerald-600/60">
-                          <CircleDollarSign className="h-6 w-6 text-white" />
-                        </div>
+                        <span
+                          className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-full"
+                          style={{ background: "conic-gradient(from 160deg, rgba(202,255,88,0.6), rgba(116,255,156,0.6), rgba(22,199,114,0.6), rgba(202,255,88,0.6))", boxShadow: "0 0 15px rgba(116,255,156,0.4)" }}
+                        >
+                          <span
+                            className="absolute inset-[2px] rounded-full"
+                            style={{ background: "radial-gradient(circle, rgba(15,23,42,0.85) 0%, rgba(30,41,59,0.7) 60%, rgba(15,23,42,0.5) 100%)" }}
+                          />
+                          <span
+                            className="relative flex h-7 w-7 items-center justify-center rounded-lg"
+                            style={{ background: "linear-gradient(140deg, rgba(217,255,150,0.7) 0%, rgba(125,255,175,0.7) 60%, rgba(31,170,124,0.7) 100%)" }}
+                          >
+                            <CircleDollarSign className="h-4 w-4 text-slate-900/80" />
+                          </span>
+                        </span>
                         <Input
                           type="number"
                           step="0.01"
@@ -1452,9 +1464,21 @@ export default function PrestationsForm() {
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 1.05, y: -2 }}
                         className="flex items-center gap-3 rounded-xl bg-cyan-500/10 p-3 border border-cyan-400/50 shadow-[0_0_15px_rgba(34,211,238,0.4)] transition-all cursor-pointer">
-                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-cyan-400/60 to-blue-600/60">
-                          <CreditCard className="h-6 w-6 text-white" />
-                        </div>
+                        <span
+                          className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-full"
+                          style={{ background: "conic-gradient(from 160deg, rgba(157,243,255,0.6), rgba(82,199,255,0.6), rgba(43,127,255,0.6), rgba(157,243,255,0.6))", boxShadow: "0 0 15px rgba(82,199,255,0.4)" }}
+                        >
+                          <span
+                            className="absolute inset-[2px] rounded-full"
+                            style={{ background: "radial-gradient(circle, rgba(15,23,42,0.85) 0%, rgba(30,41,59,0.7) 60%, rgba(15,23,42,0.5) 100%)" }}
+                          />
+                          <span
+                            className="relative flex h-7 w-7 items-center justify-center rounded-lg"
+                            style={{ background: "linear-gradient(140deg, rgba(191,246,255,0.7) 0%, rgba(99,218,255,0.7) 60%, rgba(49,142,255,0.7) 100%)" }}
+                          >
+                            <CreditCard className="h-4 w-4 text-slate-900/80" />
+                          </span>
+                        </span>
                         <Input
                           type="number"
                           step="0.01"
