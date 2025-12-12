@@ -1425,7 +1425,7 @@ export default function PrestationsForm() {
                     
                     <div className="space-y-3">
                       <div className="flex items-center gap-3 rounded-xl border border-green-500/30 bg-green-500/10 p-3">
-                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-green-400/40 to-emerald-600/40">
+                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-green-400/60 to-emerald-600/60">
                           <CircleDollarSign className="h-6 w-6 text-white" />
                         </div>
                         <Input
@@ -1440,7 +1440,7 @@ export default function PrestationsForm() {
                       </div>
                       
                       <div className="flex items-center gap-3 rounded-xl border border-cyan-500/30 bg-cyan-500/10 p-3">
-                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-cyan-400/40 to-blue-600/40">
+                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-cyan-400/60 to-blue-600/60">
                           <CreditCard className="h-6 w-6 text-white" />
                         </div>
                         <Input
