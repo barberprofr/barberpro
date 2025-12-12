@@ -246,6 +246,9 @@ export default function PrestationsForm() {
     setPaymentPickerOpen(false);
     setServicesPickerOpen(false);
     setProductsPickerOpen(false);
+    setMixedPaymentPopupOpen(false);
+    setMixedCashAmount("");
+    setMixedCardAmount("");
     setAmount("");
     setClientId("");
     setNewClientFirstName("");
@@ -373,16 +376,24 @@ export default function PrestationsForm() {
   const handleMixedPaymentConfirm = useCallback(() => {
     const cashVal = parseFloat(mixedCashAmount) || 0;
     const cardVal = parseFloat(mixedCardAmount) || 0;
-    const total = cashVal + cardVal;
-    const expectedTotal = parseFloat(amount) || 0;
+    const total = Math.round((cashVal + cardVal) * 100) / 100;
+    const expectedTotal = Math.round((parseFloat(amount) || 0) * 100) / 100;
     
-    if (total !== expectedTotal) {
+    if (Math.abs(total - expectedTotal) > 0.01) {
       return;
     }
     
     setPayment("mixed");
     setPaymentSelected(true);
     setMixedPaymentPopupOpen(false);
+  }, [mixedCashAmount, mixedCardAmount, amount]);
+
+  const isMixedTotalValid = useMemo(() => {
+    const cashVal = parseFloat(mixedCashAmount) || 0;
+    const cardVal = parseFloat(mixedCardAmount) || 0;
+    const total = Math.round((cashVal + cardVal) * 100) / 100;
+    const expectedTotal = Math.round((parseFloat(amount) || 0) * 100) / 100;
+    return Math.abs(total - expectedTotal) <= 0.01;
   }, [mixedCashAmount, mixedCardAmount, amount]);
 
   const handleClientAccordionChange = useCallback((next: string | null) => {
@@ -529,13 +540,13 @@ export default function PrestationsForm() {
       const storedProducts = (window as any).__selectedProducts as Array<{ id: string, name: string, price: number, quantity: number }> | undefined;
 
       if (storedProducts && storedProducts.length > 0) {
-        const submitProduct = async (product: { id: string, name: string, price: number, quantity: number }) => {
+        const submitProduct = async (product: { id: string, name: string, price: number, quantity: number }, paymentMethodOverride?: string) => {
           for (let i = 0; i < product.quantity; i++) {
             await addProduct.mutateAsync({
               stylistId,
               clientId: nextClientId || undefined,
               amount: product.price,
-              paymentMethod: payment as any,
+              paymentMethod: (paymentMethodOverride || payment) as any,
               timestamp: ts,
               productName: product.name || undefined,
               productTypeId: product.id || undefined
@@ -544,8 +555,35 @@ export default function PrestationsForm() {
         };
 
         try {
-          for (const product of storedProducts) {
-            await submitProduct(product);
+          if (payment === "mixed") {
+            const cashAmount = parseFloat(mixedCashAmount) || 0;
+            const cardAmount = parseFloat(mixedCardAmount) || 0;
+            if (cashAmount > 0) {
+              await addProduct.mutateAsync({
+                stylistId,
+                clientId: nextClientId || undefined,
+                amount: cashAmount,
+                paymentMethod: "cash" as any,
+                timestamp: ts,
+                productName: storedProducts.map(p => p.quantity > 1 ? `${p.name} (x${p.quantity})` : p.name).join(", ") || undefined,
+                productTypeId: storedProducts[0]?.id || undefined
+              });
+            }
+            if (cardAmount > 0) {
+              await addProduct.mutateAsync({
+                stylistId,
+                clientId: nextClientId || undefined,
+                amount: cardAmount,
+                paymentMethod: "card" as any,
+                timestamp: ts,
+                productName: storedProducts.map(p => p.quantity > 1 ? `${p.name} (x${p.quantity})` : p.name).join(", ") || undefined,
+                productTypeId: storedProducts[0]?.id || undefined
+              });
+            }
+          } else {
+            for (const product of storedProducts) {
+              await submitProduct(product);
+            }
           }
           delete (window as any).__selectedProducts;
 
@@ -558,6 +596,9 @@ export default function PrestationsForm() {
           setPaymentPickerOpen(false);
           setServicesPickerOpen(false);
           setProductsPickerOpen(false);
+          setMixedPaymentPopupOpen(false);
+          setMixedCashAmount("");
+          setMixedCardAmount("");
           setAmount("");
           setClientId("");
           setIsProduct(false);
@@ -611,6 +652,9 @@ export default function PrestationsForm() {
               setPaymentPickerOpen(false);
               setServicesPickerOpen(false);
               setProductsPickerOpen(false);
+              setMixedPaymentPopupOpen(false);
+              setMixedCashAmount("");
+              setMixedCardAmount("");
               setAmount("");
               setClientId("");
               setIsProduct(false);
@@ -645,13 +689,13 @@ export default function PrestationsForm() {
 
       if (storedPrestations && storedPrestations.length > 0) {
         // Submit multiple prestations
-        const submitPrestation = async (prestation: { id: string, name: string, price: number, quantity: number }) => {
+        const submitPrestation = async (prestation: { id: string, name: string, price: number, quantity: number }, paymentMethodOverride?: string) => {
           for (let i = 0; i < prestation.quantity; i++) {
             await addPrestation.mutateAsync({
               stylistId,
               clientId: nextClientId || undefined,
               amount: prestation.price,
-              paymentMethod: payment as any,
+              paymentMethod: (paymentMethodOverride || payment) as any,
               timestamp: ts,
               serviceName: prestation.name || undefined,
               serviceId: prestation.id || undefined
@@ -660,8 +704,35 @@ export default function PrestationsForm() {
         };
 
         try {
-          for (const prestation of storedPrestations) {
-            await submitPrestation(prestation);
+          if (payment === "mixed") {
+            const cashAmount = parseFloat(mixedCashAmount) || 0;
+            const cardAmount = parseFloat(mixedCardAmount) || 0;
+            if (cashAmount > 0) {
+              await addPrestation.mutateAsync({
+                stylistId,
+                clientId: nextClientId || undefined,
+                amount: cashAmount,
+                paymentMethod: "cash" as any,
+                timestamp: ts,
+                serviceName: storedPrestations.map(p => p.quantity > 1 ? `${p.name} (x${p.quantity})` : p.name).join(", ") || undefined,
+                serviceId: storedPrestations[0]?.id || undefined
+              });
+            }
+            if (cardAmount > 0) {
+              await addPrestation.mutateAsync({
+                stylistId,
+                clientId: nextClientId || undefined,
+                amount: cardAmount,
+                paymentMethod: "card" as any,
+                timestamp: ts,
+                serviceName: storedPrestations.map(p => p.quantity > 1 ? `${p.name} (x${p.quantity})` : p.name).join(", ") || undefined,
+                serviceId: storedPrestations[0]?.id || undefined
+              });
+            }
+          } else {
+            for (const prestation of storedPrestations) {
+              await submitPrestation(prestation);
+            }
           }
 
           delete (window as any).__selectedPrestations;
@@ -675,6 +746,9 @@ export default function PrestationsForm() {
           setPaymentPickerOpen(false);
           setServicesPickerOpen(false);
           setProductsPickerOpen(false);
+          setMixedPaymentPopupOpen(false);
+          setMixedCashAmount("");
+          setMixedCardAmount("");
           setAmount("");
           setClientId("");
           setIsProduct(false);
@@ -729,6 +803,9 @@ export default function PrestationsForm() {
               setPaymentPickerOpen(false);
               setServicesPickerOpen(false);
               setProductsPickerOpen(false);
+              setMixedPaymentPopupOpen(false);
+              setMixedCashAmount("");
+              setMixedCardAmount("");
               setAmount("");
               setClientId("");
               setIsProduct(false);
@@ -1369,22 +1446,22 @@ export default function PrestationsForm() {
                       
                       <div className={cn(
                         "text-center py-2 rounded-xl font-bold",
-                        (parseFloat(mixedCashAmount) || 0) + (parseFloat(mixedCardAmount) || 0) === (parseFloat(amount) || 0)
+                        isMixedTotalValid
                           ? "text-green-400 bg-green-500/20"
                           : "text-red-400 bg-red-500/20"
                       )}>
-                        Total saisi: {((parseFloat(mixedCashAmount) || 0) + (parseFloat(mixedCardAmount) || 0)).toFixed(2)} € / {amount} €
+                        Total saisi: {(Math.round(((parseFloat(mixedCashAmount) || 0) + (parseFloat(mixedCardAmount) || 0)) * 100) / 100).toFixed(2)} € / {amount} €
                       </div>
                       
                       <motion.button
                         type="button"
                         onClick={handleMixedPaymentConfirm}
-                        disabled={(parseFloat(mixedCashAmount) || 0) + (parseFloat(mixedCardAmount) || 0) !== (parseFloat(amount) || 0)}
+                        disabled={!isMixedTotalValid}
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                         className={cn(
                           "w-full py-4 rounded-2xl font-bold text-lg transition-all duration-200",
-                          (parseFloat(mixedCashAmount) || 0) + (parseFloat(mixedCardAmount) || 0) === (parseFloat(amount) || 0)
+                          isMixedTotalValid
                             ? "bg-gradient-to-r from-purple-500 to-violet-600 text-white shadow-[0_0_30px_rgba(168,85,247,0.5)] hover:shadow-[0_0_40px_rgba(168,85,247,0.7)]"
                             : "bg-slate-700/50 text-slate-400 cursor-not-allowed"
                         )}
