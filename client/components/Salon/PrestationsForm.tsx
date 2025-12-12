@@ -1430,7 +1430,10 @@ export default function PrestationsForm() {
                     </div>
                     
                     <div className="space-y-3">
-                      <div className="flex items-center gap-3 rounded-xl bg-green-500/10 p-3 border border-green-400/50 shadow-[0_0_15px_rgba(34,197,94,0.4)]">
+                      <motion.div 
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 1.05, y: -2 }}
+                        className="flex items-center gap-3 rounded-xl bg-green-500/10 p-3 border border-green-400/50 shadow-[0_0_15px_rgba(34,197,94,0.4)] transition-all cursor-pointer">
                         <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-green-400/60 to-emerald-600/60">
                           <CircleDollarSign className="h-6 w-6 text-white" />
                         </div>
@@ -1443,9 +1446,12 @@ export default function PrestationsForm() {
                           onChange={(e) => setMixedCashAmount(e.target.value)}
                           className="h-12 flex-1 rounded-lg border-0 bg-slate-900/50 text-xl font-bold text-white text-center placeholder:text-green-400/50 focus:ring-2 focus:ring-green-400 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                         />
-                      </div>
+                      </motion.div>
                       
-                      <div className="flex items-center gap-3 rounded-xl bg-cyan-500/10 p-3 border border-cyan-400/50 shadow-[0_0_15px_rgba(34,211,238,0.4)]">
+                      <motion.div 
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 1.05, y: -2 }}
+                        className="flex items-center gap-3 rounded-xl bg-cyan-500/10 p-3 border border-cyan-400/50 shadow-[0_0_15px_rgba(34,211,238,0.4)] transition-all cursor-pointer">
                         <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-cyan-400/60 to-blue-600/60">
                           <CreditCard className="h-6 w-6 text-white" />
                         </div>
@@ -1458,7 +1464,7 @@ export default function PrestationsForm() {
                           onChange={(e) => setMixedCardAmount(e.target.value)}
                           className="h-12 flex-1 rounded-lg border-0 bg-slate-900/50 text-xl font-bold text-white text-center placeholder:text-cyan-400/50 focus:ring-2 focus:ring-cyan-400 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                         />
-                      </div>
+                      </motion.div>
                       
                       <div className={cn(
                         "text-center py-2 rounded-lg text-base font-bold",
