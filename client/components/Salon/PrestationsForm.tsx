@@ -916,60 +916,98 @@ export default function PrestationsForm() {
             >
               <div className="flex flex-col items-center justify-center">
                 <div className="relative mb-6">
-                  <div className={cn(
-                    "flex h-24 w-24 items-center justify-center rounded-full shadow-[0_0_50px_rgba(16,185,129,0.5)]",
-                    showSuccess 
-                      ? "bg-gradient-to-br from-emerald-400 via-emerald-500 to-teal-500"
-                      : "bg-gradient-to-br from-slate-600 via-slate-500 to-slate-600"
-                  )}>
-                    {showSuccess ? (
-                      <motion.div
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        transition={{ duration: 0.25, ease: "backOut" }}
-                      >
-                        <Check className="h-12 w-12 text-white" strokeWidth={3} />
-                      </motion.div>
-                    ) : (
-                      <div className="relative h-12 w-12">
-                        {[...Array(12)].map((_, i) => (
-                          <div
-                            key={i}
-                            className="absolute left-1/2 top-0 h-3 w-1 -translate-x-1/2 rounded-full bg-violet-400"
-                            style={{
-                              transform: `translateX(-50%) rotate(${i * 30}deg)`,
-                              transformOrigin: '50% 24px',
-                              opacity: 1 - (i * 0.07),
-                              animation: `spinnerFade 1s linear infinite`,
-                              animationDelay: `${-i * (1/12)}s`
-                            }}
-                          />
-                        ))}
-                      </div>
-                    )}
-                  </div>
+                  {/* 3D Multi-ring validation icon */}
+                  <motion.div 
+                    className="relative h-28 w-28"
+                    animate={showSuccess ? {
+                      boxShadow: ["0 0 0px rgba(20,184,166,0)", "0 0 80px rgba(20,184,166,0.9)", "0 0 50px rgba(20,184,166,0.7)"]
+                    } : {}}
+                    transition={{ duration: 0.6 }}
+                    style={{ borderRadius: "50%" }}
+                  >
+                    {/* Outer ring - Turquoise/Cyan gradient */}
+                    <div className={cn(
+                      "absolute inset-0 rounded-full transition-all duration-500",
+                      showSuccess 
+                        ? "bg-gradient-to-br from-teal-400 via-cyan-500 to-emerald-500 shadow-[0_0_60px_rgba(20,184,166,0.8)]"
+                        : "bg-gradient-to-br from-slate-600/50 via-slate-500/30 to-slate-600/50"
+                    )} />
+                    
+                    {/* Middle ring - White/Silver semi-transparent */}
+                    <div className={cn(
+                      "absolute inset-[5px] rounded-full transition-all duration-500",
+                      showSuccess
+                        ? "bg-gradient-to-br from-white/80 via-gray-200/70 to-white/60 shadow-[inset_0_3px_6px_rgba(0,0,0,0.15)]"
+                        : "bg-gradient-to-br from-white/25 via-white/15 to-white/10"
+                    )} />
+                    
+                    {/* Inner circle - Turquoise/Green gradient semi-transparent */}
+                    <div className={cn(
+                      "absolute inset-[10px] rounded-full transition-all duration-500 flex items-center justify-center",
+                      showSuccess
+                        ? "bg-gradient-to-br from-teal-400/85 via-emerald-500/80 to-cyan-600/85 shadow-[inset_0_4px_8px_rgba(255,255,255,0.5),inset_0_-4px_8px_rgba(0,0,0,0.25),0_0_40px_rgba(20,184,166,0.5)]"
+                        : "bg-gradient-to-br from-slate-700/40 via-slate-600/30 to-slate-700/40 shadow-[inset_0_2px_4px_rgba(255,255,255,0.1)]"
+                    )}>
+                      {/* Glass reflection */}
+                      <div className="absolute inset-x-2 top-2 h-[40%] rounded-t-full bg-gradient-to-b from-white/60 to-transparent pointer-events-none" />
+                      
+                      {showSuccess ? (
+                        <motion.div
+                          initial={{ scale: 0, rotate: -180 }}
+                          animate={{ scale: 1, rotate: 0 }}
+                          transition={{ duration: 0.4, ease: "backOut" }}
+                          className="relative z-10"
+                        >
+                          <Check className="h-14 w-14 text-white drop-shadow-[0_3px_6px_rgba(0,0,0,0.4)]" strokeWidth={3} />
+                        </motion.div>
+                      ) : (
+                        <div className="relative h-12 w-12">
+                          {[...Array(12)].map((_, i) => (
+                            <div
+                              key={i}
+                              className="absolute left-1/2 top-0 h-3 w-1 -translate-x-1/2 rounded-full bg-violet-400"
+                              style={{
+                                transform: `translateX(-50%) rotate(${i * 30}deg)`,
+                                transformOrigin: '50% 24px',
+                                opacity: 1 - (i * 0.07),
+                                animation: `spinnerFade 1s linear infinite`,
+                                animationDelay: `${-i * (1/12)}s`
+                              }}
+                            />
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </motion.div>
+                  
                   {showSuccess && (
                     <>
+                      {/* Pulsing glow rings */}
                       <motion.div
-                        className="absolute inset-0 rounded-full border-4 border-emerald-400/30"
-                        animate={{ scale: [1, 1.4], opacity: [0.5, 0] }}
-                        transition={{ duration: 1, repeat: Infinity, ease: "easeOut" }}
+                        className="absolute inset-0 rounded-full border-4 border-teal-400/40"
+                        animate={{ scale: [1, 1.5], opacity: [0.6, 0] }}
+                        transition={{ duration: 1.2, repeat: Infinity, ease: "easeOut" }}
                       />
                       <motion.div
-                        className="absolute -top-2 -right-2"
+                        className="absolute inset-0 rounded-full border-2 border-cyan-300/30"
+                        animate={{ scale: [1, 1.8], opacity: [0.4, 0] }}
+                        transition={{ duration: 1.5, repeat: Infinity, ease: "easeOut", delay: 0.2 }}
+                      />
+                      <motion.div
+                        className="absolute -top-3 -right-3"
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
-                        transition={{ delay: 0.1, duration: 0.2, ease: "backOut" }}
+                        transition={{ delay: 0.1, duration: 0.3, ease: "backOut" }}
                       >
-                        <Sparkles className="h-8 w-8 text-yellow-400" />
+                        <Sparkles className="h-9 w-9 text-yellow-400 drop-shadow-[0_0_10px_rgba(250,204,21,0.8)]" />
                       </motion.div>
                       <motion.div
-                        className="absolute -bottom-1 -left-3"
+                        className="absolute -bottom-2 -left-4"
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
-                        transition={{ delay: 0.15, duration: 0.2, ease: "backOut" }}
+                        transition={{ delay: 0.15, duration: 0.3, ease: "backOut" }}
                       >
-                        <Sparkles className="h-6 w-6 text-cyan-400" />
+                        <Sparkles className="h-7 w-7 text-cyan-400 drop-shadow-[0_0_10px_rgba(34,211,238,0.8)]" />
                       </motion.div>
                     </>
                   )}
