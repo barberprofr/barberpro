@@ -3,16 +3,30 @@ export type SalonId = string;
 const KEY = "selectedSalonId";
 const DEFAULT_SALON: SalonId = "main";
 
+let cachedSalonId: SalonId | null = null;
+let salonChangeListeners: (() => void)[] = [];
+
 export function getSelectedSalon(): SalonId {
   if (typeof window === "undefined") return DEFAULT_SALON;
+  if (cachedSalonId) return cachedSalonId;
   const v = window.localStorage.getItem(KEY);
-  return (v && /^[a-z0-9-]{1,40}$/i.test(v)) ? v : DEFAULT_SALON;
+  cachedSalonId = (v && /^[a-z0-9-]{1,40}$/i.test(v)) ? v : DEFAULT_SALON;
+  return cachedSalonId;
 }
 
 export function setSelectedSalon(id: SalonId) {
   if (typeof window === "undefined") return;
   const norm = normalizeSalonId(id);
   window.localStorage.setItem(KEY, norm);
+  cachedSalonId = norm;
+  salonChangeListeners.forEach(fn => fn());
+}
+
+export function onSalonChange(listener: () => void): () => void {
+  salonChangeListeners.push(listener);
+  return () => {
+    salonChangeListeners = salonChangeListeners.filter(fn => fn !== listener);
+  };
 }
 
 export function normalizeSalonId(nameOrId: string): SalonId {

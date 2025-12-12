@@ -173,8 +173,9 @@ export interface PointsUsageReport {
 }
 
 export function useStylists() {
+  const salonId = getSelectedSalon();
   return useQuery({
-    queryKey: ["stylists"], queryFn: async () => {
+    queryKey: ["stylists", salonId], queryFn: async () => {
       const res = await apiFetch("/api/stylists");
       if (!res.ok) throw new Error("Failed to load stylists");
       const data = await res.json() as { stylists: Stylist[] };
@@ -184,8 +185,9 @@ export function useStylists() {
 }
 
 export function useClients(enabled: boolean = true) {
+  const salonId = getSelectedSalon();
   return useQuery({
-    queryKey: ["clients"], enabled, queryFn: async () => {
+    queryKey: ["clients", salonId], enabled, queryFn: async () => {
       const res = await apiFetch("/api/clients");
       if (!res.ok) throw new Error("Failed to load clients");
       const data = await res.json() as { clients: Client[] };
@@ -203,8 +205,9 @@ export interface DashboardSummary {
 }
 
 export function useDashboardSummary() {
+  const salonId = getSelectedSalon();
   return useQuery({
-    queryKey: ["summary"], queryFn: async (): Promise<DashboardSummary> => {
+    queryKey: ["summary", salonId], queryFn: async (): Promise<DashboardSummary> => {
       const res = await apiFetch("/api/reports/summary");
       if (!res.ok) throw new Error("Failed to load summary");
       return res.json();
@@ -246,8 +249,9 @@ export function useAddProduct() {
 }
 
 export function useProducts() {
+  const salonId = getSelectedSalon();
   return useQuery({
-    queryKey: ["products"],
+    queryKey: ["products", salonId],
     queryFn: async () => {
       const res = await apiFetch("/api/products");
       if (!res.ok) await throwResponseError(res);
@@ -331,8 +335,9 @@ export function useRedeemPoints() {
 }
 
 export function usePointsUsageReport(day?: string, month?: string) {
+  const salonId = getSelectedSalon();
   return useQuery({
-    queryKey: ["points-usage-report", day || "current-day", month || "current-month"],
+    queryKey: ["points-usage-report", salonId, day || "current-day", month || "current-month"],
     queryFn: async (): Promise<PointsUsageReport> => {
       const params = new URLSearchParams();
       if (day) params.set("day", day);
@@ -355,8 +360,9 @@ export interface StylistBreakdown {
 }
 
 export function useStylistBreakdown(stylistId?: string, date?: string) {
+  const salonId = getSelectedSalon();
   return useQuery({
-    queryKey: ["stylist-breakdown", stylistId, date || "today"],
+    queryKey: ["stylist-breakdown", salonId, stylistId, date || "today"],
     enabled: !!stylistId,
     queryFn: async () => {
       const qs = date ? `?date=${encodeURIComponent(date)}` : "";
@@ -368,8 +374,9 @@ export function useStylistBreakdown(stylistId?: string, date?: string) {
 }
 
 export function useRevenueByDay(year?: number, month?: number) {
+  const salonId = getSelectedSalon();
   return useQuery({
-    queryKey: ["revenue-by-day", year ?? "current", month ?? "current"],
+    queryKey: ["revenue-by-day", salonId, year ?? "current", month ?? "current"],
     queryFn: async () => {
       const url = typeof year === "number" && typeof month === "number"
         ? `/api/reports/by-day?year=${year}&month=${month}`
@@ -382,8 +389,9 @@ export function useRevenueByDay(year?: number, month?: number) {
 }
 
 export function useRevenueByMonth(year?: number) {
+  const salonId = getSelectedSalon();
   return useQuery({
-    queryKey: ["revenue-by-month", year ?? "current"],
+    queryKey: ["revenue-by-month", salonId, year ?? "current"],
     queryFn: async () => {
       const url = typeof year === "number" ? `/api/reports/by-month?year=${year}` : "/api/reports/by-month";
       const res = await apiFetch(url);
@@ -399,8 +407,9 @@ export function useRevenueByMonth(year?: number) {
 }
 
 export function useConfig() {
+  const salonId = getSelectedSalon();
   return useQuery({
-    queryKey: ["config"],
+    queryKey: ["config", salonId],
     queryFn: async () => {
       const res = await apiFetch("/api/config", { headers: { "x-admin-token": getAdminToken() || "" } });
       if (!res.ok) throw new Error("Failed to load config");
@@ -602,8 +611,9 @@ export function useDeleteStylist() {
 }
 
 export function useServices() {
+  const salonId = getSelectedSalon();
   return useQuery({
-    queryKey: ["services"], queryFn: async () => {
+    queryKey: ["services", salonId], queryFn: async () => {
       const res = await apiFetch("/api/services");
       if (!res.ok) throw new Error("Failed to load services");
       const data = await res.json() as { services: Service[] };
@@ -642,8 +652,9 @@ export function useDeleteService() {
 }
 
 export function useProductTypes() {
+  const salonId = getSelectedSalon();
   return useQuery({
-    queryKey: ["product-types"], queryFn: async () => {
+    queryKey: ["product-types", salonId], queryFn: async () => {
       const res = await apiFetch("/api/product-types");
       if (!res.ok) throw new Error("Failed to load product types");
       const data = await res.json() as { productTypes: ProductType[] };
