@@ -1063,14 +1063,14 @@ export default function PrestationsForm() {
                     <div 
                       className="flex h-16 w-16 items-center justify-center rounded-full shadow-lg"
                       style={{ 
-                        background: "conic-gradient(from 160deg, #9DF3FF, #52C7FF, #2B7FFF, #9DF3FF)",
-                        boxShadow: "0 8px 20px rgba(82,199,255,0.5)"
+                        background: "conic-gradient(from 160deg, rgba(157,243,255,0.6), rgba(82,199,255,0.6), rgba(43,127,255,0.6), rgba(157,243,255,0.6))",
+                        boxShadow: "0 8px 20px rgba(82,199,255,0.4)"
                       }}
                     >
                       <div 
                         className="flex h-10 w-10 items-center justify-center rounded-full"
                         style={{ 
-                          background: "linear-gradient(140deg, #BFF6FF 0%, #63DAFF 60%, #318EFF 100%)"
+                          background: "linear-gradient(140deg, rgba(191,246,255,0.7) 0%, rgba(99,218,255,0.7) 60%, rgba(49,142,255,0.7) 100%)"
                         }}
                       >
                         <svg className="h-6 w-6 text-slate-900/80" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
