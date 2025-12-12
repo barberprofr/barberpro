@@ -34,18 +34,14 @@ function StylistDaily({ id, date, commissionPct }: { id: string; date?: string; 
                 </div>
                 <div className="text-xs text-white">{prestationTotal?.count || 0} prestation{(prestationTotal?.count ?? 0) > 1 ? "s" : ""}{dailyProductCount ? `, ${dailyProductCount} produit${dailyProductCount > 1 ? "s" : ""}` : ""}</div>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                <div className="flex flex-col items-center justify-center rounded-xl border border-indigo-500/30 bg-gradient-to-br from-indigo-900/40 via-slate-900/60 to-slate-900/80 backdrop-blur-xl px-3 py-3 shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)]">
-                    <div className="flex items-center gap-2 mb-1">
-                        <span className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-indigo-400/40 bg-indigo-500/20">
-                            <svg className="h-3 w-3 text-indigo-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><rect x="2" y="5" width="20" height="14" rx="2" /><path d="M2 10h20" /></svg>
-                        </span>
-                        <div className="leading-tight">
-                            <div className="text-[10px] font-semibold uppercase tracking-wide text-white/80">CARTE</div>
-                            <div className="text-[9px] text-white/50">{d?.methods.card.count || 0} prest.</div>
-                        </div>
-                    </div>
-                    <span className="text-base font-bold text-white">{eur.format(d?.methods.card.amount || 0)}</span>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-indigo-500/50 bg-black/40 backdrop-blur-xl p-4 shadow-[0_8px_32px_rgba(0,0,0,0.5)] aspect-square">
+                    <span className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-indigo-400/40 bg-indigo-500/20 mb-2">
+                        <svg className="h-5 w-5 text-indigo-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><rect x="2" y="5" width="20" height="14" rx="2" /><path d="M2 10h20" /></svg>
+                    </span>
+                    <div className="text-sm font-bold uppercase tracking-wide text-white mb-1">CARTE</div>
+                    <div className="text-xs text-white/60 mb-2">{d?.methods.card.count || 0} prest.</div>
+                    <span className="text-lg font-black text-indigo-300">{eur.format(d?.methods.card.amount || 0)}</span>
                 </div>
                 <div className="flex flex-col items-center justify-center rounded-xl border border-amber-500/30 bg-gradient-to-br from-amber-900/40 via-slate-900/60 to-slate-900/80 backdrop-blur-xl px-3 py-3 shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)]">
                     <div className="flex items-center gap-2 mb-1">
