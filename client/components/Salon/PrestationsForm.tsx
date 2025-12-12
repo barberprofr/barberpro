@@ -1384,37 +1384,25 @@ export default function PrestationsForm() {
                       <motion.button
                         type="button"
                         onClick={() => handlePaymentSelect("mixed")}
-                        whileHover={{ scale: 1.1 }}
+                        whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         className="flex flex-col items-center justify-center gap-2 mt-8"
                       >
-                        {/* Cercle externe - glow */}
-                        <div 
-                          className="relative flex h-20 w-20 items-center justify-center rounded-full"
-                          style={{ 
-                            background: "conic-gradient(from 160deg, rgba(192,132,252,0.4), rgba(168,85,247,0.5), rgba(124,58,237,0.4), rgba(192,132,252,0.4))",
-                            boxShadow: "0 0 30px rgba(168,85,247,0.6), 0 0 60px rgba(168,85,247,0.3), inset 0 0 20px rgba(255,255,255,0.1)"
-                          }}
+                        <span
+                          className="relative flex h-14 w-14 items-center justify-center rounded-full"
+                          style={{ background: PAYMENT_OPTIONS.find(o => o.value === "mixed")?.colors.outer, boxShadow: PAYMENT_OPTIONS.find(o => o.value === "mixed")?.colors.glow }}
                         >
-                          {/* Cercle intermédiaire - blanc semi-transparent */}
-                          <div 
-                            className="absolute flex h-16 w-16 items-center justify-center rounded-full"
-                            style={{ 
-                              background: "linear-gradient(180deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 100%)",
-                              boxShadow: "inset 0 2px 4px rgba(255,255,255,0.4), inset 0 -2px 4px rgba(0,0,0,0.2)"
-                            }}
+                          <span
+                            className="absolute inset-[3px] rounded-full"
+                            style={{ background: "radial-gradient(circle, rgba(15,23,42,0.92) 0%, rgba(30,41,59,0.78) 60%, rgba(15,23,42,0.55) 100%)", boxShadow: "inset 0 6px 16px rgba(255,255,255,0.08), inset 0 -12px 20px rgba(2,6,23,0.82)" }}
                           />
-                          {/* Cercle interne - violet */}
-                          <div 
-                            className="relative flex h-12 w-12 items-center justify-center rounded-full"
-                            style={{ 
-                              background: "linear-gradient(140deg, rgba(233,213,255,0.8) 0%, rgba(192,132,252,0.7) 40%, rgba(124,58,237,0.8) 100%)",
-                              boxShadow: "0 4px 15px rgba(168,85,247,0.5), inset 0 2px 3px rgba(255,255,255,0.3)"
-                            }}
+                          <span
+                            className="relative flex h-8 w-8 items-center justify-center rounded-lg overflow-hidden"
+                            style={{ background: PAYMENT_OPTIONS.find(o => o.value === "mixed")?.colors.inner, boxShadow: "inset 0 1px 0 rgba(255,255,255,0.5)" }}
                           >
-                            <ArrowLeftRight className="h-6 w-6 text-white drop-shadow-md" />
-                          </div>
-                        </div>
+                            <ArrowLeftRight className="h-5 w-5 text-slate-900/80" />
+                          </span>
+                        </span>
                         <span className="text-sm font-bold text-purple-400">Mixte</span>
                       </motion.button>
                     </div>
