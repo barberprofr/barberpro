@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Loader2, Check, ChevronDown, CircleDollarSign, CreditCard, FileText, Sparkles, ArrowLeft, Scissors, Users, UserPlus, Euro, X, ClipboardList, Package, Building2 } from "lucide-react";
+import { Loader2, Check, ChevronDown, CircleDollarSign, CreditCard, FileText, Sparkles, ArrowLeft, Scissors, Users, UserPlus, Euro, X, ClipboardList, Package, Building2, ArrowLeftRight } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Input } from "@/components/ui/input";
@@ -41,10 +41,11 @@ const playSuccessSound = () => {
   }
 };
 
-const PAYMENT_OPTIONS: { value: "cash" | "check" | "card"; label: string; icon: LucideIcon; colors: { outer: string; inner: string; glow: string } }[] = [
+const PAYMENT_OPTIONS: { value: "cash" | "check" | "card" | "mixed"; label: string; icon: LucideIcon; colors: { outer: string; inner: string; glow: string } }[] = [
   { value: "cash", label: "Espèces", icon: CircleDollarSign, colors: { outer: "conic-gradient(from 160deg, #CAFF58, #74FF9C, #16C772, #CAFF58)", inner: "linear-gradient(140deg, #D9FF96 0%, #7DFFAF 60%, #1FAA7C 100%)", glow: "0 8px 20px rgba(116,255,156,0.5)" } },
   { value: "card", label: "Carte", icon: CreditCard, colors: { outer: "conic-gradient(from 160deg, #9DF3FF, #52C7FF, #2B7FFF, #9DF3FF)", inner: "linear-gradient(140deg, #BFF6FF 0%, #63DAFF 60%, #318EFF 100%)", glow: "0 8px 20px rgba(82,199,255,0.5)" } },
   { value: "check", label: "En ligne", icon: Building2, colors: { outer: "conic-gradient(from 160deg, #FFD27A, #FF8A4C, #FF5A39, #FFD27A)", inner: "linear-gradient(140deg, #FFE0A1 0%, #FF9C5C 60%, #F1472A 100%)", glow: "0 8px 20px rgba(255,138,76,0.5)" } },
+  { value: "mixed", label: "Mixte", icon: ArrowLeftRight, colors: { outer: "conic-gradient(from 160deg, #C084FC, #A855F7, #7C3AED, #C084FC)", inner: "linear-gradient(140deg, #E9D5FF 0%, #C084FC 60%, #7C3AED 100%)", glow: "0 8px 20px rgba(168,85,247,0.5)" } },
 ];
 
 export default function PrestationsForm() {
@@ -102,6 +103,9 @@ export default function PrestationsForm() {
   const [clientAccordion, setClientAccordion] = useState<string>("");
   const [servicesPickerOpen, setServicesPickerOpen] = useState(false);
   const [productsPickerOpen, setProductsPickerOpen] = useState(false);
+  const [mixedPaymentPopupOpen, setMixedPaymentPopupOpen] = useState(false);
+  const [mixedCashAmount, setMixedCashAmount] = useState<string>("");
+  const [mixedCardAmount, setMixedCardAmount] = useState<string>("");
   const successTimeoutRef = useRef<number | null>(null);
   const amountHintTimeoutRef = useRef<number | null>(null);
   const amountInputRef = useRef<HTMLInputElement | null>(null);
