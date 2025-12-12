@@ -1049,35 +1049,38 @@ export default function PrestationsForm() {
                     </span>
                   </motion.button>
 
-                  {/* Carte Produits - Plus petite */}
+                  {/* Carte Produits - Style 3D comme Mixte */}
                   <motion.button
                     type="button"
                     onClick={() => {
                       setShowTypePickerPopup(false);
                       setTimeout(() => setProductsPickerOpen(true), 100);
                     }}
-                    whileHover={{ scale: 1.05, y: -4 }}
-                    whileTap={{ scale: 0.97 }}
-                    className="group relative flex flex-col items-center justify-center w-32 h-32 rounded-2xl border border-white/10 bg-gradient-to-br from-slate-800/35 via-slate-900/35 to-slate-800/35 backdrop-blur-sm shadow-[0_8px_32px_rgba(0,0,0,0.4)] transition-all duration-300 hover:border-cyan-400/40 hover:shadow-[0_12px_40px_rgba(34,211,238,0.25)]"
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="flex flex-col items-center justify-center gap-2"
                   >
-                    {/* Halo lumineux derrière l'icône */}
-                    <div className="relative flex items-center justify-center mb-2">
-                      {/* Cercle externe avec gradient */}
-                      <div className="absolute w-16 h-16 rounded-full bg-gradient-to-br from-cyan-500/30 via-teal-500/20 to-emerald-600/30 blur-md group-hover:from-cyan-400/40 group-hover:via-teal-400/30 group-hover:to-emerald-500/40 transition-all duration-300" />
-                      {/* Cercle intermédiaire */}
-                      <div className="absolute w-12 h-12 rounded-full border-2 border-cyan-400/50 group-hover:border-cyan-300/70 transition-all duration-300 shadow-[0_0_20px_rgba(34,211,238,0.4),inset_0_0_15px_rgba(34,211,238,0.2)]" />
-                      {/* Fond icône avec gradient */}
-                      <div className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-400 via-teal-500 to-emerald-500 shadow-[0_4px_20px_rgba(34,211,238,0.5)] group-hover:shadow-[0_6px_25px_rgba(34,211,238,0.7)] transition-all duration-300">
-                        <svg className="h-7 w-7 text-white drop-shadow-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                    <div 
+                      className="flex h-16 w-16 items-center justify-center rounded-full shadow-lg"
+                      style={{ 
+                        background: "conic-gradient(from 160deg, #9DF3FF, #52C7FF, #2B7FFF, #9DF3FF)",
+                        boxShadow: "0 8px 20px rgba(82,199,255,0.5)"
+                      }}
+                    >
+                      <div 
+                        className="flex h-10 w-10 items-center justify-center rounded-full"
+                        style={{ 
+                          background: "linear-gradient(140deg, #BFF6FF 0%, #63DAFF 60%, #318EFF 100%)"
+                        }}
+                      >
+                        <svg className="h-6 w-6 text-slate-900/80" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
                           <rect x="6" y="10" width="12" height="10" rx="2" />
                           <rect x="8" y="6" width="8" height="4" rx="1" />
                           <path d="M10 6V4h4v2" />
                         </svg>
                       </div>
                     </div>
-                    <span className="text-xs font-medium text-cyan-300 group-hover:text-cyan-200 transition-colors duration-300">
-                      Produits
-                    </span>
+                    <span className="text-sm font-bold text-cyan-400">Produits</span>
                   </motion.button>
                 </div>
               </div>
