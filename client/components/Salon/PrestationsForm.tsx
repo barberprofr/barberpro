@@ -1381,8 +1381,8 @@ export default function PrestationsForm() {
 
               {/* Popup Paiement Mixte */}
               {mixedPaymentPopupOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 animate-in fade-in duration-200">
-                  <div className="w-full max-w-md rounded-3xl border border-white/20 bg-black/5 p-6 text-slate-50 shadow-[0_40px_100px_rgba(8,15,40,0.8)] backdrop-blur-md animate-in zoom-in-95 duration-200">
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 animate-in fade-in duration-200" onClick={(e) => e.stopPropagation()}>
+                  <div className="w-full max-w-md rounded-3xl border border-white/20 bg-slate-900/95 p-6 text-slate-50 shadow-[0_40px_100px_rgba(8,15,40,0.8)] backdrop-blur-md animate-in zoom-in-95 duration-200" onClick={(e) => e.stopPropagation()}>
                     <div className="mb-4 flex items-center gap-3">
                       <button
                         type="button"
