@@ -305,9 +305,9 @@ export default function ServicesPicker({ onServiceSelect, onReset, externalOpen,
                     transition={{ type: "spring", stiffness: 400, damping: 12 }}
                     className="relative w-full overflow-hidden rounded-2xl py-5 text-lg font-black text-white shadow-[0_8px_32px_rgba(20,184,166,0.4),inset_0_2px_4px_rgba(255,255,255,0.3),inset_0_-2px_4px_rgba(0,0,0,0.2)] transition-all"
                     style={{
-                      background: "linear-gradient(135deg, rgba(5,90,80,0.65) 0%, rgba(3,60,70,0.6) 50%, rgba(2,75,55,0.65) 100%)",
-                      border: "2px solid rgba(94,234,212,0.35)",
-                      backdropFilter: "blur(8px)"
+                      background: "linear-gradient(135deg, rgba(5,90,80,0.4) 0%, rgba(3,60,70,0.35) 50%, rgba(2,75,55,0.4) 100%)",
+                      border: "2px solid rgba(94,234,212,0.4)",
+                      backdropFilter: "blur(6px)"
                     }}
                   >
                     {/* Reflet glass 3D */}
