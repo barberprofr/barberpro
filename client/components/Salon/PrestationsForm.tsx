@@ -1068,7 +1068,11 @@ export default function PrestationsForm() {
                       <div className="absolute w-12 h-12 rounded-full border-2 border-cyan-400/50 group-hover:border-cyan-300/70 transition-all duration-300 shadow-[0_0_20px_rgba(34,211,238,0.4),inset_0_0_15px_rgba(34,211,238,0.2)]" />
                       {/* Fond icône avec gradient */}
                       <div className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-400 via-teal-500 to-emerald-500 shadow-[0_4px_20px_rgba(34,211,238,0.5)] group-hover:shadow-[0_6px_25px_rgba(34,211,238,0.7)] transition-all duration-300">
-                        <SprayCan className="h-5 w-5 text-white drop-shadow-lg" />
+                        <svg className="h-5 w-5 text-white drop-shadow-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                          <rect x="6" y="10" width="12" height="10" rx="2" />
+                          <rect x="8" y="6" width="8" height="4" rx="1" />
+                          <path d="M10 6V4h4v2" />
+                        </svg>
                       </div>
                     </div>
                     <span className="text-xs font-medium text-cyan-300 group-hover:text-cyan-200 transition-colors duration-300">
