@@ -209,7 +209,7 @@ export function StylistDailySection({ id, commissionPct, stylistName }: { id: st
     );
 }
 
-export function StylistMonthly({ id, commissionPct }: { id: string; commissionPct: number }) {
+export function StylistMonthly({ id, commissionPct, stylistName }: { id: string; commissionPct: number; stylistName?: string }) {
     const now = new Date();
     const defMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
     const [month, setMonth] = useState<string>(defMonth); // YYYY-MM
@@ -223,9 +223,20 @@ export function StylistMonthly({ id, commissionPct }: { id: string; commissionPc
     const salary = (prestationTotal?.amount || 0) * (commissionPct ?? 0) / 100;
     return (
         <div className="space-y-2">
-            <div className="flex items-center gap-2 text-sm">
-                <span className="text-muted-foreground">Mois</span>
-                <input type="month" value={month} onChange={(e) => setMonth(e.target.value)} className="border rounded px-2 py-1 bg-gray-900 border-gray-700 text-gray-100 outline-none focus:outline-none" />
+            <div className="flex items-center gap-3 text-sm">
+                <span className="text-white/80 font-medium">Mois</span>
+                <input type="month" value={month} onChange={(e) => setMonth(e.target.value)} className="border rounded-lg px-3 py-1.5 bg-slate-900/80 border-slate-600 text-white outline-none focus:border-cyan-400 transition-colors" />
+                <button
+                    onClick={() => setMonth(defMonth)}
+                    className={cn(
+                        "px-3 py-1.5 rounded-lg border font-medium transition-all",
+                        month === defMonth
+                            ? "bg-cyan-500/20 border-cyan-400/50 text-cyan-300"
+                            : "bg-slate-800/60 border-slate-600 text-white/70 hover:bg-slate-700/60 hover:text-white"
+                    )}
+                >
+                    Ce mois{stylistName ? ` — ${stylistName}` : ""}
+                </button>
             </div>
             <div className="rounded-3xl border border-white/10 bg-slate-950/50 p-4 shadow-inner text-sm space-y-3">
                 <div className="flex items-center justify-between text-slate-100">

@@ -370,7 +370,7 @@ function StylistTotals({ id, commissionPct, stylistName }: { id: string; commiss
           </motion.button>
         </PopoverTrigger>
         <PopoverContent side="bottom" align="center" className="w-[min(95vw,28rem)] rounded-2xl border border-white/20 bg-slate-900/90 p-4 shadow-[0_25px_60px_rgba(0,0,0,0.5)] backdrop-blur-md">
-          <StylistMonthly id={id} commissionPct={commissionPct} />
+          <StylistMonthly id={id} commissionPct={commissionPct} stylistName={stylistName} />
         </PopoverContent>
       </Popover>
     </div>
