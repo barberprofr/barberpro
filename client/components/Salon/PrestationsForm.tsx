@@ -1409,22 +1409,12 @@ export default function PrestationsForm() {
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 animate-in fade-in duration-200" onClick={(e) => e.stopPropagation()}>
                   <div className="w-[360px] rounded-2xl border border-white/20 bg-slate-900/40 p-5 text-slate-50 shadow-[0_15px_40px_rgba(8,15,40,0.8)] backdrop-blur-xl animate-in zoom-in-95 duration-200" onClick={(e) => e.stopPropagation()}>
                     <div className="mb-4 flex items-center gap-3">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setMixedPaymentPopupOpen(false);
-                          setPaymentPickerOpen(true);
-                        }}
-                        className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/5 text-slate-200 transition hover:bg-white/10"
-                      >
-                        <ArrowLeft className="h-4 w-4" />
-                      </button>
                       <span className="text-xl font-bold text-white">Mixte</span>
                       <span className="ml-auto text-xl font-bold text-white">{amount} €</span>
                     </div>
                     
                     <div className="space-y-3">
-                      <div className="flex items-center gap-3 rounded-xl border border-green-500/30 bg-green-500/10 p-3">
+                      <div className="flex items-center gap-3 rounded-xl bg-green-500/10 p-3">
                         <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-green-400/60 to-emerald-600/60">
                           <CircleDollarSign className="h-6 w-6 text-white" />
                         </div>
@@ -1439,7 +1429,7 @@ export default function PrestationsForm() {
                         />
                       </div>
                       
-                      <div className="flex items-center gap-3 rounded-xl border border-cyan-500/30 bg-cyan-500/10 p-3">
+                      <div className="flex items-center gap-3 rounded-xl bg-cyan-500/10 p-3">
                         <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-cyan-400/60 to-blue-600/60">
                           <CreditCard className="h-6 w-6 text-white" />
                         </div>
