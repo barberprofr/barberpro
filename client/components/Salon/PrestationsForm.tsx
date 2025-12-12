@@ -1425,7 +1425,7 @@ export default function PrestationsForm() {
                     
                     <div className="space-y-3">
                       <div className="flex items-center gap-3 rounded-xl border border-green-500/30 bg-green-500/10 p-3">
-                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-green-400 to-emerald-600">
+                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-green-400/70 to-emerald-600/70">
                           <CircleDollarSign className="h-6 w-6 text-white" />
                         </div>
                         <Input
@@ -1435,12 +1435,12 @@ export default function PrestationsForm() {
                           placeholder="Espèces"
                           value={mixedCashAmount}
                           onChange={(e) => setMixedCashAmount(e.target.value)}
-                          className="h-12 flex-1 rounded-lg border-0 bg-slate-900/80 text-xl font-bold text-white text-center placeholder:text-green-400/50 focus:ring-2 focus:ring-green-400"
+                          className="h-12 flex-1 rounded-lg border-0 bg-slate-900/50 text-xl font-bold text-white text-center placeholder:text-green-400/50 focus:ring-2 focus:ring-green-400"
                         />
                       </div>
                       
                       <div className="flex items-center gap-3 rounded-xl border border-cyan-500/30 bg-cyan-500/10 p-3">
-                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-cyan-400 to-blue-600">
+                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-cyan-400/70 to-blue-600/70">
                           <CreditCard className="h-6 w-6 text-white" />
                         </div>
                         <Input
@@ -1450,7 +1450,7 @@ export default function PrestationsForm() {
                           placeholder="Carte"
                           value={mixedCardAmount}
                           onChange={(e) => setMixedCardAmount(e.target.value)}
-                          className="h-12 flex-1 rounded-lg border-0 bg-slate-900/80 text-xl font-bold text-white text-center placeholder:text-cyan-400/50 focus:ring-2 focus:ring-cyan-400"
+                          className="h-12 flex-1 rounded-lg border-0 bg-slate-900/50 text-xl font-bold text-white text-center placeholder:text-cyan-400/50 focus:ring-2 focus:ring-cyan-400"
                         />
                       </div>
                       
