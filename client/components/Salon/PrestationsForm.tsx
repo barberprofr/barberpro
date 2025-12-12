@@ -1388,20 +1388,31 @@ export default function PrestationsForm() {
                         whileTap={{ scale: 0.95 }}
                         className="flex flex-col items-center justify-center gap-2 mt-8"
                       >
+                        {/* Cercle externe - glow */}
                         <div 
-                          className="flex h-16 w-16 items-center justify-center rounded-full shadow-lg"
+                          className="relative flex h-20 w-20 items-center justify-center rounded-full"
                           style={{ 
-                            background: PAYMENT_OPTIONS.find(o => o.value === "mixed")?.colors.outer,
-                            boxShadow: PAYMENT_OPTIONS.find(o => o.value === "mixed")?.colors.glow
+                            background: "conic-gradient(from 160deg, rgba(192,132,252,0.4), rgba(168,85,247,0.5), rgba(124,58,237,0.4), rgba(192,132,252,0.4))",
+                            boxShadow: "0 0 30px rgba(168,85,247,0.6), 0 0 60px rgba(168,85,247,0.3), inset 0 0 20px rgba(255,255,255,0.1)"
                           }}
                         >
+                          {/* Cercle intermédiaire - blanc semi-transparent */}
                           <div 
-                            className="flex h-10 w-10 items-center justify-center rounded-full"
+                            className="absolute flex h-16 w-16 items-center justify-center rounded-full"
                             style={{ 
-                              background: PAYMENT_OPTIONS.find(o => o.value === "mixed")?.colors.inner
+                              background: "linear-gradient(180deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 100%)",
+                              boxShadow: "inset 0 2px 4px rgba(255,255,255,0.4), inset 0 -2px 4px rgba(0,0,0,0.2)"
+                            }}
+                          />
+                          {/* Cercle interne - violet */}
+                          <div 
+                            className="relative flex h-12 w-12 items-center justify-center rounded-full"
+                            style={{ 
+                              background: "linear-gradient(140deg, rgba(233,213,255,0.8) 0%, rgba(192,132,252,0.7) 40%, rgba(124,58,237,0.8) 100%)",
+                              boxShadow: "0 4px 15px rgba(168,85,247,0.5), inset 0 2px 3px rgba(255,255,255,0.3)"
                             }}
                           >
-                            <ArrowLeftRight className="h-6 w-6 text-slate-900/80" />
+                            <ArrowLeftRight className="h-6 w-6 text-white drop-shadow-md" />
                           </div>
                         </div>
                         <span className="text-sm font-bold text-purple-400">Mixte</span>
