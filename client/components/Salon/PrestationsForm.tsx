@@ -1413,7 +1413,7 @@ export default function PrestationsForm() {
               {/* Popup Paiement Mixte */}
               {mixedPaymentPopupOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 animate-in fade-in duration-200" onClick={(e) => e.stopPropagation()}>
-                  <div className="w-[360px] rounded-2xl border border-white/20 bg-slate-900/40 p-5 text-slate-50 shadow-[0_15px_40px_rgba(8,15,40,0.8)] backdrop-blur-xl animate-in zoom-in-95 duration-200" onClick={(e) => e.stopPropagation()}>
+                  <div className="w-[360px] rounded-2xl border border-white/20 bg-slate-900/70 p-5 text-slate-50 shadow-[0_15px_40px_rgba(8,15,40,0.8)] backdrop-blur-xl animate-in zoom-in-95 duration-200" onClick={(e) => e.stopPropagation()}>
                     <div className="mb-4 flex items-center gap-3">
                       <button
                         type="button"
