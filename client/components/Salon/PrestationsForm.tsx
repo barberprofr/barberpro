@@ -1407,26 +1407,26 @@ export default function PrestationsForm() {
               {/* Popup Paiement Mixte */}
               {mixedPaymentPopupOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 animate-in fade-in duration-200" onClick={(e) => e.stopPropagation()}>
-                  <div className="w-[280px] rounded-xl border border-white/20 bg-slate-900/95 p-3 text-slate-50 shadow-[0_15px_40px_rgba(8,15,40,0.8)] backdrop-blur-md animate-in zoom-in-95 duration-200" onClick={(e) => e.stopPropagation()}>
-                    <div className="mb-2 flex items-center gap-2">
+                  <div className="w-[360px] rounded-2xl border border-white/20 bg-slate-900/95 p-5 text-slate-50 shadow-[0_15px_40px_rgba(8,15,40,0.8)] backdrop-blur-md animate-in zoom-in-95 duration-200" onClick={(e) => e.stopPropagation()}>
+                    <div className="mb-4 flex items-center gap-3">
                       <button
                         type="button"
                         onClick={() => {
                           setMixedPaymentPopupOpen(false);
                           setPaymentPickerOpen(true);
                         }}
-                        className="flex h-7 w-7 items-center justify-center rounded-full border border-white/10 bg-white/5 text-slate-200 transition hover:bg-white/10"
+                        className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/5 text-slate-200 transition hover:bg-white/10"
                       >
-                        <ArrowLeft className="h-3.5 w-3.5" />
+                        <ArrowLeft className="h-4 w-4" />
                       </button>
-                      <span className="text-base font-bold text-white">Mixte</span>
-                      <span className="ml-auto text-base font-bold text-white">{amount} €</span>
+                      <span className="text-xl font-bold text-white">Mixte</span>
+                      <span className="ml-auto text-xl font-bold text-white">{amount} €</span>
                     </div>
                     
-                    <div className="space-y-1.5">
-                      <div className="flex items-center gap-2 rounded-lg border border-green-500/30 bg-green-500/10 p-1.5">
-                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-green-400 to-emerald-600">
-                          <CircleDollarSign className="h-4 w-4 text-white" />
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-3 rounded-xl border border-green-500/30 bg-green-500/10 p-3">
+                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-green-400 to-emerald-600">
+                          <CircleDollarSign className="h-6 w-6 text-white" />
                         </div>
                         <Input
                           type="number"
@@ -1435,13 +1435,13 @@ export default function PrestationsForm() {
                           placeholder="Espèces"
                           value={mixedCashAmount}
                           onChange={(e) => setMixedCashAmount(e.target.value)}
-                          className="h-8 flex-1 rounded-md border-0 bg-slate-900/80 text-base font-bold text-white text-center placeholder:text-green-400/50 focus:ring-1 focus:ring-green-400"
+                          className="h-12 flex-1 rounded-lg border-0 bg-slate-900/80 text-xl font-bold text-white text-center placeholder:text-green-400/50 focus:ring-2 focus:ring-green-400"
                         />
                       </div>
                       
-                      <div className="flex items-center gap-2 rounded-lg border border-cyan-500/30 bg-cyan-500/10 p-1.5">
-                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-cyan-400 to-blue-600">
-                          <CreditCard className="h-4 w-4 text-white" />
+                      <div className="flex items-center gap-3 rounded-xl border border-cyan-500/30 bg-cyan-500/10 p-3">
+                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-cyan-400 to-blue-600">
+                          <CreditCard className="h-6 w-6 text-white" />
                         </div>
                         <Input
                           type="number"
@@ -1450,12 +1450,12 @@ export default function PrestationsForm() {
                           placeholder="Carte"
                           value={mixedCardAmount}
                           onChange={(e) => setMixedCardAmount(e.target.value)}
-                          className="h-8 flex-1 rounded-md border-0 bg-slate-900/80 text-base font-bold text-white text-center placeholder:text-cyan-400/50 focus:ring-1 focus:ring-cyan-400"
+                          className="h-12 flex-1 rounded-lg border-0 bg-slate-900/80 text-xl font-bold text-white text-center placeholder:text-cyan-400/50 focus:ring-2 focus:ring-cyan-400"
                         />
                       </div>
                       
                       <div className={cn(
-                        "text-center py-1 rounded-md text-xs font-bold",
+                        "text-center py-2 rounded-lg text-base font-bold",
                         isMixedTotalValid
                           ? "text-green-400 bg-green-500/20"
                           : "text-red-400 bg-red-500/20"
@@ -1470,7 +1470,7 @@ export default function PrestationsForm() {
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                         className={cn(
-                          "w-full py-2 rounded-lg font-bold text-sm transition-all duration-200",
+                          "w-full py-3 rounded-xl font-bold text-lg transition-all duration-200",
                           isMixedTotalValid
                             ? "bg-gradient-to-r from-purple-500 to-violet-600 text-white shadow-[0_0_15px_rgba(168,85,247,0.5)]"
                             : "bg-slate-700/50 text-slate-400 cursor-not-allowed"
