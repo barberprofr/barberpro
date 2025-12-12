@@ -1435,7 +1435,7 @@ export default function PrestationsForm() {
                           placeholder="Espèces"
                           value={mixedCashAmount}
                           onChange={(e) => setMixedCashAmount(e.target.value)}
-                          className="h-12 flex-1 rounded-lg border-0 bg-slate-900/50 text-xl font-bold text-white text-center placeholder:text-green-400/50 focus:ring-2 focus:ring-green-400"
+                          className="h-12 flex-1 rounded-lg border-0 bg-slate-900/50 text-xl font-bold text-white text-center placeholder:text-green-400/50 focus:ring-2 focus:ring-green-400 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                         />
                       </div>
                       
@@ -1450,7 +1450,7 @@ export default function PrestationsForm() {
                           placeholder="Carte"
                           value={mixedCardAmount}
                           onChange={(e) => setMixedCardAmount(e.target.value)}
-                          className="h-12 flex-1 rounded-lg border-0 bg-slate-900/50 text-xl font-bold text-white text-center placeholder:text-cyan-400/50 focus:ring-2 focus:ring-cyan-400"
+                          className="h-12 flex-1 rounded-lg border-0 bg-slate-900/50 text-xl font-bold text-white text-center placeholder:text-cyan-400/50 focus:ring-2 focus:ring-cyan-400 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                         />
                       </div>
                       
