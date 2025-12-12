@@ -358,10 +358,32 @@ export default function PrestationsForm() {
   }, [setStylistId, setStylistPickerOpen]);
 
   const handlePaymentSelect = useCallback((value: string) => {
-    setPayment(value);
-    setPaymentSelected(true);
-    setPaymentPickerOpen(false);
+    if (value === "mixed") {
+      setPaymentPickerOpen(false);
+      setMixedCashAmount("");
+      setMixedCardAmount("");
+      setMixedPaymentPopupOpen(true);
+    } else {
+      setPayment(value);
+      setPaymentSelected(true);
+      setPaymentPickerOpen(false);
+    }
   }, [setPayment, setPaymentSelected, setPaymentPickerOpen]);
+
+  const handleMixedPaymentConfirm = useCallback(() => {
+    const cashVal = parseFloat(mixedCashAmount) || 0;
+    const cardVal = parseFloat(mixedCardAmount) || 0;
+    const total = cashVal + cardVal;
+    const expectedTotal = parseFloat(amount) || 0;
+    
+    if (total !== expectedTotal) {
+      return;
+    }
+    
+    setPayment("mixed");
+    setPaymentSelected(true);
+    setMixedPaymentPopupOpen(false);
+  }, [mixedCashAmount, mixedCardAmount, amount]);
 
   const handleClientAccordionChange = useCallback((next: string | null) => {
     const value = next ?? "";
@@ -1275,6 +1297,100 @@ export default function PrestationsForm() {
                           );
                         })}
                       </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Popup Paiement Mixte */}
+              {mixedPaymentPopupOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 animate-in fade-in duration-200">
+                  <div className="w-full max-w-md rounded-3xl border border-white/20 bg-black/5 p-6 text-slate-50 shadow-[0_40px_100px_rgba(8,15,40,0.8)] backdrop-blur-md animate-in zoom-in-95 duration-200">
+                    <div className="mb-4 flex items-center gap-3">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setMixedPaymentPopupOpen(false);
+                          setPaymentPickerOpen(true);
+                        }}
+                        className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-slate-200 transition hover:bg-white/10 hover:scale-105 active:scale-95"
+                      >
+                        <ArrowLeft className="h-5 w-5" />
+                      </button>
+                      <span className="text-xl font-bold text-white">Paiement Mixte</span>
+                    </div>
+                    
+                    <div className="mb-4 text-center">
+                      <span className="text-2xl font-bold text-white">Total: {amount} €</span>
+                    </div>
+                    
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-3 rounded-2xl border-2 border-green-500/30 bg-green-500/10 p-4">
+                        <span className="flex h-12 w-12 items-center justify-center rounded-full" style={{ background: PAYMENT_OPTIONS[0].colors.outer, boxShadow: PAYMENT_OPTIONS[0].colors.glow }}>
+                          <span className="absolute inset-[3px] rounded-full" style={{ background: "radial-gradient(circle, rgba(15,23,42,0.92) 0%, rgba(30,41,59,0.78) 60%, rgba(15,23,42,0.55) 100%)" }} />
+                          <span className="relative flex h-8 w-8 items-center justify-center rounded-lg overflow-hidden" style={{ background: PAYMENT_OPTIONS[0].colors.inner }}>
+                            <CircleDollarSign className="h-5 w-5 text-slate-900/80" />
+                          </span>
+                        </span>
+                        <div className="flex-1">
+                          <label className="text-sm font-medium text-green-400">Espèces</label>
+                          <Input
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            placeholder="0"
+                            value={mixedCashAmount}
+                            onChange={(e) => setMixedCashAmount(e.target.value)}
+                            className="mt-1 h-12 w-full rounded-xl border-0 bg-slate-900/80 text-xl font-bold text-white text-center placeholder:text-white/30 focus:ring-2 focus:ring-green-400"
+                          />
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center gap-3 rounded-2xl border-2 border-cyan-500/30 bg-cyan-500/10 p-4">
+                        <span className="flex h-12 w-12 items-center justify-center rounded-full" style={{ background: PAYMENT_OPTIONS[1].colors.outer, boxShadow: PAYMENT_OPTIONS[1].colors.glow }}>
+                          <span className="absolute inset-[3px] rounded-full" style={{ background: "radial-gradient(circle, rgba(15,23,42,0.92) 0%, rgba(30,41,59,0.78) 60%, rgba(15,23,42,0.55) 100%)" }} />
+                          <span className="relative flex h-8 w-8 items-center justify-center rounded-lg overflow-hidden" style={{ background: PAYMENT_OPTIONS[1].colors.inner }}>
+                            <CreditCard className="h-5 w-5 text-slate-900/80" />
+                          </span>
+                        </span>
+                        <div className="flex-1">
+                          <label className="text-sm font-medium text-cyan-400">Carte</label>
+                          <Input
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            placeholder="0"
+                            value={mixedCardAmount}
+                            onChange={(e) => setMixedCardAmount(e.target.value)}
+                            className="mt-1 h-12 w-full rounded-xl border-0 bg-slate-900/80 text-xl font-bold text-white text-center placeholder:text-white/30 focus:ring-2 focus:ring-cyan-400"
+                          />
+                        </div>
+                      </div>
+                      
+                      <div className={cn(
+                        "text-center py-2 rounded-xl font-bold",
+                        (parseFloat(mixedCashAmount) || 0) + (parseFloat(mixedCardAmount) || 0) === (parseFloat(amount) || 0)
+                          ? "text-green-400 bg-green-500/20"
+                          : "text-red-400 bg-red-500/20"
+                      )}>
+                        Total saisi: {((parseFloat(mixedCashAmount) || 0) + (parseFloat(mixedCardAmount) || 0)).toFixed(2)} € / {amount} €
+                      </div>
+                      
+                      <motion.button
+                        type="button"
+                        onClick={handleMixedPaymentConfirm}
+                        disabled={(parseFloat(mixedCashAmount) || 0) + (parseFloat(mixedCardAmount) || 0) !== (parseFloat(amount) || 0)}
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        className={cn(
+                          "w-full py-4 rounded-2xl font-bold text-lg transition-all duration-200",
+                          (parseFloat(mixedCashAmount) || 0) + (parseFloat(mixedCardAmount) || 0) === (parseFloat(amount) || 0)
+                            ? "bg-gradient-to-r from-purple-500 to-violet-600 text-white shadow-[0_0_30px_rgba(168,85,247,0.5)] hover:shadow-[0_0_40px_rgba(168,85,247,0.7)]"
+                            : "bg-slate-700/50 text-slate-400 cursor-not-allowed"
+                        )}
+                      >
+                        Confirmer le paiement mixte
+                      </motion.button>
                     </div>
                   </div>
                 </div>
