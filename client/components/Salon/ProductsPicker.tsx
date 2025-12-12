@@ -292,16 +292,24 @@ export default function ProductsPicker({ onProductSelect, onReset, externalOpen,
                   <motion.button
                     type="button"
                     onClick={handleValidate}
-                    whileHover={{ scale: 1.02 }}
+                    whileHover={{ scale: 1.04, y: -4, boxShadow: "0 0 25px rgba(167,139,250,0.7), 0 0 50px rgba(139,92,246,0.5), -15px 0 30px rgba(167,139,250,0.6), 15px 0 30px rgba(167,139,250,0.6)" }}
                     whileTap={{ 
-                      scale: 1.08, 
-                      y: -3,
-                      boxShadow: "0 0 40px rgba(34,197,94,0.7), -15px 0 35px rgba(34,197,94,0.8), 15px 0 35px rgba(34,197,94,0.8), 0 25px 50px rgba(16,185,129,0.5)"
+                      scale: 1.15, 
+                      y: -10,
+                      background: "linear-gradient(135deg, rgba(20,184,166,0.95) 0%, rgba(34,211,238,0.9) 50%, rgba(52,211,153,0.95) 100%)",
+                      boxShadow: "0 0 60px rgba(20,184,166,0.9), 0 0 100px rgba(20,184,166,0.6), -20px 0 50px rgba(6,182,212,0.7), 20px 0 50px rgba(6,182,212,0.7), 0 30px 60px rgba(16,185,129,0.5)"
                     }}
-                    transition={{ type: "spring", stiffness: 400, damping: 15 }}
-                    className="relative w-full overflow-hidden rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 py-6 text-lg font-black text-white shadow-[0_15px_30px_rgba(16,185,129,0.3)] transition-all"
+                    transition={{ type: "spring", stiffness: 400, damping: 12 }}
+                    className="relative w-full overflow-hidden rounded-2xl py-5 text-lg font-black text-white shadow-[0_8px_32px_rgba(20,184,166,0.4),inset_0_2px_4px_rgba(255,255,255,0.3),inset_0_-2px_4px_rgba(0,0,0,0.2)] transition-all"
+                    style={{
+                      background: "linear-gradient(135deg, rgba(5,90,80,0.4) 0%, rgba(3,60,70,0.35) 50%, rgba(2,75,55,0.4) 100%)",
+                      border: "2px solid rgba(94,234,212,0.4)",
+                      backdropFilter: "blur(6px)"
+                    }}
                   >
-                    <span className="relative z-10">Valider ({selectedProducts.size} produit{selectedProducts.size > 1 ? 's' : ''})</span>
+                    {/* Reflet glass 3D */}
+                    <div className="absolute inset-x-2 top-1 h-[40%] rounded-t-xl bg-gradient-to-b from-white/40 to-transparent pointer-events-none" />
+                    <span className="relative z-10 drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]">Valider ({selectedProducts.size} produit{selectedProducts.size > 1 ? 's' : ''})</span>
                   </motion.button>
                 </motion.div>
               )}
