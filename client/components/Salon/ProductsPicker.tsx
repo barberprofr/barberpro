@@ -140,7 +140,7 @@ export default function ProductsPicker({ onProductSelect, onReset, externalOpen,
                     )}
                   >
                     <div className="flex items-center gap-3">
-                      {/* Checkmark or Select Button - 3D Style */}
+                      {/* Checkmark or Select Button - 3D Multi-ring Style */}
                       <motion.button
                         type="button"
                         onClick={(e) => {
@@ -148,32 +148,39 @@ export default function ProductsPicker({ onProductSelect, onReset, externalOpen,
                           toggleProduct(product.id, product.name, product.price);
                         }}
                         animate={isSelected ? { 
-                          scale: [1, 1.2, 1],
-                          boxShadow: ["0 0 0px rgba(6,182,212,0)", "0 0 40px rgba(6,182,212,0.9)", "0 0 25px rgba(6,182,212,0.6)"]
+                          scale: [1, 1.15, 1],
+                          boxShadow: ["0 0 0px rgba(6,182,212,0)", "0 0 50px rgba(6,182,212,1)", "0 0 30px rgba(6,182,212,0.7)"]
                         } : {}}
-                        transition={{ duration: 0.4 }}
-                        className={cn(
-                          "relative flex h-10 w-10 items-center justify-center rounded-full flex-shrink-0 transition-all",
-                          isSelected
-                            ? "bg-gradient-to-br from-cyan-400 via-cyan-500 to-teal-600 shadow-[0_0_25px_rgba(6,182,212,0.6),inset_0_2px_4px_rgba(255,255,255,0.4),inset_0_-2px_4px_rgba(0,0,0,0.2)]"
-                            : "bg-gradient-to-br from-white/20 via-white/10 to-white/5 shadow-[inset_0_2px_4px_rgba(255,255,255,0.2),inset_0_-2px_4px_rgba(0,0,0,0.1)] hover:from-white/30 hover:via-white/20 hover:to-white/10"
-                        )}
-                        style={{
-                          border: isSelected ? "3px solid rgba(103,232,249,0.6)" : "2px solid rgba(255,255,255,0.3)",
-                        }}
+                        transition={{ duration: 0.5 }}
+                        className="relative flex h-12 w-12 items-center justify-center rounded-full flex-shrink-0"
                       >
-                        {/* Outer glow ring */}
-                        {isSelected && (
-                          <motion.div 
-                            className="absolute inset-[-4px] rounded-full border-2 border-cyan-400/50"
-                            initial={{ opacity: 0, scale: 0.8 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            style={{ boxShadow: "0 0 15px rgba(6,182,212,0.4)" }}
-                          />
-                        )}
-                        {/* Inner highlight */}
-                        <div className="absolute inset-1 rounded-full bg-gradient-to-b from-white/30 to-transparent pointer-events-none" style={{ height: "40%" }} />
-                        {isSelected && <Check className="h-5 w-5 text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]" />}
+                        {/* Outer ring - Blue/Cyan gradient */}
+                        <div className={cn(
+                          "absolute inset-0 rounded-full transition-all duration-300",
+                          isSelected 
+                            ? "bg-gradient-to-br from-blue-500 via-cyan-500 to-teal-500 shadow-[0_0_25px_rgba(6,182,212,0.6)]"
+                            : "bg-gradient-to-br from-slate-600/50 via-slate-500/30 to-slate-600/50"
+                        )} />
+                        
+                        {/* Middle ring - White/Silver */}
+                        <div className={cn(
+                          "absolute inset-[3px] rounded-full transition-all duration-300",
+                          isSelected
+                            ? "bg-gradient-to-br from-white/90 via-gray-200/80 to-white/70 shadow-[inset_0_2px_4px_rgba(0,0,0,0.1)]"
+                            : "bg-gradient-to-br from-white/30 via-white/20 to-white/10"
+                        )} />
+                        
+                        {/* Inner circle - Cyan gradient semi-transparent */}
+                        <div className={cn(
+                          "absolute inset-[6px] rounded-full transition-all duration-300 flex items-center justify-center",
+                          isSelected
+                            ? "bg-gradient-to-br from-cyan-400/90 via-teal-500/85 to-emerald-600/90 shadow-[inset_0_3px_6px_rgba(255,255,255,0.4),inset_0_-3px_6px_rgba(0,0,0,0.2)]"
+                            : "bg-gradient-to-br from-white/15 via-white/10 to-white/5 shadow-[inset_0_2px_4px_rgba(255,255,255,0.1)]"
+                        )}>
+                          {/* Glass reflection */}
+                          <div className="absolute inset-x-1 top-1 h-[45%] rounded-t-full bg-gradient-to-b from-white/50 to-transparent pointer-events-none" />
+                          {isSelected && <Check className="h-5 w-5 text-white drop-shadow-[0_2px_3px_rgba(0,0,0,0.4)] relative z-10" />}
+                        </div>
                       </motion.button>
 
                       {/* Product name and price */}
