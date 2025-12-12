@@ -709,7 +709,7 @@ function RevenueByDay({ fallbackMonthly, stylists, defaultCommissionPct }: { fal
           <PopoverContent className="w-auto max-w-2xl rounded-xl border border-white/14 bg-black/15 backdrop-blur-md p-3 space-y-2.5 shadow-[0_20px_50px_rgba(8,15,40,0.6)]" align="start" sideOffset={8}>
             <div className="space-y-3">
               <div className="rounded-2xl border-2 border-primary/40 bg-primary/10 px-4 py-3 text-center">
-                <div className="text-xs uppercase tracking-wide text-primary">Total mois</div>
+                <div className="text-xs uppercase tracking-wide text-primary">Total mois — {monthLabels[month - 1]} {year}</div>
                 <div className="text-4xl font-extrabold">{eur.format(monthlyTotalAmount)}</div>
                 <div className="text-xs text-muted-foreground">{monthlyTotalCount} prestation{monthlyTotalCount > 1 ? "s" : ""}{monthlyProductCount ? `, ${monthlyProductCount} produit${monthlyProductCount > 1 ? "s" : ""}` : ""}</div>
                 <div className="mt-1 text-[11px] font-semibold text-emerald-300 whitespace-nowrap">
