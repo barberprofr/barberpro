@@ -172,7 +172,7 @@ function TransactionRow({ entry: e, fmt, onUpdate }: { entry: any, fmt: (ts: num
     );
 }
 
-export function StylistDailySection({ id, commissionPct }: { id: string; commissionPct: number }) {
+export function StylistDailySection({ id, commissionPct, stylistName }: { id: string; commissionPct: number; stylistName?: string }) {
     const today = parisDateString();
     const [date, setDate] = useState<string>(today);
 
@@ -200,7 +200,7 @@ export function StylistDailySection({ id, commissionPct }: { id: string; commiss
                             : "bg-slate-800/60 border-slate-600 text-white/70 hover:bg-slate-700/60 hover:text-white"
                     )}
                 >
-                    Aujourd'hui
+                    Aujourd'hui{stylistName ? ` — ${stylistName}` : ""}
                 </button>
             </div>
             <StylistDaily id={id} date={date} commissionPct={commissionPct} />
