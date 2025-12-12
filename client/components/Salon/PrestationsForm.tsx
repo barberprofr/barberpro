@@ -1386,24 +1386,24 @@ export default function PrestationsForm() {
                         onClick={() => handlePaymentSelect("mixed")}
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
-                        className="flex w-full items-center justify-start gap-4 rounded-2xl border-2 border-white/20 bg-black/5 px-6 py-5 text-left text-lg font-bold transition-colors duration-200 hover:border-purple-400/80 hover:bg-purple-500/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-400 shadow-[0_8px_25px_rgba(8,15,40,0.3)] backdrop-blur-sm mt-4"
+                        className="flex w-full items-center justify-start gap-3 rounded-xl border-2 border-white/20 bg-black/5 px-4 py-3 text-left font-bold transition-colors duration-200 hover:border-purple-400/80 hover:bg-purple-500/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-400 shadow-[0_6px_20px_rgba(8,15,40,0.3)] backdrop-blur-sm mt-3"
                       >
                         <span
-                          className="relative flex h-14 w-14 items-center justify-center rounded-full"
+                          className="relative flex h-10 w-10 items-center justify-center rounded-full"
                           style={{ background: PAYMENT_OPTIONS.find(o => o.value === "mixed")?.colors.outer, boxShadow: PAYMENT_OPTIONS.find(o => o.value === "mixed")?.colors.glow }}
                         >
                           <span
-                            className="absolute inset-[3px] rounded-full"
-                            style={{ background: "radial-gradient(circle, rgba(15,23,42,0.92) 0%, rgba(30,41,59,0.78) 60%, rgba(15,23,42,0.55) 100%)", boxShadow: "inset 0 6px 16px rgba(255,255,255,0.08), inset 0 -12px 20px rgba(2,6,23,0.82)" }}
+                            className="absolute inset-[2px] rounded-full"
+                            style={{ background: "radial-gradient(circle, rgba(15,23,42,0.92) 0%, rgba(30,41,59,0.78) 60%, rgba(15,23,42,0.55) 100%)", boxShadow: "inset 0 4px 12px rgba(255,255,255,0.08), inset 0 -8px 16px rgba(2,6,23,0.82)" }}
                           />
                           <span
-                            className="relative flex h-8 w-8 items-center justify-center rounded-lg overflow-hidden"
+                            className="relative flex h-6 w-6 items-center justify-center rounded-md overflow-hidden"
                             style={{ background: PAYMENT_OPTIONS.find(o => o.value === "mixed")?.colors.inner, boxShadow: "inset 0 1px 0 rgba(255,255,255,0.5)" }}
                           >
-                            <ArrowLeftRight className="h-5 w-5 text-slate-900/80" />
+                            <ArrowLeftRight className="h-4 w-4 text-slate-900/80" />
                           </span>
                         </span>
-                        <span className="text-xl font-black text-white">Mixte</span>
+                        <span className="text-base font-black text-white">Mixte</span>
                       </motion.button>
                     </div>
                   </div>
