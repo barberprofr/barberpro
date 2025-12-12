@@ -15,7 +15,7 @@ import { useAddClient, useAddProduct, useClients, useStylists } from "@/lib/api"
 const PHONE_DIGITS_REQUIRED = 10;
 const PAYMENT_OPTIONS: { value: "cash" | "check" | "card"; label: string; icon: LucideIcon }[] = [
   { value: "cash", label: "Espèces", icon: CircleDollarSign },
-  { value: "check", label: "Chèque", icon: FileText },
+  { value: "check", label: "En ligne", icon: FileText },
   { value: "card", label: "Carte", icon: CreditCard },
 ];
 

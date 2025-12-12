@@ -53,7 +53,7 @@ function StylistDaily({ id, date, commissionPct }: { id: string; date?: string; 
                             <svg className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-amber-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                         </span>
                         <div className="leading-tight min-w-0">
-                            <div className="text-[9px] sm:text-[10px] font-semibold uppercase tracking-wide text-white/80">CHÈQUE</div>
+                            <div className="text-[9px] sm:text-[10px] font-semibold uppercase tracking-wide text-white/80">EN LIGNE</div>
                             <div className="text-[8px] sm:text-[9px] text-white/50">{d?.methods.check.count || 0} prest.</div>
                         </div>
                     </div>
@@ -130,7 +130,7 @@ function TransactionRow({ entry: e, fmt, onUpdate }: { entry: any, fmt: (ts: num
                                 {e.paymentMethod === "cash" && <svg className="h-2.5 w-2.5 text-emerald-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><rect x="2" y="6" width="20" height="12" rx="2" /><circle cx="12" cy="12" r="3" /><path d="M12 10v4m-1-3.5h2m-2 3h2" /></svg>}
                             </span>
                             <span className="text-[9px] font-semibold uppercase tracking-wide text-white/80">
-                                {({ cash: "ESPÈCES", check: "CHÈQUE", card: "CARTE" } as const)[e.paymentMethod as "cash" | "check" | "card"]}
+                                {({ cash: "ESPÈCES", check: "EN LIGNE", card: "CARTE" } as const)[e.paymentMethod as "cash" | "check" | "card"]}
                             </span>
                         </button>
                     </PopoverTrigger>
@@ -159,7 +159,7 @@ function TransactionRow({ entry: e, fmt, onUpdate }: { entry: any, fmt: (ts: num
                                         {method === "cash" && <svg className="h-2.5 w-2.5 text-emerald-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><rect x="2" y="6" width="20" height="12" rx="2" /><circle cx="12" cy="12" r="3" /><path d="M12 10v4m-1-3.5h2m-2 3h2" /></svg>}
                                     </span>
                                     <span className="text-[10px] font-semibold uppercase tracking-wide text-white/80">
-                                        {({ cash: "ESPÈCES", check: "CHÈQUE", card: "CARTE" } as const)[method]}
+                                        {({ cash: "ESPÈCES", check: "EN LIGNE", card: "CARTE" } as const)[method]}
                                     </span>
                                 </button>
                             ))}
@@ -252,7 +252,7 @@ export function StylistMonthly({ id, commissionPct, stylistName }: { id: string;
             <div className="grid grid-cols-4 text-sm border rounded-md overflow-hidden">
                 <div className="bg-white/12 px-3 py-2"></div>
                 <div className="bg-white/12 px-3 py-2"><span className="inline-flex items-center px-2 py-0.5 rounded-full border-2 border-emerald-300 bg-emerald-100/30 text-emerald-100 text-xs font-semibold">Espèces</span></div>
-                <div className="bg-white/12 px-3 py-2"><span className="inline-flex items-center px-2 py-0.5 rounded-full border-2 border-amber-300 bg-amber-100/30 text-amber-100 text-xs font-semibold">Chèque</span></div>
+                <div className="bg-white/12 px-3 py-2"><span className="inline-flex items-center px-2 py-0.5 rounded-full border-2 border-amber-300 bg-amber-100/30 text-amber-100 text-xs font-semibold">En ligne</span></div>
                 <div className="bg-white/12 px-3 py-2"><span className="inline-flex items-center px-2 py-0.5 rounded-full border-2 border-indigo-300 bg-indigo-100/30 text-indigo-100 text-xs font-semibold">Carte</span></div>
                 <div className="px-3 py-2 font-bold">Mois</div>
                 <div className="px-3 py-2">{eur.format(m?.methods.cash.amount || 0)}</div>

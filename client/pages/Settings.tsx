@@ -41,7 +41,7 @@ const PAYMENT_METHOD_META: PaymentSummaryMeta[] = [
   },
   {
     key: "check",
-    label: "Chèque",
+    label: "En ligne",
     icon: FileText,
     badgeClasses: "border border-amber-500/40 bg-amber-500/10",
     iconClasses: "text-amber-300",
