@@ -1386,7 +1386,7 @@ export default function PrestationsForm() {
                         onClick={() => handlePaymentSelect("mixed")}
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
-                        className="flex items-center justify-start gap-3 rounded-xl border-2 border-white/20 bg-black/5 px-3 py-2.5 text-left font-bold transition-colors duration-200 hover:border-purple-400/80 hover:bg-purple-500/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-400 shadow-[0_6px_20px_rgba(8,15,40,0.3)] backdrop-blur-sm mt-3"
+                        className="flex items-center justify-start gap-3 rounded-xl border-2 border-white/20 bg-black/5 px-3 py-2.5 text-left font-bold transition-colors duration-200 hover:border-purple-400/80 hover:bg-purple-500/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-400 shadow-[0_6px_20px_rgba(8,15,40,0.3)] backdrop-blur-sm mt-[120px]"
                       >
                         <span
                           className="relative flex h-10 w-10 items-center justify-center rounded-full"
