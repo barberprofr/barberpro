@@ -1403,12 +1403,9 @@ export default function PrestationsForm() {
                     
                     <div className="space-y-4">
                       <div className="flex items-center gap-3 rounded-2xl border-2 border-green-500/30 bg-green-500/10 p-4">
-                        <span className="flex h-12 w-12 items-center justify-center rounded-full" style={{ background: PAYMENT_OPTIONS[0].colors.outer, boxShadow: PAYMENT_OPTIONS[0].colors.glow }}>
-                          <span className="absolute inset-[3px] rounded-full" style={{ background: "radial-gradient(circle, rgba(15,23,42,0.92) 0%, rgba(30,41,59,0.78) 60%, rgba(15,23,42,0.55) 100%)" }} />
-                          <span className="relative flex h-8 w-8 items-center justify-center rounded-lg overflow-hidden" style={{ background: PAYMENT_OPTIONS[0].colors.inner }}>
-                            <CircleDollarSign className="h-5 w-5 text-slate-900/80" />
-                          </span>
-                        </span>
+                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-green-400 to-emerald-600 shadow-lg shadow-green-500/30">
+                          <CircleDollarSign className="h-6 w-6 text-white" />
+                        </div>
                         <div className="flex-1">
                           <label className="text-sm font-medium text-green-400">Espèces</label>
                           <Input
@@ -1424,12 +1421,9 @@ export default function PrestationsForm() {
                       </div>
                       
                       <div className="flex items-center gap-3 rounded-2xl border-2 border-cyan-500/30 bg-cyan-500/10 p-4">
-                        <span className="flex h-12 w-12 items-center justify-center rounded-full" style={{ background: PAYMENT_OPTIONS[1].colors.outer, boxShadow: PAYMENT_OPTIONS[1].colors.glow }}>
-                          <span className="absolute inset-[3px] rounded-full" style={{ background: "radial-gradient(circle, rgba(15,23,42,0.92) 0%, rgba(30,41,59,0.78) 60%, rgba(15,23,42,0.55) 100%)" }} />
-                          <span className="relative flex h-8 w-8 items-center justify-center rounded-lg overflow-hidden" style={{ background: PAYMENT_OPTIONS[1].colors.inner }}>
-                            <CreditCard className="h-5 w-5 text-slate-900/80" />
-                          </span>
-                        </span>
+                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-cyan-400 to-blue-600 shadow-lg shadow-cyan-500/30">
+                          <CreditCard className="h-6 w-6 text-white" />
+                        </div>
                         <div className="flex-1">
                           <label className="text-sm font-medium text-cyan-400">Carte</label>
                           <Input
