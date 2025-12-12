@@ -299,6 +299,7 @@ export default function ServicesPicker({ onServiceSelect, onReset, externalOpen,
                     whileTap={{ 
                       scale: 1.15, 
                       y: -10,
+                      background: "linear-gradient(135deg, rgba(20,184,166,0.95) 0%, rgba(34,211,238,0.9) 50%, rgba(52,211,153,0.95) 100%)",
                       boxShadow: "0 0 60px rgba(20,184,166,0.9), 0 0 100px rgba(20,184,166,0.6), -20px 0 50px rgba(6,182,212,0.7), 20px 0 50px rgba(6,182,212,0.7), 0 30px 60px rgba(16,185,129,0.5)"
                     }}
                     transition={{ type: "spring", stiffness: 400, damping: 12 }}
