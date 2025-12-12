@@ -200,8 +200,9 @@ export function StylistDailySection({ id, commissionPct, stylistName }: { id: st
             {/* Bouton pour ouvrir le popup des encaissements */}
             <motion.button
                 onClick={() => setEncaissementsOpen(true)}
-                whileHover={{ scale: 1.02, y: -1 }}
-                whileTap={{ scale: 1.04, boxShadow: "0 0 20px rgba(139,92,246,0.6)" }}
+                whileHover={{ scale: 1.03, y: -3, boxShadow: "0 0 25px rgba(139,92,246,0.5)" }}
+                whileTap={{ scale: 1.12, y: -8, boxShadow: "0 0 50px rgba(139,92,246,0.9), 0 0 80px rgba(139,92,246,0.5), inset 0 0 20px rgba(255,255,255,0.1)" }}
+                transition={{ type: "spring", stiffness: 400, damping: 15 }}
                 className="w-full flex items-center justify-between rounded-xl border border-violet-500/40 bg-gradient-to-br from-violet-900/40 via-slate-900/60 to-slate-900/80 backdrop-blur-xl px-3 py-2 shadow-[0_4px_16px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.1)] transition-all hover:border-violet-400/60"
             >
                 <div className="flex items-center gap-2">
