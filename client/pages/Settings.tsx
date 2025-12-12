@@ -327,65 +327,123 @@ function StylistTotals({ id, commissionPct, onDetailOpen }: { id: string; commis
   const [dailyPopupOpen, setDailyPopupOpen] = useState(false);
   const [monthlyPopupOpen, setMonthlyPopupOpen] = useState(false);
 
-  const handleDailyOpen = (open: boolean) => {
-    setDailyPopupOpen(open);
-    if (open && onDetailOpen) onDetailOpen();
+  const handleDailyClick = () => {
+    if (onDetailOpen) onDetailOpen();
+    setTimeout(() => setDailyPopupOpen(true), 50);
   };
 
-  const handleMonthlyOpen = (open: boolean) => {
-    setMonthlyPopupOpen(open);
-    if (open && onDetailOpen) onDetailOpen();
+  const handleMonthlyClick = () => {
+    if (onDetailOpen) onDetailOpen();
+    setTimeout(() => setMonthlyPopupOpen(true), 50);
   };
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
-      <Popover open={dailyPopupOpen} onOpenChange={handleDailyOpen}>
-        <PopoverTrigger asChild>
-          <motion.button
-            type="button"
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            className="rounded-3xl border border-white/20 bg-black/12 p-4 shadow-inner text-sm space-y-3 backdrop-blur-md cursor-pointer transition-all hover:border-cyan-400/40 hover:shadow-[0_0_20px_rgba(34,211,238,0.2)]"
+    <>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+        <motion.button
+          type="button"
+          onClick={handleDailyClick}
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          className="rounded-3xl border border-white/20 bg-black/12 p-4 shadow-inner text-sm space-y-3 backdrop-blur-md cursor-pointer transition-all hover:border-cyan-400/40 hover:shadow-[0_0_20px_rgba(34,211,238,0.2)]"
+        >
+          <div className="text-xs text-slate-300 text-center whitespace-nowrap overflow-hidden text-ellipsis min-h-[20px]">
+            Total jour
+            <span className="ml-1 italic text-slate-400">— {new Date().toLocaleDateString("fr-FR", { timeZone: "Europe/Paris", weekday: "long", year: "numeric", month: "long", day: "2-digit" })}</span>
+          </div>
+          <div className="text-base font-bold uppercase tracking-wide text-primary text-center">CA Jour</div>
+          <div className="text-3xl font-extrabold leading-tight text-center text-slate-100">{eur.format(d?.amount || 0)}</div>
+          <div className="text-base font-semibold text-center text-slate-100 whitespace-nowrap overflow-hidden text-ellipsis min-h-[20px]">Salaire {eur.format(salaryAmount)}</div>
+          <div className="text-xs text-slate-300 text-center">{prestationD?.count || 0} prest.{dailyProductCount ? `, ${dailyProductCount} prod.` : ""}</div>
+        </motion.button>
+        <motion.button
+          type="button"
+          onClick={handleMonthlyClick}
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          className="rounded-3xl border border-white/20 bg-black/12 p-4 shadow-inner text-sm space-y-3 backdrop-blur-md cursor-pointer transition-all hover:border-cyan-400/40 hover:shadow-[0_0_20px_rgba(34,211,238,0.2)]"
+        >
+          <div className="text-xs text-slate-300 text-center whitespace-nowrap overflow-hidden text-ellipsis min-h-[20px]">
+            Total mois
+            <span className="ml-1 italic text-slate-400">— {new Date().toLocaleDateString("fr-FR", { timeZone: "Europe/Paris", year: "numeric", month: "long" })}</span>
+          </div>
+          <div className="text-base font-bold uppercase tracking-wide text-primary text-center">CA Mois</div>
+          <div className="text-3xl font-extrabold leading-tight text-center text-slate-100">{eur.format(m?.amount || 0)}</div>
+          <div className="text-base font-semibold text-center text-slate-100 whitespace-nowrap overflow-hidden text-ellipsis min-h-[20px]">
+            Salaire mois {eur.format(salaryMonth)}
+          </div>
+          <div className="text-xs text-slate-300 text-center">{prestationM?.count || 0} prest.{monthlyProductCount ? `, ${monthlyProductCount} prod.` : ""}</div>
+        </motion.button>
+      </div>
+
+      <AnimatePresence>
+        {dailyPopupOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
+            className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40"
+            onClick={() => setDailyPopupOpen(false)}
           >
-            <div className="text-xs text-slate-300 text-center whitespace-nowrap overflow-hidden text-ellipsis min-h-[20px]">
-              Total jour
-              <span className="ml-1 italic text-slate-400">— {new Date().toLocaleDateString("fr-FR", { timeZone: "Europe/Paris", weekday: "long", year: "numeric", month: "long", day: "2-digit" })}</span>
-            </div>
-            <div className="text-base font-bold uppercase tracking-wide text-primary text-center">CA Jour</div>
-            <div className="text-3xl font-extrabold leading-tight text-center text-slate-100">{eur.format(d?.amount || 0)}</div>
-            <div className="text-base font-semibold text-center text-slate-100 whitespace-nowrap overflow-hidden text-ellipsis min-h-[20px]">Salaire {eur.format(salaryAmount)}</div>
-            <div className="text-xs text-slate-300 text-center">{prestationD?.count || 0} prest.{dailyProductCount ? `, ${dailyProductCount} prod.` : ""}</div>
-          </motion.button>
-        </PopoverTrigger>
-        <PopoverContent side="bottom" align="center" className="w-[min(95vw,28rem)] rounded-2xl border border-white/20 bg-slate-900/90 p-4 shadow-[0_25px_60px_rgba(0,0,0,0.5)] backdrop-blur-md">
-          <StylistDailySection id={id} commissionPct={commissionPct} />
-        </PopoverContent>
-      </Popover>
-      <Popover open={monthlyPopupOpen} onOpenChange={handleMonthlyOpen}>
-        <PopoverTrigger asChild>
-          <motion.button
-            type="button"
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            className="rounded-3xl border border-white/20 bg-black/12 p-4 shadow-inner text-sm space-y-3 backdrop-blur-md cursor-pointer transition-all hover:border-cyan-400/40 hover:shadow-[0_0_20px_rgba(34,211,238,0.2)]"
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.2 }}
+              className="w-[min(95vw,28rem)] max-h-[80vh] overflow-y-auto rounded-2xl border border-white/20 bg-slate-900/95 p-4 shadow-[0_25px_60px_rgba(0,0,0,0.5)] backdrop-blur-md"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-lg font-bold text-white">Détail CA Jour</span>
+                <button
+                  type="button"
+                  onClick={() => setDailyPopupOpen(false)}
+                  className="flex h-8 w-8 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition hover:bg-white/20"
+                >
+                  ✕
+                </button>
+              </div>
+              <StylistDailySection id={id} commissionPct={commissionPct} />
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {monthlyPopupOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
+            className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40"
+            onClick={() => setMonthlyPopupOpen(false)}
           >
-            <div className="text-xs text-slate-300 text-center whitespace-nowrap overflow-hidden text-ellipsis min-h-[20px]">
-              Total mois
-              <span className="ml-1 italic text-slate-400">— {new Date().toLocaleDateString("fr-FR", { timeZone: "Europe/Paris", year: "numeric", month: "long" })}</span>
-            </div>
-            <div className="text-base font-bold uppercase tracking-wide text-primary text-center">CA Mois</div>
-            <div className="text-3xl font-extrabold leading-tight text-center text-slate-100">{eur.format(m?.amount || 0)}</div>
-            <div className="text-base font-semibold text-center text-slate-100 whitespace-nowrap overflow-hidden text-ellipsis min-h-[20px]">
-              Salaire mois {eur.format(salaryMonth)}
-            </div>
-            <div className="text-xs text-slate-300 text-center">{prestationM?.count || 0} prest.{monthlyProductCount ? `, ${monthlyProductCount} prod.` : ""}</div>
-          </motion.button>
-        </PopoverTrigger>
-        <PopoverContent side="bottom" align="center" className="w-[min(95vw,28rem)] rounded-2xl border border-white/20 bg-slate-900/90 p-4 shadow-[0_25px_60px_rgba(0,0,0,0.5)] backdrop-blur-md">
-          <StylistMonthly id={id} commissionPct={commissionPct} />
-        </PopoverContent>
-      </Popover>
-    </div>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.2 }}
+              className="w-[min(95vw,28rem)] max-h-[80vh] overflow-y-auto rounded-2xl border border-white/20 bg-slate-900/95 p-4 shadow-[0_25px_60px_rgba(0,0,0,0.5)] backdrop-blur-md"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-lg font-bold text-white">Détail CA Mois</span>
+                <button
+                  type="button"
+                  onClick={() => setMonthlyPopupOpen(false)}
+                  className="flex h-8 w-8 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition hover:bg-white/20"
+                >
+                  ✕
+                </button>
+              </div>
+              <StylistMonthly id={id} commissionPct={commissionPct} />
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   );
 }
 
