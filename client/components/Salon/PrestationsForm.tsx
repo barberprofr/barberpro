@@ -1409,6 +1409,16 @@ export default function PrestationsForm() {
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 animate-in fade-in duration-200" onClick={(e) => e.stopPropagation()}>
                   <div className="w-[360px] rounded-2xl border border-white/20 bg-slate-900/40 p-5 text-slate-50 shadow-[0_15px_40px_rgba(8,15,40,0.8)] backdrop-blur-xl animate-in zoom-in-95 duration-200" onClick={(e) => e.stopPropagation()}>
                     <div className="mb-4 flex items-center gap-3">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setMixedPaymentPopupOpen(false);
+                          setPaymentPickerOpen(true);
+                        }}
+                        className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/20"
+                      >
+                        <ArrowLeft className="h-5 w-5" />
+                      </button>
                       <span className="text-xl font-bold text-white">Mixte</span>
                       <span className="ml-auto text-xl font-bold text-white">{amount} €</span>
                     </div>
