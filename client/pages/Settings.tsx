@@ -875,10 +875,10 @@ export default function Settings() {
   const { data: pointsUsage, isLoading: pointsUsageLoading, isError: pointsUsageError } = usePointsUsageReport(pointsDay, pointsMonth);
   const selectedDayLabel = formatSelectedDayLabel(pointsDay);
   const selectedMonthLabel = formatSelectedMonthLabel(pointsMonth);
-  const daySectionTitle = selectedDayLabel === "—" ? "Jour sélectionné" : `Points utilis��s le ${selectedDayLabel}`;
-  const monthSectionTitle = selectedMonthLabel === "����" ? "Mois sélectionné" : `Points utilisés en ${selectedMonthLabel}`;
-  const dayEmptyLabel = selectedDayLabel === "—" ? "Sélectionnez un jour pour voir l’utilisation des points." : `Aucun point utilisé le ${selectedDayLabel}.`;
-  const monthEmptyLabel = selectedMonthLabel === "����" ? "Sélectionnez un mois pour voir l’utilisation des points." : `Aucun point utilisé en ${selectedMonthLabel}.`;
+  const daySectionTitle = selectedDayLabel === "—" ? "Jour sélectionné" : `Points utilisés le ${selectedDayLabel}`;
+  const monthSectionTitle = selectedMonthLabel === "—" ? "Mois sélectionné" : `Points utilisés en ${selectedMonthLabel}`;
+  const dayEmptyLabel = selectedDayLabel === "—" ? "Sélectionnez un jour pour voir l'utilisation des points." : `Aucun point utilisé le ${selectedDayLabel}.`;
+  const monthEmptyLabel = selectedMonthLabel === "—" ? "Sélectionnez un mois pour voir l'utilisation des points." : `Aucun point utilisé en ${selectedMonthLabel}.`;
   const todayParis = parisDateString();
   const currentParisMonth = todayParis.slice(0, 7);
   const delStylist = useDeleteStylist();
