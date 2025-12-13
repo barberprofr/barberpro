@@ -3,8 +3,10 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown, ChevronLeft, Euro, Scissors, Package, Users } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { useDashboardSummary, useStylists, useStylistBreakdown, useConfig, apiPath, useProducts } from "@/lib/api";
+import { useDashboardSummary, useStylists, useStylistBreakdown, useConfig, apiPath, useProducts, useVerifyStylistSecretCode } from "@/lib/api";
 import { StylistMonthly } from "@/components/Salon/StylistDailyStats";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 type SummaryHighlightCardProps = {
   label: string;
@@ -413,6 +415,65 @@ export default function StatsCards() {
 function StylistsList({ stylists, config, hasStylists }: { stylists: any[], config: any, hasStylists: boolean }) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const selectedStylist = stylists.find(s => s.id === selectedId);
+  const [pendingStylistCode, setPendingStylistCode] = useState<{ id: string; name: string; commissionPct: number } | null>(null);
+  const [stylistCodeInput, setStylistCodeInput] = useState("");
+  const [stylistCodeError, setStylistCodeError] = useState("");
+  const verifyStylistCode = useVerifyStylistSecretCode();
+  const [verifiedStylists, setVerifiedStylists] = useState<Set<string>>(new Set());
+
+  const handleStylistCardClick = async (stylist: any, commissionPct: number) => {
+    if (verifiedStylists.has(stylist.id)) {
+      setSelectedId(stylist.id);
+      return;
+    }
+    try {
+      const url = "/api" + apiPath(`/stylists/${stylist.id}/has-code`);
+      const res = await fetch(url);
+      if (!res.ok) {
+        setStylistCodeError("Erreur de vérification");
+        return;
+      }
+      const data = await res.json();
+      if (!data.hasCode) {
+        setSelectedId(stylist.id);
+        return;
+      }
+      setPendingStylistCode({ id: stylist.id, name: stylist.name, commissionPct });
+      setStylistCodeInput("");
+      setStylistCodeError("");
+    } catch {
+      setStylistCodeError("Erreur de connexion");
+    }
+  };
+
+  const handleVerifyStylistCode = () => {
+    if (!pendingStylistCode || !stylistCodeInput.trim()) return;
+    verifyStylistCode.mutate(
+      { id: pendingStylistCode.id, code: stylistCodeInput },
+      {
+        onSuccess: (data) => {
+          if (data.valid || data.noCodeRequired) {
+            setVerifiedStylists(prev => new Set([...prev, pendingStylistCode.id]));
+            setSelectedId(pendingStylistCode.id);
+            setPendingStylistCode(null);
+            setStylistCodeInput("");
+            setStylistCodeError("");
+          } else {
+            setStylistCodeError("Code incorrect");
+          }
+        },
+        onError: () => {
+          setStylistCodeError("Erreur de vérification");
+        }
+      }
+    );
+  };
+
+  const closePinDialog = () => {
+    setPendingStylistCode(null);
+    setStylistCodeInput("");
+    setStylistCodeError("");
+  };
 
   if (selectedId && selectedStylist) {
     return (
@@ -449,16 +510,77 @@ function StylistsList({ stylists, config, hasStylists }: { stylists: any[], conf
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, x: -20 }}
-      animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: 20 }}
-      className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3"
-    >
-      {stylists.map((s) => (
-        <StylistCard key={s.id} s={s} config={config} onClick={() => setSelectedId(s.id)} />
-      ))}
-    </motion.div>
+    <div className="relative">
+      <motion.div
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        exit={{ opacity: 0, x: 20 }}
+        className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3"
+      >
+        {stylists.map((s) => (
+          <StylistCard key={s.id} s={s} config={config} onClick={() => handleStylistCardClick(s, (s as any).commissionPct ?? config?.commissionDefault ?? 0)} />
+        ))}
+      </motion.div>
+      <AnimatePresence>
+        {pendingStylistCode && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
+            className="absolute inset-0 z-10 flex items-center justify-center bg-black/60 backdrop-blur-sm rounded-2xl"
+            onClick={closePinDialog}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              transition={{ duration: 0.2 }}
+              className="w-full max-w-xs rounded-2xl border border-amber-400/30 bg-slate-900/98 backdrop-blur-xl p-5 shadow-[0_25px_80px_rgba(251,191,36,0.3)]"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex flex-col items-center text-center space-y-3">
+                <div className="relative flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-amber-500/30 via-amber-600/20 to-orange-500/30 ring-2 ring-amber-400/50 shadow-[0_8px_32px_rgba(251,191,36,0.4)]">
+                  <svg className="h-7 w-7 text-amber-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-bold text-white">{pendingStylistCode.name}</h3>
+                <p className="text-xs text-white/70">Entrez le code secret</p>
+              </div>
+              <div className="space-y-3 mt-4">
+                <Input
+                  type="password"
+                  autoFocus
+                  placeholder="Code secret"
+                  value={stylistCodeInput}
+                  onChange={(e) => { setStylistCodeInput(e.target.value); setStylistCodeError(""); }}
+                  onKeyDown={(e) => { if (e.key === "Enter") handleVerifyStylistCode(); }}
+                  className="h-11 rounded-xl border border-amber-400/40 bg-slate-800/80 text-white text-center text-lg tracking-widest placeholder:text-white/50 focus:border-amber-400 focus:ring-2 focus:ring-amber-400/30"
+                />
+                {stylistCodeError && <p className="text-xs text-rose-400 text-center">{stylistCodeError}</p>}
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    onClick={closePinDialog}
+                    className="flex-1 h-9 rounded-xl border-white/20 bg-white/5 text-white hover:bg-white/10"
+                  >
+                    Annuler
+                  </Button>
+                  <Button
+                    onClick={handleVerifyStylistCode}
+                    disabled={!stylistCodeInput.trim() || verifyStylistCode.isPending}
+                    className="flex-1 h-9 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-white font-semibold hover:from-amber-400 hover:to-orange-400"
+                  >
+                    {verifyStylistCode.isPending ? "..." : "Valider"}
+                  </Button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }
 
