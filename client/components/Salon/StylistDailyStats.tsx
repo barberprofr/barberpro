@@ -78,18 +78,22 @@ function StylistEncaissements({ id, date }: { id: string; date?: string }) {
     };
 
     return (
-        <div className="text-sm border border-gray-700 rounded-md overflow-hidden bg-slate-900/70">
-            <div className="grid grid-cols-3 bg-slate-800/80 text-gray-100 px-3 py-2 font-medium">
-                <div>Heure</div>
-                <div>Mode</div>
-                <div>Montant</div>
-            </div>
-            <div className="max-h-[400px] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
-                {entries.length === 0 ? (
-                    <div className="px-3 py-2 text-muted-foreground">Aucun encaissement pour ce jour</div>
-                ) : entries.map((e: any, i: number) => (
-                    <TransactionRow key={i} entry={e} fmt={fmt} onUpdate={handleUpdatePayment} />
-                ))}
+        <div className="text-sm border border-gray-700 rounded-md overflow-hidden bg-slate-900/70 w-full">
+            <div className="overflow-x-auto">
+                <div className="min-w-[280px]">
+                    <div className="grid grid-cols-[60px_1fr_1fr] bg-slate-800/80 text-gray-100 px-2 py-2 font-medium text-xs sm:text-sm sm:px-3">
+                        <div>Heure</div>
+                        <div>Mode</div>
+                        <div>Montant</div>
+                    </div>
+                    <div className="max-h-[400px] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
+                        {entries.length === 0 ? (
+                            <div className="px-2 py-2 text-muted-foreground sm:px-3">Aucun encaissement pour ce jour</div>
+                        ) : entries.map((e: any, i: number) => (
+                            <TransactionRow key={i} entry={e} fmt={fmt} onUpdate={handleUpdatePayment} />
+                        ))}
+                    </div>
+                </div>
             </div>
         </div>
     );
@@ -99,7 +103,7 @@ function TransactionRow({ entry: e, fmt, onUpdate }: { entry: any, fmt: (ts: num
     const [open, setOpen] = useState(false);
 
     return (
-        <div className="grid grid-cols-3 px-3 py-2 border-t border-gray-700 items-center">
+        <div className="grid grid-cols-[60px_1fr_1fr] px-2 py-2 border-t border-gray-700 items-center text-xs sm:text-sm sm:px-3">
             <div>{fmt(e.timestamp)}</div>
             <div>
                 <Popover open={open} onOpenChange={setOpen}>
@@ -158,7 +162,10 @@ function TransactionRow({ entry: e, fmt, onUpdate }: { entry: any, fmt: (ts: num
                     </PopoverContent>
                 </Popover>
             </div>
-            <div>{eur.format(e.amount)} <span className="text-xs text-white/60">{e.name || (e.kind === "prestation" ? "prestation" : "produit")}</span></div>
+            <div className="min-w-0">
+                <span className="font-medium">{eur.format(e.amount)}</span>
+                <span className="text-[10px] sm:text-xs text-white/60 block truncate">{e.name || (e.kind === "prestation" ? "prestation" : "produit")}</span>
+            </div>
         </div>
     );
 }
