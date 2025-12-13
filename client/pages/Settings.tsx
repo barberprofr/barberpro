@@ -1862,6 +1862,161 @@ export default function Settings() {
                   </AccordionTrigger>
                   <AccordionContent className="pt-3 text-sm text-white/80">
                     <PointsManager />
+                    <div className="mt-4 pt-4 border-t border-emerald-500/20">
+                      <div className="flex items-center gap-2 mb-3">
+                        <svg className="h-5 w-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z" />
+                        </svg>
+                        <span className="text-sm font-semibold text-emerald-400">Utilisation des Points</span>
+                      </div>
+                      <div className="space-y-1.5">
+                        <div className="grid gap-2 sm:grid-cols-2">
+                          <div className="space-y-1">
+                            <label className="text-[10px] font-semibold uppercase tracking-wide text-white/75">Jour</label>
+                            <div className="group relative">
+                              <div className="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-r from-[#f97316]/35 via-[#fb7185]/25 to-[#6366f1]/20 opacity-60 transition duration-300 group-hover:opacity-90 group-focus-within:opacity-100" />
+                              <Input
+                                type="date"
+                                value={pointsDay}
+                                max={todayParis}
+                                className="relative z-10 h-9 rounded-lg border border-transparent bg-slate-950/70 pl-9 pr-3 text-xs font-semibold tracking-wide text-slate-100 shadow-[0_12px_28px_rgba(249,115,22,0.22)] transition focus-visible:ring focus-visible:ring-[#f97316]/80 focus-visible:ring-offset-0"
+                                onClick={() => {
+                                  setHasOpenedDayUsage(true);
+                                  setIsMonthUsageVisible(false);
+                                  setIsDayUsageVisible(prev => !prev);
+                                }}
+                                onKeyDown={(event) => {
+                                  if (event.key === "Enter" || event.key === " ") {
+                                    event.preventDefault();
+                                    setHasOpenedDayUsage(true);
+                                    setIsMonthUsageVisible(false);
+                                    setIsDayUsageVisible(prev => !prev);
+                                  }
+                                  if (event.key === "Escape") {
+                                    event.preventDefault();
+                                    setIsDayUsageVisible(false);
+                                  }
+                                }}
+                                onChange={(e) => {
+                                  const value = e.target.value;
+                                  if (value && value !== pointsDay) {
+                                    setPointsDay(value);
+                                    setHasOpenedDayUsage(true);
+                                    setIsDayUsageVisible(true);
+                                    setIsMonthUsageVisible(false);
+                                  }
+                                }}
+                              />
+                              <Search className="pointer-events-none absolute left-2.5 top-1/2 h-5 w-5 -translate-y-1/2 text-white drop-shadow-[0_6px_16px_rgba(255,255,255,0.6)]" />
+                            </div>
+                            <p className="text-[10px] text-muted-foreground">{selectedDayLabel}</p>
+                          </div>
+                          <div className="space-y-1">
+                            <label className="text-[10px] font-semibold uppercase tracking-wide text-white/75">Mois</label>
+                            <div className="group relative">
+                              <div className="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-r from-[#7c6dff]/35 via-[#4f46e5]/25 to-[#06b6d4]/25 opacity-60 transition duration-300 group-hover:opacity-90 group-focus-within:opacity-100" />
+                              <Input
+                                type="month"
+                                value={pointsMonth}
+                                max={currentParisMonth}
+                                className="relative z-10 h-9 rounded-lg border border-transparent bg-slate-950/70 pl-9 pr-3 text-xs font-semibold tracking-wide text-slate-100 shadow-[0_12px_28px_rgba(79,70,229,0.22)] transition outline-none focus:outline-none focus-visible:outline-none focus-visible:ring-0"
+                                onClick={() => {
+                                  if (isMonthUsageVisible) {
+                                    setHasOpenedDayUsage(false);
+                                    setIsDayUsageVisible(false);
+                                    setIsMonthUsageVisible(false);
+                                  } else {
+                                    setHasOpenedDayUsage(false);
+                                    setIsDayUsageVisible(false);
+                                    setIsMonthUsageVisible(true);
+                                  }
+                                }}
+                                onKeyDown={(event) => {
+                                  if (event.key === "Enter" || event.key === " ") {
+                                    event.preventDefault();
+                                    if (isMonthUsageVisible) {
+                                      setHasOpenedDayUsage(false);
+                                      setIsDayUsageVisible(false);
+                                      setIsMonthUsageVisible(false);
+                                    } else {
+                                      setHasOpenedDayUsage(false);
+                                      setIsDayUsageVisible(false);
+                                      setIsMonthUsageVisible(true);
+                                    }
+                                  }
+                                }}
+                                onChange={(e) => {
+                                  const value = e.target.value;
+                                  if (value) {
+                                    setPointsMonth(value);
+                                    setHasOpenedDayUsage(false);
+                                    setIsDayUsageVisible(false);
+                                    setIsMonthUsageVisible(true);
+                                  }
+                                }}
+                              />
+                              <Search className="pointer-events-none absolute left-2.5 top-1/2 h-5 w-5 -translate-y-1/2 text-white drop-shadow-[0_6px_16px_rgba(255,255,255,0.6)]" />
+                            </div>
+                            <p className="text-[10px] text-muted-foreground">{selectedMonthLabel}</p>
+                          </div>
+                        </div>
+                        {pointsUsageLoading && (
+                          <p className="text-[10px] text-muted-foreground">Chargement des données…</p>
+                        )}
+                        {!pointsUsageLoading && pointsUsageError && (
+                          <p className="text-[10px] text-destructive">
+                            Impossible de récupérer les utilisations de points.
+                          </p>
+                        )}
+                        {!pointsUsageLoading && !pointsUsageError && (
+                          <>
+                            <div
+                              className={cn(
+                                "overflow-hidden transition-all duration-300 ease-out",
+                                hasOpenedDayUsage
+                                  ? isDayUsageVisible
+                                    ? "max-h-[480px] opacity-100"
+                                    : "max-h-0 opacity-0"
+                                  : "max-h-0 opacity-0"
+                              )}
+                            >
+                              {hasOpenedDayUsage && (
+                                <div className={cn("pt-2", !isDayUsageVisible && "pointer-events-none")}>
+                                  <PointsUsageScopeSection
+                                    title={daySectionTitle}
+                                    emptyLabel={dayEmptyLabel}
+                                    groups={pointsUsage?.daily ?? []}
+                                    variant="month"
+                                  />
+                                </div>
+                              )}
+                            </div>
+                            <div
+                              className={cn(
+                                "overflow-hidden transition-all duration-300 ease-out",
+                                isMonthUsageVisible ? "max-h-[480px] opacity-100" : "max-h-0 opacity-0"
+                              )}
+                            >
+                              {isMonthUsageVisible && (
+                                <div className="pt-2">
+                                  <PointsUsageScopeSection
+                                    title={monthSectionTitle}
+                                    emptyLabel={monthEmptyLabel}
+                                    groups={pointsUsage?.monthly ?? []}
+                                    variant="month"
+                                  />
+                                </div>
+                              )}
+                            </div>
+                            {pointsUsage?.generatedAt ? (
+                              <p className="text-[9px] uppercase tracking-wide text-muted-foreground">
+                                Actualisé le {new Date(pointsUsage.generatedAt).toLocaleString("fr-FR", { timeZone: "Europe/Paris", day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" })}
+                              </p>
+                            ) : null}
+                          </>
+                        )}
+                      </div>
+                    </div>
                   </AccordionContent>
                 </div>
               </AccordionItem>
@@ -2059,167 +2214,6 @@ export default function Settings() {
                   </motion.div>
                 )}
               </AnimatePresence>
-
-              <AccordionItem value="points-usage">
-                <div className="space-y-2">
-                  <AccordionTrigger className="group relative flex w-full items-center justify-center gap-3 rounded-xl border border-emerald-500/30 bg-transparent px-3 py-2 transition-all duration-300 hover:no-underline hover:scale-[1.02] hover:border-emerald-400/50 hover:shadow-[0_8px_25px_rgba(16,185,129,0.25)] active:scale-[1.08] active:border-emerald-300 active:shadow-[0_0_30px_rgba(16,185,129,0.8),0_0_60px_rgba(16,185,129,0.5)] active:brightness-150">
-                    <svg className="h-5 w-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z" />
-                    </svg>
-                    <span className="text-sm font-semibold text-emerald-400">Points</span>
-                    <span className="text-xs text-white/50">Utilisation</span>
-                  </AccordionTrigger>
-                  <AccordionContent>
-                    <div className="space-y-1.5">
-                      <div className="grid gap-2 sm:grid-cols-2">
-                        <div className="space-y-1">
-                          <label className="text-[10px] font-semibold uppercase tracking-wide text-white/75">Jour</label>
-                          <div className="group relative">
-                            <div className="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-r from-[#f97316]/35 via-[#fb7185]/25 to-[#6366f1]/20 opacity-60 transition duration-300 group-hover:opacity-90 group-focus-within:opacity-100" />
-                            <Input
-                              type="date"
-                              value={pointsDay}
-                              max={todayParis}
-                              className="relative z-10 h-9 rounded-lg border border-transparent bg-slate-950/70 pl-9 pr-3 text-xs font-semibold tracking-wide text-slate-100 shadow-[0_12px_28px_rgba(249,115,22,0.22)] transition focus-visible:ring focus-visible:ring-[#f97316]/80 focus-visible:ring-offset-0"
-                              onClick={() => {
-                                setHasOpenedDayUsage(true);
-                                setIsMonthUsageVisible(false);
-                                setIsDayUsageVisible(prev => !prev);
-                              }}
-                              onKeyDown={(event) => {
-                                if (event.key === "Enter" || event.key === " ") {
-                                  event.preventDefault();
-                                  setHasOpenedDayUsage(true);
-                                  setIsMonthUsageVisible(false);
-                                  setIsDayUsageVisible(prev => !prev);
-                                }
-                                if (event.key === "Escape") {
-                                  event.preventDefault();
-                                  setIsDayUsageVisible(false);
-                                }
-                              }}
-                              onChange={(e) => {
-                                const value = e.target.value;
-                                if (value && value !== pointsDay) {
-                                  setPointsDay(value);
-                                  setHasOpenedDayUsage(true);
-                                  setIsDayUsageVisible(true);
-                                  setIsMonthUsageVisible(false);
-                                }
-                              }}
-                            />
-                            <Search className="pointer-events-none absolute left-2.5 top-1/2 h-5 w-5 -translate-y-1/2 text-white drop-shadow-[0_6px_16px_rgba(255,255,255,0.6)]" />
-                          </div>
-                          <p className="text-[10px] text-muted-foreground">{selectedDayLabel}</p>
-                        </div>
-                        <div className="space-y-1">
-                          <label className="text-[10px] font-semibold uppercase tracking-wide text-white/75">Mois</label>
-                          <div className="group relative">
-                            <div className="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-r from-[#7c6dff]/35 via-[#4f46e5]/25 to-[#06b6d4]/25 opacity-60 transition duration-300 group-hover:opacity-90 group-focus-within:opacity-100" />
-                            <Input
-                              type="month"
-                              value={pointsMonth}
-                              max={currentParisMonth}
-                              className="relative z-10 h-9 rounded-lg border border-transparent bg-slate-950/70 pl-9 pr-3 text-xs font-semibold tracking-wide text-slate-100 shadow-[0_12px_28px_rgba(79,70,229,0.22)] transition outline-none focus:outline-none focus-visible:outline-none focus-visible:ring-0"
-                              onClick={() => {
-                                if (isMonthUsageVisible) {
-                                  setHasOpenedDayUsage(false);
-                                  setIsDayUsageVisible(false);
-                                  setIsMonthUsageVisible(false);
-                                } else {
-                                  setHasOpenedDayUsage(false);
-                                  setIsDayUsageVisible(false);
-                                  setIsMonthUsageVisible(true);
-                                }
-                              }}
-                              onKeyDown={(event) => {
-                                if (event.key === "Enter" || event.key === " ") {
-                                  event.preventDefault();
-                                  if (isMonthUsageVisible) {
-                                    setHasOpenedDayUsage(false);
-                                    setIsDayUsageVisible(false);
-                                    setIsMonthUsageVisible(false);
-                                  } else {
-                                    setHasOpenedDayUsage(false);
-                                    setIsDayUsageVisible(false);
-                                    setIsMonthUsageVisible(true);
-                                  }
-                                }
-                              }}
-                              onChange={(e) => {
-                                const value = e.target.value;
-                                if (value) {
-                                  setPointsMonth(value);
-                                  setHasOpenedDayUsage(false);
-                                  setIsDayUsageVisible(false);
-                                  setIsMonthUsageVisible(true);
-                                }
-                              }}
-                            />
-                            <Search className="pointer-events-none absolute left-2.5 top-1/2 h-5 w-5 -translate-y-1/2 text-white drop-shadow-[0_6px_16px_rgba(255,255,255,0.6)]" />
-                          </div>
-                          <p className="text-[10px] text-muted-foreground">{selectedMonthLabel}</p>
-                        </div>
-                      </div>
-                      {pointsUsageLoading && (
-                        <p className="text-[10px] text-muted-foreground">Chargement des données…</p>
-                      )}
-                      {!pointsUsageLoading && pointsUsageError && (
-                        <p className="text-[10px] text-destructive">
-                          Impossible de récupérer les utilisations de points.
-                        </p>
-                      )}
-                      {!pointsUsageLoading && !pointsUsageError && (
-                        <>
-                          <div
-                            className={cn(
-                              "overflow-hidden transition-all duration-300 ease-out",
-                              hasOpenedDayUsage
-                                ? isDayUsageVisible
-                                  ? "max-h-[480px] opacity-100"
-                                  : "max-h-0 opacity-0"
-                                : "max-h-0 opacity-0"
-                            )}
-                          >
-                            {hasOpenedDayUsage && (
-                              <div className={cn("pt-2", !isDayUsageVisible && "pointer-events-none")}>
-                                <PointsUsageScopeSection
-                                  title={daySectionTitle}
-                                  emptyLabel={dayEmptyLabel}
-                                  groups={pointsUsage?.daily ?? []}
-                                  variant="month"
-                                />
-                              </div>
-                            )}
-                          </div>
-                          <div
-                            className={cn(
-                              "overflow-hidden transition-all duration-300 ease-out",
-                              isMonthUsageVisible ? "max-h-[480px] opacity-100" : "max-h-0 opacity-0"
-                            )}
-                          >
-                            {isMonthUsageVisible && (
-                              <div className="pt-2">
-                                <PointsUsageScopeSection
-                                  title={monthSectionTitle}
-                                  emptyLabel={monthEmptyLabel}
-                                  groups={pointsUsage?.monthly ?? []}
-                                  variant="month"
-                                />
-                              </div>
-                            )}
-                          </div>
-                          {pointsUsage?.generatedAt ? (
-                            <p className="text-[9px] uppercase tracking-wide text-muted-foreground">
-                              Actualisé le {new Date(pointsUsage.generatedAt).toLocaleString("fr-FR", { timeZone: "Europe/Paris", day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" })}
-                            </p>
-                          ) : null}
-                        </>
-                      )}
-                    </div>
-                  </AccordionContent>
-                </div>
-              </AccordionItem>
 
               <ServicesManager
                 accordionValue={servicesAccordionValue}
