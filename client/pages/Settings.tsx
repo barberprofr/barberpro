@@ -1447,7 +1447,17 @@ export default function Settings() {
                           <Button
                             size="sm"
                             className="h-8 rounded-lg border border-white/20 bg-[linear-gradient(135deg,rgba(79,70,229,0.8)0%,rgba(147,197,253,0.62)100%)] px-2.5 text-[9px] font-bold uppercase tracking-[0.2em] text-white shadow-[0_14px_36px_rgba(79,70,229,0.38)]"
-                            onClick={() => updateConfig.mutate({ commissionDefault: Math.max(0, Math.min(100, Number(commissionDefaultStr) || 0)) })}
+                            onClick={() => {
+                              const val = Math.max(0, Math.min(100, Number(commissionDefaultStr) || 0));
+                              updateConfig.mutate({ commissionDefault: val }, {
+                                onSuccess: () => {
+                                  toast({
+                                    title: "Modification enregistrée",
+                                    description: `Rémunération par défaut : ${val}%`,
+                                  });
+                                }
+                              });
+                            }}
                           >
                             OK
                           </Button>
@@ -1473,7 +1483,14 @@ export default function Settings() {
                             onClick={() => {
                               const parsed = Math.max(0, Math.min(1_000_000, Number(pointsRedeemDefaultStr) || 0));
                               setPointsRedeemDefaultStr(String(parsed));
-                              updateConfig.mutate({ pointsRedeemDefault: parsed });
+                              updateConfig.mutate({ pointsRedeemDefault: parsed }, {
+                                onSuccess: () => {
+                                  toast({
+                                    title: "Modification enregistrée",
+                                    description: `Points à déduire : ${parsed} pts`,
+                                  });
+                                }
+                              });
                             }}
                           >
                             OK
