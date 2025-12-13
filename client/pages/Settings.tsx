@@ -10,8 +10,9 @@ import PointsManager from "@/components/Salon/PointsManager";
 import ServicesManager from "@/components/Salon/ServicesManager";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { useAdminUpdateCode, useAdminVerifyCode, useAddStylist, useConfig, useUpdateConfig, useDashboardSummary, usePointsUsageReport, useStylists, useStylistBreakdown, useRevenueByDay, useRevenueByMonth, useDeleteStylist, useSetStylistCommission, useAdminRecoverCode, useAdminRecoverCodeVerify, useServices, useAddService, useDeleteService, useGlobalBreakdown, useUpdateTransactionPaymentMethod } from "@/lib/api";
+import { useAdminUpdateCode, useAdminVerifyCode, useAddStylist, useConfig, useUpdateConfig, useDashboardSummary, usePointsUsageReport, useStylists, useStylistBreakdown, useRevenueByDay, useRevenueByMonth, useDeleteStylist, useSetStylistCommission, useAdminRecoverCode, useAdminRecoverCodeVerify, useServices, useAddService, useDeleteService, useGlobalBreakdown, useUpdateTransactionPaymentMethod, useSetStylistSecretCode, useStylistHasSecretCode, useVerifyStylistSecretCode } from "@/lib/api";
 import { StylistMonthly } from "@/components/Salon/StylistDailyStats";
 import type { SummaryPayments, MethodKey, Stylist, PointsUsageGroup, DashboardSummary, Service } from "@/lib/api";
 import { cn } from "@/lib/utils";
@@ -1285,6 +1286,8 @@ export default function Settings() {
     );
   };
   const [manageName, setManageName] = useState<string>("");
+  const [manageSecretCode, setManageSecretCode] = useState<string>("");
+  const setStylistSecretCode = useSetStylistSecretCode();
   const updateConfig = useUpdateConfig();
   const { toast } = useToast();
   const [salonNameDraft, setSalonNameDraft] = useState("");
@@ -1292,6 +1295,11 @@ export default function Settings() {
   const [bestDaysAccordionValue, setBestDaysAccordionValue] = useState<string>("");
   const [servicesAccordionValue, setServicesAccordionValue] = useState<string>("");
   const [openStylistId, setOpenStylistId] = useState<string | null>(null);
+  const [verifiedStylistIds, setVerifiedStylistIds] = useState<Set<string>>(new Set());
+  const [codeDialogStylistId, setCodeDialogStylistId] = useState<string | null>(null);
+  const [codeDialogInput, setCodeDialogInput] = useState<string>("");
+  const [codeDialogError, setCodeDialogError] = useState<string>("");
+  const verifyStylistCode = useVerifyStylistSecretCode();
   const [coiffCaPopupOpen, setCoiffCaPopupOpen] = useState(false);
   const [dailyCaPopupOpen, setDailyCaPopupOpen] = useState(false);
   const [yearCaPopupOpen, setYearCaPopupOpen] = useState(false);
@@ -2096,11 +2104,38 @@ export default function Settings() {
                           ];
                           const colors = colorSchemes[idx % colorSchemes.length];
                           return (
-                            <Popover key={s.id} open={openStylistId === s.id} onOpenChange={(open) => setOpenStylistId(open ? s.id : null)}>
+                            <Popover key={s.id} open={openStylistId === s.id && verifiedStylistIds.has(s.id)} onOpenChange={(open) => {
+                                if (!open) {
+                                  setOpenStylistId(null);
+                                }
+                              }}>
                               <PopoverTrigger asChild>
                                 <button
                                   className="group relative flex h-36 w-full flex-col items-center justify-center gap-2 overflow-hidden rounded-[20px] border border-white/25 backdrop-blur-[26px] transition-all duration-200 hover:scale-[1.03] active:scale-105 active:brightness-110"
                                   style={{ background: "linear-gradient(160deg, rgba(30,41,59,0.95) 0%, rgba(15,23,42,0.98) 100%)", boxShadow: "0 24px 45px -20px rgba(15,23,42,0.65)" }}
+                                  onClick={async (e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    if (verifiedStylistIds.has(s.id)) {
+                                      setOpenStylistId(s.id);
+                                      return;
+                                    }
+                                    try {
+                                      const res = await fetch("/api" + apiPath(`/stylists/${s.id}/has-code`));
+                                      const data = await res.json();
+                                      if (data.hasCode) {
+                                        setCodeDialogStylistId(s.id);
+                                        setCodeDialogInput("");
+                                        setCodeDialogError("");
+                                      } else {
+                                        setVerifiedStylistIds(prev => new Set([...prev, s.id]));
+                                        setOpenStylistId(s.id);
+                                      }
+                                    } catch {
+                                      setVerifiedStylistIds(prev => new Set([...prev, s.id]));
+                                      setOpenStylistId(s.id);
+                                    }
+                                  }}
                                 >
                                   <div className="absolute inset-x-4 top-2 h-10 rounded-full opacity-70" style={{ background: "linear-gradient(180deg, rgba(255,255,255,0.55), rgba(255,255,255,0))" }} />
                                   <div
@@ -2142,6 +2177,73 @@ export default function Settings() {
                   </motion.div>
                 )}
               </AnimatePresence>
+
+              <Dialog open={!!codeDialogStylistId} onOpenChange={(open) => { if (!open) { setCodeDialogStylistId(null); setCodeDialogInput(""); setCodeDialogError(""); } }}>
+                <DialogContent className="sm:max-w-md border border-white/20 bg-slate-900/95 backdrop-blur-xl">
+                  <DialogHeader>
+                    <DialogTitle className="text-white">Code d'accès requis</DialogTitle>
+                    <DialogDescription className="text-white/70">
+                      Veuillez entrer le code d'accès pour voir les statistiques de ce coiffeur.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-4 py-4">
+                    <Input
+                      type="password"
+                      placeholder="Code d'accès"
+                      value={codeDialogInput}
+                      onChange={(e) => { setCodeDialogInput(e.target.value); setCodeDialogError(""); }}
+                      className="bg-slate-800/70 border-white/20 text-white placeholder:text-white/50"
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && codeDialogInput.trim() && codeDialogStylistId) {
+                          verifyStylistCode.mutate({ stylistId: codeDialogStylistId, code: codeDialogInput.trim() }, {
+                            onSuccess: (data) => {
+                              if (data.valid) {
+                                setVerifiedStylistIds(prev => new Set([...prev, codeDialogStylistId!]));
+                                setOpenStylistId(codeDialogStylistId);
+                                setCodeDialogStylistId(null);
+                                setCodeDialogInput("");
+                                setCodeDialogError("");
+                              } else {
+                                setCodeDialogError("Code incorrect");
+                              }
+                            },
+                            onError: () => setCodeDialogError("Erreur de vérification")
+                          });
+                        }
+                      }}
+                    />
+                    {codeDialogError && <p className="text-sm text-red-400">{codeDialogError}</p>}
+                    <div className="flex justify-end gap-2">
+                      <Button variant="outline" onClick={() => { setCodeDialogStylistId(null); setCodeDialogInput(""); setCodeDialogError(""); }} className="border-white/20 text-white hover:bg-white/10">
+                        Annuler
+                      </Button>
+                      <Button
+                        disabled={!codeDialogInput.trim() || verifyStylistCode.isPending}
+                        onClick={() => {
+                          if (!codeDialogStylistId || !codeDialogInput.trim()) return;
+                          verifyStylistCode.mutate({ stylistId: codeDialogStylistId, code: codeDialogInput.trim() }, {
+                            onSuccess: (data) => {
+                              if (data.valid) {
+                                setVerifiedStylistIds(prev => new Set([...prev, codeDialogStylistId!]));
+                                setOpenStylistId(codeDialogStylistId);
+                                setCodeDialogStylistId(null);
+                                setCodeDialogInput("");
+                                setCodeDialogError("");
+                              } else {
+                                setCodeDialogError("Code incorrect");
+                              }
+                            },
+                            onError: () => setCodeDialogError("Erreur de vérification")
+                          });
+                        }}
+                        className="bg-emerald-600 hover:bg-emerald-700"
+                      >
+                        {verifyStylistCode.isPending ? "..." : "Valider"}
+                      </Button>
+                    </div>
+                  </div>
+                </DialogContent>
+              </Dialog>
 
               <AnimatePresence>
                 {dailyCaPopupOpen && (
@@ -2330,10 +2432,38 @@ export default function Settings() {
                               if (!s) return;
                               if (!confirm(`Supprimer ${s.name} ?`)) return;
                               if (!confirm("Confirmer la suppression ?")) return;
-                              delStylist.mutate(manageStylistId, { onSuccess: () => { setManageStylistId(""); setManageName(""); setAccordionValue(""); } });
+                              delStylist.mutate(manageStylistId, { onSuccess: () => { setManageStylistId(""); setManageName(""); setManageSecretCode(""); setAccordionValue(""); } });
                             }}
                           >
                             Supprimer
+                          </Button>
+                        </div>
+                        <div className="flex flex-wrap items-center gap-2.5 mt-3">
+                          <Input
+                            className={cn(inputFieldClasses, "flex-1 min-w-[140px] bg-slate-950/70 text-sm font-semibold text-white caret-emerald-200 placeholder:text-white/60")}
+                            placeholder="Code d'accès coiffeur"
+                            type="password"
+                            value={manageSecretCode}
+                            onChange={(e) => setManageSecretCode(e.target.value)}
+                            disabled={!manageStylistId}
+                          />
+                          <Button
+                            className={cn(gradientButtonClasses, "min-h-10 px-4")}
+                            disabled={!manageStylistId || setStylistSecretCode.isPending}
+                            onClick={() => {
+                              if (!manageStylistId) return;
+                              setStylistSecretCode.mutate({ stylistId: manageStylistId, secretCode: manageSecretCode.trim() }, {
+                                onSuccess: (data) => {
+                                  setManageSecretCode("");
+                                  showConfirmPopup("Code mis à jour", data.hasCode ? "Code d'accès défini" : "Code d'accès supprimé", "violet");
+                                },
+                                onError: () => {
+                                  toast({ title: "Erreur", description: "Impossible de modifier le code", variant: "destructive" });
+                                }
+                              });
+                            }}
+                          >
+                            {manageSecretCode.trim() ? "Définir code" : "Suppr. code"}
                           </Button>
                         </div>
                       </div>

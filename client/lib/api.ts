@@ -828,3 +828,44 @@ export function useDeleteClientPhoto() {
   });
 }
 
+export function useSetStylistSecretCode() {
+  return useMutation({
+    mutationFn: async ({ stylistId, secretCode }: { stylistId: string; secretCode: string }) => {
+      const res = await apiFetch(`/api/stylists/${stylistId}/secret-code`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'x-admin-token': getAdminToken() || '' },
+        body: JSON.stringify({ secretCode }),
+      });
+      if (!res.ok) await throwResponseError(res);
+      return res.json() as Promise<{ ok: true; hasCode: boolean }>;
+    }
+  });
+}
+
+export function useVerifyStylistSecretCode() {
+  return useMutation({
+    mutationFn: async ({ stylistId, code }: { stylistId: string; code: string }) => {
+      const res = await apiFetch(`/api/stylists/${stylistId}/verify-code`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code }),
+      });
+      if (!res.ok) await throwResponseError(res);
+      return res.json() as Promise<{ valid: boolean }>;
+    }
+  });
+}
+
+export function useStylistHasSecretCode(stylistId?: string) {
+  const salonId = getSelectedSalon();
+  return useQuery({
+    queryKey: ['stylist-has-code', salonId, stylistId],
+    enabled: !!stylistId,
+    queryFn: async () => {
+      const res = await apiFetch(`/api/stylists/${stylistId}/has-code`);
+      if (!res.ok) throw new Error('Failed to check stylist code');
+      return res.json() as Promise<{ hasCode: boolean }>;
+    }
+  });
+}
+
