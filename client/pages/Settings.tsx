@@ -1294,7 +1294,6 @@ export default function Settings() {
   const [openStylistId, setOpenStylistId] = useState<string | null>(null);
   const [coiffCaPopupOpen, setCoiffCaPopupOpen] = useState(false);
   const [dailyCaPopupOpen, setDailyCaPopupOpen] = useState(false);
-  const [monthlyCaPopupOpen, setMonthlyCaPopupOpen] = useState(false);
   const [yearCaPopupOpen, setYearCaPopupOpen] = useState(false);
   const [confirmPopup, setConfirmPopup] = useState<{ open: boolean; title: string; description: string; variant: "emerald" | "violet" }>({ open: false, title: "", description: "", variant: "emerald" });
 
@@ -2013,60 +2012,6 @@ export default function Settings() {
                   </motion.div>
                 )}
               </AnimatePresence>
-
-              <button
-                type="button"
-                onClick={() => setMonthlyCaPopupOpen(true)}
-                className="group relative flex w-full flex-col items-center justify-center gap-2 rounded-[20px] border border-pink-500/30 bg-gradient-to-br from-pink-900/40 via-slate-900/60 to-slate-900/80 backdrop-blur-xl px-5 py-6 shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] transition-all duration-200 hover:scale-[1.02] hover:border-pink-400/50 hover:shadow-[0_12px_40px_rgba(236,72,153,0.3)] active:scale-[0.98]"
-              >
-                <div className="flex h-12 w-12 items-center justify-center rounded-full border border-pink-400/40 bg-pink-500/20">
-                  <svg className="h-6 w-6 text-pink-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
-                  </svg>
-                </div>
-                <span className="text-sm font-semibold text-white">CA Mois</span>
-                <span className="text-xs text-white/50">Ce mois</span>
-              </button>
-              <AnimatePresence>
-                {monthlyCaPopupOpen && (
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.15 }}
-                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
-                    onClick={() => setMonthlyCaPopupOpen(false)}
-                  >
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.95 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.95 }}
-                      transition={{ duration: 0.2 }}
-                      className="w-full max-w-2xl max-h-[80vh] overflow-y-auto rounded-2xl border border-white/20 bg-black/5 backdrop-blur-md p-4 shadow-[0_25px_80px_rgba(0,0,0,0.6)]"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <div className="flex items-center justify-between mb-4">
-                        <span className="text-lg font-bold text-white">Chiffre d'affaires (mois)</span>
-                        <button
-                          type="button"
-                          onClick={() => setMonthlyCaPopupOpen(false)}
-                          className="flex h-8 w-8 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition hover:bg-white/20"
-                        >
-                          ✕
-                        </button>
-                      </div>
-                      <div className="text-white/80">
-                        <RevenueByDay
-                          fallbackMonthly={summary?.monthlyPayments}
-                          stylists={stylists}
-                          defaultCommissionPct={typeof config?.commissionDefault === "number" ? config.commissionDefault : undefined}
-                        />
-                      </div>
-                    </motion.div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-
 
               <button
                 type="button"
