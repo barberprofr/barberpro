@@ -380,7 +380,7 @@ export function StylistMonthly({ id, commissionPct, stylistName }: { id: string;
     const now = new Date();
     const defMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
     const today = parisDateString();
-    const [mode, setMode] = useState<"today" | "month" | "range">("month");
+    const [mode, setMode] = useState<"today" | "month" | "range">("today");
     const [month, setMonth] = useState<string>(defMonth);
     const [startDate, setStartDate] = useState<string>("");
     const [endDate, setEndDate] = useState<string>("");
