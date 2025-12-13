@@ -16,7 +16,7 @@ import { StylistDailySection, StylistMonthly } from "@/components/Salon/StylistD
 import type { SummaryPayments, MethodKey, Stylist, PointsUsageGroup, DashboardSummary, Service } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { useState, useEffect, useMemo } from "react";
-import { CreditCard, Coins, FileText, ChevronDown, CalendarDays, Sun, Scissors, UserRound, TrendingUp, Crown, Search } from "lucide-react";
+import { CreditCard, Coins, FileText, ChevronDown, CalendarDays, Sun, Scissors, UserRound, TrendingUp, Crown, Search, Check } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
@@ -1003,6 +1003,12 @@ export default function Settings() {
   const [dailyCaPopupOpen, setDailyCaPopupOpen] = useState(false);
   const [monthlyCaPopupOpen, setMonthlyCaPopupOpen] = useState(false);
   const [yearCaPopupOpen, setYearCaPopupOpen] = useState(false);
+  const [confirmPopup, setConfirmPopup] = useState<{ open: boolean; title: string; description: string }>({ open: false, title: "", description: "" });
+
+  const showConfirmPopup = (title: string, description: string) => {
+    setConfirmPopup({ open: true, title, description });
+    setTimeout(() => setConfirmPopup({ open: false, title: "", description: "" }), 2500);
+  };
 
   useEffect(() => {
     if (bestDaysAccordionValue === "") {
@@ -1451,10 +1457,7 @@ export default function Settings() {
                               const val = Math.max(0, Math.min(100, Number(commissionDefaultStr) || 0));
                               updateConfig.mutate({ commissionDefault: val }, {
                                 onSuccess: () => {
-                                  toast({
-                                    title: "Modification enregistrée",
-                                    description: `Rémunération par défaut : ${val}%`,
-                                  });
+                                  showConfirmPopup("Modification enregistrée", `Rémunération par défaut : ${val}%`);
                                 }
                               });
                             }}
@@ -1485,10 +1488,7 @@ export default function Settings() {
                               setPointsRedeemDefaultStr(String(parsed));
                               updateConfig.mutate({ pointsRedeemDefault: parsed }, {
                                 onSuccess: () => {
-                                  toast({
-                                    title: "Modification enregistrée",
-                                    description: `Points à déduire : ${parsed} pts`,
-                                  });
+                                  showConfirmPopup("Modification enregistrée", `Points à déduire : ${parsed} pts`);
                                 }
                               });
                             }}
@@ -2116,6 +2116,85 @@ export default function Settings() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Popup de confirmation 3D centré */}
+      <AnimatePresence>
+        {confirmPopup.open && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center pointer-events-none"
+          >
+            <motion.div
+              initial={{ scale: 0.5, opacity: 0, y: 50 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.8, opacity: 0, y: -30 }}
+              transition={{ type: "spring", stiffness: 400, damping: 20 }}
+              className="relative flex flex-col items-center gap-4 rounded-3xl border-2 border-emerald-400/50 bg-gradient-to-br from-emerald-900/95 via-teal-800/90 to-cyan-900/95 px-10 py-8 shadow-[0_0_80px_rgba(16,185,129,0.6),0_0_120px_rgba(20,184,166,0.4),0_40px_100px_rgba(0,0,0,0.5)] backdrop-blur-xl"
+            >
+              {/* Reflet glass 3D */}
+              <div className="absolute inset-x-4 top-2 h-[35%] rounded-t-2xl bg-gradient-to-b from-white/30 to-transparent pointer-events-none" />
+              
+              {/* Icône de validation 3D multi-anneaux */}
+              <motion.div
+                initial={{ scale: 0, rotate: -180 }}
+                animate={{ scale: 1, rotate: 0 }}
+                transition={{ type: "spring", stiffness: 300, damping: 15, delay: 0.1 }}
+                className="relative flex h-20 w-20 items-center justify-center"
+              >
+                {/* Anneau externe - glow */}
+                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-emerald-400 via-teal-500 to-cyan-500 shadow-[0_0_40px_rgba(16,185,129,0.8)]" />
+                {/* Anneau du milieu */}
+                <div className="absolute inset-[4px] rounded-full bg-gradient-to-br from-white/90 via-gray-100/80 to-white/70" />
+                {/* Centre avec checkmark */}
+                <div className="absolute inset-[8px] rounded-full bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-600 flex items-center justify-center shadow-[inset_0_4px_8px_rgba(255,255,255,0.4),inset_0_-4px_8px_rgba(0,0,0,0.2)]">
+                  <div className="absolute inset-x-2 top-2 h-[40%] rounded-t-full bg-gradient-to-b from-white/50 to-transparent" />
+                  <Check className="h-10 w-10 text-white drop-shadow-[0_3px_6px_rgba(0,0,0,0.4)]" />
+                </div>
+              </motion.div>
+
+              {/* Titre */}
+              <motion.h3
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="text-2xl font-black uppercase tracking-wide text-white drop-shadow-[0_4px_8px_rgba(0,0,0,0.4)]"
+              >
+                {confirmPopup.title}
+              </motion.h3>
+
+              {/* Description */}
+              <motion.p
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="text-lg font-semibold text-emerald-100/90"
+              >
+                {confirmPopup.description}
+              </motion.p>
+
+              {/* Particules sparkle */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: [0, 1, 0] }}
+                transition={{ duration: 1.5, repeat: 1 }}
+                className="absolute -top-2 -right-2 text-2xl"
+              >
+                ✨
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: [0, 1, 0] }}
+                transition={{ duration: 1.5, delay: 0.3, repeat: 1 }}
+                className="absolute -bottom-2 -left-2 text-2xl"
+              >
+                ✨
+              </motion.div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </SharedLayout>
   );
 }
