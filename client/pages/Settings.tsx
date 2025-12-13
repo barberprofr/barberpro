@@ -2160,51 +2160,50 @@ export default function Settings() {
                           ];
                           const colors = colorSchemes[idx % colorSchemes.length];
                           return (
-                            <Popover key={s.id} open={openStylistId === s.id} onOpenChange={(open) => { 
-                              if (open) {
-                                handleStylistCardClick(s, stylistCommissionPct);
-                              } else {
-                                setOpenStylistId(null);
-                              }
-                            }}>
-                              <PopoverTrigger asChild>
-                                <button
-                                  className="group relative flex h-36 w-full flex-col items-center justify-center gap-2 overflow-hidden rounded-[20px] border border-white/25 backdrop-blur-[26px] transition-all duration-200 hover:scale-[1.03] active:scale-105 active:brightness-110"
-                                  style={{ background: "linear-gradient(160deg, rgba(30,41,59,0.95) 0%, rgba(15,23,42,0.98) 100%)", boxShadow: "0 24px 45px -20px rgba(15,23,42,0.65)" }}
+                            <div key={s.id} className="relative">
+                              <button
+                                type="button"
+                                onClick={() => handleStylistCardClick(s, stylistCommissionPct)}
+                                className="group relative flex h-36 w-full flex-col items-center justify-center gap-2 overflow-hidden rounded-[20px] border border-white/25 backdrop-blur-[26px] transition-all duration-200 hover:scale-[1.03] active:scale-105 active:brightness-110"
+                                style={{ background: "linear-gradient(160deg, rgba(30,41,59,0.95) 0%, rgba(15,23,42,0.98) 100%)", boxShadow: "0 24px 45px -20px rgba(15,23,42,0.65)" }}
+                              >
+                                <div className="absolute inset-x-4 top-2 h-10 rounded-full opacity-70" style={{ background: "linear-gradient(180deg, rgba(255,255,255,0.55), rgba(255,255,255,0))" }} />
+                                <div
+                                  className="relative flex h-[72px] w-[72px] items-center justify-center rounded-full"
+                                  style={{ background: colors.outer, boxShadow: colors.glow }}
                                 >
-                                  <div className="absolute inset-x-4 top-2 h-10 rounded-full opacity-70" style={{ background: "linear-gradient(180deg, rgba(255,255,255,0.55), rgba(255,255,255,0))" }} />
                                   <div
-                                    className="relative flex h-[72px] w-[72px] items-center justify-center rounded-full"
-                                    style={{ background: colors.outer, boxShadow: colors.glow }}
+                                    className="absolute inset-[4px] rounded-full"
+                                    style={{ background: "radial-gradient(circle, rgba(15,23,42,0.92) 0%, rgba(30,41,59,0.78) 60%, rgba(15,23,42,0.55) 100%)", boxShadow: "inset 0 8px 20px rgba(255,255,255,0.08), inset 0 -14px 24px rgba(2,6,23,0.82)" }}
+                                  />
+                                  <div
+                                    className="relative h-10 w-10 rounded-[12px] overflow-hidden"
+                                    style={{ background: colors.inner, boxShadow: `0 8px 20px rgba(${colors.rgb},0.4), inset 0 2px 4px rgba(255,255,255,0.3), inset 0 -6px 10px rgba(15,23,42,0.55)` }}
                                   >
-                                    <div
-                                      className="absolute inset-[4px] rounded-full"
-                                      style={{ background: "radial-gradient(circle, rgba(15,23,42,0.92) 0%, rgba(30,41,59,0.78) 60%, rgba(15,23,42,0.55) 100%)", boxShadow: "inset 0 8px 20px rgba(255,255,255,0.08), inset 0 -14px 24px rgba(2,6,23,0.82)" }}
-                                    />
-                                    <div
-                                      className="relative h-10 w-10 rounded-[12px] overflow-hidden"
-                                      style={{ background: colors.inner, boxShadow: `0 8px 20px rgba(${colors.rgb},0.4), inset 0 2px 4px rgba(255,255,255,0.3), inset 0 -6px 10px rgba(15,23,42,0.55)` }}
-                                    >
-                                      <img src="/barber-face.jpg" alt="" className="absolute inset-1 h-[calc(100%-8px)] w-[calc(100%-8px)] object-contain mix-blend-multiply" />
-                                      <div className="absolute inset-x-1 top-1 h-1/2 rounded-t-[10px] opacity-80" style={{ background: "linear-gradient(180deg, rgba(255,255,255,0.78), rgba(255,255,255,0))" }} />
+                                    <img src="/barber-face.jpg" alt="" className="absolute inset-1 h-[calc(100%-8px)] w-[calc(100%-8px)] object-contain mix-blend-multiply" />
+                                    <div className="absolute inset-x-1 top-1 h-1/2 rounded-t-[10px] opacity-80" style={{ background: "linear-gradient(180deg, rgba(255,255,255,0.78), rgba(255,255,255,0))" }} />
+                                  </div>
+                                </div>
+                                <span className="relative z-10 text-base font-black uppercase tracking-wider text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">{s.name}</span>
+                                <span className="relative z-10 text-xs font-light text-white/90">{stylistCommissionPct}%</span>
+                              </button>
+                              {openStylistId === s.id && (
+                                <div className="absolute left-1/2 top-full z-50 mt-2 -translate-x-1/2">
+                                  <div className="w-auto rounded-xl border border-white/14 bg-slate-900/95 backdrop-blur-xl p-3 space-y-2.5 shadow-[0_20px_50px_rgba(8,15,40,0.6)]">
+                                    <button type="button" onClick={() => setOpenStylistId(null)} className="absolute top-1 right-1 text-white/60 hover:text-white text-xs">✕</button>
+                                    <StylistTotals id={s.id} commissionPct={stylistCommissionPct} stylistName={s.name} />
+                                    <div className="flex flex-wrap items-center gap-1.5 text-[11px]">
+                                      <a className="inline-flex items-center gap-1.5 rounded-lg border border-white/20 bg-white/12 px-2 py-0.5 font-semibold uppercase tracking-[0.16em] text-white/80 transition hover:bg-white/18" href={"/api" + apiPath(`/reports/stylists/${s.id}.csv`)}>CSV</a>
+                                      <a className="inline-flex items-center gap-1.5 rounded-lg border border-white/20 bg-white/12 px-2 py-0.5 font-semibold uppercase tracking-[0.16em] text-white/80 transition hover:bg-white/18" href={"/api" + apiPath(`/reports/stylists/${s.id}.pdf`)}>PDF</a>
+                                    </div>
+                                    <div className="flex items-center gap-1.5 text-[11px] text-white/70 pt-1">
+                                      <span className="text-white/75">Rémunération:</span>
+                                      <span className="text-sm font-semibold text-white">{String(stylistCommissionPct)}%</span>
                                     </div>
                                   </div>
-                                  <span className="relative z-10 text-base font-black uppercase tracking-wider text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">{s.name}</span>
-                                  <span className="relative z-10 text-xs font-light text-white/90">{stylistCommissionPct}%</span>
-                                </button>
-                              </PopoverTrigger>
-                              <PopoverContent className="w-auto rounded-xl border border-white/14 bg-slate-900/95 backdrop-blur-xl p-3 space-y-2.5 shadow-[0_20px_50px_rgba(8,15,40,0.6)]" align="center" sideOffset={8}>
-                                <StylistTotals id={s.id} commissionPct={stylistCommissionPct} stylistName={s.name} />
-                                <div className="flex flex-wrap items-center gap-1.5 text-[11px]">
-                                  <a className="inline-flex items-center gap-1.5 rounded-lg border border-white/20 bg-white/12 px-2 py-0.5 font-semibold uppercase tracking-[0.16em] text-white/80 transition hover:bg-white/18" href={"/api" + apiPath(`/reports/stylists/${s.id}.csv`)}>CSV</a>
-                                  <a className="inline-flex items-center gap-1.5 rounded-lg border border-white/20 bg-white/12 px-2 py-0.5 font-semibold uppercase tracking-[0.16em] text-white/80 transition hover:bg-white/18" href={"/api" + apiPath(`/reports/stylists/${s.id}.pdf`)}>PDF</a>
                                 </div>
-                                <div className="flex items-center gap-1.5 text-[11px] text-white/70 pt-1">
-                                  <span className="text-white/75">Rémunération:</span>
-                                  <span className="text-sm font-semibold text-white">{String(stylistCommissionPct)}%</span>
-                                </div>
-                              </PopoverContent>
-                            </Popover>
+                              )}
+                            </div>
                           );
                         })}
                       </div>
