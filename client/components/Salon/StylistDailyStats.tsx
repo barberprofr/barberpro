@@ -502,8 +502,8 @@ export function StylistMonthly({ id, commissionPct, stylistName }: { id: string;
             )}
             
             <div className="rounded-3xl border border-white/10 bg-slate-950/50 p-4 shadow-inner text-sm space-y-3">
-                <div className="flex items-center justify-between text-slate-100">
-                    <span className="text-sm font-light text-white">
+                <div className="flex items-baseline justify-between text-slate-100">
+                    <span className="text-sm font-light text-white leading-none">
                         {useTodayData 
                             ? "CA du jour"
                             : useRangeData 
@@ -511,7 +511,7 @@ export function StylistMonthly({ id, commissionPct, stylistName }: { id: string;
                                 : "CA du mois"
                         }
                     </span>
-                    <span className="text-2xl font-black">{eur.format(total?.amount || 0)}</span>
+                    <span className="text-2xl font-black leading-none">{eur.format(total?.amount || 0)}</span>
                 </div>
                 <div className="flex items-center justify-between text-slate-100">
                     <span className="text-xs font-light">Salaire ({commissionPct}%)</span>
