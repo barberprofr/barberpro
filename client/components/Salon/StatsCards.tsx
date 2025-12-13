@@ -573,9 +573,6 @@ function StylistsList({ stylists, config, hasStylists }: { stylists: any[], conf
 }
 
 function StylistCard({ s, config, onClick }: { s: any, config: any, onClick: () => void }) {
-  const salary = eur.format((((s.stats as any)?.dailyPrestationAmount ?? (s.stats?.dailyAmount ?? 0)) * ((s as any).commissionPct ?? config?.commissionDefault ?? 0) / 100));
-  const dailyPointsUsed = s.stats?.dailyPointsUsed ?? 0;
-
   return (
     <motion.button
       layout
@@ -592,17 +589,7 @@ function StylistCard({ s, config, onClick }: { s: any, config: any, onClick: () 
       <svg className="h-7 w-7 text-amber-400/80 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
       </svg>
-      <div className="text-xl font-bold text-white mb-1 text-center truncate w-full">{s.name}</div>
-      <div className="text-xs text-white/60 text-center">
-        {s.stats?.dailyCount ?? 0} prest.{(s.stats as any)?.dailyProductCount ? `, ${(s.stats as any).dailyProductCount} prod.` : ""}
-      </div>
-      <div className="text-[10px] text-amber-300/80 mt-1">Salaire {salary}</div>
-      <div className="text-lg font-black text-amber-300 mt-2">{eur.format(s.stats?.dailyAmount ?? 0)}</div>
-      {dailyPointsUsed > 0 && (
-        <div className="text-[9px] uppercase tracking-wide text-white/50 mt-1">
-          {pointsFmt.format(dailyPointsUsed)} pts utilisés
-        </div>
-      )}
+      <div className="text-xl font-bold text-white text-center truncate w-full">{s.name}</div>
     </motion.button>
   );
 }
