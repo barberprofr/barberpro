@@ -303,9 +303,10 @@ function makeScope() {
 
 
 
-async function aggregateByPayment(salonId: string, stylistId: string, refNowMs: number = Date.now()) {
+async function aggregateByPayment(salonId: string, stylistId: string, refNowMs: number = Date.now(), startDateMs?: number, endDateMs?: number) {
   const now = refNowMs;
   const todayStart = startOfDayParis(now);
+  const useRange = typeof startDateMs === 'number' && typeof endDateMs === 'number';
 
   const [prestations, products] = await Promise.all([
     Prestation.find({ salonId, stylistId }),
@@ -314,9 +315,12 @@ async function aggregateByPayment(salonId: string, stylistId: string, refNowMs: 
 
   const daily = makeScope();
   const monthly = makeScope();
+  const range = makeScope();
   const prestationDaily = makeScope();
   const prestationMonthly = makeScope();
+  const prestationRange = makeScope();
   const dailyEntries: { id: string; amount: number; paymentMethod: PaymentMethod; timestamp: number; kind: "prestation" | "produit"; name?: string }[] = [];
+  let rangeProductCount = 0;
 
   for (const p of prestations) {
     const inc = (scope: ReturnType<typeof makeScope>) => {
@@ -342,6 +346,10 @@ async function aggregateByPayment(salonId: string, stylistId: string, refNowMs: 
       inc(monthly);
       inc(prestationMonthly);
     }
+    if (useRange && p.timestamp >= startDateMs! && p.timestamp <= endDateMs!) {
+      inc(range);
+      inc(prestationRange);
+    }
   }
 
   for (const prod of products) {
@@ -362,6 +370,10 @@ async function aggregateByPayment(salonId: string, stylistId: string, refNowMs: 
       });
     }
     if (isSameMonthParis(prod.timestamp, now)) incAmount(monthly);
+    if (useRange && prod.timestamp >= startDateMs! && prod.timestamp <= endDateMs!) {
+      incAmount(range);
+      rangeProductCount++;
+    }
   }
 
   dailyEntries.sort((a, b) => b.timestamp - a.timestamp);
@@ -378,7 +390,7 @@ async function aggregateByPayment(salonId: string, stylistId: string, refNowMs: 
     }
   }
 
-  return { daily, monthly, prestationDaily, prestationMonthly, dailyEntries, dailyProductCount, monthlyProductCount };
+  return { daily, monthly, range, prestationDaily, prestationMonthly, prestationRange, dailyEntries, dailyProductCount, monthlyProductCount, rangeProductCount };
 }
 
 async function aggregateAllPayments(salonId: string) {
@@ -1634,6 +1646,8 @@ export const getStylistBreakdown: RequestHandler = async (req, res) => {
 
     const q = req.query as any;
     const dateStr = typeof q.date === "string" ? q.date : undefined;
+    const startDateStr = typeof q.startDate === "string" ? q.startDate : undefined;
+    const endDateStr = typeof q.endDate === "string" ? q.endDate : undefined;
     let ref = Date.now();
 
     if (dateStr && /^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
@@ -1641,7 +1655,19 @@ export const getStylistBreakdown: RequestHandler = async (req, res) => {
       ref = Date.UTC(y, (m - 1), d, 12, 0, 0);
     }
 
-    const data = await aggregateByPayment(salonId, id, ref);
+    let startDateMs: number | undefined;
+    let endDateMs: number | undefined;
+
+    if (startDateStr && /^\d{4}-\d{2}-\d{2}$/.test(startDateStr)) {
+      const [y, m, d] = startDateStr.split("-").map(Number);
+      startDateMs = Date.UTC(y, (m - 1), d, 0, 0, 0);
+    }
+    if (endDateStr && /^\d{4}-\d{2}-\d{2}$/.test(endDateStr)) {
+      const [y, m, d] = endDateStr.split("-").map(Number);
+      endDateMs = Date.UTC(y, (m - 1), d, 23, 59, 59, 999);
+    }
+
+    const data = await aggregateByPayment(salonId, id, ref, startDateMs, endDateMs);
     res.json(data);
   } catch (error) {
     console.error('Error getting stylist breakdown:', error);
