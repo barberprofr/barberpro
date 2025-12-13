@@ -440,10 +440,11 @@ function GlobalRevenueStats() {
   const updatePaymentMethod = useUpdateTransactionPaymentMethod();
   
   const dateStr = mode === "today" ? today : `${month}-01`;
+  const effectiveEndDate = mode === "range" && startDate && !endDate ? startDate : endDate;
   const { data } = useGlobalBreakdown(
     dateStr, 
     mode === "range" ? startDate : undefined, 
-    mode === "range" ? endDate : undefined
+    mode === "range" ? effectiveEndDate : undefined
   );
   
   const d = data?.daily;
@@ -459,10 +460,11 @@ function GlobalRevenueStats() {
   const dailyEntries = data?.dailyEntries || [];
   
   const useRangeData = mode === "range" && startDate && endDate && r;
+  const useSingleDayRange = mode === "range" && startDate && !endDate && r;
   const useTodayData = mode === "today";
-  const displayData = useTodayData ? d : (useRangeData ? r : m);
-  const displayProductCount = useTodayData ? dailyProductCount : (useRangeData ? rangeProductCount : monthlyProductCount);
-  const displayPrestationCount = useTodayData ? dailyPrestationCount : (useRangeData ? rangePrestationCount : monthlyPrestationCount);
+  const displayData = useTodayData ? d : (useRangeData ? r : (useSingleDayRange ? r : m));
+  const displayProductCount = useTodayData ? dailyProductCount : ((useRangeData || useSingleDayRange) ? rangeProductCount : monthlyProductCount);
+  const displayPrestationCount = useTodayData ? dailyPrestationCount : ((useRangeData || useSingleDayRange) ? rangePrestationCount : monthlyPrestationCount);
   const displayEntries = useTodayData ? dailyEntries : rangeEntries;
   
   const total = displayData?.total;
@@ -555,9 +557,11 @@ function GlobalRevenueStats() {
           <span className="text-sm font-light text-white leading-none">
             {useTodayData 
               ? "CA du jour"
-              : useRangeData 
-                ? `CA du ${formatDateDisplay(startDate)} au ${formatDateDisplay(endDate)}`
-                : "CA du mois"
+              : useSingleDayRange
+                ? `CA du jour (${formatDateDisplay(startDate)})`
+                : useRangeData 
+                  ? `CA de la période (${formatDateDisplay(startDate)} au ${formatDateDisplay(endDate)})`
+                  : "CA du mois"
             }
           </span>
           <span className="text-2xl font-black leading-none">{eur.format(total?.amount || 0)}</span>
