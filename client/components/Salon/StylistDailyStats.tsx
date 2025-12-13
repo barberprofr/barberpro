@@ -589,12 +589,12 @@ export function StylistMonthly({ id, commissionPct, stylistName }: { id: string;
                             className="relative w-[88%] max-w-md max-h-[70vh] overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900/98 via-fuchsia-900/40 to-slate-800/98 border border-fuchsia-500/30 shadow-[0_25px_80px_rgba(0,0,0,0.6),0_0_40px_rgba(236,72,153,0.2)] backdrop-blur-xl mx-auto"
                         >
                             <div className="sticky top-0 z-10 flex items-center justify-between px-3 sm:px-6 py-3 sm:py-4 border-b border-white/10 bg-slate-900/80 backdrop-blur-sm">
-                                <div className="flex items-center gap-3">
-                                    <span className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-fuchsia-400/40 bg-fuchsia-500/20">
+                                <div className="flex items-center gap-3 min-w-0 flex-1">
+                                    <span className="inline-flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border border-fuchsia-400/40 bg-fuchsia-500/20">
                                         <List className="h-5 w-5 text-fuchsia-300" />
                                     </span>
-                                    <div>
-                                        <h3 className="text-lg font-bold text-white">Encaissements du jour</h3>
+                                    <div className="min-w-0">
+                                        <h3 className="text-base sm:text-lg font-bold text-white truncate">Encaissements du jour</h3>
                                         <p className="text-xs text-white/50">{formatDateDisplay(today)}</p>
                                     </div>
                                 </div>
@@ -633,12 +633,12 @@ export function StylistMonthly({ id, commissionPct, stylistName }: { id: string;
                             className="relative w-[88%] max-w-md max-h-[70vh] overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900/98 via-violet-900/40 to-slate-800/98 border border-violet-500/30 shadow-[0_25px_80px_rgba(0,0,0,0.6),0_0_40px_rgba(139,92,246,0.2)] backdrop-blur-xl mx-auto"
                         >
                             <div className="sticky top-0 z-10 flex items-center justify-between px-3 sm:px-6 py-3 sm:py-4 border-b border-white/10 bg-slate-900/80 backdrop-blur-sm">
-                                <div className="flex items-center gap-3">
-                                    <span className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-violet-400/40 bg-violet-500/20">
+                                <div className="flex items-center gap-3 min-w-0 flex-1">
+                                    <span className="inline-flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border border-violet-400/40 bg-violet-500/20">
                                         <List className="h-5 w-5 text-violet-300" />
                                     </span>
-                                    <div>
-                                        <h3 className="text-lg font-bold text-white">Encaissements</h3>
+                                    <div className="min-w-0">
+                                        <h3 className="text-base sm:text-lg font-bold text-white truncate">Encaissements</h3>
                                         <p className="text-xs text-white/50">{formatDateDisplay(startDate)} au {formatDateDisplay(endDate)}</p>
                                     </div>
                                 </div>
