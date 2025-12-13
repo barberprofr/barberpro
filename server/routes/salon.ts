@@ -1920,6 +1920,65 @@ export const deleteStylist: RequestHandler = async (req, res) => {
   }
 };
 
+export const setStylistSecretCode: RequestHandler = async (req, res) => {
+  try {
+    if (!(await requireAdmin(req, res))) return;
+
+    const body = await parseRequestBody(req);
+    const salonId = getSalonId(req);
+    const { id } = req.params as { id: string };
+    const { secretCode } = body as { secretCode?: string };
+
+    const stylist = await Stylist.findOne({ id, salonId });
+    if (!stylist) return res.status(404).json({ error: "stylist not found" });
+
+    stylist.secretCode = secretCode?.trim() || null;
+    await stylist.save();
+
+    res.json({ ok: true, hasCode: Boolean(stylist.secretCode) });
+  } catch (error) {
+    console.error('Error setting stylist secret code:', error);
+    res.status(500).json({ error: "Erreur serveur" });
+  }
+};
+
+export const verifyStylistSecretCode: RequestHandler = async (req, res) => {
+  try {
+    const body = await parseRequestBody(req);
+    const salonId = getSalonId(req);
+    const { id } = req.params as { id: string };
+    const { code } = body as { code?: string };
+
+    const stylist = await Stylist.findOne({ id, salonId });
+    if (!stylist) return res.status(404).json({ error: "stylist not found" });
+
+    if (!stylist.secretCode) {
+      return res.json({ valid: true, noCodeRequired: true });
+    }
+
+    const valid = code === stylist.secretCode;
+    res.json({ valid });
+  } catch (error) {
+    console.error('Error verifying stylist secret code:', error);
+    res.status(500).json({ error: "Erreur serveur" });
+  }
+};
+
+export const getStylistHasSecretCode: RequestHandler = async (req, res) => {
+  try {
+    const salonId = getSalonId(req);
+    const { id } = req.params as { id: string };
+
+    const stylist = await Stylist.findOne({ id, salonId });
+    if (!stylist) return res.status(404).json({ error: "stylist not found" });
+
+    res.json({ hasCode: Boolean(stylist.secretCode) });
+  } catch (error) {
+    console.error('Error checking stylist secret code:', error);
+    res.status(500).json({ error: "Erreur serveur" });
+  }
+};
+
 export const deleteClient: RequestHandler = async (req, res) => {
   try {
     if (!(await requireAdmin(req, res))) return;
