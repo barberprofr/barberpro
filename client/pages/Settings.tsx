@@ -2160,10 +2160,15 @@ export default function Settings() {
                           ];
                           const colors = colorSchemes[idx % colorSchemes.length];
                           return (
-                            <Popover key={s.id} open={openStylistId === s.id} onOpenChange={(open) => { if (!open) setOpenStylistId(null); }}>
+                            <Popover key={s.id} open={openStylistId === s.id} onOpenChange={(open) => { 
+                              if (open) {
+                                handleStylistCardClick(s, stylistCommissionPct);
+                              } else {
+                                setOpenStylistId(null);
+                              }
+                            }}>
                               <PopoverTrigger asChild>
                                 <button
-                                  onClick={(e) => { e.preventDefault(); handleStylistCardClick(s, stylistCommissionPct); }}
                                   className="group relative flex h-36 w-full flex-col items-center justify-center gap-2 overflow-hidden rounded-[20px] border border-white/25 backdrop-blur-[26px] transition-all duration-200 hover:scale-[1.03] active:scale-105 active:brightness-110"
                                   style={{ background: "linear-gradient(160deg, rgba(30,41,59,0.95) 0%, rgba(15,23,42,0.98) 100%)", boxShadow: "0 24px 45px -20px rgba(15,23,42,0.65)" }}
                                 >
