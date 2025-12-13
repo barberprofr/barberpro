@@ -506,7 +506,7 @@ function StylistsList({ stylists, config, hasStylists }: { stylists: any[], conf
           setCodeError("");
         }
       }}>
-        <DialogContent className="max-w-sm bg-gradient-to-br from-slate-900/80 via-slate-800/70 to-slate-900/80 backdrop-blur-xl border border-amber-500/30">
+        <DialogContent className="max-w-sm bg-slate-900/50 backdrop-blur-md border border-amber-500/30">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-white">
               <Lock className="h-5 w-5 text-amber-400" />
