@@ -379,14 +379,16 @@ export function StylistDailySection({ id, commissionPct, stylistName }: { id: st
 export function StylistMonthly({ id, commissionPct, stylistName }: { id: string; commissionPct: number; stylistName?: string }) {
     const now = new Date();
     const defMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
-    const [mode, setMode] = useState<"month" | "range">("month");
+    const today = parisDateString();
+    const [mode, setMode] = useState<"today" | "month" | "range">("month");
     const [month, setMonth] = useState<string>(defMonth);
     const [startDate, setStartDate] = useState<string>("");
     const [endDate, setEndDate] = useState<string>("");
     const [rangeEncaissementsOpen, setRangeEncaissementsOpen] = useState(false);
+    const [todayEncaissementsOpen, setTodayEncaissementsOpen] = useState(false);
     const updatePaymentMethod = useUpdateTransactionPaymentMethod();
     
-    const dateStr = `${month}-01`;
+    const dateStr = mode === "today" ? today : `${month}-01`;
     const { data } = useStylistBreakdown(
         id, 
         dateStr, 
@@ -394,18 +396,23 @@ export function StylistMonthly({ id, commissionPct, stylistName }: { id: string;
         mode === "range" ? endDate : undefined
     );
     
+    const d = data?.daily;
     const m = data?.monthly;
     const r = data?.range;
+    const prestationD = (data as any)?.prestationDaily;
     const prestationM = (data as any)?.prestationMonthly;
     const prestationR = (data as any)?.prestationRange;
+    const dailyProductCount = (data as any)?.dailyProductCount ?? 0;
     const monthlyProductCount = (data as any)?.monthlyProductCount ?? 0;
     const rangeProductCount = (data as any)?.rangeProductCount ?? 0;
     const rangeEntries = (data as any)?.rangeEntries || [];
+    const dailyEntries = data?.dailyEntries || [];
     
     const useRangeData = mode === "range" && startDate && endDate && r;
-    const displayData = useRangeData ? r : m;
-    const displayPrestationData = useRangeData ? prestationR : prestationM;
-    const displayProductCount = useRangeData ? rangeProductCount : monthlyProductCount;
+    const useTodayData = mode === "today";
+    const displayData = useTodayData ? d : (useRangeData ? r : m);
+    const displayPrestationData = useTodayData ? prestationD : (useRangeData ? prestationR : prestationM);
+    const displayProductCount = useTodayData ? dailyProductCount : (useRangeData ? rangeProductCount : monthlyProductCount);
     
     const total = displayData?.total;
     const prestationTotal = displayPrestationData?.total;
@@ -424,6 +431,17 @@ export function StylistMonthly({ id, commissionPct, stylistName }: { id: string;
     return (
         <div className="space-y-3">
             <div className="flex flex-wrap items-center gap-2 text-sm">
+                <button
+                    onClick={() => setMode("today")}
+                    className={cn(
+                        "px-3 py-1.5 rounded-lg border font-medium transition-all text-xs",
+                        mode === "today"
+                            ? "bg-fuchsia-500/20 border-fuchsia-400/50 text-fuchsia-300"
+                            : "bg-slate-800/60 border-slate-600 text-white/70 hover:bg-slate-700/60 hover:text-white"
+                    )}
+                >
+                    Aujourd'hui
+                </button>
                 <button
                     onClick={() => setMode("month")}
                     className={cn(
@@ -448,7 +466,7 @@ export function StylistMonthly({ id, commissionPct, stylistName }: { id: string;
                 </button>
             </div>
             
-            {mode === "month" ? (
+            {mode === "today" ? null : mode === "month" ? (
                 <div className="flex flex-wrap items-center gap-2 text-sm">
                     <span className="text-white/80 font-medium">Mois</span>
                     <input type="month" value={month} onChange={(e) => setMonth(e.target.value)} className="border rounded-lg px-3 py-1.5 bg-slate-900/80 border-slate-600 text-white outline-none focus:border-cyan-400 transition-colors text-sm" />
@@ -486,9 +504,11 @@ export function StylistMonthly({ id, commissionPct, stylistName }: { id: string;
             <div className="rounded-3xl border border-white/10 bg-slate-950/50 p-4 shadow-inner text-sm space-y-3">
                 <div className="flex items-center justify-between text-slate-100">
                     <span className="font-semibold">
-                        {useRangeData 
-                            ? `CA du ${formatDateDisplay(startDate)} au ${formatDateDisplay(endDate)}`
-                            : "CA du mois"
+                        {useTodayData 
+                            ? "CA du jour"
+                            : useRangeData 
+                                ? `CA du ${formatDateDisplay(startDate)} au ${formatDateDisplay(endDate)}`
+                                : "CA du mois"
                         }
                     </span>
                     <span className="text-base font-bold">{eur.format(total?.amount || 0)}</span>
@@ -504,11 +524,31 @@ export function StylistMonthly({ id, commissionPct, stylistName }: { id: string;
                 <div className="bg-white/12 px-3 py-2"><span className="inline-flex items-center px-2 py-0.5 rounded-full border-2 border-emerald-300 bg-emerald-100/30 text-emerald-100 text-xs font-semibold">Espèces</span></div>
                 <div className="bg-white/12 px-3 py-2"><span className="inline-flex items-center px-2 py-0.5 rounded-full border-2 border-amber-300 bg-amber-100/30 text-amber-100 text-xs font-semibold">En ligne</span></div>
                 <div className="bg-white/12 px-3 py-2"><span className="inline-flex items-center px-2 py-0.5 rounded-full border-2 border-indigo-300 bg-indigo-100/30 text-indigo-100 text-xs font-semibold">Carte</span></div>
-                <div className="px-3 py-2 font-bold">{useRangeData ? "Période" : "Mois"}</div>
+                <div className="px-3 py-2 font-bold">{useTodayData ? "Jour" : useRangeData ? "Période" : "Mois"}</div>
                 <div className="px-3 py-2">{eur.format(displayData?.methods.cash.amount || 0)}</div>
                 <div className="px-3 py-2">{eur.format(displayData?.methods.check.amount || 0)}</div>
                 <div className="px-3 py-2">{eur.format(displayData?.methods.card.amount || 0)}</div>
             </div>
+
+            {useTodayData && (
+                <motion.button
+                    onClick={() => setTodayEncaissementsOpen(true)}
+                    whileHover={{ scale: 1.03, y: -3, boxShadow: "0 0 25px rgba(236,72,153,0.5)" }}
+                    whileTap={{ scale: 1.12, y: -8, boxShadow: "0 0 50px rgba(236,72,153,0.9), 0 0 80px rgba(236,72,153,0.5), inset 0 0 20px rgba(255,255,255,0.1)" }}
+                    transition={{ type: "spring", stiffness: 400, damping: 15 }}
+                    className="w-full flex items-center justify-between rounded-xl border border-fuchsia-500/40 bg-gradient-to-br from-fuchsia-900/40 via-slate-900/60 to-slate-900/80 backdrop-blur-xl px-3 py-2 shadow-[0_4px_16px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.1)] transition-all hover:border-fuchsia-400/60"
+                >
+                    <div className="flex items-center gap-2">
+                        <span className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-fuchsia-400/40 bg-fuchsia-500/20">
+                            <List className="h-4 w-4 text-fuchsia-300" />
+                        </span>
+                        <div className="text-left">
+                            <div className="text-xs font-semibold uppercase tracking-wide text-white/90">Encaissements du jour</div>
+                        </div>
+                    </div>
+                    <ChevronDown className="h-4 w-4 text-fuchsia-300" />
+                </motion.button>
+            )}
 
             {useRangeData && (
                 <motion.button
@@ -529,6 +569,50 @@ export function StylistMonthly({ id, commissionPct, stylistName }: { id: string;
                     <ChevronDown className="h-4 w-4 text-violet-300" />
                 </motion.button>
             )}
+
+            <AnimatePresence>
+                {todayEncaissementsOpen && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+                        onClick={() => setTodayEncaissementsOpen(false)}
+                    >
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                            onClick={(e) => e.stopPropagation()}
+                            className="relative w-[88%] max-w-md max-h-[70vh] overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900/98 via-fuchsia-900/40 to-slate-800/98 border border-fuchsia-500/30 shadow-[0_25px_80px_rgba(0,0,0,0.6),0_0_40px_rgba(236,72,153,0.2)] backdrop-blur-xl mx-auto"
+                        >
+                            <div className="sticky top-0 z-10 flex items-center justify-between px-3 sm:px-6 py-3 sm:py-4 border-b border-white/10 bg-slate-900/80 backdrop-blur-sm">
+                                <div className="flex items-center gap-3">
+                                    <span className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-fuchsia-400/40 bg-fuchsia-500/20">
+                                        <List className="h-5 w-5 text-fuchsia-300" />
+                                    </span>
+                                    <div>
+                                        <h3 className="text-lg font-bold text-white">Encaissements du jour</h3>
+                                        <p className="text-xs text-white/50">{formatDateDisplay(today)}</p>
+                                    </div>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => setTodayEncaissementsOpen(false)}
+                                    className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-slate-400 transition hover:bg-white/10 hover:text-white"
+                                >
+                                    <ChevronDown className="h-6 w-6" />
+                                </button>
+                            </div>
+                            <div className="p-2 sm:p-4 overflow-y-auto max-h-[calc(70vh-80px)]">
+                                <StylistRangeEncaissements entries={dailyEntries} onUpdate={handleUpdatePayment} />
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
             <AnimatePresence>
                 {rangeEncaissementsOpen && (
