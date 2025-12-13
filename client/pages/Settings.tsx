@@ -614,7 +614,7 @@ function GlobalRevenueStats() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
             onClick={() => setEncaissementsOpen(false)}
           >
             <motion.div
@@ -624,7 +624,7 @@ function GlobalRevenueStats() {
               transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
               onClick={(e) => e.stopPropagation()}
               className={cn(
-                "relative w-[88%] max-w-md max-h-[70vh] overflow-hidden rounded-3xl border shadow-[0_25px_80px_rgba(0,0,0,0.6)] backdrop-blur-xl mx-auto",
+                "relative w-[88%] max-w-md max-h-[85vh] overflow-hidden rounded-3xl border shadow-[0_25px_80px_rgba(0,0,0,0.6)] backdrop-blur-xl mx-auto my-auto",
                 useTodayData 
                   ? "bg-gradient-to-br from-slate-900/98 via-fuchsia-900/40 to-slate-800/98 border-fuchsia-500/30 shadow-[0_25px_80px_rgba(0,0,0,0.6),0_0_40px_rgba(236,72,153,0.2)]"
                   : "bg-gradient-to-br from-slate-900/98 via-violet-900/40 to-slate-800/98 border-violet-500/30 shadow-[0_25px_80px_rgba(0,0,0,0.6),0_0_40px_rgba(139,92,246,0.2)]"
@@ -660,7 +660,7 @@ function GlobalRevenueStats() {
                   <ChevronDown className="h-6 w-6" />
                 </button>
               </div>
-              <div className="p-2 sm:p-4 overflow-y-auto max-h-[calc(70vh-80px)]">
+              <div className="p-2 sm:p-4 overflow-y-auto max-h-[calc(85vh-80px)]">
                 <GlobalEncaissements entries={displayEntries} onUpdate={handleUpdatePayment} />
               </div>
             </motion.div>
