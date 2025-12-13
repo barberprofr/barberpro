@@ -4,7 +4,7 @@ import { ChevronDown, ChevronLeft, Euro, Scissors, Package, Users } from "lucide
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useDashboardSummary, useStylists, useStylistBreakdown, useConfig, apiPath, useProducts } from "@/lib/api";
-import { StylistDailySection, StylistMonthly } from "@/components/Salon/StylistDailyStats";
+import { StylistMonthly } from "@/components/Salon/StylistDailyStats";
 
 type SummaryHighlightCardProps = {
   label: string;
@@ -434,7 +434,7 @@ function StylistsList({ stylists, config, hasStylists }: { stylists: any[], conf
             </div>
             <h3 className="text-3xl font-black text-white text-center">{selectedStylist.name}</h3>
           </div>
-          <StylistDailySection id={selectedStylist.id} commissionPct={((selectedStylist as any).commissionPct ?? config?.commissionDefault ?? 0)} />
+          <StylistMonthly id={selectedStylist.id} commissionPct={((selectedStylist as any).commissionPct ?? config?.commissionDefault ?? 0)} stylistName={selectedStylist.name} />
         </div>
       </motion.div>
     );
