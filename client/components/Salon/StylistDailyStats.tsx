@@ -479,7 +479,7 @@ export function StylistMonthly({ id, commissionPct, stylistName }: { id: string;
                                 : "bg-slate-800/60 border-slate-600 text-white/70 hover:bg-slate-700/60 hover:text-white"
                         )}
                     >
-                        Ce mois{stylistName ? ` — ${stylistName}` : ""}
+                        Ce mois
                     </button>
                 </div>
             ) : (
