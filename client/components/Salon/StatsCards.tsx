@@ -468,7 +468,7 @@ function StylistsList({ stylists, config, hasStylists }: { stylists: any[], conf
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
         exit={{ opacity: 0, x: -20 }}
-        className="space-y-4 max-h-[80vh] overflow-y-auto"
+        className="space-y-4 max-h-[85vh] overflow-y-auto pb-8"
       >
         <div className="space-y-4">
           <div className="flex flex-col items-center justify-center border-b border-white/10 pb-4">
