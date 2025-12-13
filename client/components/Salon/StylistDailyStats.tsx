@@ -503,7 +503,7 @@ export function StylistMonthly({ id, commissionPct, stylistName }: { id: string;
             
             <div className="rounded-3xl border border-white/10 bg-slate-950/50 p-4 shadow-inner text-sm space-y-3">
                 <div className="flex items-center justify-between text-slate-100">
-                    <span className="text-lg font-bold">
+                    <span className="text-sm font-medium text-white/80">
                         {useTodayData 
                             ? "CA du jour"
                             : useRangeData 
