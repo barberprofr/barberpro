@@ -146,7 +146,7 @@ export interface Stylist { id: string; name: string; stats?: StylistStats; commi
 export interface Client { id: string; name: string; points: number; email: string | null; phone: string | null; lastVisitAt: number | null; photos: string[] }
 export interface Prestation { id: string; stylistId: string; clientId?: string; amount: number; paymentMethod: PaymentMethod; timestamp: number; pointsPercent: number; pointsAwarded: number }
 export interface Product { id: string; stylistId: string; clientId?: string; amount: number; paymentMethod: PaymentMethod; timestamp: number }
-export interface Service { id: string; name: string; price: number; description?: string }
+export interface Service { id: string; name: string; price: number; description?: string; sortOrder?: number }
 export interface ProductType { id: string; name: string; price: number; description?: string }
 export interface PointsUsageEntry {
   id: string;
@@ -647,6 +647,24 @@ export function useDeleteService() {
     onSuccess: (_data, id) => {
       qc.setQueryData<Service[] | undefined>(["services"], (prev) => prev?.filter((s) => s.id !== id));
       qc.invalidateQueries({ queryKey: ["services"] });
+    }
+  });
+}
+
+export function useReorderServices() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (orderedIds: string[]) => {
+      const res = await apiFetch("/api/services/reorder", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", "x-admin-token": getAdminToken() || "" },
+        body: JSON.stringify({ orderedIds })
+      });
+      if (!res.ok) await throwResponseError(res);
+      return res.json() as Promise<{ services: Service[] }>;
+    },
+    onSuccess: (data) => {
+      qc.setQueryData<Service[] | undefined>(["services"], () => data.services);
     }
   });
 }
