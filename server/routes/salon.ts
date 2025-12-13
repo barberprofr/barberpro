@@ -1929,18 +1929,12 @@ export const setStylistSecretCode: RequestHandler = async (req, res) => {
     const { id } = req.params as { id: string };
     const { secretCode } = body as { secretCode?: string };
 
-    console.log('🔐 [setStylistSecretCode] salonId:', salonId, 'stylistId:', id, 'secretCode:', secretCode ? '***' : 'empty');
-
     const stylist = await Stylist.findOne({ id, salonId });
-    if (!stylist) {
-      console.log('🔐 [setStylistSecretCode] Stylist not found');
-      return res.status(404).json({ error: "stylist not found" });
-    }
+    if (!stylist) return res.status(404).json({ error: "stylist not found" });
 
     stylist.secretCode = secretCode?.trim() || null;
     await stylist.save();
 
-    console.log('🔐 [setStylistSecretCode] Code saved, hasCode:', Boolean(stylist.secretCode));
     res.json({ ok: true, hasCode: Boolean(stylist.secretCode) });
   } catch (error) {
     console.error('Error setting stylist secret code:', error);
@@ -1975,15 +1969,9 @@ export const getStylistHasSecretCode: RequestHandler = async (req, res) => {
     const salonId = getSalonId(req);
     const { id } = req.params as { id: string };
 
-    console.log('🔐 [getStylistHasSecretCode] salonId:', salonId, 'stylistId:', id);
-
     const stylist = await Stylist.findOne({ id, salonId });
-    if (!stylist) {
-      console.log('🔐 [getStylistHasSecretCode] Stylist not found');
-      return res.status(404).json({ error: "stylist not found" });
-    }
+    if (!stylist) return res.status(404).json({ error: "stylist not found" });
 
-    console.log('🔐 [getStylistHasSecretCode] secretCode:', stylist.secretCode ? '***' : 'null', 'hasCode:', Boolean(stylist.secretCode));
     res.json({ hasCode: Boolean(stylist.secretCode) });
   } catch (error) {
     console.error('Error checking stylist secret code:', error);
