@@ -2388,14 +2388,15 @@ export default function Settings() {
                               "h-10 rounded-2xl border px-3 text-sm font-semibold transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300/70",
                               manageStylistId
                                 ? "border-emerald-300/70 bg-emerald-400/20 text-emerald-100 shadow-[0_14px_34px_rgba(16,185,129,0.3)]"
-                                : "border-white/18 bg-slate-950/70 text-white"
+                                : "border-white/18 bg-slate-950/70 text-white",
+                              "[&>option]:bg-slate-900 [&>option]:text-white"
                             )}
                             value={manageStylistId}
                             onChange={(e) => setManageStylistId(e.target.value)}
                           >
-                            <option value="">Sélectionner</option>
+                            <option value="" className="bg-slate-900 text-white">Sélectionner</option>
                             {stylists?.map((s) => (
-                              <option key={s.id} value={s.id}>{s.name}</option>
+                              <option key={s.id} value={s.id} className="bg-slate-900 text-white">{s.name}</option>
                             ))}
                           </select>
                           <Input
