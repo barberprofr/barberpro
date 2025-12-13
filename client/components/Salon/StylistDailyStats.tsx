@@ -345,7 +345,7 @@ export function StylistDailySection({ id, commissionPct, stylistName }: { id: st
                             exit={{ opacity: 0, scale: 0.95, y: 10 }}
                             transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
                             onClick={(e) => e.stopPropagation()}
-                            className="relative w-[95%] max-w-lg max-h-[70vh] overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900/98 via-violet-900/40 to-slate-800/98 border border-violet-500/30 shadow-[0_25px_80px_rgba(0,0,0,0.6),0_0_40px_rgba(139,92,246,0.2)] backdrop-blur-xl mx-auto"
+                            className="relative w-[98%] max-w-2xl max-h-[70vh] overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900/98 via-violet-900/40 to-slate-800/98 border border-violet-500/30 shadow-[0_25px_80px_rgba(0,0,0,0.6),0_0_40px_rgba(139,92,246,0.2)] backdrop-blur-xl mx-auto"
                         >
                             <div className="sticky top-0 z-10 flex items-center justify-between px-3 sm:px-6 py-3 sm:py-4 border-b border-white/10 bg-slate-900/80 backdrop-blur-sm">
                                 <div className="flex items-center gap-3">
@@ -593,7 +593,7 @@ export function StylistMonthly({ id, commissionPct, stylistName }: { id: string;
                             exit={{ opacity: 0, scale: 0.95, y: 10 }}
                             transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
                             onClick={(e) => e.stopPropagation()}
-                            className="relative w-[95%] max-w-lg max-h-[70vh] overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900/98 via-fuchsia-900/40 to-slate-800/98 border border-fuchsia-500/30 shadow-[0_25px_80px_rgba(0,0,0,0.6),0_0_40px_rgba(236,72,153,0.2)] backdrop-blur-xl mx-auto"
+                            className="relative w-[98%] max-w-2xl max-h-[70vh] overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900/98 via-fuchsia-900/40 to-slate-800/98 border border-fuchsia-500/30 shadow-[0_25px_80px_rgba(0,0,0,0.6),0_0_40px_rgba(236,72,153,0.2)] backdrop-blur-xl mx-auto"
                         >
                             <div className="sticky top-0 z-10 flex items-center justify-between px-3 sm:px-6 py-3 sm:py-4 border-b border-white/10 bg-slate-900/80 backdrop-blur-sm">
                                 <div className="flex items-center gap-3 min-w-0 flex-1">
@@ -637,7 +637,7 @@ export function StylistMonthly({ id, commissionPct, stylistName }: { id: string;
                             exit={{ opacity: 0, scale: 0.95, y: 10 }}
                             transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
                             onClick={(e) => e.stopPropagation()}
-                            className="relative w-[95%] max-w-lg max-h-[70vh] overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900/98 via-violet-900/40 to-slate-800/98 border border-violet-500/30 shadow-[0_25px_80px_rgba(0,0,0,0.6),0_0_40px_rgba(139,92,246,0.2)] backdrop-blur-xl mx-auto"
+                            className="relative w-[98%] max-w-2xl max-h-[70vh] overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900/98 via-violet-900/40 to-slate-800/98 border border-violet-500/30 shadow-[0_25px_80px_rgba(0,0,0,0.6),0_0_40px_rgba(139,92,246,0.2)] backdrop-blur-xl mx-auto"
                         >
                             <div className="sticky top-0 z-10 flex items-center justify-between px-3 sm:px-6 py-3 sm:py-4 border-b border-white/10 bg-slate-900/80 backdrop-blur-sm">
                                 <div className="flex items-center gap-3 min-w-0 flex-1">
