@@ -1,9 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown, ChevronLeft, Euro, Scissors, Package, Users } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { useDashboardSummary, useStylists, useStylistBreakdown, useConfig, apiPath, useProducts } from "@/lib/api";
+import { useDashboardSummary, useStylists, useStylistBreakdown, useConfig, apiPath, useProducts, useStylistHasSecretCode, useVerifyStylistSecretCode } from "@/lib/api";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Lock } from "lucide-react";
 import { StylistMonthly } from "@/components/Salon/StylistDailyStats";
 
 type SummaryHighlightCardProps = {
@@ -412,7 +415,52 @@ export default function StatsCards() {
 
 function StylistsList({ stylists, config, hasStylists }: { stylists: any[], config: any, hasStylists: boolean }) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [pendingId, setPendingId] = useState<string | null>(null);
+  const [secretCodeInput, setSecretCodeInput] = useState("");
+  const [codeError, setCodeError] = useState("");
+  const [showCodeDialog, setShowCodeDialog] = useState(false);
+  
   const selectedStylist = stylists.find(s => s.id === selectedId);
+  const pendingStylist = stylists.find(s => s.id === pendingId);
+  
+  const { data: hasSecretCode, isLoading: checkingSecretCode } = useStylistHasSecretCode(pendingId ?? undefined);
+  const verifyCode = useVerifyStylistSecretCode();
+
+  const handleCardClick = (stylistId: string) => {
+    setPendingId(stylistId);
+    setSecretCodeInput("");
+    setCodeError("");
+  };
+
+  const handleVerifyCode = async () => {
+    if (!pendingId || !secretCodeInput.trim()) return;
+    
+    try {
+      const result = await verifyCode.mutateAsync({ stylistId: pendingId, code: secretCodeInput });
+      if (result.valid) {
+        setSelectedId(pendingId);
+        setPendingId(null);
+        setShowCodeDialog(false);
+        setSecretCodeInput("");
+        setCodeError("");
+      } else {
+        setCodeError("Code incorrect");
+      }
+    } catch (e: any) {
+      setCodeError("Code incorrect");
+    }
+  };
+
+  useEffect(() => {
+    if (pendingId && !checkingSecretCode && hasSecretCode !== undefined) {
+      if (hasSecretCode.hasCode) {
+        setShowCodeDialog(true);
+      } else {
+        setSelectedId(pendingId);
+        setPendingId(null);
+      }
+    }
+  }, [pendingId, checkingSecretCode, hasSecretCode]);
 
   if (selectedId && selectedStylist) {
     return (
@@ -449,16 +497,78 @@ function StylistsList({ stylists, config, hasStylists }: { stylists: any[], conf
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, x: -20 }}
-      animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: 20 }}
-      className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3"
-    >
-      {stylists.map((s) => (
-        <StylistCard key={s.id} s={s} config={config} onClick={() => setSelectedId(s.id)} />
-      ))}
-    </motion.div>
+    <>
+      <Dialog open={showCodeDialog} onOpenChange={(open) => {
+        if (!open) {
+          setShowCodeDialog(false);
+          setPendingId(null);
+          setSecretCodeInput("");
+          setCodeError("");
+        }
+      }}>
+        <DialogContent className="max-w-sm bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 border border-amber-500/30">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-white">
+              <Lock className="h-5 w-5 text-amber-400" />
+              Code secret requis
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-sm text-white/70">
+              Entrez le code secret pour accéder aux statistiques de {pendingStylist?.name}
+            </p>
+            <Input
+              type="password"
+              placeholder="Entrez le code secret"
+              value={secretCodeInput}
+              onChange={(e) => {
+                setSecretCodeInput(e.target.value);
+                setCodeError("");
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleVerifyCode();
+              }}
+              className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
+            />
+            {codeError && (
+              <p className="text-sm text-red-400">{codeError}</p>
+            )}
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowCodeDialog(false);
+                  setPendingId(null);
+                  setSecretCodeInput("");
+                  setCodeError("");
+                }}
+                className="flex-1 border-white/20 text-white hover:bg-white/10"
+              >
+                Annuler
+              </Button>
+              <Button
+                onClick={handleVerifyCode}
+                disabled={!secretCodeInput.trim() || verifyCode.isPending}
+                className="flex-1 bg-amber-500 hover:bg-amber-600 text-black"
+              >
+                {verifyCode.isPending ? "Vérification..." : "Valider"}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+      
+      <motion.div
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        exit={{ opacity: 0, x: 20 }}
+        className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3"
+      >
+        {stylists.map((s) => (
+          <StylistCard key={s.id} s={s} config={config} onClick={() => handleCardClick(s.id)} />
+        ))}
+      </motion.div>
+    </>
   );
 }
 
