@@ -653,6 +653,7 @@ export function useDeleteService() {
 
 export function useReorderServices() {
   const qc = useQueryClient();
+  const salonId = getSelectedSalon();
   return useMutation({
     mutationFn: async (orderedIds: string[]) => {
       const res = await apiFetch("/api/services/reorder", {
@@ -664,7 +665,7 @@ export function useReorderServices() {
       return res.json() as Promise<{ services: Service[] }>;
     },
     onSuccess: (data) => {
-      qc.setQueryData<Service[] | undefined>(["services"], () => data.services);
+      qc.setQueryData<Service[] | undefined>(["services", salonId], () => data.services);
     }
   });
 }
