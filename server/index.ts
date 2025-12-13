@@ -3,7 +3,7 @@ import express from "express";
 import cors from "cors";
 import { handleDemo } from "./routes/demo";
 import { connectDatabase } from './db';
-import { addClient, addStylist, adminLogin, createPrestation, createProduct, listProducts, exportSummaryCSV, exportSummaryPDF, getConfig, getStylistBreakdown, listClients, listStylists, pointsUsageReport, redeemPoints, reportByDay, reportByMonth, setAdminPassword, setStylistCommission, summaryReport, updateConfig, deleteStylist, deleteClient, recoverAdminPassword, recoverAdminVerify, exportStylistCSV, exportStylistPDF, exportByDayCSV, exportByDayPDF, exportByMonthCSV, exportByMonthPDF, setupAdminAccount, verifyAdminCode, updateStylist, listServices, addService, deleteService, reorderServices, listProductTypes, addProductType, deleteProductType, recoverAdminCode, verifyAdminCodeRecovery, addPoints, updateTransactionPaymentMethod, uploadClientPhoto, deleteClientPhoto } from "./routes/salon";
+import { addClient, addStylist, adminLogin, createPrestation, createProduct, listProducts, exportSummaryCSV, exportSummaryPDF, getConfig, getStylistBreakdown, getGlobalBreakdown, listClients, listStylists, pointsUsageReport, redeemPoints, reportByDay, reportByMonth, setAdminPassword, setStylistCommission, summaryReport, updateConfig, deleteStylist, deleteClient, recoverAdminPassword, recoverAdminVerify, exportStylistCSV, exportStylistPDF, exportByDayCSV, exportByDayPDF, exportByMonthCSV, exportByMonthPDF, setupAdminAccount, verifyAdminCode, updateStylist, listServices, addService, deleteService, reorderServices, listProductTypes, addProductType, deleteProductType, recoverAdminCode, verifyAdminCodeRecovery, addPoints, updateTransactionPaymentMethod, uploadClientPhoto, deleteClientPhoto } from "./routes/salon";
 import { createCheckoutSession, createPortalSession, webhookHandler } from "./routes/payment";
 
 export function createServer() {
@@ -99,6 +99,7 @@ export function createServer() {
   app.post("/api/clients/add-points", addPoints);
   app.post("/api/transactions/update-payment-method", updateTransactionPaymentMethod);
   app.get("/api/stylists/:id/breakdown", getStylistBreakdown);
+  app.get("/api/reports/global-breakdown", getGlobalBreakdown);
   app.get("/api/reports/summary.csv", exportSummaryCSV);
   app.get("/api/reports/summary.pdf", exportSummaryPDF);
   app.get("/api/reports/stylists/:id.csv", exportStylistCSV);
@@ -143,6 +144,7 @@ export function createServer() {
   app.post("/api/salons/:salonId/products", createProduct);
   app.post("/api/salons/:salonId/clients/redeem", redeemPoints);
   app.get("/api/salons/:salonId/reports/summary", summaryReport);
+  app.get("/api/salons/:salonId/reports/global-breakdown", getGlobalBreakdown);
   app.get("/api/salons/:salonId/reports/points-usage", pointsUsageReport);
   app.post("/api/salons/:salonId/clients/add-points", addPoints);
   app.post("/api/salons/:salonId/transactions/update-payment-method", updateTransactionPaymentMethod);

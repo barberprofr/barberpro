@@ -1654,6 +1654,158 @@ export const summaryReport: RequestHandler = async (req, res) => {
   }
 };
 
+export const getGlobalBreakdown: RequestHandler = async (req, res) => {
+  try {
+    const salonId = getSalonId(req);
+    const q = req.query as any;
+    const dateStr = typeof q.date === "string" ? q.date : undefined;
+    const startDateStr = typeof q.startDate === "string" ? q.startDate : undefined;
+    const endDateStr = typeof q.endDate === "string" ? q.endDate : undefined;
+    
+    const now = Date.now();
+    let ref = now;
+
+    if (dateStr && /^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+      const [y, m, d] = dateStr.split("-").map(Number);
+      ref = Date.UTC(y, (m - 1), d, 12, 0, 0);
+    }
+
+    let startDateMs: number | undefined;
+    let endDateMs: number | undefined;
+
+    if (startDateStr && /^\d{4}-\d{2}-\d{2}$/.test(startDateStr)) {
+      const parsed = Date.parse(startDateStr + "T12:00:00");
+      startDateMs = startOfDayParis(parsed);
+    }
+    if (endDateStr && /^\d{4}-\d{2}-\d{2}$/.test(endDateStr)) {
+      const parsed = Date.parse(endDateStr + "T12:00:00");
+      endDateMs = startOfDayParis(parsed) + 24 * 60 * 60 * 1000 - 1;
+    }
+
+    const todayStart = startOfDayParis(ref);
+    const [prestations, products] = await Promise.all([
+      Prestation.find({ salonId }),
+      Product.find({ salonId })
+    ]);
+
+    const daily = makeScope();
+    const monthly = makeScope();
+    const range = makeScope();
+    const dailyEntries: Array<{ id: string; timestamp: number; amount: number; paymentMethod: PaymentMethod; name?: string; kind: "prestation" | "produit" }> = [];
+    const rangeEntries: Array<{ id: string; timestamp: number; amount: number; paymentMethod: PaymentMethod; name?: string; kind: "prestation" | "produit" }> = [];
+    let dailyProductCount = 0;
+    let monthlyProductCount = 0;
+    let rangeProductCount = 0;
+    let dailyPrestationCount = 0;
+    let monthlyPrestationCount = 0;
+    let rangePrestationCount = 0;
+
+    for (const p of prestations) {
+      const ts = startOfDayParis(p.timestamp);
+      const isDaily = ts === todayStart;
+      const isMonthly = isSameMonthParis(p.timestamp, ref);
+      const isRange = startDateMs && endDateMs && p.timestamp >= startDateMs && p.timestamp <= endDateMs;
+
+      if (isDaily) {
+        daily.total.amount += p.amount;
+        daily.total.count += 1;
+        daily.methods[p.paymentMethod].amount += p.amount;
+        daily.methods[p.paymentMethod].count += 1;
+        dailyPrestationCount++;
+        dailyEntries.push({
+          id: p.id,
+          timestamp: p.timestamp,
+          amount: p.amount,
+          paymentMethod: p.paymentMethod,
+          name: (p as any).serviceName || "prestation",
+          kind: "prestation"
+        });
+      }
+      if (isMonthly) {
+        monthly.total.amount += p.amount;
+        monthly.total.count += 1;
+        monthly.methods[p.paymentMethod].amount += p.amount;
+        monthly.methods[p.paymentMethod].count += 1;
+        monthlyPrestationCount++;
+      }
+      if (isRange) {
+        range.total.amount += p.amount;
+        range.total.count += 1;
+        range.methods[p.paymentMethod].amount += p.amount;
+        range.methods[p.paymentMethod].count += 1;
+        rangePrestationCount++;
+        rangeEntries.push({
+          id: p.id,
+          timestamp: p.timestamp,
+          amount: p.amount,
+          paymentMethod: p.paymentMethod,
+          name: (p as any).serviceName || "prestation",
+          kind: "prestation"
+        });
+      }
+    }
+
+    for (const prod of products) {
+      const ts = startOfDayParis(prod.timestamp);
+      const isDaily = ts === todayStart;
+      const isMonthly = isSameMonthParis(prod.timestamp, ref);
+      const isRange = startDateMs && endDateMs && prod.timestamp >= startDateMs && prod.timestamp <= endDateMs;
+
+      if (isDaily) {
+        daily.total.amount += prod.amount;
+        daily.methods[prod.paymentMethod].amount += prod.amount;
+        dailyProductCount++;
+        dailyEntries.push({
+          id: prod.id,
+          timestamp: prod.timestamp,
+          amount: prod.amount,
+          paymentMethod: prod.paymentMethod,
+          name: "produit",
+          kind: "produit"
+        });
+      }
+      if (isMonthly) {
+        monthly.total.amount += prod.amount;
+        monthly.methods[prod.paymentMethod].amount += prod.amount;
+        monthlyProductCount++;
+      }
+      if (isRange) {
+        range.total.amount += prod.amount;
+        range.methods[prod.paymentMethod].amount += prod.amount;
+        rangeProductCount++;
+        rangeEntries.push({
+          id: prod.id,
+          timestamp: prod.timestamp,
+          amount: prod.amount,
+          paymentMethod: prod.paymentMethod,
+          name: "produit",
+          kind: "produit"
+        });
+      }
+    }
+
+    dailyEntries.sort((a, b) => b.timestamp - a.timestamp);
+    rangeEntries.sort((a, b) => b.timestamp - a.timestamp);
+
+    res.json({
+      daily,
+      monthly,
+      range: startDateMs && endDateMs ? range : undefined,
+      dailyEntries,
+      rangeEntries: startDateMs && endDateMs ? rangeEntries : [],
+      dailyProductCount,
+      monthlyProductCount,
+      rangeProductCount: startDateMs && endDateMs ? rangeProductCount : 0,
+      dailyPrestationCount,
+      monthlyPrestationCount,
+      rangePrestationCount: startDateMs && endDateMs ? rangePrestationCount : 0,
+    });
+  } catch (error) {
+    console.error('Error getting global breakdown:', error);
+    res.status(500).json({ error: "Erreur serveur" });
+  }
+};
+
 export const getStylistBreakdown: RequestHandler = async (req, res) => {
   try {
     const salonId = getSalonId(req);
