@@ -122,7 +122,7 @@ export default function ServicesPicker({ onServiceSelect, onReset, externalOpen,
             </AnimatePresence>
 
             {/* Services list */}
-            <motion.div layout className="space-y-2 max-h-[70vh] overflow-y-auto p-4 elegant-scrollbar">
+            <motion.div layout className="space-y-2 max-h-[80vh] overflow-y-auto p-4 elegant-scrollbar">
               {services.map((service) => {
                 const isSelected = selectedPrestations.has(service.id);
                 const selectedData = selectedPrestations.get(service.id);
