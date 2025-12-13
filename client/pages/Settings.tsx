@@ -1310,36 +1310,26 @@ export default function Settings() {
   };
 
   const handleStylistCardClick = async (stylist: Stylist, commissionPct: number) => {
-    alert('handleStylistCardClick appelé pour: ' + stylist.name);
-    console.log('🔐 [handleStylistCardClick] Called for stylist:', stylist.id, stylist.name);
     if (verifiedStylists.has(stylist.id)) {
-      console.log('🔐 [handleStylistCardClick] Already verified, opening directly');
       setOpenStylistId(stylist.id);
       return;
     }
     try {
       const url = "/api" + apiPath(`/stylists/${stylist.id}/has-code`);
-      console.log('🔐 [handleStylistCardClick] Fetching:', url);
       const res = await fetch(url);
-      console.log('🔐 [handleStylistCardClick] Response status:', res.status);
       if (!res.ok) {
-        console.log('🔐 [handleStylistCardClick] Response not OK');
         setStylistCodeError("Erreur de vérification");
         return;
       }
       const data = await res.json();
-      console.log('🔐 [handleStylistCardClick] Data:', data);
       if (!data.hasCode) {
-        console.log('🔐 [handleStylistCardClick] No code required, opening directly');
         setOpenStylistId(stylist.id);
         return;
       }
-      console.log('🔐 [handleStylistCardClick] Code required, showing popup');
       setPendingStylistCode({ id: stylist.id, name: stylist.name, commissionPct });
       setStylistCodeInput("");
       setStylistCodeError("");
-    } catch (err) {
-      console.error('🔐 [handleStylistCardClick] Error:', err);
+    } catch {
       setStylistCodeError("Erreur de connexion");
     }
   };
