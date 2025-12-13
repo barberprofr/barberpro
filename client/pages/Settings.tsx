@@ -1971,9 +1971,7 @@ export default function Settings() {
                 className="group relative flex w-full flex-col items-center justify-center gap-2 rounded-[20px] border border-cyan-500/30 bg-gradient-to-br from-cyan-900/40 via-slate-900/60 to-slate-900/80 backdrop-blur-xl px-5 py-6 shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] transition-all duration-200 hover:scale-[1.02] hover:border-cyan-400/50 hover:shadow-[0_12px_40px_rgba(6,182,212,0.3)] active:scale-[0.98]"
               >
                 <div className="flex h-12 w-12 items-center justify-center rounded-full border border-cyan-400/40 bg-cyan-500/20">
-                  <svg className="h-6 w-6 text-cyan-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z" />
-                  </svg>
+                  <span className="text-[10px] font-bold text-cyan-300 text-center leading-tight">CA<br/>SALON</span>
                 </div>
                 <span className="text-sm font-semibold text-white">CA Jour</span>
                 <span className="text-xs text-white/50">Aujourd'hui</span>
