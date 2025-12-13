@@ -1659,12 +1659,12 @@ export const getStylistBreakdown: RequestHandler = async (req, res) => {
     let endDateMs: number | undefined;
 
     if (startDateStr && /^\d{4}-\d{2}-\d{2}$/.test(startDateStr)) {
-      const [y, m, d] = startDateStr.split("-").map(Number);
-      startDateMs = Date.UTC(y, (m - 1), d, 0, 0, 0);
+      const parsed = Date.parse(startDateStr + "T12:00:00");
+      startDateMs = startOfDayParis(parsed);
     }
     if (endDateStr && /^\d{4}-\d{2}-\d{2}$/.test(endDateStr)) {
-      const [y, m, d] = endDateStr.split("-").map(Number);
-      endDateMs = Date.UTC(y, (m - 1), d, 23, 59, 59, 999);
+      const parsed = Date.parse(endDateStr + "T12:00:00");
+      endDateMs = startOfDayParis(parsed) + 24 * 60 * 60 * 1000 - 1;
     }
 
     const data = await aggregateByPayment(salonId, id, ref, startDateMs, endDateMs);
