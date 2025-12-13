@@ -1751,7 +1751,7 @@ export const deleteClient: RequestHandler = async (req, res) => {
 export const listServices: RequestHandler = async (req, res) => {
   try {
     const salonId = getSalonId(req);
-    const services = await Service.find({ salonId });
+    const services = await Service.find({ salonId }).sort({ sortOrder: 1, createdAt: 1 });
     res.json({ services });
   } catch (error) {
     console.error('Error listing services:', error);
@@ -1775,11 +1775,17 @@ export const addService: RequestHandler = async (req, res) => {
     }
 
     const id = `service_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`;
+    
+    // Get the max sortOrder to add new service at the end
+    const maxOrderService = await Service.findOne({ salonId }).sort({ sortOrder: -1 });
+    const nextSortOrder = (maxOrderService?.sortOrder ?? -1) + 1;
+    
     const service = new Service({
       id,
       name: name.trim(),
       price,
       description: description ? String(description).trim() : undefined,
+      sortOrder: nextSortOrder,
       salonId
     });
 
@@ -1806,6 +1812,39 @@ export const deleteService: RequestHandler = async (req, res) => {
     res.json({ ok: true });
   } catch (error) {
     console.error('Error deleting service:', error);
+    res.status(500).json({ error: "Erreur serveur" });
+  }
+};
+
+export const reorderServices: RequestHandler = async (req, res) => {
+  try {
+    if (!(await requireAdmin(req, res))) return;
+
+    const body = await parseRequestBody(req);
+    const salonId = getSalonId(req);
+    const { orderedIds } = body as { orderedIds: string[] };
+
+    if (!Array.isArray(orderedIds)) {
+      return res.status(400).json({ error: "orderedIds must be an array" });
+    }
+
+    // Update sortOrder for each service
+    const bulkOps = orderedIds.map((id, index) => ({
+      updateOne: {
+        filter: { id, salonId },
+        update: { $set: { sortOrder: index } }
+      }
+    }));
+
+    if (bulkOps.length > 0) {
+      await Service.bulkWrite(bulkOps);
+    }
+
+    // Return updated services
+    const services = await Service.find({ salonId }).sort({ sortOrder: 1, createdAt: 1 });
+    res.json({ services });
+  } catch (error) {
+    console.error('Error reordering services:', error);
     res.status(500).json({ error: "Erreur serveur" });
   }
 };

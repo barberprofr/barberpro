@@ -3,7 +3,7 @@ import express from "express";
 import cors from "cors";
 import { handleDemo } from "./routes/demo";
 import { connectDatabase } from './db';
-import { addClient, addStylist, adminLogin, createPrestation, createProduct, listProducts, exportSummaryCSV, exportSummaryPDF, getConfig, getStylistBreakdown, listClients, listStylists, pointsUsageReport, redeemPoints, reportByDay, reportByMonth, setAdminPassword, setStylistCommission, summaryReport, updateConfig, deleteStylist, deleteClient, recoverAdminPassword, recoverAdminVerify, exportStylistCSV, exportStylistPDF, exportByDayCSV, exportByDayPDF, exportByMonthCSV, exportByMonthPDF, setupAdminAccount, verifyAdminCode, updateStylist, listServices, addService, deleteService, listProductTypes, addProductType, deleteProductType, recoverAdminCode, verifyAdminCodeRecovery, addPoints, updateTransactionPaymentMethod, uploadClientPhoto, deleteClientPhoto } from "./routes/salon";
+import { addClient, addStylist, adminLogin, createPrestation, createProduct, listProducts, exportSummaryCSV, exportSummaryPDF, getConfig, getStylistBreakdown, listClients, listStylists, pointsUsageReport, redeemPoints, reportByDay, reportByMonth, setAdminPassword, setStylistCommission, summaryReport, updateConfig, deleteStylist, deleteClient, recoverAdminPassword, recoverAdminVerify, exportStylistCSV, exportStylistPDF, exportByDayCSV, exportByDayPDF, exportByMonthCSV, exportByMonthPDF, setupAdminAccount, verifyAdminCode, updateStylist, listServices, addService, deleteService, reorderServices, listProductTypes, addProductType, deleteProductType, recoverAdminCode, verifyAdminCodeRecovery, addPoints, updateTransactionPaymentMethod, uploadClientPhoto, deleteClientPhoto } from "./routes/salon";
 import { createCheckoutSession, createPortalSession, webhookHandler } from "./routes/payment";
 
 export function createServer() {
@@ -85,6 +85,7 @@ export function createServer() {
   app.delete("/api/clients/:id/photos", deleteClientPhoto as any);
   app.get("/api/services", listServices);
   app.post("/api/services", addService);
+  app.put("/api/services/reorder", reorderServices);
   app.delete("/api/services/:id", deleteService);
   app.get("/api/product-types", listProductTypes);
   app.post("/api/product-types", addProductType);
@@ -132,6 +133,7 @@ export function createServer() {
   app.delete("/api/salons/:salonId/clients/:id/photos", deleteClientPhoto as any);
   app.get("/api/salons/:salonId/services", listServices);
   app.post("/api/salons/:salonId/services", addService);
+  app.put("/api/salons/:salonId/services/reorder", reorderServices);
   app.delete("/api/salons/:salonId/services/:id", deleteService);
   app.get("/api/salons/:salonId/product-types", listProductTypes);
   app.post("/api/salons/:salonId/product-types", addProductType);
