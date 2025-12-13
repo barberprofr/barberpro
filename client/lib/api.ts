@@ -381,6 +381,37 @@ export function useStylistBreakdown(stylistId?: string, date?: string, startDate
   });
 }
 
+export interface GlobalBreakdown {
+  daily: { total: PaymentBreakdown; methods: Record<MethodKey, PaymentBreakdown> };
+  monthly: { total: PaymentBreakdown; methods: Record<MethodKey, PaymentBreakdown> };
+  range?: { total: PaymentBreakdown; methods: Record<MethodKey, PaymentBreakdown> };
+  dailyEntries: { id: string; amount: number; paymentMethod: MethodKey; timestamp: number; kind: "prestation" | "produit"; name?: string }[];
+  rangeEntries: { id: string; amount: number; paymentMethod: MethodKey; timestamp: number; kind: "prestation" | "produit"; name?: string }[];
+  dailyProductCount: number;
+  monthlyProductCount: number;
+  rangeProductCount: number;
+  dailyPrestationCount: number;
+  monthlyPrestationCount: number;
+  rangePrestationCount: number;
+}
+
+export function useGlobalBreakdown(date?: string, startDate?: string, endDate?: string) {
+  const salonId = getSelectedSalon();
+  return useQuery({
+    queryKey: ["global-breakdown", salonId, date || "today", startDate, endDate],
+    queryFn: async () => {
+      const params = new URLSearchParams();
+      if (date) params.set("date", date);
+      if (startDate) params.set("startDate", startDate);
+      if (endDate) params.set("endDate", endDate);
+      const qs = params.toString();
+      const res = await apiFetch(`/api/reports/global-breakdown${qs ? `?${qs}` : ""}`);
+      if (!res.ok) throw new Error("Failed to load global breakdown");
+      return res.json() as Promise<GlobalBreakdown>;
+    }
+  });
+}
+
 export function useRevenueByDay(year?: number, month?: number) {
   const salonId = getSelectedSalon();
   return useQuery({
