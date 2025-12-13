@@ -434,7 +434,7 @@ export function StylistMonthly({ id, commissionPct, stylistName }: { id: string;
     };
     
     return (
-        <div className="space-y-3 pb-6">
+        <div className="space-y-3 pb-16">
             <div className="flex flex-wrap items-center gap-2 text-sm">
                 <button
                     onClick={() => setMode("today")}
