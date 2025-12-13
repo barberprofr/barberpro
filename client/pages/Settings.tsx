@@ -1310,6 +1310,7 @@ export default function Settings() {
   };
 
   const handleStylistCardClick = async (stylist: Stylist, commissionPct: number) => {
+    alert('handleStylistCardClick appelé pour: ' + stylist.name);
     console.log('🔐 [handleStylistCardClick] Called for stylist:', stylist.id, stylist.name);
     if (verifiedStylists.has(stylist.id)) {
       console.log('🔐 [handleStylistCardClick] Already verified, opening directly');
