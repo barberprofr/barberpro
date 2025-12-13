@@ -434,7 +434,7 @@ export function StylistMonthly({ id, commissionPct, stylistName }: { id: string;
     };
     
     return (
-        <div className="space-y-3 pb-16">
+        <div className="space-y-2 pb-4">
             <div className="flex flex-wrap items-center gap-2 text-sm">
                 <button
                     onClick={() => setMode("today")}
@@ -506,7 +506,7 @@ export function StylistMonthly({ id, commissionPct, stylistName }: { id: string;
                 </div>
             )}
             
-            <div className="rounded-3xl border border-white/10 bg-slate-950/50 p-4 shadow-inner text-sm space-y-3">
+            <div className="rounded-2xl border border-white/10 bg-slate-950/50 p-3 shadow-inner text-sm space-y-1">
                 <div className="flex items-baseline justify-between text-slate-100">
                     <span className="text-sm font-light text-white leading-none">
                         {useTodayData 
@@ -527,14 +527,14 @@ export function StylistMonthly({ id, commissionPct, stylistName }: { id: string;
                 <div className="text-xs text-slate-300">{prestationTotal?.count || 0} prestation{(prestationTotal?.count ?? 0) > 1 ? "s" : ""}{displayProductCount ? `, ${displayProductCount} produit${displayProductCount > 1 ? "s" : ""}` : ""}</div>
             </div>
             <div className="grid grid-cols-4 text-sm border rounded-md overflow-hidden">
-                <div className="bg-white/12 px-3 py-2"></div>
-                <div className="bg-white/12 px-3 py-2"><span className="inline-flex items-center px-2 py-0.5 rounded-full border-2 border-emerald-300 bg-emerald-100/30 text-emerald-100 text-xs font-semibold">Espèces</span></div>
-                <div className="bg-white/12 px-3 py-2"><span className="inline-flex items-center px-2 py-0.5 rounded-full border-2 border-amber-300 bg-amber-100/30 text-amber-100 text-xs font-semibold">En ligne</span></div>
-                <div className="bg-white/12 px-3 py-2"><span className="inline-flex items-center px-2 py-0.5 rounded-full border-2 border-indigo-300 bg-indigo-100/30 text-indigo-100 text-xs font-semibold">Carte</span></div>
-                <div className="px-3 py-2 font-bold">{useTodayData ? "Jour" : useSingleDayRange ? "Jour" : useRangeData ? "Période" : "Mois"}</div>
-                <div className="px-3 py-2">{eur.format(displayData?.methods.cash.amount || 0)}</div>
-                <div className="px-3 py-2">{eur.format(displayData?.methods.check.amount || 0)}</div>
-                <div className="px-3 py-2">{eur.format(displayData?.methods.card.amount || 0)}</div>
+                <div className="bg-white/12 px-2 py-1"></div>
+                <div className="bg-white/12 px-2 py-1"><span className="inline-flex items-center px-1.5 py-0.5 rounded-full border-2 border-emerald-300 bg-emerald-100/30 text-emerald-100 text-[10px] font-semibold">Espèces</span></div>
+                <div className="bg-white/12 px-2 py-1"><span className="inline-flex items-center px-1.5 py-0.5 rounded-full border-2 border-amber-300 bg-amber-100/30 text-amber-100 text-[10px] font-semibold">En ligne</span></div>
+                <div className="bg-white/12 px-2 py-1"><span className="inline-flex items-center px-1.5 py-0.5 rounded-full border-2 border-indigo-300 bg-indigo-100/30 text-indigo-100 text-[10px] font-semibold">Carte</span></div>
+                <div className="px-2 py-1 font-bold text-xs">{useTodayData ? "Jour" : useSingleDayRange ? "Jour" : useRangeData ? "Période" : "Mois"}</div>
+                <div className="px-2 py-1 text-xs">{eur.format(displayData?.methods.cash.amount || 0)}</div>
+                <div className="px-2 py-1 text-xs">{eur.format(displayData?.methods.check.amount || 0)}</div>
+                <div className="px-2 py-1 text-xs">{eur.format(displayData?.methods.card.amount || 0)}</div>
             </div>
 
             {(useTodayData || useSingleDayRange) && (
