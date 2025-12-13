@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useServices, useAddService, useDeleteService, useProductTypes, useAddProductType, useDeleteProductType } from "@/lib/api";
-import { Trash2, Plus } from "lucide-react";
+import { useServices, useAddService, useDeleteService, useReorderServices, useProductTypes, useAddProductType, useDeleteProductType, Service } from "@/lib/api";
+import { Trash2, Plus, GripVertical } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 
@@ -18,6 +18,7 @@ export default function ServicesManager({ accordionValue = "", onAccordionChange
   const { data: productTypes = [] } = useProductTypes();
   const addService = useAddService();
   const deleteService = useDeleteService();
+  const reorderServices = useReorderServices();
   const addProductType = useAddProductType();
   const deleteProductType = useDeleteProductType();
 
@@ -27,6 +28,80 @@ export default function ServicesManager({ accordionValue = "", onAccordionChange
 
   const [productName, setProductName] = useState("");
   const [productPrice, setProductPrice] = useState("");
+
+  // Drag and drop state
+  const [draggedServiceId, setDraggedServiceId] = useState<string | null>(null);
+  const [dragOverServiceId, setDragOverServiceId] = useState<string | null>(null);
+  const dragCounter = useRef(0);
+
+  const handleDragStart = useCallback((e: React.DragEvent, serviceId: string) => {
+    setDraggedServiceId(serviceId);
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("text/plain", serviceId);
+    // Add a slight delay to allow the drag image to be set
+    requestAnimationFrame(() => {
+      const target = e.target as HTMLElement;
+      target.style.opacity = "0.5";
+    });
+  }, []);
+
+  const handleDragEnd = useCallback((e: React.DragEvent) => {
+    const target = e.target as HTMLElement;
+    target.style.opacity = "1";
+    setDraggedServiceId(null);
+    setDragOverServiceId(null);
+    dragCounter.current = 0;
+  }, []);
+
+  const handleDragEnter = useCallback((e: React.DragEvent, serviceId: string) => {
+    e.preventDefault();
+    dragCounter.current++;
+    if (serviceId !== draggedServiceId) {
+      setDragOverServiceId(serviceId);
+    }
+  }, [draggedServiceId]);
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    dragCounter.current--;
+    if (dragCounter.current === 0) {
+      setDragOverServiceId(null);
+    }
+  }, []);
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+  }, []);
+
+  const handleDrop = useCallback((e: React.DragEvent, targetServiceId: string) => {
+    e.preventDefault();
+    dragCounter.current = 0;
+    
+    if (!draggedServiceId || draggedServiceId === targetServiceId) {
+      setDraggedServiceId(null);
+      setDragOverServiceId(null);
+      return;
+    }
+
+    // Reorder services
+    const currentOrder = services.map(s => s.id);
+    const draggedIndex = currentOrder.indexOf(draggedServiceId);
+    const targetIndex = currentOrder.indexOf(targetServiceId);
+
+    if (draggedIndex === -1 || targetIndex === -1) return;
+
+    // Remove dragged item and insert at new position
+    const newOrder = [...currentOrder];
+    newOrder.splice(draggedIndex, 1);
+    newOrder.splice(targetIndex, 0, draggedServiceId);
+
+    // Call API to save new order
+    reorderServices.mutate(newOrder);
+
+    setDraggedServiceId(null);
+    setDragOverServiceId(null);
+  }, [draggedServiceId, services, reorderServices]);
 
   const handleAddService = () => {
     if (!servicePrice.trim()) return;
@@ -129,24 +204,47 @@ export default function ServicesManager({ accordionValue = "", onAccordionChange
 
               {services.length > 0 && (
                 <div className="space-y-3">
-                  <div className="text-base font-bold text-gray-100">Services enregistrés:</div>
+                  <div className="text-base font-bold text-gray-100">
+                    Services enregistrés:
+                    <span className="ml-2 text-sm font-normal text-gray-400">(glisser pour réorganiser)</span>
+                  </div>
                   <div className="grid gap-3">
                     {services.map((service) => (
-                      <Card key={service.id} className="border border-white/16 bg-white/8">
-                        <CardContent className="px-4 py-3 flex items-center justify-between">
-                          <div className="flex-1">
-                            <div className="font-semibold text-base text-gray-100">{service.name}</div>
-                            <div className="text-sm text-gray-400 mt-1">
-                              {service.price.toFixed(2)}€
-                              {service.description && ` - ${service.description}`}
+                      <Card 
+                        key={service.id} 
+                        draggable
+                        onDragStart={(e) => handleDragStart(e, service.id)}
+                        onDragEnd={handleDragEnd}
+                        onDragEnter={(e) => handleDragEnter(e, service.id)}
+                        onDragLeave={handleDragLeave}
+                        onDragOver={handleDragOver}
+                        onDrop={(e) => handleDrop(e, service.id)}
+                        className={cn(
+                          "border border-white/16 bg-white/8 cursor-grab active:cursor-grabbing transition-all duration-200",
+                          draggedServiceId === service.id && "opacity-50 scale-95",
+                          dragOverServiceId === service.id && draggedServiceId !== service.id && "border-purple-400/60 bg-purple-500/20 scale-[1.02] shadow-[0_0_20px_rgba(168,85,247,0.4)]"
+                        )}
+                      >
+                        <CardContent className="px-4 py-3 flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-3 flex-1 min-w-0">
+                            <GripVertical className="h-5 w-5 text-gray-400 flex-shrink-0 cursor-grab" />
+                            <div className="flex-1 min-w-0">
+                              <div className="font-semibold text-base text-gray-100 truncate">{service.name}</div>
+                              <div className="text-sm text-gray-400 mt-1">
+                                {service.price.toFixed(2)}€
+                                {service.description && ` - ${service.description}`}
+                              </div>
                             </div>
                           </div>
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => deleteService.mutate(service.id)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              deleteService.mutate(service.id);
+                            }}
                             disabled={deleteService.isPending}
-                            className="text-red-400 hover:text-red-300"
+                            className="text-red-400 hover:text-red-300 flex-shrink-0"
                           >
                             <Trash2 className="h-5 w-5" />
                           </Button>
