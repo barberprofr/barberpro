@@ -1298,10 +1298,62 @@ export default function Settings() {
   const [dailyCaPopupOpen, setDailyCaPopupOpen] = useState(false);
   const [yearCaPopupOpen, setYearCaPopupOpen] = useState(false);
   const [confirmPopup, setConfirmPopup] = useState<{ open: boolean; title: string; description: string; variant: "emerald" | "violet" }>({ open: false, title: "", description: "", variant: "emerald" });
+  const [pendingStylistCode, setPendingStylistCode] = useState<{ id: string; name: string; commissionPct: number } | null>(null);
+  const [stylistCodeInput, setStylistCodeInput] = useState("");
+  const [stylistCodeError, setStylistCodeError] = useState("");
+  const verifyStylistCode = useVerifyStylistSecretCode();
+  const [verifiedStylists, setVerifiedStylists] = useState<Set<string>>(new Set());
 
   const showConfirmPopup = (title: string, description: string, variant: "emerald" | "violet" = "emerald") => {
     setConfirmPopup({ open: true, title, description, variant });
     setTimeout(() => setConfirmPopup({ open: false, title: "", description: "", variant: "emerald" }), 2500);
+  };
+
+  const handleStylistCardClick = async (stylist: Stylist, commissionPct: number) => {
+    if (verifiedStylists.has(stylist.id)) {
+      setOpenStylistId(stylist.id);
+      return;
+    }
+    try {
+      const res = await fetch("/api" + apiPath(`/stylists/${stylist.id}/has-code`));
+      if (!res.ok) {
+        setStylistCodeError("Erreur de vérification");
+        return;
+      }
+      const data = await res.json();
+      if (!data.hasCode) {
+        setOpenStylistId(stylist.id);
+        return;
+      }
+      setPendingStylistCode({ id: stylist.id, name: stylist.name, commissionPct });
+      setStylistCodeInput("");
+      setStylistCodeError("");
+    } catch {
+      setStylistCodeError("Erreur de connexion");
+    }
+  };
+
+  const handleVerifyStylistCode = () => {
+    if (!pendingStylistCode || !stylistCodeInput.trim()) return;
+    verifyStylistCode.mutate(
+      { id: pendingStylistCode.id, code: stylistCodeInput },
+      {
+        onSuccess: (data) => {
+          if (data.valid || data.noCodeRequired) {
+            setVerifiedStylists(prev => new Set([...prev, pendingStylistCode.id]));
+            setOpenStylistId(pendingStylistCode.id);
+            setPendingStylistCode(null);
+            setStylistCodeInput("");
+            setStylistCodeError("");
+          } else {
+            setStylistCodeError("Code incorrect");
+          }
+        },
+        onError: () => {
+          setStylistCodeError("Erreur de vérification");
+        }
+      }
+    );
   };
 
   useEffect(() => {
@@ -2098,9 +2150,10 @@ export default function Settings() {
                           ];
                           const colors = colorSchemes[idx % colorSchemes.length];
                           return (
-                            <Popover key={s.id} open={openStylistId === s.id} onOpenChange={(open) => setOpenStylistId(open ? s.id : null)}>
+                            <Popover key={s.id} open={openStylistId === s.id} onOpenChange={(open) => { if (!open) setOpenStylistId(null); }}>
                               <PopoverTrigger asChild>
                                 <button
+                                  onClick={(e) => { e.preventDefault(); handleStylistCardClick(s, stylistCommissionPct); }}
                                   className="group relative flex h-36 w-full flex-col items-center justify-center gap-2 overflow-hidden rounded-[20px] border border-white/25 backdrop-blur-[26px] transition-all duration-200 hover:scale-[1.03] active:scale-105 active:brightness-110"
                                   style={{ background: "linear-gradient(160deg, rgba(30,41,59,0.95) 0%, rgba(15,23,42,0.98) 100%)", boxShadow: "0 24px 45px -20px rgba(15,23,42,0.65)" }}
                                 >
@@ -2139,6 +2192,58 @@ export default function Settings() {
                             </Popover>
                           );
                         })}
+                      </div>
+                    </motion.div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              <AnimatePresence>
+                {pendingStylistCode && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.15 }}
+                    className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60"
+                    onClick={() => { setPendingStylistCode(null); setStylistCodeInput(""); setStylistCodeError(""); }}
+                  >
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                      transition={{ duration: 0.2 }}
+                      className="w-full max-w-sm rounded-2xl border border-amber-400/30 bg-slate-900/98 backdrop-blur-xl p-6 shadow-[0_25px_80px_rgba(251,191,36,0.3)]"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <div className="text-center mb-4">
+                        <div className="text-lg font-bold text-white mb-1">Code secret requis</div>
+                        <div className="text-sm text-white/70">{pendingStylistCode.name}</div>
+                      </div>
+                      <Input
+                        type="password"
+                        autoFocus
+                        className="w-full h-12 rounded-xl border border-amber-400/40 bg-slate-800/80 text-center text-lg font-semibold text-white placeholder:text-white/50 focus:border-amber-400 focus:ring-2 focus:ring-amber-400/30"
+                        placeholder="Entrez le code secret"
+                        value={stylistCodeInput}
+                        onChange={(e) => { setStylistCodeInput(e.target.value); setStylistCodeError(""); }}
+                        onKeyDown={(e) => { if (e.key === "Enter") handleVerifyStylistCode(); }}
+                      />
+                      {stylistCodeError && <p className="text-center text-sm text-red-400 mt-2">{stylistCodeError}</p>}
+                      <div className="flex gap-2 mt-4">
+                        <Button
+                          className="flex-1 h-10 rounded-xl border border-white/20 bg-white/10 text-white hover:bg-white/20"
+                          onClick={() => { setPendingStylistCode(null); setStylistCodeInput(""); setStylistCodeError(""); }}
+                        >
+                          Annuler
+                        </Button>
+                        <Button
+                          className="flex-1 h-10 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-white font-semibold shadow-[0_8px_20px_rgba(251,191,36,0.4)]"
+                          disabled={!stylistCodeInput.trim() || verifyStylistCode.isPending}
+                          onClick={handleVerifyStylistCode}
+                        >
+                          {verifyStylistCode.isPending ? "..." : "Valider"}
+                        </Button>
                       </div>
                     </motion.div>
                   </motion.div>

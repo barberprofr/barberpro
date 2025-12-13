@@ -652,7 +652,7 @@ export function useDeleteStylist() {
 export function useSetStylistSecretCode() {
   return useMutation({
     mutationFn: async ({ id, secretCode }: { id: string; secretCode: string }) => {
-      const res = await apiFetch(`/api/stylists/${id}/secret-code`, {
+      const res = await apiFetch(apiPath(`/stylists/${id}/secret-code`), {
         method: "PUT",
         headers: { "Content-Type": "application/json", "x-admin-token": getAdminToken() || "" },
         body: JSON.stringify({ secretCode }),
@@ -666,7 +666,7 @@ export function useSetStylistSecretCode() {
 export function useVerifyStylistSecretCode() {
   return useMutation({
     mutationFn: async ({ id, code }: { id: string; code: string }) => {
-      const res = await apiFetch(`/api/stylists/${id}/verify-code`, {
+      const res = await apiFetch(apiPath(`/stylists/${id}/verify-code`), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ code }),
@@ -682,7 +682,7 @@ export function useStylistHasSecretCode(id: string | null) {
     queryKey: ["stylist-has-code", id],
     queryFn: async () => {
       if (!id) return { hasCode: false };
-      const res = await apiFetch(`/api/stylists/${id}/has-code`);
+      const res = await apiFetch(apiPath(`/stylists/${id}/has-code`));
       if (!res.ok) return { hasCode: false };
       return res.json() as Promise<{ hasCode: boolean }>;
     },
