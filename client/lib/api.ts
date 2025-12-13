@@ -649,6 +649,47 @@ export function useDeleteStylist() {
   });
 }
 
+export function useSetStylistSecretCode() {
+  return useMutation({
+    mutationFn: async ({ id, secretCode }: { id: string; secretCode: string }) => {
+      const res = await apiFetch(`/api/stylists/${id}/secret-code`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", "x-admin-token": getAdminToken() || "" },
+        body: JSON.stringify({ secretCode }),
+      });
+      if (!res.ok) await throwResponseError(res);
+      return res.json() as Promise<{ ok: boolean; hasCode: boolean }>;
+    }
+  });
+}
+
+export function useVerifyStylistSecretCode() {
+  return useMutation({
+    mutationFn: async ({ id, code }: { id: string; code: string }) => {
+      const res = await apiFetch(`/api/stylists/${id}/verify-code`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code }),
+      });
+      if (!res.ok) await throwResponseError(res);
+      return res.json() as Promise<{ valid: boolean; noCodeRequired?: boolean }>;
+    }
+  });
+}
+
+export function useStylistHasSecretCode(id: string | null) {
+  return useQuery({
+    queryKey: ["stylist-has-code", id],
+    queryFn: async () => {
+      if (!id) return { hasCode: false };
+      const res = await apiFetch(`/api/stylists/${id}/has-code`);
+      if (!res.ok) return { hasCode: false };
+      return res.json() as Promise<{ hasCode: boolean }>;
+    },
+    enabled: !!id
+  });
+}
+
 export function useServices() {
   const salonId = getSelectedSalon();
   return useQuery({

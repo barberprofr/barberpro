@@ -11,7 +11,7 @@ import ServicesManager from "@/components/Salon/ServicesManager";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { useToast } from "@/hooks/use-toast";
-import { useAdminUpdateCode, useAdminVerifyCode, useAddStylist, useConfig, useUpdateConfig, useDashboardSummary, usePointsUsageReport, useStylists, useStylistBreakdown, useRevenueByDay, useRevenueByMonth, useDeleteStylist, useSetStylistCommission, useAdminRecoverCode, useAdminRecoverCodeVerify, useServices, useAddService, useDeleteService, useGlobalBreakdown, useUpdateTransactionPaymentMethod } from "@/lib/api";
+import { useAdminUpdateCode, useAdminVerifyCode, useAddStylist, useConfig, useUpdateConfig, useDashboardSummary, usePointsUsageReport, useStylists, useStylistBreakdown, useRevenueByDay, useRevenueByMonth, useDeleteStylist, useSetStylistCommission, useAdminRecoverCode, useAdminRecoverCodeVerify, useServices, useAddService, useDeleteService, useGlobalBreakdown, useUpdateTransactionPaymentMethod, useSetStylistSecretCode, useVerifyStylistSecretCode, useStylistHasSecretCode } from "@/lib/api";
 import { StylistMonthly } from "@/components/Salon/StylistDailyStats";
 import type { SummaryPayments, MethodKey, Stylist, PointsUsageGroup, DashboardSummary, Service } from "@/lib/api";
 import { cn } from "@/lib/utils";
@@ -1285,6 +1285,8 @@ export default function Settings() {
     );
   };
   const [manageName, setManageName] = useState<string>("");
+  const [manageSecretCode, setManageSecretCode] = useState<string>("");
+  const setStylistSecretCode = useSetStylistSecretCode();
   const updateConfig = useUpdateConfig();
   const { toast } = useToast();
   const [salonNameDraft, setSalonNameDraft] = useState("");
@@ -2330,11 +2332,46 @@ export default function Settings() {
                               if (!s) return;
                               if (!confirm(`Supprimer ${s.name} ?`)) return;
                               if (!confirm("Confirmer la suppression ?")) return;
-                              delStylist.mutate(manageStylistId, { onSuccess: () => { setManageStylistId(""); setManageName(""); setAccordionValue(""); } });
+                              delStylist.mutate(manageStylistId, { onSuccess: () => { setManageStylistId(""); setManageName(""); setManageSecretCode(""); setAccordionValue(""); } });
                             }}
                           >
                             Supprimer
                           </Button>
+                        </div>
+                        <div className="h-px bg-white/15 mt-3" />
+                        <div className="space-y-2 mt-3">
+                          <div className="text-sm font-semibold text-white/85">Code secret (pour accès aux stats)</div>
+                          <div className="flex flex-wrap items-center gap-2.5">
+                            <Input
+                              type="password"
+                              className={cn(inputFieldClasses, "flex-1 min-w-[160px] bg-slate-950/70 text-sm font-semibold text-white caret-amber-200 placeholder:text-white/60")}
+                              placeholder="Code secret (laisser vide pour supprimer)"
+                              value={manageSecretCode}
+                              onChange={(e) => setManageSecretCode(e.target.value)}
+                              disabled={!manageStylistId}
+                            />
+                            <Button
+                              className={cn(gradientButtonClasses, "min-h-10 px-4 bg-[linear-gradient(135deg,rgba(251,191,36,0.82)0%,rgba(245,158,11,0.62)100%)] shadow-[0_20px_52px_rgba(251,191,36,0.38)]")}
+                              disabled={!manageStylistId || setStylistSecretCode.isPending}
+                              onClick={() => {
+                                if (!manageStylistId) return;
+                                setStylistSecretCode.mutate({ id: manageStylistId, secretCode: manageSecretCode }, {
+                                  onSuccess: (data) => {
+                                    setManageSecretCode("");
+                                    const s = stylists?.find(st => st.id === manageStylistId);
+                                    if (data.hasCode) {
+                                      showConfirmPopup("Code secret défini", s?.name || "Coiffeur", "violet");
+                                    } else {
+                                      showConfirmPopup("Code secret supprimé", s?.name || "Coiffeur", "emerald");
+                                    }
+                                  },
+                                });
+                              }}
+                            >
+                              {setStylistSecretCode.isPending ? "..." : "Définir code"}
+                            </Button>
+                          </div>
+                          <p className="text-xs text-white/50">Si un code est défini, il sera demandé pour accéder aux statistiques du coiffeur.</p>
                         </div>
                       </div>
                     </div>
