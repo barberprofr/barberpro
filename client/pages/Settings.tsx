@@ -2062,13 +2062,11 @@ export default function Settings() {
 
               <AccordionItem value="points-usage">
                 <div className="space-y-2">
-                  <AccordionTrigger className="group relative flex w-full flex-col items-center justify-center gap-2 rounded-[20px] border border-emerald-500/30 bg-gradient-to-br from-emerald-900/40 via-slate-900/60 to-slate-900/80 backdrop-blur-xl px-5 py-6 shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] transition-all duration-200 hover:no-underline hover:scale-[1.02] hover:border-emerald-400/50 hover:shadow-[0_12px_40px_rgba(16,185,129,0.3)]">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-full border border-emerald-400/40 bg-emerald-500/20">
-                      <svg className="h-6 w-6 text-emerald-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z" />
-                      </svg>
-                    </div>
-                    <span className="text-sm font-semibold text-white">Points</span>
+                  <AccordionTrigger className="group relative flex w-full items-center justify-center gap-3 rounded-xl border border-emerald-500/30 bg-transparent px-3 py-2 transition-all duration-300 hover:no-underline hover:scale-[1.02] hover:border-emerald-400/50 hover:shadow-[0_8px_25px_rgba(16,185,129,0.25)] active:scale-[1.08] active:border-emerald-300 active:shadow-[0_0_30px_rgba(16,185,129,0.8),0_0_60px_rgba(16,185,129,0.5)] active:brightness-150">
+                    <svg className="h-5 w-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z" />
+                    </svg>
+                    <span className="text-sm font-semibold text-emerald-400">Points</span>
                     <span className="text-xs text-white/50">Utilisation</span>
                   </AccordionTrigger>
                   <AccordionContent>
