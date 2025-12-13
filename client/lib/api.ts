@@ -360,6 +360,7 @@ export interface StylistBreakdown {
   prestationRange?: { total: PaymentBreakdown; methods: Record<MethodKey, PaymentBreakdown> };
   rangeProductCount?: number;
   dailyEntries?: { id: string; amount: number; paymentMethod: MethodKey; timestamp: number; kind: "prestation" | "produit"; name?: string }[];
+  rangeEntries?: { id: string; amount: number; paymentMethod: MethodKey; timestamp: number; kind: "prestation" | "produit"; name?: string }[];
 }
 
 export function useStylistBreakdown(stylistId?: string, date?: string, startDate?: string, endDate?: string) {

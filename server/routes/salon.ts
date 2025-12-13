@@ -320,6 +320,7 @@ async function aggregateByPayment(salonId: string, stylistId: string, refNowMs: 
   const prestationMonthly = makeScope();
   const prestationRange = makeScope();
   const dailyEntries: { id: string; amount: number; paymentMethod: PaymentMethod; timestamp: number; kind: "prestation" | "produit"; name?: string }[] = [];
+  const rangeEntries: { id: string; amount: number; paymentMethod: PaymentMethod; timestamp: number; kind: "prestation" | "produit"; name?: string }[] = [];
   let rangeProductCount = 0;
 
   for (const p of prestations) {
@@ -349,6 +350,14 @@ async function aggregateByPayment(salonId: string, stylistId: string, refNowMs: 
     if (useRange && p.timestamp >= startDateMs! && p.timestamp <= endDateMs!) {
       inc(range);
       inc(prestationRange);
+      rangeEntries.push({
+        id: p.id,
+        amount: p.amount,
+        paymentMethod: p.paymentMethod,
+        timestamp: p.timestamp,
+        kind: "prestation",
+        name: p.serviceName
+      });
     }
   }
 
@@ -373,10 +382,19 @@ async function aggregateByPayment(salonId: string, stylistId: string, refNowMs: 
     if (useRange && prod.timestamp >= startDateMs! && prod.timestamp <= endDateMs!) {
       incAmount(range);
       rangeProductCount++;
+      rangeEntries.push({
+        id: prod.id,
+        amount: prod.amount,
+        paymentMethod: prod.paymentMethod,
+        timestamp: prod.timestamp,
+        kind: "produit",
+        name: prod.productName
+      });
     }
   }
 
   dailyEntries.sort((a, b) => b.timestamp - a.timestamp);
+  rangeEntries.sort((a, b) => b.timestamp - a.timestamp);
 
   let dailyProductCount = 0;
   let monthlyProductCount = 0;
@@ -390,7 +408,7 @@ async function aggregateByPayment(salonId: string, stylistId: string, refNowMs: 
     }
   }
 
-  return { daily, monthly, range, prestationDaily, prestationMonthly, prestationRange, dailyEntries, dailyProductCount, monthlyProductCount, rangeProductCount };
+  return { daily, monthly, range, prestationDaily, prestationMonthly, prestationRange, dailyEntries, rangeEntries, dailyProductCount, monthlyProductCount, rangeProductCount };
 }
 
 async function aggregateAllPayments(salonId: string) {
