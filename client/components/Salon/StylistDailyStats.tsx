@@ -389,11 +389,13 @@ export function StylistMonthly({ id, commissionPct, stylistName }: { id: string;
     const updatePaymentMethod = useUpdateTransactionPaymentMethod();
     
     const dateStr = mode === "today" ? today : `${month}-01`;
+    // Si startDate est rempli mais pas endDate, on utilise startDate comme endDate aussi (pour afficher une seule journée)
+    const effectiveEndDate = mode === "range" && startDate && !endDate ? startDate : endDate;
     const { data } = useStylistBreakdown(
         id, 
         dateStr, 
         mode === "range" ? startDate : undefined, 
-        mode === "range" ? endDate : undefined
+        mode === "range" ? effectiveEndDate : undefined
     );
     
     const d = data?.daily;
@@ -408,11 +410,14 @@ export function StylistMonthly({ id, commissionPct, stylistName }: { id: string;
     const rangeEntries = (data as any)?.rangeEntries || [];
     const dailyEntries = data?.dailyEntries || [];
     
+    // useRangeData: deux dates sélectionnées (période complète)
     const useRangeData = mode === "range" && startDate && endDate && r;
+    // useSingleDayRange: une seule date "Du" sélectionnée (afficher CA du jour pour cette date)
+    const useSingleDayRange = mode === "range" && startDate && !endDate && r;
     const useTodayData = mode === "today";
-    const displayData = useTodayData ? d : (useRangeData ? r : m);
-    const displayPrestationData = useTodayData ? prestationD : (useRangeData ? prestationR : prestationM);
-    const displayProductCount = useTodayData ? dailyProductCount : (useRangeData ? rangeProductCount : monthlyProductCount);
+    const displayData = useTodayData ? d : (useRangeData ? r : (useSingleDayRange ? r : m));
+    const displayPrestationData = useTodayData ? prestationD : (useRangeData ? prestationR : (useSingleDayRange ? prestationR : prestationM));
+    const displayProductCount = useTodayData ? dailyProductCount : ((useRangeData || useSingleDayRange) ? rangeProductCount : monthlyProductCount);
     
     const total = displayData?.total;
     const prestationTotal = displayPrestationData?.total;
@@ -506,9 +511,11 @@ export function StylistMonthly({ id, commissionPct, stylistName }: { id: string;
                     <span className="text-sm font-light text-white leading-none">
                         {useTodayData 
                             ? "CA du jour"
-                            : useRangeData 
-                                ? `CA du ${formatDateDisplay(startDate)} au ${formatDateDisplay(endDate)}`
-                                : "CA du mois"
+                            : useSingleDayRange
+                                ? `CA du jour (${formatDateDisplay(startDate)})`
+                                : useRangeData 
+                                    ? `CA du ${formatDateDisplay(startDate)} au ${formatDateDisplay(endDate)}`
+                                    : "CA du mois"
                         }
                     </span>
                     <span className="text-2xl font-black leading-none">{eur.format(total?.amount || 0)}</span>
@@ -524,13 +531,13 @@ export function StylistMonthly({ id, commissionPct, stylistName }: { id: string;
                 <div className="bg-white/12 px-3 py-2"><span className="inline-flex items-center px-2 py-0.5 rounded-full border-2 border-emerald-300 bg-emerald-100/30 text-emerald-100 text-xs font-semibold">Espèces</span></div>
                 <div className="bg-white/12 px-3 py-2"><span className="inline-flex items-center px-2 py-0.5 rounded-full border-2 border-amber-300 bg-amber-100/30 text-amber-100 text-xs font-semibold">En ligne</span></div>
                 <div className="bg-white/12 px-3 py-2"><span className="inline-flex items-center px-2 py-0.5 rounded-full border-2 border-indigo-300 bg-indigo-100/30 text-indigo-100 text-xs font-semibold">Carte</span></div>
-                <div className="px-3 py-2 font-bold">{useTodayData ? "Jour" : useRangeData ? "Période" : "Mois"}</div>
+                <div className="px-3 py-2 font-bold">{useTodayData ? "Jour" : useSingleDayRange ? "Jour" : useRangeData ? "Période" : "Mois"}</div>
                 <div className="px-3 py-2">{eur.format(displayData?.methods.cash.amount || 0)}</div>
                 <div className="px-3 py-2">{eur.format(displayData?.methods.check.amount || 0)}</div>
                 <div className="px-3 py-2">{eur.format(displayData?.methods.card.amount || 0)}</div>
             </div>
 
-            {useTodayData && (
+            {(useTodayData || useSingleDayRange) && (
                 <motion.button
                     onClick={() => setTodayEncaissementsOpen(true)}
                     whileHover={{ scale: 1.03, y: -3, boxShadow: "0 0 25px rgba(236,72,153,0.5)" }}
@@ -595,7 +602,7 @@ export function StylistMonthly({ id, commissionPct, stylistName }: { id: string;
                                     </span>
                                     <div className="min-w-0">
                                         <h3 className="text-base sm:text-lg font-bold text-white truncate">Encaissements du jour</h3>
-                                        <p className="text-xs text-white/50">{formatDateDisplay(today)}</p>
+                                        <p className="text-xs text-white/50">{useSingleDayRange ? formatDateDisplay(startDate) : formatDateDisplay(today)}</p>
                                     </div>
                                 </div>
                                 <button
@@ -607,7 +614,7 @@ export function StylistMonthly({ id, commissionPct, stylistName }: { id: string;
                                 </button>
                             </div>
                             <div className="p-2 sm:p-4 overflow-y-auto max-h-[calc(70vh-80px)]">
-                                <StylistRangeEncaissements entries={dailyEntries} onUpdate={handleUpdatePayment} />
+                                <StylistRangeEncaissements entries={useSingleDayRange ? rangeEntries : dailyEntries} onUpdate={handleUpdatePayment} />
                             </div>
                         </motion.div>
                     </motion.div>
