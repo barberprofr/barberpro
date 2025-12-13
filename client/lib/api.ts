@@ -356,17 +356,24 @@ export interface PaymentBreakdown { amount: number; count: number }
 export interface StylistBreakdown {
   daily: { total: PaymentBreakdown; methods: Record<MethodKey, PaymentBreakdown> };
   monthly: { total: PaymentBreakdown; methods: Record<MethodKey, PaymentBreakdown> };
+  range?: { total: PaymentBreakdown; methods: Record<MethodKey, PaymentBreakdown> };
+  prestationRange?: { total: PaymentBreakdown; methods: Record<MethodKey, PaymentBreakdown> };
+  rangeProductCount?: number;
   dailyEntries?: { id: string; amount: number; paymentMethod: MethodKey; timestamp: number; kind: "prestation" | "produit"; name?: string }[];
 }
 
-export function useStylistBreakdown(stylistId?: string, date?: string) {
+export function useStylistBreakdown(stylistId?: string, date?: string, startDate?: string, endDate?: string) {
   const salonId = getSelectedSalon();
   return useQuery({
-    queryKey: ["stylist-breakdown", salonId, stylistId, date || "today"],
+    queryKey: ["stylist-breakdown", salonId, stylistId, date || "today", startDate, endDate],
     enabled: !!stylistId,
     queryFn: async () => {
-      const qs = date ? `?date=${encodeURIComponent(date)}` : "";
-      const res = await apiFetch(`/api/stylists/${stylistId}/breakdown${qs}`);
+      const params = new URLSearchParams();
+      if (date) params.set("date", date);
+      if (startDate) params.set("startDate", startDate);
+      if (endDate) params.set("endDate", endDate);
+      const qs = params.toString();
+      const res = await apiFetch(`/api/stylists/${stylistId}/breakdown${qs ? `?${qs}` : ""}`);
       if (!res.ok) throw new Error("Failed to load breakdown");
       return res.json() as Promise<StylistBreakdown>;
     }

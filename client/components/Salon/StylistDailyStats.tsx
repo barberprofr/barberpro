@@ -274,52 +274,128 @@ export function StylistDailySection({ id, commissionPct, stylistName }: { id: st
 export function StylistMonthly({ id, commissionPct, stylistName }: { id: string; commissionPct: number; stylistName?: string }) {
     const now = new Date();
     const defMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
-    const [month, setMonth] = useState<string>(defMonth); // YYYY-MM
+    const [mode, setMode] = useState<"month" | "range">("month");
+    const [month, setMonth] = useState<string>(defMonth);
+    const [startDate, setStartDate] = useState<string>("");
+    const [endDate, setEndDate] = useState<string>("");
+    
     const dateStr = `${month}-01`;
-    const { data } = useStylistBreakdown(id, dateStr);
+    const { data } = useStylistBreakdown(
+        id, 
+        dateStr, 
+        mode === "range" ? startDate : undefined, 
+        mode === "range" ? endDate : undefined
+    );
+    
     const m = data?.monthly;
+    const r = data?.range;
     const prestationM = (data as any)?.prestationMonthly;
-    const total = m?.total;
-    const prestationTotal = prestationM?.total;
+    const prestationR = (data as any)?.prestationRange;
     const monthlyProductCount = (data as any)?.monthlyProductCount ?? 0;
+    const rangeProductCount = (data as any)?.rangeProductCount ?? 0;
+    
+    const useRangeData = mode === "range" && startDate && endDate && r;
+    const displayData = useRangeData ? r : m;
+    const displayPrestationData = useRangeData ? prestationR : prestationM;
+    const displayProductCount = useRangeData ? rangeProductCount : monthlyProductCount;
+    
+    const total = displayData?.total;
+    const prestationTotal = displayPrestationData?.total;
     const salary = (prestationTotal?.amount || 0) * (commissionPct ?? 0) / 100;
+    
+    const formatDateDisplay = (dateStr: string) => {
+        if (!dateStr) return "";
+        const [year, month, day] = dateStr.split("-");
+        return `${day}/${month}/${year}`;
+    };
+    
     return (
-        <div className="space-y-2">
-            <div className="flex items-center gap-3 text-sm">
-                <span className="text-white/80 font-medium">Mois</span>
-                <input type="month" value={month} onChange={(e) => setMonth(e.target.value)} className="border rounded-lg px-3 py-1.5 bg-slate-900/80 border-slate-600 text-white outline-none focus:border-cyan-400 transition-colors" />
+        <div className="space-y-3">
+            <div className="flex flex-wrap items-center gap-2 text-sm">
                 <button
-                    onClick={() => setMonth(defMonth)}
+                    onClick={() => setMode("month")}
                     className={cn(
-                        "px-3 py-1.5 rounded-lg border font-medium transition-all",
-                        month === defMonth
+                        "px-3 py-1.5 rounded-lg border font-medium transition-all text-xs",
+                        mode === "month"
                             ? "bg-cyan-500/20 border-cyan-400/50 text-cyan-300"
                             : "bg-slate-800/60 border-slate-600 text-white/70 hover:bg-slate-700/60 hover:text-white"
                     )}
                 >
-                    Ce mois{stylistName ? ` — ${stylistName}` : ""}
+                    Par mois
+                </button>
+                <button
+                    onClick={() => setMode("range")}
+                    className={cn(
+                        "px-3 py-1.5 rounded-lg border font-medium transition-all text-xs",
+                        mode === "range"
+                            ? "bg-violet-500/20 border-violet-400/50 text-violet-300"
+                            : "bg-slate-800/60 border-slate-600 text-white/70 hover:bg-slate-700/60 hover:text-white"
+                    )}
+                >
+                    Période
                 </button>
             </div>
+            
+            {mode === "month" ? (
+                <div className="flex flex-wrap items-center gap-2 text-sm">
+                    <span className="text-white/80 font-medium">Mois</span>
+                    <input type="month" value={month} onChange={(e) => setMonth(e.target.value)} className="border rounded-lg px-3 py-1.5 bg-slate-900/80 border-slate-600 text-white outline-none focus:border-cyan-400 transition-colors text-sm" />
+                    <button
+                        onClick={() => setMonth(defMonth)}
+                        className={cn(
+                            "px-3 py-1.5 rounded-lg border font-medium transition-all text-xs",
+                            month === defMonth
+                                ? "bg-cyan-500/20 border-cyan-400/50 text-cyan-300"
+                                : "bg-slate-800/60 border-slate-600 text-white/70 hover:bg-slate-700/60 hover:text-white"
+                        )}
+                    >
+                        Ce mois{stylistName ? ` — ${stylistName}` : ""}
+                    </button>
+                </div>
+            ) : (
+                <div className="flex flex-wrap items-center gap-2 text-sm">
+                    <span className="text-white/80 font-medium">Du</span>
+                    <input 
+                        type="date" 
+                        value={startDate} 
+                        onChange={(e) => setStartDate(e.target.value)} 
+                        className="border rounded-lg px-2 py-1.5 bg-slate-900/80 border-slate-600 text-white outline-none focus:border-violet-400 transition-colors text-sm" 
+                    />
+                    <span className="text-white/80 font-medium">au</span>
+                    <input 
+                        type="date" 
+                        value={endDate} 
+                        onChange={(e) => setEndDate(e.target.value)} 
+                        className="border rounded-lg px-2 py-1.5 bg-slate-900/80 border-slate-600 text-white outline-none focus:border-violet-400 transition-colors text-sm" 
+                    />
+                </div>
+            )}
+            
             <div className="rounded-3xl border border-white/10 bg-slate-950/50 p-4 shadow-inner text-sm space-y-3">
                 <div className="flex items-center justify-between text-slate-100">
-                    <span className="font-semibold">CA du mois</span>
+                    <span className="font-semibold">
+                        {useRangeData 
+                            ? `CA du ${formatDateDisplay(startDate)} au ${formatDateDisplay(endDate)}`
+                            : "CA du mois"
+                        }
+                    </span>
                     <span className="text-base font-bold">{eur.format(total?.amount || 0)}</span>
                 </div>
                 <div className="flex items-center justify-between text-slate-100">
                     <span className="text-xs font-semibold">Salaire ({commissionPct}%)</span>
                     <span className="text-base font-bold">{eur.format(salary)}</span>
                 </div>
-                <div className="text-xs text-slate-300">{prestationTotal?.count || 0} prestation{(prestationTotal?.count ?? 0) > 1 ? "s" : ""}{monthlyProductCount ? `, ${monthlyProductCount} produit${monthlyProductCount > 1 ? "s" : ""}` : ""}</div>
+                <div className="text-xs text-slate-300">{prestationTotal?.count || 0} prestation{(prestationTotal?.count ?? 0) > 1 ? "s" : ""}{displayProductCount ? `, ${displayProductCount} produit${displayProductCount > 1 ? "s" : ""}` : ""}</div>
             </div>
             <div className="grid grid-cols-4 text-sm border rounded-md overflow-hidden">
                 <div className="bg-white/12 px-3 py-2"></div>
                 <div className="bg-white/12 px-3 py-2"><span className="inline-flex items-center px-2 py-0.5 rounded-full border-2 border-emerald-300 bg-emerald-100/30 text-emerald-100 text-xs font-semibold">Espèces</span></div>
                 <div className="bg-white/12 px-3 py-2"><span className="inline-flex items-center px-2 py-0.5 rounded-full border-2 border-amber-300 bg-amber-100/30 text-amber-100 text-xs font-semibold">En ligne</span></div>
                 <div className="bg-white/12 px-3 py-2"><span className="inline-flex items-center px-2 py-0.5 rounded-full border-2 border-indigo-300 bg-indigo-100/30 text-indigo-100 text-xs font-semibold">Carte</span></div>
-                <div className="px-3 py-2 font-bold">Mois</div>
-                <div className="px-3 py-2">{eur.format(m?.methods.cash.amount || 0)}</div>
-                <div className="px-3 py-2">{eur.format(m?.methods.check.amount || 0)}</div>
-                <div className="px-3 py-2">{eur.format(m?.methods.card.amount || 0)}</div>
+                <div className="px-3 py-2 font-bold">{useRangeData ? "Période" : "Mois"}</div>
+                <div className="px-3 py-2">{eur.format(displayData?.methods.cash.amount || 0)}</div>
+                <div className="px-3 py-2">{eur.format(displayData?.methods.check.amount || 0)}</div>
+                <div className="px-3 py-2">{eur.format(displayData?.methods.card.amount || 0)}</div>
             </div>
         </div>
     );
