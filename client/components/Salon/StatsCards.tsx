@@ -472,8 +472,8 @@ function StylistsList({ stylists, config, hasStylists }: { stylists: any[], conf
       >
         <div className="space-y-4">
           <div className="flex flex-col items-center justify-center border-b border-white/10 pb-4">
-            <div className="relative flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-emerald-500/30 via-emerald-600/20 to-teal-500/30 ring-2 ring-emerald-400/50 shadow-[0_8px_32px_rgba(16,185,129,0.4),inset_0_2px_8px_rgba(255,255,255,0.1)] backdrop-blur-sm mb-2 overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-t from-emerald-900/40 to-transparent" />
+            <div className="relative flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-amber-500/30 via-amber-600/20 to-yellow-500/30 ring-2 ring-amber-400/50 shadow-[0_8px_32px_rgba(251,191,36,0.4),inset_0_2px_8px_rgba(255,255,255,0.1)] backdrop-blur-sm mb-2 overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-t from-amber-900/40 to-transparent" />
               <img 
                 src="/assets/coiffeur-avatar.jpg" 
                 alt="Coiffeur" 
