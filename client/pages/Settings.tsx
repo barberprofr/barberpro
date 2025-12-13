@@ -1003,11 +1003,11 @@ export default function Settings() {
   const [dailyCaPopupOpen, setDailyCaPopupOpen] = useState(false);
   const [monthlyCaPopupOpen, setMonthlyCaPopupOpen] = useState(false);
   const [yearCaPopupOpen, setYearCaPopupOpen] = useState(false);
-  const [confirmPopup, setConfirmPopup] = useState<{ open: boolean; title: string; description: string }>({ open: false, title: "", description: "" });
+  const [confirmPopup, setConfirmPopup] = useState<{ open: boolean; title: string; description: string; variant: "emerald" | "violet" }>({ open: false, title: "", description: "", variant: "emerald" });
 
-  const showConfirmPopup = (title: string, description: string) => {
-    setConfirmPopup({ open: true, title, description });
-    setTimeout(() => setConfirmPopup({ open: false, title: "", description: "" }), 2500);
+  const showConfirmPopup = (title: string, description: string, variant: "emerald" | "violet" = "emerald") => {
+    setConfirmPopup({ open: true, title, description, variant });
+    setTimeout(() => setConfirmPopup({ open: false, title: "", description: "", variant: "emerald" }), 2500);
   };
 
   useEffect(() => {
@@ -2041,6 +2041,7 @@ export default function Settings() {
                                 setStylistName("");
                                 setCommissionPct("");
                                 setAccordionValue("");
+                                showConfirmPopup("Coiffeur ajouté", `${trimmed} (${pctValue}%)`, "violet");
                               },
                             });
                           }}
@@ -2131,7 +2132,12 @@ export default function Settings() {
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.8, opacity: 0, y: -30 }}
               transition={{ type: "spring", stiffness: 400, damping: 20 }}
-              className="relative flex flex-col items-center gap-4 rounded-3xl border-2 border-emerald-400/50 bg-gradient-to-br from-emerald-900/95 via-teal-800/90 to-cyan-900/95 px-10 py-8 shadow-[0_0_80px_rgba(16,185,129,0.6),0_0_120px_rgba(20,184,166,0.4),0_40px_100px_rgba(0,0,0,0.5)] backdrop-blur-xl"
+              className={cn(
+                "relative flex flex-col items-center gap-4 rounded-3xl border-2 px-10 py-8 backdrop-blur-xl",
+                confirmPopup.variant === "violet"
+                  ? "border-violet-400/50 bg-gradient-to-br from-violet-900/95 via-fuchsia-800/90 to-cyan-900/95 shadow-[0_0_80px_rgba(139,92,246,0.6),0_0_120px_rgba(236,72,153,0.4),0_40px_100px_rgba(0,0,0,0.5)]"
+                  : "border-emerald-400/50 bg-gradient-to-br from-emerald-900/95 via-teal-800/90 to-cyan-900/95 shadow-[0_0_80px_rgba(16,185,129,0.6),0_0_120px_rgba(20,184,166,0.4),0_40px_100px_rgba(0,0,0,0.5)]"
+              )}
             >
               {/* Reflet glass 3D */}
               <div className="absolute inset-x-4 top-2 h-[35%] rounded-t-2xl bg-gradient-to-b from-white/30 to-transparent pointer-events-none" />
@@ -2144,11 +2150,21 @@ export default function Settings() {
                 className="relative flex h-20 w-20 items-center justify-center"
               >
                 {/* Anneau externe - glow */}
-                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-emerald-400 via-teal-500 to-cyan-500 shadow-[0_0_40px_rgba(16,185,129,0.8)]" />
+                <div className={cn(
+                  "absolute inset-0 rounded-full",
+                  confirmPopup.variant === "violet"
+                    ? "bg-gradient-to-br from-violet-400 via-fuchsia-500 to-cyan-500 shadow-[0_0_40px_rgba(139,92,246,0.8)]"
+                    : "bg-gradient-to-br from-emerald-400 via-teal-500 to-cyan-500 shadow-[0_0_40px_rgba(16,185,129,0.8)]"
+                )} />
                 {/* Anneau du milieu */}
                 <div className="absolute inset-[4px] rounded-full bg-gradient-to-br from-white/90 via-gray-100/80 to-white/70" />
                 {/* Centre avec checkmark */}
-                <div className="absolute inset-[8px] rounded-full bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-600 flex items-center justify-center shadow-[inset_0_4px_8px_rgba(255,255,255,0.4),inset_0_-4px_8px_rgba(0,0,0,0.2)]">
+                <div className={cn(
+                  "absolute inset-[8px] rounded-full flex items-center justify-center shadow-[inset_0_4px_8px_rgba(255,255,255,0.4),inset_0_-4px_8px_rgba(0,0,0,0.2)]",
+                  confirmPopup.variant === "violet"
+                    ? "bg-gradient-to-br from-violet-500 via-fuchsia-500 to-cyan-600"
+                    : "bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-600"
+                )}>
                   <div className="absolute inset-x-2 top-2 h-[40%] rounded-t-full bg-gradient-to-b from-white/50 to-transparent" />
                   <Check className="h-10 w-10 text-white drop-shadow-[0_3px_6px_rgba(0,0,0,0.4)]" />
                 </div>
@@ -2169,7 +2185,10 @@ export default function Settings() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
-                className="text-lg font-semibold text-emerald-100/90"
+                className={cn(
+                  "text-lg font-semibold",
+                  confirmPopup.variant === "violet" ? "text-violet-100/90" : "text-emerald-100/90"
+                )}
               >
                 {confirmPopup.description}
               </motion.p>
