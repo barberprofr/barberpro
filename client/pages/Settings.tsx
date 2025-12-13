@@ -1945,7 +1945,7 @@ export default function Settings() {
                               <PopoverTrigger asChild>
                                 <button
                                   className="group relative flex h-36 w-full flex-col items-center justify-center gap-2 overflow-hidden rounded-[20px] border border-white/25 backdrop-blur-[26px] transition-all duration-200 hover:scale-[1.03] active:scale-105 active:brightness-110"
-                                  style={{ background: "linear-gradient(160deg, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.08) 100%)", boxShadow: "0 24px 45px -20px rgba(15,23,42,0.65)" }}
+                                  style={{ background: "linear-gradient(160deg, rgba(30,41,59,0.95) 0%, rgba(15,23,42,0.98) 100%)", boxShadow: "0 24px 45px -20px rgba(15,23,42,0.65)" }}
                                 >
                                   <div className="absolute inset-x-4 top-2 h-10 rounded-full opacity-70" style={{ background: "linear-gradient(180deg, rgba(255,255,255,0.55), rgba(255,255,255,0))" }} />
                                   <div
