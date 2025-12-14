@@ -254,7 +254,7 @@ export default function ServicesManager({ accordionValue = "", onAccordionChange
         }
       `}</style>
 
-      <div className={cn(glassPanelClasses, "p-6 space-y-0")}>
+      <div className={cn(glassPanelClasses, "p-6 space-y-4")}>
       <Accordion type="single" collapsible value={accordionValue} onValueChange={(val) => {
         onAccordionChange?.(val ?? "");
         if (val === "") {
@@ -263,14 +263,30 @@ export default function ServicesManager({ accordionValue = "", onAccordionChange
           }, 100);
         }
       }}>
+        <div className="grid grid-cols-2 gap-3 mb-4">
+          <AccordionItem value="services" className="border-0">
+            <AccordionTrigger className="py-0 hover:no-underline [&>svg]:hidden w-full">
+              <div className={cn(cardButtonClasses, "w-full min-h-[100px]")}>
+                <Scissors className="h-7 w-7 text-orange-400/80" />
+                <span className="text-sm font-bold text-orange-400">Prestations</span>
+                <span className="text-[10px] text-white/60">Enregistrer</span>
+              </div>
+            </AccordionTrigger>
+          </AccordionItem>
+
+          <AccordionItem value="products" className="border-0">
+            <AccordionTrigger className="py-0 hover:no-underline [&>svg]:hidden w-full">
+              <div className={cn(cardButtonClasses, "w-full min-h-[100px]")}>
+                <Package className="h-7 w-7 text-orange-400/80" />
+                <span className="text-sm font-bold text-orange-400">Produits</span>
+                <span className="text-[10px] text-white/60">Enregistrer</span>
+              </div>
+            </AccordionTrigger>
+          </AccordionItem>
+        </div>
+
         <AccordionItem value="services" className="border-0">
-          <AccordionTrigger className="py-0 hover:no-underline [&>svg]:hidden">
-            <div className={cardButtonClasses}>
-              <Scissors className="h-7 w-7 text-orange-400/80" />
-              <span className="text-sm font-bold text-orange-400">Prestations</span>
-              <span className="text-[10px] text-white/60">Enregistrer</span>
-            </div>
-          </AccordionTrigger>
+          <AccordionTrigger className="hidden" />
           <AccordionContent className="border-0 pb-0 pt-6">
             <div className="space-y-6">
               <div className="space-y-4">
@@ -364,14 +380,8 @@ export default function ServicesManager({ accordionValue = "", onAccordionChange
           </AccordionContent>
         </AccordionItem>
 
-        <AccordionItem value="products" className="border-0 mt-8">
-          <AccordionTrigger className="py-0 hover:no-underline [&>svg]:hidden">
-            <div className={cardButtonClasses}>
-              <Package className="h-7 w-7 text-orange-400/80" />
-              <span className="text-sm font-bold text-orange-400">Produits</span>
-              <span className="text-[10px] text-white/60">Enregistrer</span>
-            </div>
-          </AccordionTrigger>
+        <AccordionItem value="products" className="border-0">
+          <AccordionTrigger className="hidden" />
           <AccordionContent className="border-0 pb-0 pt-6">
             <div className="space-y-6">
               <div className="space-y-4">
