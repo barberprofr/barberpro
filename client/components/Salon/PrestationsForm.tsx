@@ -739,6 +739,7 @@ export default function PrestationsForm() {
           if (payment === "mixed") {
             const cashAmount = parseFloat(mixedCashAmount) || 0;
             const cardAmount = parseFloat(mixedCardAmount) || 0;
+            const totalAmount = cashAmount + cardAmount;
             
             // Build combined name including both prestations and products for mixed payments
             const prestationNames = storedPrestations.map(p => p.quantity > 1 ? `${p.name} (x${p.quantity})` : p.name);
@@ -746,28 +747,17 @@ export default function PrestationsForm() {
             const productNames = mixedProducts ? mixedProducts.map(p => p.quantity > 1 ? `${p.name} (x${p.quantity})` : p.name) : [];
             const combinedName = [...prestationNames, ...productNames].join(", ") || undefined;
             
-            if (cashAmount > 0) {
-              await addPrestation.mutateAsync({
-                stylistId,
-                clientId: nextClientId || undefined,
-                amount: cashAmount,
-                paymentMethod: "cash" as any,
-                timestamp: ts,
-                serviceName: combinedName,
-                serviceId: storedPrestations[0]?.id || undefined
-              });
-            }
-            if (cardAmount > 0) {
-              await addPrestation.mutateAsync({
-                stylistId,
-                clientId: nextClientId || undefined,
-                amount: cardAmount,
-                paymentMethod: "card" as any,
-                timestamp: ts,
-                serviceName: combinedName,
-                serviceId: storedPrestations[0]?.id || undefined
-              });
-            }
+            // Create a SINGLE prestation entry with "mixed" payment method and total amount
+            // This ensures the prestation counter only increases by 1
+            await addPrestation.mutateAsync({
+              stylistId,
+              clientId: nextClientId || undefined,
+              amount: totalAmount,
+              paymentMethod: "mixed" as any,
+              timestamp: ts,
+              serviceName: combinedName,
+              serviceId: storedPrestations[0]?.id || undefined
+            });
           } else {
             for (const prestation of storedPrestations) {
               await submitPrestation(prestation);
