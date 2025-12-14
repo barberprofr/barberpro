@@ -1460,7 +1460,14 @@ export default function PrestationsForm() {
                                   <Icon className="h-5 w-5 text-slate-900/80" />
                                 </span>
                               </span>
-                              <span className={cn("text-xl font-black", isSelected && "text-cyan-300")}>{option.label}</span>
+                              <span className={cn("text-xl font-black", isSelected && "text-cyan-300")}>
+                              {option.value === "check" ? (
+                                <span className="flex flex-col leading-tight">
+                                  <span>Planity</span>
+                                  <span>Treatwell</span>
+                                </span>
+                              ) : option.label}
+                            </span>
                               {isSelected ? (
                                 <span className="rounded-full bg-cyan-500/30 px-3 py-1 text-sm font-bold uppercase tracking-wide text-cyan-200 border border-cyan-400/50 shadow-[0_0_15px_rgba(34,211,238,0.5)]">
                                   Sélectionné
