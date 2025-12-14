@@ -767,6 +767,25 @@ export default function PrestationsForm() {
             }
           }
 
+          // Also submit products if they were selected alongside prestations
+          const storedProducts = (window as any).__selectedProducts as Array<{ id: string, name: string, price: number, quantity: number }> | undefined;
+          if (storedProducts && storedProducts.length > 0) {
+            for (const product of storedProducts) {
+              for (let i = 0; i < product.quantity; i++) {
+                await addProduct.mutateAsync({
+                  stylistId,
+                  clientId: nextClientId || undefined,
+                  amount: product.price,
+                  paymentMethod: payment as any,
+                  timestamp: ts,
+                  productName: product.name || undefined,
+                  productTypeId: product.id || undefined
+                });
+              }
+            }
+            delete (window as any).__selectedProducts;
+          }
+
           delete (window as any).__selectedPrestations;
 
           // Reset form (copy all the reset logic from the existing onSuccess)
