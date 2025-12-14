@@ -1119,20 +1119,6 @@ function RevenueByMonth() {
                 <a className="px-2 py-1 rounded border hover:bg-accent" href={"/api" + apiPath(`/reports/by-month.pdf?year=${year}`)}>Export PDF</a>
               </div>
             </div>
-            <div className="grid grid-cols-3 bg-white/12 px-3 py-2 font-medium text-white/80 rounded">
-              <div>Mois</div>
-              <div>Montant</div>
-              <div>Détails</div>
-            </div>
-            <div className="max-h-48 overflow-y-auto space-y-1">
-              {data?.months.map((m) => (
-                <div key={m.month} className="grid grid-cols-3 px-3 py-2 border-t text-sm">
-                  <div>{m.month}</div>
-                  <div>{eur.format(m.amount)}</div>
-                  <div>{m.count} prest.{(m as any).productCount ? `, ${(m as any).productCount} prod.` : ""}</div>
-                </div>
-              ))}
-            </div>
           </PopoverContent>
         </Popover>
         <div className="flex items-center gap-2 text-sm">
