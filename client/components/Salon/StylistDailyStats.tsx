@@ -113,7 +113,7 @@ function RangeTransactionRow({ entry: e, onUpdate }: { entry: any, onUpdate: (id
     return (
         <div className="grid grid-cols-[70px_1fr_1fr] px-2 py-2 border-t border-gray-700 items-center text-xs sm:text-sm sm:px-3">
             <div className="flex flex-col">
-                <span className="font-medium">{fmtTime(e.timestamp)}</span>
+                <span className="font-light text-white">{fmtTime(e.timestamp)}</span>
             </div>
             <div>
                 <Popover open={open} onOpenChange={setOpen}>
