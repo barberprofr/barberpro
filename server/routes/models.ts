@@ -200,6 +200,7 @@ const ProductTypeSchema = new Schema({
     name: { type: String, required: true },
     price: { type: Number, required: true, min: 0 },
     description: String,
+    sortOrder: { type: Number, default: 0 },
     salonId: { type: String, required: true, index: true }
 }, {
     timestamps: true,
