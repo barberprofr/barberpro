@@ -2107,7 +2107,7 @@ export const reorderServices: RequestHandler = async (req, res) => {
 export const listProductTypes: RequestHandler = async (req, res) => {
   try {
     const salonId = getSalonId(req);
-    const productTypes = await ProductType.find({ salonId });
+    const productTypes = await ProductType.find({ salonId }).sort({ sortOrder: 1, createdAt: 1 });
     res.json({ productTypes });
   } catch (error) {
     console.error('Error listing product types:', error);
@@ -2162,6 +2162,37 @@ export const deleteProductType: RequestHandler = async (req, res) => {
     res.json({ ok: true });
   } catch (error) {
     console.error('Error deleting product type:', error);
+    res.status(500).json({ error: "Erreur serveur" });
+  }
+};
+
+export const reorderProductTypes: RequestHandler = async (req, res) => {
+  try {
+    if (!(await requireAdmin(req, res))) return;
+
+    const body = await parseRequestBody(req);
+    const salonId = getSalonId(req);
+    const { orderedIds } = body as { orderedIds: string[] };
+
+    if (!Array.isArray(orderedIds)) {
+      return res.status(400).json({ error: "orderedIds must be an array" });
+    }
+
+    const bulkOps = orderedIds.map((id, index) => ({
+      updateOne: {
+        filter: { id, salonId },
+        update: { $set: { sortOrder: index } }
+      }
+    }));
+
+    if (bulkOps.length > 0) {
+      await ProductType.bulkWrite(bulkOps);
+    }
+
+    const productTypes = await ProductType.find({ salonId }).sort({ sortOrder: 1, createdAt: 1 });
+    res.json({ productTypes });
+  } catch (error) {
+    console.error('Error reordering product types:', error);
     res.status(500).json({ error: "Erreur serveur" });
   }
 };

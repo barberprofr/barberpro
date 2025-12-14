@@ -750,6 +750,25 @@ export function useDeleteProductType() {
   });
 }
 
+export function useReorderProductTypes() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (orderedIds: string[]) => {
+      const res = await apiFetch("/api/product-types/reorder", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", "x-admin-token": getAdminToken() || "" },
+        body: JSON.stringify({ orderedIds })
+      });
+      if (!res.ok) await throwResponseError(res);
+      return res.json() as Promise<{ productTypes: ProductType[] }>;
+    },
+    onSuccess: (data) => {
+      qc.setQueryData<ProductType[]>(["product-types"], data.productTypes);
+      qc.invalidateQueries({ queryKey: ["product-types"] });
+    }
+  });
+}
+
 export function useAddPoints() {
   const qc = useQueryClient();
   return useMutation({

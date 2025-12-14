@@ -2,7 +2,7 @@ import { useState, useRef, useCallback, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useServices, useAddService, useDeleteService, useReorderServices, useProductTypes, useAddProductType, useDeleteProductType, Service } from "@/lib/api";
+import { useServices, useAddService, useDeleteService, useReorderServices, useProductTypes, useAddProductType, useDeleteProductType, useReorderProductTypes, Service } from "@/lib/api";
 import { Trash2, Plus, GripVertical, Check, Scissors, Package, UserRound } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
@@ -25,6 +25,7 @@ export default function ServicesManager({ accordionValue = "", onAccordionChange
   const reorderServices = useReorderServices();
   const addProductType = useAddProductType();
   const deleteProductType = useDeleteProductType();
+  const reorderProductTypes = useReorderProductTypes();
 
   const [serviceName, setServiceName] = useState("");
   const [servicePrice, setServicePrice] = useState("");
@@ -45,10 +46,15 @@ export default function ServicesManager({ accordionValue = "", onAccordionChange
     };
   }, []);
 
-  // Drag and drop state
+  // Drag and drop state for services
   const [draggedServiceId, setDraggedServiceId] = useState<string | null>(null);
   const [dragOverServiceId, setDragOverServiceId] = useState<string | null>(null);
   const dragCounter = useRef(0);
+
+  // Drag and drop state for products
+  const [draggedProductId, setDraggedProductId] = useState<string | null>(null);
+  const [dragOverProductId, setDragOverProductId] = useState<string | null>(null);
+  const productDragCounter = useRef(0);
 
   const handleDragStart = useCallback((e: React.DragEvent, serviceId: string) => {
     setDraggedServiceId(serviceId);
@@ -118,6 +124,67 @@ export default function ServicesManager({ accordionValue = "", onAccordionChange
     setDraggedServiceId(null);
     setDragOverServiceId(null);
   }, [draggedServiceId, services, reorderServices]);
+
+  // Product drag handlers
+  const handleProductDragStart = useCallback((e: React.DragEvent, productId: string) => {
+    setDraggedProductId(productId);
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("text/plain", productId);
+    requestAnimationFrame(() => {
+      const target = e.target as HTMLElement;
+      target.style.opacity = "0.5";
+    });
+  }, []);
+
+  const handleProductDragEnd = useCallback((e: React.DragEvent) => {
+    const target = e.target as HTMLElement;
+    target.style.opacity = "1";
+    setDraggedProductId(null);
+    setDragOverProductId(null);
+    productDragCounter.current = 0;
+  }, []);
+
+  const handleProductDragEnter = useCallback((e: React.DragEvent, productId: string) => {
+    e.preventDefault();
+    productDragCounter.current++;
+    if (productId !== draggedProductId) {
+      setDragOverProductId(productId);
+    }
+  }, [draggedProductId]);
+
+  const handleProductDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    productDragCounter.current--;
+    if (productDragCounter.current === 0) {
+      setDragOverProductId(null);
+    }
+  }, []);
+
+  const handleProductDrop = useCallback((e: React.DragEvent, targetProductId: string) => {
+    e.preventDefault();
+    productDragCounter.current = 0;
+    
+    if (!draggedProductId || draggedProductId === targetProductId) {
+      setDraggedProductId(null);
+      setDragOverProductId(null);
+      return;
+    }
+
+    const currentOrder = productTypes.map(p => p.id);
+    const draggedIndex = currentOrder.indexOf(draggedProductId);
+    const targetIndex = currentOrder.indexOf(targetProductId);
+
+    if (draggedIndex === -1 || targetIndex === -1) return;
+
+    const newOrder = [...currentOrder];
+    newOrder.splice(draggedIndex, 1);
+    newOrder.splice(targetIndex, 0, draggedProductId);
+
+    reorderProductTypes.mutate(newOrder);
+
+    setDraggedProductId(null);
+    setDragOverProductId(null);
+  }, [draggedProductId, productTypes, reorderProductTypes]);
 
   const handleAddService = () => {
     if (!servicePrice.trim()) return;
@@ -442,13 +509,30 @@ export default function ServicesManager({ accordionValue = "", onAccordionChange
                   <div className="text-base font-bold text-gray-100">Produits enregistrés:</div>
                   <div className="grid gap-3">
                     {productTypes.map((productType) => (
-                      <Card key={productType.id} className="border border-white/16 bg-white/8">
+                      <Card 
+                        key={productType.id} 
+                        className={cn(
+                          "border border-white/16 bg-white/8 cursor-grab active:cursor-grabbing transition-all duration-200",
+                          draggedProductId === productType.id && "opacity-50 scale-[0.98]",
+                          dragOverProductId === productType.id && draggedProductId !== productType.id && "border-primary/50 bg-primary/10"
+                        )}
+                        draggable
+                        onDragStart={(e) => handleProductDragStart(e, productType.id)}
+                        onDragEnd={handleProductDragEnd}
+                        onDragEnter={(e) => handleProductDragEnter(e, productType.id)}
+                        onDragLeave={handleProductDragLeave}
+                        onDragOver={handleDragOver}
+                        onDrop={(e) => handleProductDrop(e, productType.id)}
+                      >
                         <CardContent className="px-4 py-3 flex items-center justify-between">
-                          <div className="flex-1">
-                            <div className="font-semibold text-base text-gray-100">{productType.name}</div>
-                            <div className="text-sm text-gray-400 mt-1">
-                              {productType.price.toFixed(2)}€
-                              {productType.description && ` - ${productType.description}`}
+                          <div className="flex items-center gap-3 flex-1">
+                            <GripVertical className="h-5 w-5 text-gray-500 flex-shrink-0" />
+                            <div className="flex-1">
+                              <div className="font-semibold text-base text-gray-100">{productType.name}</div>
+                              <div className="text-sm text-gray-400 mt-1">
+                                {productType.price.toFixed(2)}€
+                                {productType.description && ` - ${productType.description}`}
+                              </div>
                             </div>
                           </div>
                           <Button
