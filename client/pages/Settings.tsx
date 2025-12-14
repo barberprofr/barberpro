@@ -1495,9 +1495,21 @@ export default function Settings() {
     );
   }
 
+  const hasAnyPopupOpen = accordionValue !== "" || bestDaysAccordionValue !== "" || servicesAccordionValue !== "" || 
+    openStylistId !== null || coiffCaPopupOpen || dailyCaPopupOpen || yearCaPopupOpen || 
+    Object.values(openDaily).some(Boolean) || Object.values(openMonthly).some(Boolean) ||
+    isDayUsageVisible || isMonthUsageVisible;
+
   return (
     <SharedLayout>
-      <div className="mx-auto max-w-2xl space-y-3 px-3 pb-8 lg:px-0 relative">
+      {hasAnyPopupOpen && (
+        <div 
+          className="fixed inset-0 z-[5]" 
+          onClick={closeAllPopups}
+          style={{ cursor: 'default' }}
+        />
+      )}
+      <div className="mx-auto max-w-2xl space-y-3 px-3 pb-8 lg:px-0 relative z-10">
         <Card className="relative overflow-hidden rounded-[24px] border border-white/20 bg-black/12 backdrop-blur-md shadow-[0_32px_96px_rgba(8,15,40,0.2)]">
           <CardHeader className="relative z-10 flex flex-col space-y-2 p-4 pb-2.5 text-white">
             <span className="inline-flex w-fit items-center gap-1.5 rounded-full border border-emerald-400/50 bg-gradient-to-r from-emerald-500/20 to-emerald-400/10 px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-emerald-100 shadow-[0_10px_24px_rgba(16,185,129,0.3),inset_0_1px_1px_rgba(255,255,255,0.2)]">🔐 Espace administration</span>
