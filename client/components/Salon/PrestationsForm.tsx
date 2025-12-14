@@ -750,60 +750,107 @@ export default function PrestationsForm() {
             // Calculate grand total for proportional breakdown
             const grandTotal = prestationsTotal + productsTotal;
             
-            // Build prestation names only (products will be shown separately)
+            // Build list of all entries to allocate breakdowns with proper rounding
+            // We need to track cumulative amounts to ensure the sum equals the original input
+            const allEntries: Array<{ type: 'prestation' | 'product'; amount: number; data: any }> = [];
+            
+            // Add prestation entry
             const prestationNames = storedPrestations.map(p => p.quantity > 1 ? `${p.name} (x${p.quantity})` : p.name);
             const prestationName = prestationNames.join(", ") || undefined;
-            
-            // Calculate proportional paymentBreakdown for prestations
-            const prestationRatio = grandTotal > 0 ? prestationsTotal / grandTotal : 1;
-            const prestationCash = Math.round(cashAmount * prestationRatio * 100) / 100;
-            const prestationCard = Math.round(cardAmount * prestationRatio * 100) / 100;
-            
-            // Create a SINGLE prestation entry with "mixed" payment method and PRESTATIONS amount only
-            // This ensures the prestation counter only increases by 1
-            // And the salary is calculated only on prestations (not products)
-            // Include proportional paymentBreakdown for correct cash/card totals in reports
-            await addPrestation.mutateAsync({
-              stylistId,
-              clientId: nextClientId || undefined,
+            allEntries.push({
+              type: 'prestation',
               amount: prestationsTotal,
-              paymentMethod: "mixed" as any,
-              paymentBreakdown: { cash: prestationCash, card: prestationCard },
-              timestamp: ts,
-              serviceName: prestationName,
-              serviceId: storedPrestations[0]?.id || undefined
+              data: { serviceName: prestationName, serviceId: storedPrestations[0]?.id }
             });
+            
+            // Add product entries
+            if (storedProducts && storedProducts.length > 0) {
+              for (const product of storedProducts) {
+                for (let i = 0; i < product.quantity; i++) {
+                  allEntries.push({
+                    type: 'product',
+                    amount: product.price,
+                    data: { productName: product.name, productTypeId: product.id }
+                  });
+                }
+              }
+            }
+            
+            // Allocate breakdowns ensuring each entry's cash+card = entry.amount
+            // AND the sum of all cash = cashAmount, sum of all card = cardAmount
+            // Strategy: For each entry, calculate proportional cash, then card = amount - cash
+            // Track cumulative cash and adjust last entry to absorb rounding residue for total cash
+            const cashRatio = grandTotal > 0 ? cashAmount / grandTotal : 0;
+            let cumulativeCash = 0;
+            
+            for (let i = 0; i < allEntries.length; i++) {
+              const entry = allEntries[i];
+              const isLast = i === allEntries.length - 1;
+              
+              let entryCash: number;
+              let entryCard: number;
+              
+              if (isLast) {
+                // Last entry absorbs rounding residue for total cash
+                entryCash = Math.round((cashAmount - cumulativeCash) * 100) / 100;
+                // Ensure cash doesn't exceed entry amount
+                entryCash = Math.min(entryCash, entry.amount);
+                entryCash = Math.max(entryCash, 0);
+                // Card is remainder to ensure cash+card = entry.amount
+                entryCard = Math.round((entry.amount - entryCash) * 100) / 100;
+              } else {
+                // Proportional cash allocation
+                entryCash = Math.round(entry.amount * cashRatio * 100) / 100;
+                // Ensure cash doesn't exceed entry amount
+                entryCash = Math.min(entryCash, entry.amount);
+                // Card is remainder to ensure cash+card = entry.amount
+                entryCard = Math.round((entry.amount - entryCash) * 100) / 100;
+                cumulativeCash += entryCash;
+              }
+              
+              if (entry.type === 'prestation') {
+                await addPrestation.mutateAsync({
+                  stylistId,
+                  clientId: nextClientId || undefined,
+                  amount: entry.amount,
+                  paymentMethod: "mixed" as any,
+                  paymentBreakdown: { cash: entryCash, card: entryCard },
+                  timestamp: ts,
+                  serviceName: entry.data.serviceName,
+                  serviceId: entry.data.serviceId
+                });
+              } else {
+                await addProduct.mutateAsync({
+                  stylistId,
+                  clientId: nextClientId || undefined,
+                  amount: entry.amount,
+                  paymentMethod: "mixed" as any,
+                  paymentBreakdown: { cash: entryCash, card: entryCard },
+                  timestamp: ts,
+                  productName: entry.data.productName,
+                  productTypeId: entry.data.productTypeId
+                });
+              }
+            }
           } else {
             for (const prestation of storedPrestations) {
               await submitPrestation(prestation);
             }
-          }
-
-          // Also submit products if they were selected alongside prestations
-          // For mixed payments, products are recorded with their real amount and "mixed" payment method
-          if (storedProducts && storedProducts.length > 0) {
-            const cashAmount = parseFloat(mixedCashAmount) || 0;
-            const cardAmount = parseFloat(mixedCardAmount) || 0;
-            const prestationsTotal = storedPrestations.reduce((sum, p) => sum + (p.price * p.quantity), 0);
-            const grandTotal = prestationsTotal + productsTotal;
             
-            for (const product of storedProducts) {
-              for (let i = 0; i < product.quantity; i++) {
-                // Calculate proportional paymentBreakdown for this product
-                const productRatio = grandTotal > 0 ? product.price / grandTotal : 0;
-                const productCash = Math.round(cashAmount * productRatio * 100) / 100;
-                const productCard = Math.round(cardAmount * productRatio * 100) / 100;
-                
-                await addProduct.mutateAsync({
-                  stylistId,
-                  clientId: nextClientId || undefined,
-                  amount: product.price,
-                  paymentMethod: payment === "mixed" ? "mixed" : payment as any,
-                  paymentBreakdown: payment === "mixed" ? { cash: productCash, card: productCard } : undefined,
-                  timestamp: ts,
-                  productName: product.name || undefined,
-                  productTypeId: product.id || undefined
-                });
+            // Also submit products for non-mixed payments
+            if (storedProducts && storedProducts.length > 0) {
+              for (const product of storedProducts) {
+                for (let i = 0; i < product.quantity; i++) {
+                  await addProduct.mutateAsync({
+                    stylistId,
+                    clientId: nextClientId || undefined,
+                    amount: product.price,
+                    paymentMethod: payment as any,
+                    timestamp: ts,
+                    productName: product.name || undefined,
+                    productTypeId: product.id || undefined
+                  });
+                }
               }
             }
           }
