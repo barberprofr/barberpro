@@ -790,9 +790,6 @@ export const verifyAdminCode: RequestHandler = async (req, res) => {
     const settings = await getSettings(salonId);
     const { code } = body as { code?: string };
     const value = (code ?? "").toString().trim();
-    console.log(`🔐 [verifyAdminCode] code reçu: "${value}" (length: ${value.length})`);
-    console.log(`🔐 [verifyAdminCode] hash calculé: ${sha256(value)}`);
-    console.log(`🔐 [verifyAdminCode] hash stocké: ${settings.adminCodeHash}`);
     if (!settings.adminCodeHash) return res.status(400).json({ error: "code admin non configuré" });
     if (!value) return res.status(400).json({ error: "code requis" });
     if (sha256(value) !== settings.adminCodeHash) return res.status(401).json({ error: "code invalide" });

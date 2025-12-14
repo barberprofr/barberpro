@@ -1468,7 +1468,7 @@ export default function Settings() {
                               <button
                                 key={num}
                                 type="button"
-                                onClick={() => setLoginCode((prev) => prev + String(num))}
+                                onClick={() => setLoginCode((prev) => prev + num)}
                                 className="flex h-9 items-center justify-center rounded-lg border border-white/20 bg-white/10 text-base font-bold text-white transition hover:bg-white/20 active:scale-95"
                               >
                                 {num}
