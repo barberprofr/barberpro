@@ -166,7 +166,7 @@ export default function ServicesPicker({ onServiceSelect, onReset, externalOpen,
             </AnimatePresence>
 
             {/* Scrollable container for both services and products */}
-            <motion.div layout className="space-y-4 max-h-[68vh] overflow-y-auto p-4 elegant-scrollbar">
+            <motion.div layout className="space-y-4 max-h-[50vh] overflow-y-auto p-4 elegant-scrollbar">
               {/* Services section */}
               {hasServices && (
                 <div className="space-y-2">
