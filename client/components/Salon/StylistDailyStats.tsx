@@ -615,39 +615,41 @@ export function StylistMonthly({ id, commissionPct, stylistName }: { id: string;
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.2 }}
-                        className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+                        className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-sm"
                         onClick={() => setTodayEncaissementsOpen(false)}
                     >
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-                            onClick={(e) => e.stopPropagation()}
-                            className="relative w-[98%] max-w-2xl max-h-[70vh] overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900/98 via-fuchsia-900/40 to-slate-800/98 border border-fuchsia-500/30 shadow-[0_25px_80px_rgba(0,0,0,0.6),0_0_40px_rgba(236,72,153,0.2)] backdrop-blur-xl mx-auto"
-                        >
-                            <div className="sticky top-0 z-10 flex items-center justify-between px-3 sm:px-6 py-3 sm:py-4 border-b border-white/10 bg-slate-900/80 backdrop-blur-sm">
-                                <div className="flex items-center gap-3 min-w-0 flex-1">
-                                    <span className="inline-flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border border-fuchsia-400/40 bg-fuchsia-500/20">
-                                        <List className="h-5 w-5 text-fuchsia-300" />
-                                    </span>
-                                    <div className="min-w-0">
-                                        <h3 className="text-base sm:text-lg font-bold text-white truncate">Encaissements du jour</h3>
-                                        <p className="text-xs text-white/50">{useSingleDayRange ? formatDateDisplay(startDate) : formatDateDisplay(today)}</p>
+                        <div className="min-h-full flex items-center justify-center p-4">
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                                transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                                onClick={(e) => e.stopPropagation()}
+                                className="relative w-full max-w-2xl max-h-[85vh] overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900/98 via-fuchsia-900/40 to-slate-800/98 border border-fuchsia-500/30 shadow-[0_25px_80px_rgba(0,0,0,0.6),0_0_40px_rgba(236,72,153,0.2)] backdrop-blur-xl"
+                            >
+                                <div className="sticky top-0 z-10 flex items-center justify-between px-3 sm:px-6 py-3 sm:py-4 border-b border-white/10 bg-slate-900/80 backdrop-blur-sm">
+                                    <div className="flex items-center gap-3 min-w-0 flex-1">
+                                        <span className="inline-flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border border-fuchsia-400/40 bg-fuchsia-500/20">
+                                            <List className="h-5 w-5 text-fuchsia-300" />
+                                        </span>
+                                        <div className="min-w-0">
+                                            <h3 className="text-base sm:text-lg font-bold text-white truncate">Encaissements du jour</h3>
+                                            <p className="text-xs text-white/50">{useSingleDayRange ? formatDateDisplay(startDate) : formatDateDisplay(today)}</p>
+                                        </div>
                                     </div>
+                                    <button
+                                        type="button"
+                                        onClick={() => setTodayEncaissementsOpen(false)}
+                                        className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-slate-400 transition hover:bg-white/10 hover:text-white"
+                                    >
+                                        <ChevronDown className="h-6 w-6" />
+                                    </button>
                                 </div>
-                                <button
-                                    type="button"
-                                    onClick={() => setTodayEncaissementsOpen(false)}
-                                    className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-slate-400 transition hover:bg-white/10 hover:text-white"
-                                >
-                                    <ChevronDown className="h-6 w-6" />
-                                </button>
-                            </div>
-                            <div className="p-2 sm:p-4 overflow-y-auto max-h-[calc(70vh-80px)]">
-                                <StylistRangeEncaissements entries={useSingleDayRange ? rangeEntries : dailyEntries} onUpdate={handleUpdatePayment} />
-                            </div>
-                        </motion.div>
+                                <div className="p-2 sm:p-4 overflow-y-auto max-h-[calc(85vh-80px)]">
+                                    <StylistRangeEncaissements entries={useSingleDayRange ? rangeEntries : dailyEntries} onUpdate={handleUpdatePayment} />
+                                </div>
+                            </motion.div>
+                        </div>
                     </motion.div>
                 )}
             </AnimatePresence>
@@ -659,24 +661,25 @@ export function StylistMonthly({ id, commissionPct, stylistName }: { id: string;
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.2 }}
-                        className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+                        className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-sm"
                         onClick={() => setRangeEncaissementsOpen(false)}
                     >
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-                            onClick={(e) => e.stopPropagation()}
-                            className="relative w-[98%] max-w-2xl max-h-[70vh] overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900/98 via-violet-900/40 to-slate-800/98 border border-violet-500/30 shadow-[0_25px_80px_rgba(0,0,0,0.6),0_0_40px_rgba(139,92,246,0.2)] backdrop-blur-xl mx-auto"
-                        >
-                            <div className="sticky top-0 z-10 flex items-center justify-between px-3 sm:px-6 py-3 sm:py-4 border-b border-white/10 bg-slate-900/80 backdrop-blur-sm">
-                                <div className="flex items-center gap-3 min-w-0 flex-1">
-                                    <span className="inline-flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border border-violet-400/40 bg-violet-500/20">
-                                        <List className="h-5 w-5 text-violet-300" />
-                                    </span>
-                                    <div className="min-w-0">
-                                        <h3 className="text-base sm:text-lg font-bold text-white truncate">Encaissements</h3>
+                        <div className="min-h-full flex items-center justify-center p-4">
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                                transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                                onClick={(e) => e.stopPropagation()}
+                                className="relative w-full max-w-2xl max-h-[85vh] overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900/98 via-violet-900/40 to-slate-800/98 border border-violet-500/30 shadow-[0_25px_80px_rgba(0,0,0,0.6),0_0_40px_rgba(139,92,246,0.2)] backdrop-blur-xl"
+                            >
+                                <div className="sticky top-0 z-10 flex items-center justify-between px-3 sm:px-6 py-3 sm:py-4 border-b border-white/10 bg-slate-900/80 backdrop-blur-sm">
+                                    <div className="flex items-center gap-3 min-w-0 flex-1">
+                                        <span className="inline-flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border border-violet-400/40 bg-violet-500/20">
+                                            <List className="h-5 w-5 text-violet-300" />
+                                        </span>
+                                        <div className="min-w-0">
+                                            <h3 className="text-base sm:text-lg font-bold text-white truncate">Encaissements</h3>
                                         <p className="text-xs text-white/50">{formatDateDisplay(startDate)} au {formatDateDisplay(endDate)}</p>
                                     </div>
                                 </div>
