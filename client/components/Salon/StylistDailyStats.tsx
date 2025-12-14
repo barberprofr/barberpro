@@ -47,10 +47,10 @@ function StylistDaily({ id, date, commissionPct }: { id: string; date?: string; 
                     <div className="text-[9px] text-white/50">{d?.methods.card.count || 0} prest.</div>
                 </div>
                 <div className="flex flex-col items-center justify-center rounded-lg border border-amber-500/30 bg-gradient-to-br from-amber-900/40 via-slate-900/60 to-slate-900/80 backdrop-blur-xl px-2 py-2 shadow-[0_4px_16px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.1)]">
-                    <span className="inline-flex h-5 w-5 items-center justify-center rounded-full border border-amber-400/40 bg-amber-500/20 mb-1">
-                        <svg className="h-2.5 w-2.5 text-amber-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-                    </span>
-                    <div className="text-[10px] font-semibold uppercase text-white/80">EN LIGNE</div>
+                    <div className="flex flex-col items-center leading-tight mb-1">
+                        <span className="text-[8px] font-bold text-amber-300">Planity</span>
+                        <span className="text-[8px] font-bold text-amber-300">Treatwell</span>
+                    </div>
                     <div className="text-sm font-bold text-white">{eur.format(d?.methods.check.amount || 0)}</div>
                     <div className="text-[9px] text-white/50">{d?.methods.check.count || 0} prest.</div>
                 </div>
