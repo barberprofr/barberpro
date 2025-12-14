@@ -1439,7 +1439,7 @@ export default function Settings() {
                           initial={{ opacity: 0, scale: 0.9 }}
                           animate={{ opacity: 1, scale: 1 }}
                           exit={{ opacity: 0, scale: 0.9 }}
-                          className="w-72 rounded-2xl border border-white/20 bg-slate-900/95 p-5 shadow-[0_30px_80px_rgba(0,0,0,0.6)]"
+                          className="w-56 rounded-2xl border border-white/20 bg-slate-900/95 p-4 shadow-[0_30px_80px_rgba(0,0,0,0.6)]"
                           onClick={(e) => e.stopPropagation()}
                         >
                           <div className="mb-4 text-center">
@@ -1469,7 +1469,7 @@ export default function Settings() {
                                 key={num}
                                 type="button"
                                 onClick={() => setLoginCode((prev) => prev + num)}
-                                className="flex h-14 items-center justify-center rounded-xl border border-white/20 bg-white/10 text-xl font-bold text-white transition hover:bg-white/20 active:scale-95"
+                                className="flex h-11 items-center justify-center rounded-xl border border-white/20 bg-white/10 text-lg font-bold text-white transition hover:bg-white/20 active:scale-95"
                               >
                                 {num}
                               </button>
@@ -1477,14 +1477,14 @@ export default function Settings() {
                             <button
                               type="button"
                               onClick={() => setLoginCode((prev) => prev.slice(0, -1))}
-                              className="flex h-14 items-center justify-center rounded-xl border border-rose-400/40 bg-rose-500/20 text-lg font-bold text-rose-300 transition hover:bg-rose-500/30 active:scale-95"
+                              className="flex h-11 items-center justify-center rounded-xl border border-rose-400/40 bg-rose-500/20 text-base font-bold text-rose-300 transition hover:bg-rose-500/30 active:scale-95"
                             >
                               ←
                             </button>
                             <button
                               type="button"
                               onClick={() => setLoginCode((prev) => prev + "0")}
-                              className="flex h-14 items-center justify-center rounded-xl border border-white/20 bg-white/10 text-xl font-bold text-white transition hover:bg-white/20 active:scale-95"
+                              className="flex h-11 items-center justify-center rounded-xl border border-white/20 bg-white/10 text-lg font-bold text-white transition hover:bg-white/20 active:scale-95"
                             >
                               0
                             </button>
@@ -1498,7 +1498,7 @@ export default function Settings() {
                               }}
                               disabled={loginCode.length < 4}
                               className={cn(
-                                "flex h-14 items-center justify-center rounded-xl border text-lg font-bold transition active:scale-95",
+                                "flex h-11 items-center justify-center rounded-xl border text-base font-bold transition active:scale-95",
                                 loginCode.length >= 4
                                   ? "border-emerald-400/40 bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30"
                                   : "border-white/10 bg-white/5 text-white/30 cursor-not-allowed"
