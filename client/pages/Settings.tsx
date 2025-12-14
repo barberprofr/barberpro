@@ -1305,6 +1305,38 @@ export default function Settings() {
   const [openDaily, setOpenDaily] = useState<Record<string, boolean>>({});
   const [openMonthly, setOpenMonthly] = useState<Record<string, boolean>>({});
 
+  const closeAllPopups = () => {
+    setAccordionValue("");
+    setBestDaysAccordionValue("");
+    setServicesAccordionValue("");
+    setOpenStylistId(null);
+    setCoiffCaPopupOpen(false);
+    setDailyCaPopupOpen(false);
+    setYearCaPopupOpen(false);
+    setOpenDaily({});
+    setOpenMonthly({});
+    setIsDayUsageVisible(false);
+    setIsMonthUsageVisible(false);
+  };
+
+  const hasAnyPopupOpen = accordionValue !== "" || bestDaysAccordionValue !== "" || servicesAccordionValue !== "" || 
+    openStylistId !== null || coiffCaPopupOpen || dailyCaPopupOpen || yearCaPopupOpen || 
+    Object.values(openDaily).some(Boolean) || Object.values(openMonthly).some(Boolean) ||
+    isDayUsageVisible || isMonthUsageVisible;
+
+  useEffect(() => {
+    if (!hasAnyPopupOpen) return;
+    const handleDocumentClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      const isInteractive = target.closest('button, input, select, [role="button"], [data-radix-collection-item], [data-state], .popover-content, [role="dialog"], [role="listbox"], [role="menu"]');
+      if (!isInteractive) {
+        closeAllPopups();
+      }
+    };
+    document.addEventListener('click', handleDocumentClick);
+    return () => document.removeEventListener('click', handleDocumentClick);
+  }, [hasAnyPopupOpen]);
+
   const handleSalonNameSave = () => {
     const trimmed = salonNameDraft.trim();
     if (!trimmed || trimmed === (config?.salonName ?? "") || updateConfig.isPending) {
