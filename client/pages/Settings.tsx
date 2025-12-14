@@ -42,7 +42,7 @@ const PAYMENT_METHOD_META: PaymentSummaryMeta[] = [
   },
   {
     key: "check",
-    label: "En ligne",
+    label: "Planity/Treatwell",
     icon: FileText,
     badgeClasses: "border border-amber-500/40 bg-amber-500/10",
     iconClasses: "text-amber-300",
@@ -360,7 +360,7 @@ function GlobalTransactionRow({ entry: e, onUpdate }: { entry: any, onUpdate: (i
                 {e.paymentMethod === "cash" && <svg className="h-2.5 w-2.5 text-emerald-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><rect x="2" y="6" width="20" height="12" rx="2" /><circle cx="12" cy="12" r="3" /><path d="M12 10v4m-1-3.5h2m-2 3h2" /></svg>}
               </span>
               <span className="text-[9px] font-semibold uppercase tracking-wide text-white/80">
-                {({ cash: "ESPÈCES", check: "EN LIGNE", card: "CARTE" } as const)[e.paymentMethod as "cash" | "check" | "card"]}
+                {e.paymentMethod === "check" ? <span className="flex flex-col leading-tight text-[7px]"><span>Planity</span><span>Treatwell</span></span> : ({ cash: "ESPÈCES", card: "CARTE" } as const)[e.paymentMethod as "cash" | "card"]}
               </span>
             </button>
           </PopoverTrigger>
@@ -389,7 +389,7 @@ function GlobalTransactionRow({ entry: e, onUpdate }: { entry: any, onUpdate: (i
                     {method === "cash" && <svg className="h-2.5 w-2.5 text-emerald-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><rect x="2" y="6" width="20" height="12" rx="2" /><circle cx="12" cy="12" r="3" /><path d="M12 10v4m-1-3.5h2m-2 3h2" /></svg>}
                   </span>
                   <span className="text-[10px] font-semibold uppercase tracking-wide text-white/80">
-                    {({ cash: "ESPÈCES", check: "EN LIGNE", card: "CARTE" } as const)[method]}
+                    {method === "check" ? <span className="flex flex-col leading-tight text-[7px]"><span>Planity</span><span>Treatwell</span></span> : ({ cash: "ESPÈCES", card: "CARTE" } as const)[method]}
                   </span>
                 </button>
               ))}
@@ -571,7 +571,7 @@ function GlobalRevenueStats() {
       <div className="grid grid-cols-4 text-sm border rounded-md overflow-hidden">
         <div className="bg-white/12 px-3 py-2"></div>
         <div className="bg-white/12 px-3 py-2"><span className="inline-flex items-center px-2 py-0.5 rounded-full border-2 border-emerald-300 bg-emerald-100/30 text-emerald-100 text-xs font-semibold">Espèces</span></div>
-        <div className="bg-white/12 px-3 py-2"><span className="inline-flex items-center px-2 py-0.5 rounded-full border-2 border-amber-300 bg-amber-100/30 text-amber-100 text-xs font-semibold">En ligne</span></div>
+        <div className="bg-white/12 px-3 py-2"><span className="inline-flex items-center px-2 py-0.5 rounded-full border-2 border-amber-300 bg-amber-100/30 text-amber-100 text-[8px] font-semibold"><span className="flex flex-col leading-tight text-center"><span>Planity</span><span>Treatwell</span></span></span></div>
         <div className="bg-white/12 px-3 py-2"><span className="inline-flex items-center px-2 py-0.5 rounded-full border-2 border-indigo-300 bg-indigo-100/30 text-indigo-100 text-xs font-semibold">Carte</span></div>
         <div className="px-3 py-2 font-bold">{useTodayData ? "Jour" : useRangeData ? "Période" : "Mois"}</div>
         <div className="px-3 py-2">{eur.format(displayData?.methods?.cash?.amount ?? 0)}</div>

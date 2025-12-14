@@ -216,7 +216,7 @@ export default function StatsCards() {
   const dailyProductCount = dailyProducts.length;
   const paymentMethodOrder: ReadonlyArray<{ key: keyof typeof paymentCardStyles; label: string }> = [
     { key: "cash", label: "Espèces" },
-    { key: "check", label: "En ligne" },
+    { key: "check", label: "Planity/Treatwell" },
     { key: "card", label: "Carte" },
   ];
   const paymentTotalAmount = summary?.dailyPayments?.total?.amount ?? summary?.dailyAmount ?? 0;

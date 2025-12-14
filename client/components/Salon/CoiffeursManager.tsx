@@ -48,7 +48,7 @@ export default function CoiffeursManager() {
             <div className="text-xs text-muted-foreground">{scope?.methods.cash.count || 0} prestations</div>
           </div>
           <div className="rounded bg-background border p-2">
-            <div className="text-xs text-muted-foreground">En ligne</div>
+            <div className="text-xs text-muted-foreground">Planity/Treatwell</div>
             <div className="font-medium">{eur.format(scope?.methods.check.amount || 0)}</div>
             <div className="text-xs text-muted-foreground">{scope?.methods.check.count || 0} prestations</div>
           </div>
