@@ -355,7 +355,7 @@ export default function ServicesManager({ accordionValue = "", onAccordionChange
           </AccordionItem>
 
           <div 
-            className={cn(cardButtonClasses, "w-full min-h-[100px] cursor-pointer")}
+            className="group relative flex flex-col items-center justify-center gap-1.5 rounded-2xl border-2 border-amber-400/60 bg-transparent px-3 py-4 min-h-[100px] cursor-pointer transition-all duration-300 hover:scale-[1.05] hover:border-amber-300 hover:shadow-[0_0_25px_rgba(245,158,11,0.4)] active:scale-[1.08] active:border-yellow-200 active:bg-amber-400/20 active:shadow-[0_0_40px_rgba(255,200,50,0.8)]"
             onClick={() => {
               if (isCoiffeurOpen) {
                 onCloseCoiffeur?.();
@@ -364,8 +364,8 @@ export default function ServicesManager({ accordionValue = "", onAccordionChange
               }
             }}
           >
-            <UserRound className="h-7 w-7 text-orange-400/80" />
-            <span className="text-sm font-bold text-orange-400">Coiffeur</span>
+            <UserRound className="h-7 w-7 text-amber-400/70" />
+            <span className="text-sm font-bold text-amber-400">Coiffeur</span>
             <span className="text-[10px] text-white/60">Ajouter</span>
           </div>
         </div>
