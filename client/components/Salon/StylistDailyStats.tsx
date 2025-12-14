@@ -136,7 +136,12 @@ function RangeTransactionRow({ entry: e, onUpdate }: { entry: any, onUpdate: (id
                                 {e.paymentMethod === "cash" && <svg className="h-2.5 w-2.5 text-emerald-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><rect x="2" y="6" width="20" height="12" rx="2" /><circle cx="12" cy="12" r="3" /><path d="M12 10v4m-1-3.5h2m-2 3h2" /></svg>}
                             </span>
                             <span className="text-[9px] font-semibold uppercase tracking-wide text-white/80">
-                                {({ cash: "ESPÈCES", check: "EN LIGNE", card: "CARTE" } as const)[e.paymentMethod as "cash" | "check" | "card"]}
+                                {e.paymentMethod === "check" ? (
+                                    <span className="flex flex-col leading-tight text-[7px]">
+                                        <span>Planity</span>
+                                        <span>Treatwell</span>
+                                    </span>
+                                ) : ({ cash: "ESPÈCES", card: "CARTE" } as const)[e.paymentMethod as "cash" | "card"]}
                             </span>
                         </button>
                     </PopoverTrigger>
@@ -165,7 +170,12 @@ function RangeTransactionRow({ entry: e, onUpdate }: { entry: any, onUpdate: (id
                                         {method === "cash" && <svg className="h-2.5 w-2.5 text-emerald-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><rect x="2" y="6" width="20" height="12" rx="2" /><circle cx="12" cy="12" r="3" /><path d="M12 10v4m-1-3.5h2m-2 3h2" /></svg>}
                                     </span>
                                     <span className="text-[10px] font-semibold uppercase tracking-wide text-white/80">
-                                        {({ cash: "ESPÈCES", check: "EN LIGNE", card: "CARTE" } as const)[method]}
+                                        {method === "check" ? (
+                                        <span className="flex flex-col leading-tight text-[7px]">
+                                            <span>Planity</span>
+                                            <span>Treatwell</span>
+                                        </span>
+                                    ) : ({ cash: "ESPÈCES", card: "CARTE" } as const)[method]}
                                     </span>
                                 </button>
                             ))}
@@ -230,7 +240,12 @@ function TransactionRow({ entry: e, fmt, onUpdate }: { entry: any, fmt: (ts: num
                                 {e.paymentMethod === "cash" && <svg className="h-2.5 w-2.5 text-emerald-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><rect x="2" y="6" width="20" height="12" rx="2" /><circle cx="12" cy="12" r="3" /><path d="M12 10v4m-1-3.5h2m-2 3h2" /></svg>}
                             </span>
                             <span className="text-[9px] font-semibold uppercase tracking-wide text-white/80">
-                                {({ cash: "ESPÈCES", check: "EN LIGNE", card: "CARTE" } as const)[e.paymentMethod as "cash" | "check" | "card"]}
+                                {e.paymentMethod === "check" ? (
+                                    <span className="flex flex-col leading-tight text-[7px]">
+                                        <span>Planity</span>
+                                        <span>Treatwell</span>
+                                    </span>
+                                ) : ({ cash: "ESPÈCES", card: "CARTE" } as const)[e.paymentMethod as "cash" | "card"]}
                             </span>
                         </button>
                     </PopoverTrigger>
@@ -259,7 +274,12 @@ function TransactionRow({ entry: e, fmt, onUpdate }: { entry: any, fmt: (ts: num
                                         {method === "cash" && <svg className="h-2.5 w-2.5 text-emerald-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><rect x="2" y="6" width="20" height="12" rx="2" /><circle cx="12" cy="12" r="3" /><path d="M12 10v4m-1-3.5h2m-2 3h2" /></svg>}
                                     </span>
                                     <span className="text-[10px] font-semibold uppercase tracking-wide text-white/80">
-                                        {({ cash: "ESPÈCES", check: "EN LIGNE", card: "CARTE" } as const)[method]}
+                                        {method === "check" ? (
+                                        <span className="flex flex-col leading-tight text-[7px]">
+                                            <span>Planity</span>
+                                            <span>Treatwell</span>
+                                        </span>
+                                    ) : ({ cash: "ESPÈCES", card: "CARTE" } as const)[method]}
                                     </span>
                                 </button>
                             ))}
