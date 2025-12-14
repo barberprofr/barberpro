@@ -1110,8 +1110,8 @@ export default function PrestationsForm() {
                   Que souhaitez-vous enregistrer ?
                 </h2>
                 
-                <div className="flex gap-6 flex-col sm:flex-row items-center">
-                  {/* Carte Prestations - Plus grande */}
+                <div className="flex justify-center">
+                  {/* Carte Prestations & Produits combinée */}
                   <motion.button
                     type="button"
                     onClick={() => {
@@ -1123,7 +1123,7 @@ export default function PrestationsForm() {
                     className="group relative flex flex-col items-center justify-center w-44 h-44 rounded-2xl border border-white/10 bg-gradient-to-br from-slate-800/35 via-slate-900/35 to-slate-800/35 backdrop-blur-sm shadow-[0_8px_32px_rgba(0,0,0,0.4)] transition-all duration-300 hover:border-violet-400/40 hover:shadow-[0_12px_40px_rgba(139,92,246,0.25)]"
                   >
                     {/* Halo lumineux derrière l'icône */}
-                    <div className="relative flex items-center justify-center mb-4">
+                    <div className="relative flex items-center justify-center mb-3">
                       {/* Cercle externe avec gradient */}
                       <div className="absolute w-24 h-24 rounded-full bg-gradient-to-br from-violet-500/30 via-fuchsia-500/20 to-purple-600/30 blur-md group-hover:from-violet-400/40 group-hover:via-fuchsia-400/30 group-hover:to-purple-500/40 transition-all duration-300" />
                       {/* Cercle intermédiaire */}
@@ -1136,40 +1136,22 @@ export default function PrestationsForm() {
                     <span className="text-base font-semibold text-violet-300 group-hover:text-violet-200 transition-colors duration-300">
                       Prestations
                     </span>
-                  </motion.button>
-
-                  {/* Carte Produits - Style 3D comme Mixte */}
-                  <motion.button
-                    type="button"
-                    onClick={() => {
-                      setShowTypePickerPopup(false);
-                      setTimeout(() => setProductsPickerOpen(true), 100);
-                    }}
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="flex flex-col items-center justify-center gap-2"
-                  >
-                    <div 
-                      className="flex h-16 w-16 items-center justify-center rounded-full shadow-lg"
-                      style={{ 
-                        background: "conic-gradient(from 160deg, rgba(157,243,255,0.6), rgba(82,199,255,0.6), rgba(43,127,255,0.6), rgba(157,243,255,0.6))",
-                        boxShadow: "0 0 25px rgba(82,199,255,0.7), 0 0 50px rgba(82,199,255,0.4), 0 8px 20px rgba(82,199,255,0.5)"
-                      }}
-                    >
+                    {/* Petite icône + texte Produits */}
+                    <div className="flex items-center gap-1 mt-1">
                       <div 
-                        className="flex h-10 w-10 items-center justify-center rounded-full"
+                        className="flex h-5 w-5 items-center justify-center rounded-full"
                         style={{ 
-                          background: "linear-gradient(140deg, rgba(191,246,255,0.7) 0%, rgba(99,218,255,0.7) 60%, rgba(49,142,255,0.7) 100%)"
+                          background: "linear-gradient(140deg, rgba(191,246,255,0.6) 0%, rgba(99,218,255,0.6) 60%, rgba(49,142,255,0.6) 100%)"
                         }}
                       >
-                        <svg className="h-6 w-6 text-slate-900/80" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                        <svg className="h-3 w-3 text-slate-900/70" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
                           <rect x="6" y="10" width="12" height="10" rx="2" />
                           <rect x="8" y="6" width="8" height="4" rx="1" />
                           <path d="M10 6V4h4v2" />
                         </svg>
                       </div>
+                      <span className="text-xs font-medium text-cyan-400/80">Produits</span>
                     </div>
-                    <span className="text-sm font-bold text-cyan-400">Produits</span>
                   </motion.button>
                 </div>
               </div>
