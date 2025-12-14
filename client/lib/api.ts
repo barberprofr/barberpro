@@ -405,7 +405,7 @@ export function useGlobalBreakdown(date?: string, startDate?: string, endDate?: 
       if (startDate) params.set("startDate", startDate);
       if (endDate) params.set("endDate", endDate);
       const qs = params.toString();
-      const res = await apiFetch(`/api/reports/global-breakdown${qs ? `?${qs}` : ""}`);
+      const res = await apiFetch(`/api/salons/${salonId}/reports/global-breakdown${qs ? `?${qs}` : ""}`);
       if (!res.ok) throw new Error("Failed to load global breakdown");
       return res.json() as Promise<GlobalBreakdown>;
     }
