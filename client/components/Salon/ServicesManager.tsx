@@ -13,9 +13,11 @@ interface ServicesManagerProps {
   onAccordionChange?: (value: string) => void;
   onCloseParent?: () => void;
   onOpenCoiffeur?: () => void;
+  isCoiffeurOpen?: boolean;
+  onCloseCoiffeur?: () => void;
 }
 
-export default function ServicesManager({ accordionValue = "", onAccordionChange, onCloseParent, onOpenCoiffeur }: ServicesManagerProps) {
+export default function ServicesManager({ accordionValue = "", onAccordionChange, onCloseParent, onOpenCoiffeur, isCoiffeurOpen, onCloseCoiffeur }: ServicesManagerProps) {
   const { data: services = [] } = useServices();
   const { data: productTypes = [] } = useProductTypes();
   const addService = useAddService();
@@ -287,7 +289,13 @@ export default function ServicesManager({ accordionValue = "", onAccordionChange
 
           <div 
             className={cn(cardButtonClasses, "w-full min-h-[100px] cursor-pointer")}
-            onClick={() => onOpenCoiffeur?.()}
+            onClick={() => {
+              if (isCoiffeurOpen) {
+                onCloseCoiffeur?.();
+              } else {
+                onOpenCoiffeur?.();
+              }
+            }}
           >
             <UserRound className="h-7 w-7 text-orange-400/80" />
             <span className="text-sm font-bold text-orange-400">Coiffeur</span>

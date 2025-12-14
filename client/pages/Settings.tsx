@@ -2237,6 +2237,8 @@ export default function Settings() {
                 onAccordionChange={setServicesAccordionValue}
                 onCloseParent={() => setAccordionValue("")}
                 onOpenCoiffeur={() => setAccordionValue("add-stylist")}
+                isCoiffeurOpen={accordionValue === "add-stylist"}
+                onCloseCoiffeur={() => setAccordionValue("")}
               />
 
               <AccordionItem value="add-stylist" className="border-0">
