@@ -737,25 +737,23 @@ export default function PrestationsForm() {
 
         try {
           if (payment === "mixed") {
-            const cashAmount = parseFloat(mixedCashAmount) || 0;
-            const cardAmount = parseFloat(mixedCardAmount) || 0;
-            const totalAmount = cashAmount + cardAmount;
+            // Calculate prestations total only (for salary/commission calculation)
+            const prestationsTotal = storedPrestations.reduce((sum, p) => sum + (p.price * p.quantity), 0);
             
-            // Build combined name including both prestations and products for mixed payments
+            // Build prestation names only (products will be shown separately)
             const prestationNames = storedPrestations.map(p => p.quantity > 1 ? `${p.name} (x${p.quantity})` : p.name);
-            const mixedProducts = (window as any).__selectedProducts as Array<{ id: string, name: string, price: number, quantity: number }> | undefined;
-            const productNames = mixedProducts ? mixedProducts.map(p => p.quantity > 1 ? `${p.name} (x${p.quantity})` : p.name) : [];
-            const combinedName = [...prestationNames, ...productNames].join(", ") || undefined;
+            const prestationName = prestationNames.join(", ") || undefined;
             
-            // Create a SINGLE prestation entry with "mixed" payment method and total amount
+            // Create a SINGLE prestation entry with "mixed" payment method and PRESTATIONS amount only
             // This ensures the prestation counter only increases by 1
+            // And the salary is calculated only on prestations (not products)
             await addPrestation.mutateAsync({
               stylistId,
               clientId: nextClientId || undefined,
-              amount: totalAmount,
+              amount: prestationsTotal,
               paymentMethod: "mixed" as any,
               timestamp: ts,
-              serviceName: combinedName,
+              serviceName: prestationName,
               serviceId: storedPrestations[0]?.id || undefined
             });
           } else {
@@ -765,6 +763,7 @@ export default function PrestationsForm() {
           }
 
           // Also submit products if they were selected alongside prestations
+          // For mixed payments, products are recorded with their real amount and "mixed" payment method
           const storedProducts = (window as any).__selectedProducts as Array<{ id: string, name: string, price: number, quantity: number }> | undefined;
           if (storedProducts && storedProducts.length > 0) {
             for (const product of storedProducts) {
@@ -772,9 +771,8 @@ export default function PrestationsForm() {
                 await addProduct.mutateAsync({
                   stylistId,
                   clientId: nextClientId || undefined,
-                  // For mixed payments, use 0 amount since product amount is already included in the mixed payment totals
-                  amount: payment === "mixed" ? 0 : product.price,
-                  paymentMethod: payment === "mixed" ? "card" : payment as any,
+                  amount: product.price,
+                  paymentMethod: payment === "mixed" ? "mixed" : payment as any,
                   timestamp: ts,
                   productName: product.name || undefined,
                   productTypeId: product.id || undefined
