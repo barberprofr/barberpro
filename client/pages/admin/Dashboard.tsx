@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Loader2, Trash2, Search, Users, Store, DollarSign, Calendar, LogOut } from "lucide-react";
+import { Loader2, Trash2, Search, Users, Store, DollarSign, Calendar, LogOut, ShieldCheck } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 
 interface Stats {
@@ -129,6 +129,30 @@ export default function AdminDashboard() {
             toast.error("Error updating trial");
         } finally {
             setProcessingAction(false);
+        }
+    };
+
+    const handleActivate = async (salonId: string) => {
+        if (!confirm("Grant permissions? This will give this salon full access ('active' status) without Stripe payment.")) return;
+
+        try {
+            const res = await fetch(`/api/admin/salons/${salonId}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    "x-super-admin-token": token!
+                },
+                body: JSON.stringify({
+                    subscriptionStatus: 'active'
+                })
+            });
+
+            if (!res.ok) throw new Error("Activation failed");
+
+            toast.success("Salon activated (Free Access granted)");
+            await fetchData();
+        } catch (error) {
+            toast.error("Error activating salon");
         }
     };
 
@@ -256,6 +280,9 @@ export default function AdminDashboard() {
                                         </TableCell>
                                         <TableCell className="text-right">
                                             <div className="flex justify-end gap-2">
+                                                <Button size="icon" variant="outline" onClick={() => handleActivate(salon.salonId)} title="Grant Free Access">
+                                                    <ShieldCheck className="h-4 w-4 text-green-600" />
+                                                </Button>
                                                 <Button size="sm" variant="outline" onClick={() => openExtensionDialog(salon)}>
                                                     Extend Trial
                                                 </Button>
@@ -293,8 +320,8 @@ export default function AdminDashboard() {
                         <Button variant="outline" onClick={() => handleUpdateTrial(7)} disabled={processingAction}>
                             +7 Days
                         </Button>
-                        <Button variant="outline" onClick={() => handleUpdateTrial(14)} disabled={processingAction}>
-                            +14 Days
+                        <Button variant="outline" onClick={() => handleUpdateTrial(15)} disabled={processingAction}>
+                            +15 Days
                         </Button>
                         <Button variant="outline" onClick={() => handleUpdateTrial(30)} disabled={processingAction}>
                             +30 Days
