@@ -1439,11 +1439,11 @@ export default function Settings() {
                           initial={{ opacity: 0, scale: 0.9 }}
                           animate={{ opacity: 1, scale: 1 }}
                           exit={{ opacity: 0, scale: 0.9 }}
-                          className="w-56 rounded-2xl border border-white/20 bg-slate-900/95 p-4 shadow-[0_30px_80px_rgba(0,0,0,0.6)]"
+                          className="w-72 rounded-2xl border border-white/20 bg-slate-900/95 p-3 shadow-[0_30px_80px_rgba(0,0,0,0.6)]"
                           onClick={(e) => e.stopPropagation()}
                         >
-                          <div className="mb-4 text-center">
-                            <div className="text-sm font-semibold text-white/80 mb-2">Entrez votre code admin</div>
+                          <div className="mb-2 text-center">
+                            <div className="text-xs font-semibold text-white/80 mb-1">Entrez votre code admin</div>
                             <div className="flex justify-center gap-2">
                               {[0, 1, 2, 3].map((i) => (
                                 <div
@@ -1463,13 +1463,13 @@ export default function Settings() {
                               )}
                             </div>
                           </div>
-                          <div className="grid grid-cols-3 gap-2">
+                          <div className="grid grid-cols-3 gap-1.5">
                             {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
                               <button
                                 key={num}
                                 type="button"
                                 onClick={() => setLoginCode((prev) => prev + num)}
-                                className="flex h-11 items-center justify-center rounded-xl border border-white/20 bg-white/10 text-lg font-bold text-white transition hover:bg-white/20 active:scale-95"
+                                className="flex h-9 items-center justify-center rounded-lg border border-white/20 bg-white/10 text-base font-bold text-white transition hover:bg-white/20 active:scale-95"
                               >
                                 {num}
                               </button>
@@ -1477,14 +1477,14 @@ export default function Settings() {
                             <button
                               type="button"
                               onClick={() => setLoginCode((prev) => prev.slice(0, -1))}
-                              className="flex h-11 items-center justify-center rounded-xl border border-rose-400/40 bg-rose-500/20 text-base font-bold text-rose-300 transition hover:bg-rose-500/30 active:scale-95"
+                              className="flex h-9 items-center justify-center rounded-lg border border-rose-400/40 bg-rose-500/20 text-sm font-bold text-rose-300 transition hover:bg-rose-500/30 active:scale-95"
                             >
                               ←
                             </button>
                             <button
                               type="button"
                               onClick={() => setLoginCode((prev) => prev + "0")}
-                              className="flex h-11 items-center justify-center rounded-xl border border-white/20 bg-white/10 text-lg font-bold text-white transition hover:bg-white/20 active:scale-95"
+                              className="flex h-9 items-center justify-center rounded-lg border border-white/20 bg-white/10 text-base font-bold text-white transition hover:bg-white/20 active:scale-95"
                             >
                               0
                             </button>
@@ -1498,7 +1498,7 @@ export default function Settings() {
                               }}
                               disabled={loginCode.length < 4}
                               className={cn(
-                                "flex h-11 items-center justify-center rounded-xl border text-base font-bold transition active:scale-95",
+                                "flex h-9 items-center justify-center rounded-lg border text-sm font-bold transition active:scale-95",
                                 loginCode.length >= 4
                                   ? "border-emerald-400/40 bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30"
                                   : "border-white/10 bg-white/5 text-white/30 cursor-not-allowed"
