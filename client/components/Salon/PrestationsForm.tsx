@@ -417,22 +417,54 @@ export default function PrestationsForm() {
   }, []);*/
 
 
-  const handleServiceSelect = useCallback((prestations: Array<{ id: string, name: string, price: number, quantity: number }>) => {
-    const totalAmount = prestations.reduce((sum, p) => sum + (p.price * p.quantity), 0);
+  const handleServiceSelect = useCallback((prestations: Array<{ id: string, name: string, price: number, quantity: number }>, products?: Array<{ id: string, name: string, price: number, quantity: number }>) => {
+    const prestationsTotal = prestations.reduce((sum, p) => sum + (p.price * p.quantity), 0);
+    const productsTotal = (products || []).reduce((sum, p) => sum + (p.price * p.quantity), 0);
+    const totalAmount = prestationsTotal + productsTotal;
+    
     setAmount(totalAmount.toString());
     setPayment("");
     setPaymentSelected(false);
-    setIsProduct(false);
-
-    if (prestations.length > 0) {
+    
+    // Determine if this is product-only, prestation-only, or mixed
+    const hasPrestations = prestations.length > 0;
+    const hasProducts = (products || []).length > 0;
+    
+    // Set isProduct based on what's selected
+    // If only products, treat as product flow
+    // If prestations (with or without products), treat as prestation flow
+    if (!hasPrestations && hasProducts) {
+      setIsProduct(true);
+      const productSummary = (products || []).map(p =>
+        p.quantity > 1 ? `${p.name} (x${p.quantity})` : p.name
+      ).join(", ");
+      setSelectedProductName(productSummary);
+      setSelectedProductTypeId((products || [])[0]?.id || "");
+      setSelectedServiceName("");
+      setSelectedServiceId("");
+    } else if (hasPrestations) {
+      setIsProduct(false);
       const summary = prestations.map(p =>
         p.quantity > 1 ? `${p.name} (x${p.quantity})` : p.name
       ).join(", ");
       setSelectedServiceName(summary);
       setSelectedServiceId(prestations[0].id);
+      
+      // Also store products if they exist (for combined transactions)
+      if (hasProducts) {
+        const productSummary = (products || []).map(p =>
+          p.quantity > 1 ? `${p.name} (x${p.quantity})` : p.name
+        ).join(", ");
+        setSelectedProductName(productSummary);
+        setSelectedProductTypeId((products || [])[0]?.id || "");
+      } else {
+        setSelectedProductName("");
+        setSelectedProductTypeId("");
+      }
     }
 
     (window as any).__selectedPrestations = prestations;
+    (window as any).__selectedProducts = products || [];
 
     setTimeout(() => {
       setPaymentPickerOpen(true);
