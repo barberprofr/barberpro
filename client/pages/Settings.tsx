@@ -1328,6 +1328,8 @@ export default function Settings() {
     if (!hasAnyPopupOpen) return;
     const handleDocumentClick = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
+      const isDraggable = target.closest('[draggable="true"]');
+      if (isDraggable) return;
       const isInteractive = target.closest('button, input, select, [role="button"], [data-radix-collection-item], [data-state], .popover-content, [role="dialog"], [role="listbox"], [role="menu"]');
       if (!isInteractive) {
         closeAllPopups();
