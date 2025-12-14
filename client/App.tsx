@@ -11,6 +11,8 @@ import NotFound from "./pages/NotFound";
 import Clients from "./pages/Clients";
 import Settings from "./pages/Settings";
 import Login from "./pages/Login";
+import AdminLogin from "./pages/admin/AdminLogin";
+import AdminDashboard from "./pages/admin/Dashboard";
 import { registerServiceWorker } from "@/lib/pwa";
 import { useState, useEffect } from "react";
 import { RefreshCw } from "lucide-react";
@@ -39,6 +41,11 @@ const App = () => {
             <Route path="/app" element={<Index />} />
             <Route path="/clients" element={<Clients />} />
             <Route path="/settings" element={<Settings />} />
+
+            {/* Admin Routes */}
+            <Route path="/admin/login" element={<AdminLogin />} />
+            <Route path="/admin/dashboard" element={<AdminDashboard />} />
+
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

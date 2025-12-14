@@ -1661,7 +1661,7 @@ export const getGlobalBreakdown: RequestHandler = async (req, res) => {
     const dateStr = typeof q.date === "string" ? q.date : undefined;
     const startDateStr = typeof q.startDate === "string" ? q.startDate : undefined;
     const endDateStr = typeof q.endDate === "string" ? q.endDate : undefined;
-    
+
     const now = Date.now();
     let ref = now;
 
@@ -2030,11 +2030,11 @@ export const addService: RequestHandler = async (req, res) => {
     }
 
     const id = `service_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`;
-    
+
     // Get the max sortOrder to add new service at the end
     const maxOrderService = await Service.findOne({ salonId }).sort({ sortOrder: -1 });
     const nextSortOrder = (maxOrderService?.sortOrder ?? -1) + 1;
-    
+
     const service = new Service({
       id,
       name: name.trim(),

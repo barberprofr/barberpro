@@ -2,6 +2,7 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import { handleDemo } from "./routes/demo";
+import { adminRouter } from "./routes/admin";
 import { connectDatabase } from './db';
 import { addClient, addStylist, adminLogin, createPrestation, createProduct, listProducts, exportSummaryCSV, exportSummaryPDF, getConfig, getStylistBreakdown, getGlobalBreakdown, listClients, listStylists, pointsUsageReport, redeemPoints, reportByDay, reportByMonth, setAdminPassword, setStylistCommission, summaryReport, updateConfig, deleteStylist, deleteClient, recoverAdminPassword, recoverAdminVerify, exportStylistCSV, exportStylistPDF, exportByDayCSV, exportByDayPDF, exportByMonthCSV, exportByMonthPDF, setupAdminAccount, verifyAdminCode, updateStylist, listServices, addService, deleteService, reorderServices, listProductTypes, addProductType, deleteProductType, recoverAdminCode, verifyAdminCodeRecovery, addPoints, updateTransactionPaymentMethod, uploadClientPhoto, deleteClientPhoto, setStylistSecretCode, verifyStylistSecretCode, getStylistHasSecretCode } from "./routes/salon";
 import { createCheckoutSession, createPortalSession, webhookHandler } from "./routes/payment";
@@ -43,6 +44,9 @@ export function createServer() {
   // Mount webhook route for both paths
   app.post("/api/webhook", webhookMiddleware, webhookHandlerWrapper);
   app.post("/.netlify/functions/api/webhook", webhookMiddleware, webhookHandlerWrapper);
+
+  // Super Admin Routes
+  app.use("/api/admin", adminRouter);
 
   // mount other payment routes
   app.post("/api/create-checkout-session", createCheckoutSession);

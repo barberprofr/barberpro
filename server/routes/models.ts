@@ -13,6 +13,14 @@ export interface IStylist extends Document {
     updatedAt: Date;
 }
 
+export interface IAdminUser extends Document {
+    email: string;
+    passwordHash: string;
+    token?: string | null;
+    createdAt: Date;
+    updatedAt: Date;
+}
+
 export interface IClient extends Document {
     id: string;
     name: string;
@@ -257,6 +265,15 @@ PrestationSchema.index({ salonId: 1, stylistId: 1, timestamp: -1 });
 ProductSchema.index({ salonId: 1, timestamp: -1 });
 PointsRedemptionSchema.index({ salonId: 1, timestamp: -1 });
 
+const AdminUserSchema = new Schema({
+    email: { type: String, required: true, unique: true },
+    passwordHash: { type: String, required: true },
+    token: { type: String, default: null }
+}, {
+    timestamps: true,
+    id: false
+});
+
 // Modèles Mongoose
 export const Stylist = (mongoose.models.Stylist || mongoose.model<IStylist>('Stylist', StylistSchema)) as mongoose.Model<IStylist>;
 export const Client = (mongoose.models.Client || mongoose.model<IClient>('Client', ClientSchema)) as mongoose.Model<IClient>;
@@ -266,3 +283,4 @@ export const Service = (mongoose.models.Service || mongoose.model<IService>('Ser
 export const ProductType = (mongoose.models.ProductType || mongoose.model<IProductType>('ProductType', ProductTypeSchema)) as mongoose.Model<IProductType>;
 export const Product = (mongoose.models.Product || mongoose.model<IProduct>('Product', ProductSchema)) as mongoose.Model<IProduct>;
 export const Settings = (mongoose.models.Settings || mongoose.model<ISettings>('Settings', SettingsSchema)) as mongoose.Model<ISettings>;
+export const AdminUser = (mongoose.models.AdminUser || mongoose.model<IAdminUser>('AdminUser', AdminUserSchema)) as mongoose.Model<IAdminUser>;
