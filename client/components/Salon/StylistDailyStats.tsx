@@ -549,7 +549,7 @@ export function StylistMonthly({ id, commissionPct, stylistName }: { id: string;
             <div className="grid grid-cols-4 text-sm border rounded-md overflow-hidden">
                 <div className="bg-white/12 px-2 py-1"></div>
                 <div className="bg-white/12 px-2 py-1"><span className="inline-flex items-center px-1.5 py-0.5 rounded-full border-2 border-emerald-300 bg-emerald-100/30 text-emerald-100 text-[10px] font-semibold">Espèces</span></div>
-                <div className="bg-white/12 px-2 py-1"><span className="inline-flex items-center px-1.5 py-0.5 rounded-full border-2 border-amber-300 bg-amber-100/30 text-amber-100 text-[10px] font-semibold">En ligne</span></div>
+                <div className="bg-white/12 px-2 py-1"><span className="inline-flex items-center px-1.5 py-0.5 rounded-full border-2 border-amber-300 bg-amber-100/30 text-amber-100 text-[8px] font-semibold"><span className="flex flex-col leading-tight text-center"><span>Planity</span><span>Treatwell</span></span></span></div>
                 <div className="bg-white/12 px-2 py-1"><span className="inline-flex items-center px-1.5 py-0.5 rounded-full border-2 border-indigo-300 bg-indigo-100/30 text-indigo-100 text-[10px] font-semibold">Carte</span></div>
                 <div className="px-2 py-1 font-bold text-xs">{useTodayData ? "Jour" : useSingleDayRange ? "Jour" : useRangeData ? "Période" : "Mois"}</div>
                 <div className="px-2 py-1 text-xs">{eur.format(displayData?.methods.cash.amount || 0)}</div>
