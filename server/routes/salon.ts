@@ -1717,12 +1717,15 @@ export const getGlobalBreakdown: RequestHandler = async (req, res) => {
       const isDaily = ts === todayStart;
       const isMonthly = isSameMonthParis(p.timestamp, ref);
       const isRange = startDateMs && endDateMs && p.timestamp >= startDateMs && p.timestamp <= endDateMs;
+      const method = p.paymentMethod as PaymentMethod;
 
       if (isDaily) {
         daily.total.amount += p.amount;
         daily.total.count += 1;
-        daily.methods[p.paymentMethod].amount += p.amount;
-        daily.methods[p.paymentMethod].count += 1;
+        if (daily.methods[method]) {
+          daily.methods[method].amount += p.amount;
+          daily.methods[method].count += 1;
+        }
         dailyPrestationCount++;
         dailyEntries.push({
           id: p.id,
@@ -1736,15 +1739,19 @@ export const getGlobalBreakdown: RequestHandler = async (req, res) => {
       if (isMonthly) {
         monthly.total.amount += p.amount;
         monthly.total.count += 1;
-        monthly.methods[p.paymentMethod].amount += p.amount;
-        monthly.methods[p.paymentMethod].count += 1;
+        if (monthly.methods[method]) {
+          monthly.methods[method].amount += p.amount;
+          monthly.methods[method].count += 1;
+        }
         monthlyPrestationCount++;
       }
       if (isRange) {
         range.total.amount += p.amount;
         range.total.count += 1;
-        range.methods[p.paymentMethod].amount += p.amount;
-        range.methods[p.paymentMethod].count += 1;
+        if (range.methods[method]) {
+          range.methods[method].amount += p.amount;
+          range.methods[method].count += 1;
+        }
         rangePrestationCount++;
         rangeEntries.push({
           id: p.id,
@@ -1762,10 +1769,13 @@ export const getGlobalBreakdown: RequestHandler = async (req, res) => {
       const isDaily = ts === todayStart;
       const isMonthly = isSameMonthParis(prod.timestamp, ref);
       const isRange = startDateMs && endDateMs && prod.timestamp >= startDateMs && prod.timestamp <= endDateMs;
+      const prodMethod = prod.paymentMethod as PaymentMethod;
 
       if (isDaily) {
         daily.total.amount += prod.amount;
-        daily.methods[prod.paymentMethod].amount += prod.amount;
+        if (daily.methods[prodMethod]) {
+          daily.methods[prodMethod].amount += prod.amount;
+        }
         dailyProductCount++;
         dailyEntries.push({
           id: prod.id,
@@ -1778,12 +1788,16 @@ export const getGlobalBreakdown: RequestHandler = async (req, res) => {
       }
       if (isMonthly) {
         monthly.total.amount += prod.amount;
-        monthly.methods[prod.paymentMethod].amount += prod.amount;
+        if (monthly.methods[prodMethod]) {
+          monthly.methods[prodMethod].amount += prod.amount;
+        }
         monthlyProductCount++;
       }
       if (isRange) {
         range.total.amount += prod.amount;
-        range.methods[prod.paymentMethod].amount += prod.amount;
+        if (range.methods[prodMethod]) {
+          range.methods[prodMethod].amount += prod.amount;
+        }
         rangeProductCount++;
         rangeEntries.push({
           id: prod.id,
