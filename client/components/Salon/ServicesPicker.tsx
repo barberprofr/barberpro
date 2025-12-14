@@ -142,7 +142,7 @@ export default function ServicesPicker({ onServiceSelect, onReset, externalOpen,
 
   return (
     <Dialog open={popoverOpen} onOpenChange={setPopoverOpen}>
-      <DialogContent className="max-w-[min(95vw,48rem)] rounded-2xl border border-white/25 bg-black/15 shadow-[0_40px_95px_rgba(8,15,40,0.3)] backdrop-blur-[4px] p-0">
+      <DialogContent className="max-w-[min(90vw,42rem)] rounded-2xl border border-white/25 bg-black/15 shadow-[0_40px_95px_rgba(8,15,40,0.3)] backdrop-blur-[4px] p-0">
         <DialogHeader className="px-4 pt-4 pb-2">
           <DialogTitle className="text-xl font-black text-white">PRESTATIONS & PRODUITS</DialogTitle>
         </DialogHeader>
@@ -166,7 +166,7 @@ export default function ServicesPicker({ onServiceSelect, onReset, externalOpen,
             </AnimatePresence>
 
             {/* Scrollable container for both services and products */}
-            <motion.div layout className="space-y-4 max-h-[75vh] overflow-y-auto p-4 elegant-scrollbar">
+            <motion.div layout className="space-y-4 max-h-[68vh] overflow-y-auto p-4 elegant-scrollbar">
               {/* Services section */}
               {hasServices && (
                 <div className="space-y-2">
