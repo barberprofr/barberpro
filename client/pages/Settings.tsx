@@ -1324,8 +1324,21 @@ export default function Settings() {
     Object.values(openDaily).some(Boolean) || Object.values(openMonthly).some(Boolean) ||
     isDayUsageVisible || isMonthUsageVisible;
 
+  const [isDragging, setIsDragging] = useState(false);
+
   useEffect(() => {
-    if (!hasAnyPopupOpen) return;
+    const handleDragStart = () => setIsDragging(true);
+    const handleDragEnd = () => setIsDragging(false);
+    document.addEventListener('dragstart', handleDragStart);
+    document.addEventListener('dragend', handleDragEnd);
+    return () => {
+      document.removeEventListener('dragstart', handleDragStart);
+      document.removeEventListener('dragend', handleDragEnd);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!hasAnyPopupOpen || isDragging) return;
     const handleDocumentClick = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
       const isDraggable = target.closest('[draggable="true"]');
@@ -1337,7 +1350,7 @@ export default function Settings() {
     };
     document.addEventListener('click', handleDocumentClick);
     return () => document.removeEventListener('click', handleDocumentClick);
-  }, [hasAnyPopupOpen]);
+  }, [hasAnyPopupOpen, isDragging]);
 
   const handleSalonNameSave = () => {
     const trimmed = salonNameDraft.trim();
