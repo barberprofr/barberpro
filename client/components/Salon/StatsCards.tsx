@@ -238,8 +238,8 @@ export default function StatsCards() {
               whileTap={{ scale: 0.97 }}
               className="relative flex flex-col items-center justify-center w-[100px] h-[100px] rounded-2xl border-2 border-amber-400/60 bg-transparent backdrop-blur-sm shadow-[0_8px_32px_rgba(0,0,0,0.4)] overflow-hidden transition-all duration-300 hover:border-amber-300 hover:shadow-[0_0_25px_rgba(245,158,11,0.4)]"
             >
-              <div className="relative flex items-center justify-center w-14 h-14 rounded-full overflow-hidden bg-amber-900/30 shadow-[0_4px_20px_rgba(245,158,11,0.5)]">
-                <img src="/assets/barber-logo.jpg" alt="Coiffeurs" className="h-10 w-10 object-contain" />
+              <div className="relative flex items-center justify-center w-14 h-14 rounded-full overflow-hidden bg-transparent">
+                <img src="/assets/barber-logo.jpg" alt="Coiffeurs" className="h-10 w-10 object-contain rounded-full" style={{ mixBlendMode: 'luminosity' }} />
               </div>
               <span className="mt-2 text-[10px] font-semibold text-amber-400 uppercase tracking-wider">Coiffeurs</span>
             </motion.button>
