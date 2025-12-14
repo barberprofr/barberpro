@@ -474,7 +474,7 @@ export function StylistMonthly({ id, commissionPct, stylistName }: { id: string;
             {mode === "today" ? null : mode === "month" ? (
                 <div className="flex flex-wrap items-center gap-2 text-sm">
                     <span className="text-white/80 font-medium">Mois</span>
-                    <input type="month" value={month} onChange={(e) => setMonth(e.target.value)} className="border rounded-lg px-3 py-1.5 bg-slate-900/80 border-slate-600 text-white outline-none focus:border-cyan-400 transition-colors text-sm" />
+                    <input type="month" value={month} onChange={(e) => setMonth(e.target.value)} className="border rounded-lg px-3 py-1.5 bg-slate-900/80 border-slate-600 text-white outline-none focus:border-cyan-400 transition-colors text-sm min-w-[10rem]" />
                     <button
                         onClick={() => setMonth(defMonth)}
                         className={cn(
