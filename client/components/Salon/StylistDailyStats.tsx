@@ -80,8 +80,8 @@ function StylistEncaissements({ id, date }: { id: string; date?: string }) {
     return (
         <div className="text-sm border border-gray-700 rounded-md overflow-hidden bg-slate-900/70 w-full">
             <div className="overflow-x-auto">
-                <div className="min-w-[280px]">
-                    <div className="grid grid-cols-[60px_1fr_1fr] bg-slate-800/80 text-gray-100 px-2 py-2 font-medium text-xs sm:text-sm sm:px-3">
+                <div className="min-w-[380px]">
+                    <div className="grid grid-cols-[60px_minmax(120px,1fr)_minmax(100px,1fr)] bg-slate-800/80 text-gray-100 px-3 py-2 font-medium text-xs sm:text-sm sm:px-4">
                         <div>Heure</div>
                         <div>Mode</div>
                         <div>Montant</div>
@@ -139,7 +139,7 @@ function RangeTransactionRow({ entry: e, onUpdate }: { entry: any, onUpdate: (id
     };
 
     return (
-        <div className="grid grid-cols-[70px_1fr_1fr] px-2 py-2 border-t border-gray-700 items-center text-xs sm:text-sm sm:px-3">
+        <div className="grid grid-cols-[70px_minmax(120px,1fr)_minmax(100px,1fr)] px-3 py-2 border-t border-gray-700 items-center text-xs sm:text-sm sm:px-4">
             <div className="flex flex-col">
                 <span className="font-light text-white">{fmtTime(e.timestamp)}</span>
             </div>
@@ -199,8 +199,8 @@ function StylistRangeEncaissements({ entries, onUpdate }: { entries: any[]; onUp
     return (
         <div className="text-sm border border-gray-700 rounded-md overflow-hidden bg-slate-900/70 w-full">
             <div className="overflow-x-auto">
-                <div className="min-w-[300px]">
-                    <div className="grid grid-cols-[70px_1fr_1fr] bg-slate-800/80 text-gray-100 px-2 py-2 font-medium text-xs sm:text-sm sm:px-3">
+                <div className="min-w-[380px]">
+                    <div className="grid grid-cols-[70px_minmax(120px,1fr)_minmax(100px,1fr)] bg-slate-800/80 text-gray-100 px-3 py-2 font-medium text-xs sm:text-sm sm:px-4">
                         <div>Heure</div>
                         <div>Mode</div>
                         <div>Montant</div>
@@ -250,7 +250,7 @@ function TransactionRow({ entry: e, fmt, onUpdate }: { entry: any, fmt: (ts: num
     };
 
     return (
-        <div className="grid grid-cols-[60px_1fr_1fr] px-2 py-2 border-t border-gray-700 items-center text-xs sm:text-sm sm:px-3">
+        <div className="grid grid-cols-[60px_minmax(120px,1fr)_minmax(100px,1fr)] px-3 py-2 border-t border-gray-700 items-center text-xs sm:text-sm sm:px-4">
             <div>{fmt(e.timestamp)}</div>
             <div>
                 <Popover open={open} onOpenChange={setOpen}>
