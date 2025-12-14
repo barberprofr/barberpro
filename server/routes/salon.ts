@@ -297,7 +297,6 @@ function makeScope() {
       cash: emptyBreakdown(),
       check: emptyBreakdown(),
       card: emptyBreakdown(),
-      mixed: emptyBreakdown(),
     } as Record<PaymentMethod, { amount: number; count: number }>,
   };
 }
@@ -2452,7 +2451,6 @@ export const reportByDay: RequestHandler = async (req, res) => {
           cash: { amount: 0, count: 0 },
           check: { amount: 0, count: 0 },
           card: { amount: 0, count: 0 },
-          mixed: { amount: 0, count: 0 },
         };
         dailyMethodTotals.set(dStart, scope);
       }
@@ -2479,7 +2477,6 @@ export const reportByDay: RequestHandler = async (req, res) => {
           cash: { amount: 0, count: 0 },
           check: { amount: 0, count: 0 },
           card: { amount: 0, count: 0 },
-          mixed: { amount: 0, count: 0 },
         };
         dailyMethodTotals.set(dStart, scope);
       }
@@ -2500,7 +2497,6 @@ export const reportByDay: RequestHandler = async (req, res) => {
         cash: { amount: methodTotals?.cash.amount ?? 0, count: methodTotals?.cash.count ?? 0 },
         check: { amount: methodTotals?.check.amount ?? 0, count: methodTotals?.check.count ?? 0 },
         card: { amount: methodTotals?.card.amount ?? 0, count: methodTotals?.card.count ?? 0 },
-        mixed: { amount: methodTotals?.mixed.amount ?? 0, count: methodTotals?.mixed.count ?? 0 },
       };
       days.push({ date: iso, amount: v.amount, count: v.count, salary: salaryTotals.get(key) || 0, productCount: dailyProductCounts.get(key) || 0, methods });
     }

@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
-export type PaymentMethod = "cash" | "check" | "card" | "mixed";
+export type PaymentMethod = "cash" | "check" | "card";
 
 // Interfaces étendues pour Mongoose
 export interface IStylist extends Document {
@@ -157,7 +157,7 @@ const PrestationSchema = new Schema({
     paymentMethod: {
         type: String,
         required: true,
-        enum: ["cash", "check", "card", "mixed"]
+        enum: ["cash", "check", "card"]
     },
     timestamp: { type: Number, required: true },
     pointsPercent: { type: Number, required: true, min: 0, max: 100 },
@@ -214,7 +214,7 @@ const ProductSchema = new Schema({
     paymentMethod: {
         type: String,
         required: true,
-        enum: ["cash", "check", "card", "mixed"]
+        enum: ["cash", "check", "card"]
     },
     timestamp: { type: Number, required: true },
     productName: { type: String },
