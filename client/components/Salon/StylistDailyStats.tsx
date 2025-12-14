@@ -115,17 +115,19 @@ function RangeTransactionRow({ entry: e, onUpdate }: { entry: any, onUpdate: (id
             case "cash": return { border: "border-emerald-500/30", bg: "bg-gradient-to-br from-emerald-900/40 via-slate-900/60 to-slate-900/80", circle: "border-emerald-400/40 bg-emerald-500/20", iconColor: "text-emerald-300" };
             case "check": return { border: "border-amber-500/30", bg: "bg-gradient-to-br from-amber-900/40 via-slate-900/60 to-slate-900/80", circle: "border-amber-400/40 bg-amber-500/20", iconColor: "text-amber-300" };
             case "card": return { border: "border-indigo-500/30", bg: "bg-gradient-to-br from-indigo-900/40 via-slate-900/60 to-slate-900/80", circle: "border-indigo-400/40 bg-indigo-500/20", iconColor: "text-indigo-300" };
+            case "mixed": return { border: "border-purple-500/30", bg: "bg-gradient-to-br from-purple-900/40 via-slate-900/60 to-slate-900/80", circle: "border-purple-400/40 bg-purple-500/20", iconColor: "text-purple-300" };
             default: return { border: "border-indigo-500/30", bg: "bg-gradient-to-br from-indigo-900/40 via-slate-900/60 to-slate-900/80", circle: "border-indigo-400/40 bg-indigo-500/20", iconColor: "text-indigo-300" };
         }
     };
     const style = getPaymentStyle(e.paymentMethod);
 
-    const renderIcon = (method: string) => {
+    const renderIcon = (method: string, iconClass?: string) => {
+        const cls = iconClass || "h-3 w-3";
         switch (method) {
-            case "card": return <svg className="h-3 w-3 text-indigo-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><rect x="2" y="5" width="20" height="14" rx="2" /><path d="M2 10h20" /></svg>;
-            case "check": return <svg className="h-3 w-3 text-amber-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>;
-            case "cash": return <svg className="h-3 w-3 text-emerald-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><rect x="2" y="6" width="20" height="12" rx="2" /><circle cx="12" cy="12" r="3" /><path d="M12 10v4m-1-3.5h2m-2 3h2" /></svg>;
-            default: return <svg className="h-3 w-3 text-indigo-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><rect x="2" y="5" width="20" height="14" rx="2" /><path d="M2 10h20" /></svg>;
+            case "card": return <svg className={`${cls} text-indigo-300`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><rect x="2" y="5" width="20" height="14" rx="2" /><path d="M2 10h20" /></svg>;
+            case "check": return <svg className={`${cls} text-amber-300`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>;
+            case "cash": return <svg className={`${cls} text-emerald-300`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><rect x="2" y="6" width="20" height="12" rx="2" /><circle cx="12" cy="12" r="3" /><path d="M12 10v4m-1-3.5h2m-2 3h2" /></svg>;
+            default: return <svg className={`${cls} text-indigo-300`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><rect x="2" y="5" width="20" height="14" rx="2" /><path d="M2 10h20" /></svg>;
         }
     };
 
@@ -134,8 +136,46 @@ function RangeTransactionRow({ entry: e, onUpdate }: { entry: any, onUpdate: (id
             case "cash": return "ESPÈCES";
             case "card": return "CARTE";
             case "check": return <span className="flex flex-col leading-tight text-[7px]"><span>Planity</span><span>Treatwell</span></span>;
+            case "mixed": return "MIXTE";
             default: return "CARTE";
         }
+    };
+
+    const getMixedMethods = () => {
+        if (e.paymentMethod !== "mixed" || !e.paymentBreakdown) return [];
+        const methods: string[] = [];
+        if (e.paymentBreakdown.cash && e.paymentBreakdown.cash > 0) methods.push("cash");
+        if (e.paymentBreakdown.card && e.paymentBreakdown.card > 0) methods.push("card");
+        if (e.paymentBreakdown.check && e.paymentBreakdown.check > 0) methods.push("check");
+        return methods;
+    };
+
+    const mixedMethods = getMixedMethods();
+    const isMixed = e.paymentMethod === "mixed" && mixedMethods.length > 0;
+
+    const renderMixedIcons = () => {
+        return (
+            <div className="flex items-center gap-0.5">
+                {mixedMethods.map((method) => (
+                    <span key={method} className={cn(
+                        "inline-flex h-4 w-4 items-center justify-center rounded-full border",
+                        method === "cash" ? "border-emerald-400/40 bg-emerald-500/20" :
+                        method === "card" ? "border-indigo-400/40 bg-indigo-500/20" :
+                        "border-amber-400/40 bg-amber-500/20"
+                    )}>
+                        {renderIcon(method, "h-2.5 w-2.5")}
+                    </span>
+                ))}
+            </div>
+        );
+    };
+
+    const renderMixedLabel = () => {
+        const labels: string[] = [];
+        if (mixedMethods.includes("cash")) labels.push("ESP");
+        if (mixedMethods.includes("card")) labels.push("CB");
+        if (mixedMethods.includes("check")) labels.push("PLA");
+        return labels.join("+");
     };
 
     return (
@@ -144,48 +184,60 @@ function RangeTransactionRow({ entry: e, onUpdate }: { entry: any, onUpdate: (id
                 <span className="font-light text-white">{fmtTime(e.timestamp)}</span>
             </div>
             <div>
-                <Popover open={open} onOpenChange={setOpen}>
-                    <PopoverTrigger asChild>
-                        <button className={cn(
-                            "flex items-center gap-1.5 rounded-lg border px-2 py-1 transition-all hover:scale-105 focus:outline-none",
-                            style.border, style.bg
-                        )}>
-                            <span className={cn("inline-flex h-5 w-5 items-center justify-center rounded-full border", style.circle)}>
-                                {renderIcon(e.paymentMethod)}
-                            </span>
-                            <span className="text-[9px] font-semibold uppercase tracking-wide text-white/80">
-                                {getLabel(e.paymentMethod)}
-                            </span>
-                        </button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-44 p-1.5 bg-slate-900/95 border-slate-700 backdrop-blur-xl">
-                        <div className="grid gap-1">
-                            {(["cash", "check", "card"] as const).map((method) => {
-                                const methodStyle = getPaymentStyle(method);
-                                return (
-                                    <button
-                                        key={method}
-                                        onClick={() => {
-                                            onUpdate(e.id, e.kind || "prestation", method);
-                                            setOpen(false);
-                                        }}
-                                        className={cn(
-                                            "flex items-center gap-2 w-full px-2 py-1.5 rounded-lg transition-all",
-                                            e.paymentMethod === method ? "bg-slate-800 border border-white/20" : "hover:bg-slate-800/50"
-                                        )}
-                                    >
-                                        <span className={cn("inline-flex h-5 w-5 items-center justify-center rounded-full border", methodStyle.circle)}>
-                                            {renderIcon(method)}
-                                        </span>
-                                        <span className="text-[10px] font-semibold uppercase tracking-wide text-white/80">
-                                            {getLabel(method)}
-                                        </span>
-                                    </button>
-                                );
-                            })}
-                        </div>
-                    </PopoverContent>
-                </Popover>
+                {isMixed ? (
+                    <div className={cn(
+                        "flex items-center gap-1.5 rounded-lg border px-2 py-1",
+                        style.border, style.bg
+                    )}>
+                        {renderMixedIcons()}
+                        <span className="text-[8px] font-semibold uppercase tracking-wide text-white/80">
+                            {renderMixedLabel()}
+                        </span>
+                    </div>
+                ) : (
+                    <Popover open={open} onOpenChange={setOpen}>
+                        <PopoverTrigger asChild>
+                            <button className={cn(
+                                "flex items-center gap-1.5 rounded-lg border px-2 py-1 transition-all hover:scale-105 focus:outline-none",
+                                style.border, style.bg
+                            )}>
+                                <span className={cn("inline-flex h-5 w-5 items-center justify-center rounded-full border", style.circle)}>
+                                    {renderIcon(e.paymentMethod)}
+                                </span>
+                                <span className="text-[9px] font-semibold uppercase tracking-wide text-white/80">
+                                    {getLabel(e.paymentMethod)}
+                                </span>
+                            </button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-44 p-1.5 bg-slate-900/95 border-slate-700 backdrop-blur-xl">
+                            <div className="grid gap-1">
+                                {(["cash", "check", "card"] as const).map((method) => {
+                                    const methodStyle = getPaymentStyle(method);
+                                    return (
+                                        <button
+                                            key={method}
+                                            onClick={() => {
+                                                onUpdate(e.id, e.kind || "prestation", method);
+                                                setOpen(false);
+                                            }}
+                                            className={cn(
+                                                "flex items-center gap-2 w-full px-2 py-1.5 rounded-lg transition-all",
+                                                e.paymentMethod === method ? "bg-slate-800 border border-white/20" : "hover:bg-slate-800/50"
+                                            )}
+                                        >
+                                            <span className={cn("inline-flex h-5 w-5 items-center justify-center rounded-full border", methodStyle.circle)}>
+                                                {renderIcon(method)}
+                                            </span>
+                                            <span className="text-[10px] font-semibold uppercase tracking-wide text-white/80">
+                                                {getLabel(method)}
+                                            </span>
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </PopoverContent>
+                    </Popover>
+                )}
             </div>
             <div className="min-w-0">
                 <span className="font-medium">{eur.format(e.amount)}</span>
@@ -226,17 +278,19 @@ function TransactionRow({ entry: e, fmt, onUpdate }: { entry: any, fmt: (ts: num
             case "cash": return { border: "border-emerald-500/30", bg: "bg-gradient-to-br from-emerald-900/40 via-slate-900/60 to-slate-900/80", circle: "border-emerald-400/40 bg-emerald-500/20" };
             case "check": return { border: "border-amber-500/30", bg: "bg-gradient-to-br from-amber-900/40 via-slate-900/60 to-slate-900/80", circle: "border-amber-400/40 bg-amber-500/20" };
             case "card": return { border: "border-indigo-500/30", bg: "bg-gradient-to-br from-indigo-900/40 via-slate-900/60 to-slate-900/80", circle: "border-indigo-400/40 bg-indigo-500/20" };
+            case "mixed": return { border: "border-purple-500/30", bg: "bg-gradient-to-br from-purple-900/40 via-slate-900/60 to-slate-900/80", circle: "border-purple-400/40 bg-purple-500/20" };
             default: return { border: "border-indigo-500/30", bg: "bg-gradient-to-br from-indigo-900/40 via-slate-900/60 to-slate-900/80", circle: "border-indigo-400/40 bg-indigo-500/20" };
         }
     };
     const style = getPaymentStyle(e.paymentMethod);
 
-    const renderIcon = (method: string) => {
+    const renderIcon = (method: string, iconClass?: string) => {
+        const cls = iconClass || "h-3 w-3";
         switch (method) {
-            case "card": return <svg className="h-3 w-3 text-indigo-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><rect x="2" y="5" width="20" height="14" rx="2" /><path d="M2 10h20" /></svg>;
-            case "check": return <svg className="h-3 w-3 text-amber-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>;
-            case "cash": return <svg className="h-3 w-3 text-emerald-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><rect x="2" y="6" width="20" height="12" rx="2" /><circle cx="12" cy="12" r="3" /><path d="M12 10v4m-1-3.5h2m-2 3h2" /></svg>;
-            default: return <svg className="h-3 w-3 text-indigo-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><rect x="2" y="5" width="20" height="14" rx="2" /><path d="M2 10h20" /></svg>;
+            case "card": return <svg className={`${cls} text-indigo-300`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><rect x="2" y="5" width="20" height="14" rx="2" /><path d="M2 10h20" /></svg>;
+            case "check": return <svg className={`${cls} text-amber-300`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>;
+            case "cash": return <svg className={`${cls} text-emerald-300`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><rect x="2" y="6" width="20" height="12" rx="2" /><circle cx="12" cy="12" r="3" /><path d="M12 10v4m-1-3.5h2m-2 3h2" /></svg>;
+            default: return <svg className={`${cls} text-indigo-300`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><rect x="2" y="5" width="20" height="14" rx="2" /><path d="M2 10h20" /></svg>;
         }
     };
 
@@ -245,56 +299,106 @@ function TransactionRow({ entry: e, fmt, onUpdate }: { entry: any, fmt: (ts: num
             case "cash": return "ESPÈCES";
             case "card": return "CARTE";
             case "check": return <span className="flex flex-col leading-tight text-[7px]"><span>Planity</span><span>Treatwell</span></span>;
+            case "mixed": return "MIXTE";
             default: return "CARTE";
         }
+    };
+
+    const getMixedMethods = () => {
+        if (e.paymentMethod !== "mixed" || !e.paymentBreakdown) return [];
+        const methods: string[] = [];
+        if (e.paymentBreakdown.cash && e.paymentBreakdown.cash > 0) methods.push("cash");
+        if (e.paymentBreakdown.card && e.paymentBreakdown.card > 0) methods.push("card");
+        if (e.paymentBreakdown.check && e.paymentBreakdown.check > 0) methods.push("check");
+        return methods;
+    };
+
+    const mixedMethods = getMixedMethods();
+    const isMixed = e.paymentMethod === "mixed" && mixedMethods.length > 0;
+
+    const renderMixedIcons = () => {
+        return (
+            <div className="flex items-center gap-0.5">
+                {mixedMethods.map((method, idx) => (
+                    <span key={method} className={cn(
+                        "inline-flex h-4 w-4 items-center justify-center rounded-full border",
+                        method === "cash" ? "border-emerald-400/40 bg-emerald-500/20" :
+                        method === "card" ? "border-indigo-400/40 bg-indigo-500/20" :
+                        "border-amber-400/40 bg-amber-500/20"
+                    )}>
+                        {renderIcon(method, "h-2.5 w-2.5")}
+                    </span>
+                ))}
+            </div>
+        );
+    };
+
+    const renderMixedLabel = () => {
+        const labels: string[] = [];
+        if (mixedMethods.includes("cash")) labels.push("ESP");
+        if (mixedMethods.includes("card")) labels.push("CB");
+        if (mixedMethods.includes("check")) labels.push("PLA");
+        return labels.join("+");
     };
 
     return (
         <div className="grid grid-cols-[60px_1fr_1fr] px-2 py-2 border-t border-gray-700 items-center text-xs sm:text-sm sm:px-3">
             <div>{fmt(e.timestamp)}</div>
             <div>
-                <Popover open={open} onOpenChange={setOpen}>
-                    <PopoverTrigger asChild>
-                        <button className={cn(
-                            "flex items-center gap-1.5 rounded-lg border px-2 py-1 transition-all hover:scale-105 focus:outline-none",
-                            style.border, style.bg
-                        )}>
-                            <span className={cn("inline-flex h-5 w-5 items-center justify-center rounded-full border", style.circle)}>
-                                {renderIcon(e.paymentMethod)}
-                            </span>
-                            <span className="text-[9px] font-semibold uppercase tracking-wide text-white/80">
-                                {getLabel(e.paymentMethod)}
-                            </span>
-                        </button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-44 p-1.5 bg-slate-900/95 border-slate-700 backdrop-blur-xl">
-                        <div className="grid gap-1">
-                            {(["cash", "check", "card"] as const).map((method) => {
-                                const methodStyle = getPaymentStyle(method);
-                                return (
-                                    <button
-                                        key={method}
-                                        onClick={() => {
-                                            onUpdate(e.id, e.kind || "prestation", method);
-                                            setOpen(false);
-                                        }}
-                                        className={cn(
-                                            "flex items-center gap-2 w-full px-2 py-1.5 rounded-lg transition-all",
-                                            e.paymentMethod === method ? "bg-slate-800 border border-white/20" : "hover:bg-slate-800/50"
-                                        )}
-                                    >
-                                        <span className={cn("inline-flex h-5 w-5 items-center justify-center rounded-full border", methodStyle.circle)}>
-                                            {renderIcon(method)}
-                                        </span>
-                                        <span className="text-[10px] font-semibold uppercase tracking-wide text-white/80">
-                                            {getLabel(method)}
-                                        </span>
-                                    </button>
-                                );
-                            })}
-                        </div>
-                    </PopoverContent>
-                </Popover>
+                {isMixed ? (
+                    <div className={cn(
+                        "flex items-center gap-1.5 rounded-lg border px-2 py-1",
+                        style.border, style.bg
+                    )}>
+                        {renderMixedIcons()}
+                        <span className="text-[8px] font-semibold uppercase tracking-wide text-white/80">
+                            {renderMixedLabel()}
+                        </span>
+                    </div>
+                ) : (
+                    <Popover open={open} onOpenChange={setOpen}>
+                        <PopoverTrigger asChild>
+                            <button className={cn(
+                                "flex items-center gap-1.5 rounded-lg border px-2 py-1 transition-all hover:scale-105 focus:outline-none",
+                                style.border, style.bg
+                            )}>
+                                <span className={cn("inline-flex h-5 w-5 items-center justify-center rounded-full border", style.circle)}>
+                                    {renderIcon(e.paymentMethod)}
+                                </span>
+                                <span className="text-[9px] font-semibold uppercase tracking-wide text-white/80">
+                                    {getLabel(e.paymentMethod)}
+                                </span>
+                            </button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-44 p-1.5 bg-slate-900/95 border-slate-700 backdrop-blur-xl">
+                            <div className="grid gap-1">
+                                {(["cash", "check", "card"] as const).map((method) => {
+                                    const methodStyle = getPaymentStyle(method);
+                                    return (
+                                        <button
+                                            key={method}
+                                            onClick={() => {
+                                                onUpdate(e.id, e.kind || "prestation", method);
+                                                setOpen(false);
+                                            }}
+                                            className={cn(
+                                                "flex items-center gap-2 w-full px-2 py-1.5 rounded-lg transition-all",
+                                                e.paymentMethod === method ? "bg-slate-800 border border-white/20" : "hover:bg-slate-800/50"
+                                            )}
+                                        >
+                                            <span className={cn("inline-flex h-5 w-5 items-center justify-center rounded-full border", methodStyle.circle)}>
+                                                {renderIcon(method)}
+                                            </span>
+                                            <span className="text-[10px] font-semibold uppercase tracking-wide text-white/80">
+                                                {getLabel(method)}
+                                            </span>
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </PopoverContent>
+                    </Popover>
+                )}
             </div>
             <div className="min-w-0">
                 <span className="font-medium">{eur.format(e.amount)}</span>

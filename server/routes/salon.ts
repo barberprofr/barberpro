@@ -320,16 +320,23 @@ async function aggregateByPayment(salonId: string, stylistId: string, refNowMs: 
   const prestationDaily = makeScope();
   const prestationMonthly = makeScope();
   const prestationRange = makeScope();
-  const dailyEntries: { id: string; amount: number; paymentMethod: PaymentMethod; timestamp: number; kind: "prestation" | "produit"; name?: string }[] = [];
-  const rangeEntries: { id: string; amount: number; paymentMethod: PaymentMethod; timestamp: number; kind: "prestation" | "produit"; name?: string }[] = [];
+  const dailyEntries: { id: string; amount: number; paymentMethod: PaymentMethod; paymentBreakdown?: { cash?: number; card?: number; check?: number }; timestamp: number; kind: "prestation" | "produit"; name?: string }[] = [];
+  const rangeEntries: { id: string; amount: number; paymentMethod: PaymentMethod; paymentBreakdown?: { cash?: number; card?: number; check?: number }; timestamp: number; kind: "prestation" | "produit"; name?: string }[] = [];
   let rangeProductCount = 0;
 
   for (const p of prestations) {
     const inc = (scope: ReturnType<typeof makeScope>) => {
       scope.total.amount += p.amount;
       scope.total.count += 1;
-      scope.methods[p.paymentMethod].amount += p.amount;
-      scope.methods[p.paymentMethod].count += 1;
+      if (p.paymentMethod === "mixed" && p.paymentBreakdown) {
+        if (p.paymentBreakdown.cash) scope.methods.cash.amount += p.paymentBreakdown.cash;
+        if (p.paymentBreakdown.card) scope.methods.card.amount += p.paymentBreakdown.card;
+        if (p.paymentBreakdown.check) scope.methods.check.amount += p.paymentBreakdown.check;
+        scope.methods.mixed.count += 1;
+      } else {
+        scope.methods[p.paymentMethod].amount += p.amount;
+        scope.methods[p.paymentMethod].count += 1;
+      }
     };
 
     if (startOfDayParis(p.timestamp) === todayStart) {
@@ -339,6 +346,7 @@ async function aggregateByPayment(salonId: string, stylistId: string, refNowMs: 
         id: p.id,
         amount: p.amount,
         paymentMethod: p.paymentMethod,
+        paymentBreakdown: p.paymentBreakdown ? { cash: p.paymentBreakdown.cash, card: p.paymentBreakdown.card, check: p.paymentBreakdown.check } : undefined,
         timestamp: p.timestamp,
         kind: "prestation",
         name: p.serviceName
@@ -355,6 +363,7 @@ async function aggregateByPayment(salonId: string, stylistId: string, refNowMs: 
         id: p.id,
         amount: p.amount,
         paymentMethod: p.paymentMethod,
+        paymentBreakdown: p.paymentBreakdown ? { cash: p.paymentBreakdown.cash, card: p.paymentBreakdown.card, check: p.paymentBreakdown.check } : undefined,
         timestamp: p.timestamp,
         kind: "prestation",
         name: p.serviceName
@@ -365,7 +374,13 @@ async function aggregateByPayment(salonId: string, stylistId: string, refNowMs: 
   for (const prod of products) {
     const incAmount = (scope: ReturnType<typeof makeScope>) => {
       scope.total.amount += prod.amount;
-      scope.methods[prod.paymentMethod].amount += prod.amount;
+      if (prod.paymentMethod === "mixed" && prod.paymentBreakdown) {
+        if (prod.paymentBreakdown.cash) scope.methods.cash.amount += prod.paymentBreakdown.cash;
+        if (prod.paymentBreakdown.card) scope.methods.card.amount += prod.paymentBreakdown.card;
+        if (prod.paymentBreakdown.check) scope.methods.check.amount += prod.paymentBreakdown.check;
+      } else {
+        scope.methods[prod.paymentMethod].amount += prod.amount;
+      }
     };
 
     if (startOfDayParis(prod.timestamp) === todayStart) {
@@ -374,6 +389,7 @@ async function aggregateByPayment(salonId: string, stylistId: string, refNowMs: 
         id: prod.id,
         amount: prod.amount,
         paymentMethod: prod.paymentMethod,
+        paymentBreakdown: prod.paymentBreakdown ? { cash: prod.paymentBreakdown.cash, card: prod.paymentBreakdown.card, check: prod.paymentBreakdown.check } : undefined,
         timestamp: prod.timestamp,
         kind: "produit",
         name: prod.productName
@@ -387,6 +403,7 @@ async function aggregateByPayment(salonId: string, stylistId: string, refNowMs: 
         id: prod.id,
         amount: prod.amount,
         paymentMethod: prod.paymentMethod,
+        paymentBreakdown: prod.paymentBreakdown ? { cash: prod.paymentBreakdown.cash, card: prod.paymentBreakdown.card, check: prod.paymentBreakdown.check } : undefined,
         timestamp: prod.timestamp,
         kind: "produit",
         name: prod.productName
@@ -428,8 +445,15 @@ async function aggregateAllPayments(salonId: string) {
     const inc = (scope: ReturnType<typeof makeScope>) => {
       scope.total.amount += p.amount;
       scope.total.count += 1;
-      scope.methods[p.paymentMethod].amount += p.amount;
-      scope.methods[p.paymentMethod].count += 1;
+      if (p.paymentMethod === "mixed" && p.paymentBreakdown) {
+        if (p.paymentBreakdown.cash) scope.methods.cash.amount += p.paymentBreakdown.cash;
+        if (p.paymentBreakdown.card) scope.methods.card.amount += p.paymentBreakdown.card;
+        if (p.paymentBreakdown.check) scope.methods.check.amount += p.paymentBreakdown.check;
+        scope.methods.mixed.count += 1;
+      } else {
+        scope.methods[p.paymentMethod].amount += p.amount;
+        scope.methods[p.paymentMethod].count += 1;
+      }
     };
 
     if (startOfDayParis(p.timestamp) === todayStart) inc(daily);
@@ -439,7 +463,13 @@ async function aggregateAllPayments(salonId: string) {
   for (const prod of products) {
     const incAmount = (scope: ReturnType<typeof makeScope>) => {
       scope.total.amount += prod.amount;
-      scope.methods[prod.paymentMethod].amount += prod.amount;
+      if (prod.paymentMethod === "mixed" && prod.paymentBreakdown) {
+        if (prod.paymentBreakdown.cash) scope.methods.cash.amount += prod.paymentBreakdown.cash;
+        if (prod.paymentBreakdown.card) scope.methods.card.amount += prod.paymentBreakdown.card;
+        if (prod.paymentBreakdown.check) scope.methods.check.amount += prod.paymentBreakdown.check;
+      } else {
+        scope.methods[prod.paymentMethod].amount += prod.amount;
+      }
     };
 
     if (startOfDayParis(prod.timestamp) === todayStart) incAmount(daily);
@@ -1410,11 +1440,12 @@ export const createPrestation: RequestHandler = async (req, res) => {
     const body = await parseRequestBody(req);
     const salonId = getSalonId(req);
     const settings = await getSettings(salonId);
-    const { stylistId, clientId, amount, paymentMethod, timestamp, pointsPercent, serviceName, serviceId } = body as {
+    const { stylistId, clientId, amount, paymentMethod, paymentBreakdown, timestamp, pointsPercent, serviceName, serviceId } = body as {
       stylistId?: string;
       clientId?: string;
       amount?: number;
       paymentMethod?: PaymentMethod;
+      paymentBreakdown?: { cash?: number; card?: number; check?: number };
       timestamp?: number;
       pointsPercent?: number;
       serviceName?: string;
@@ -1448,6 +1479,7 @@ export const createPrestation: RequestHandler = async (req, res) => {
       clientId: finalClientId,
       amount,
       paymentMethod,
+      paymentBreakdown: paymentBreakdown || null,
       timestamp: ts,
       pointsPercent: pct,
       pointsAwarded: points,
@@ -2202,11 +2234,12 @@ export const createProduct: RequestHandler = async (req, res) => {
   try {
     const body = await parseRequestBody(req);
     const salonId = getSalonId(req);
-    const { stylistId, clientId, amount, paymentMethod, timestamp, productName, productTypeId } = body as {
+    const { stylistId, clientId, amount, paymentMethod, paymentBreakdown, timestamp, productName, productTypeId } = body as {
       stylistId?: string;
       clientId?: string;
       amount?: number;
       paymentMethod?: PaymentMethod;
+      paymentBreakdown?: { cash?: number; card?: number; check?: number };
       timestamp?: number;
       productName?: string;
       productTypeId?: string;
@@ -2230,6 +2263,7 @@ export const createProduct: RequestHandler = async (req, res) => {
       clientId: finalClientId,
       amount,
       paymentMethod,
+      paymentBreakdown: paymentBreakdown || null,
       timestamp: ts,
       productName,
       productTypeId,

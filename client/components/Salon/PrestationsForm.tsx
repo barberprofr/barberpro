@@ -736,22 +736,39 @@ export default function PrestationsForm() {
         };
 
         try {
+          // Get products to calculate correct totals for mixed payments
+          const storedProducts = (window as any).__selectedProducts as Array<{ id: string, name: string, price: number, quantity: number }> | undefined;
+          const productsTotal = storedProducts?.reduce((sum, p) => sum + (p.price * p.quantity), 0) || 0;
+          
           if (payment === "mixed") {
+            const cashAmount = parseFloat(mixedCashAmount) || 0;
+            const cardAmount = parseFloat(mixedCardAmount) || 0;
+            
             // Calculate prestations total only (for salary/commission calculation)
             const prestationsTotal = storedPrestations.reduce((sum, p) => sum + (p.price * p.quantity), 0);
+            
+            // Calculate grand total for proportional breakdown
+            const grandTotal = prestationsTotal + productsTotal;
             
             // Build prestation names only (products will be shown separately)
             const prestationNames = storedPrestations.map(p => p.quantity > 1 ? `${p.name} (x${p.quantity})` : p.name);
             const prestationName = prestationNames.join(", ") || undefined;
             
+            // Calculate proportional paymentBreakdown for prestations
+            const prestationRatio = grandTotal > 0 ? prestationsTotal / grandTotal : 1;
+            const prestationCash = Math.round(cashAmount * prestationRatio * 100) / 100;
+            const prestationCard = Math.round(cardAmount * prestationRatio * 100) / 100;
+            
             // Create a SINGLE prestation entry with "mixed" payment method and PRESTATIONS amount only
             // This ensures the prestation counter only increases by 1
             // And the salary is calculated only on prestations (not products)
+            // Include proportional paymentBreakdown for correct cash/card totals in reports
             await addPrestation.mutateAsync({
               stylistId,
               clientId: nextClientId || undefined,
               amount: prestationsTotal,
               paymentMethod: "mixed" as any,
+              paymentBreakdown: { cash: prestationCash, card: prestationCard },
               timestamp: ts,
               serviceName: prestationName,
               serviceId: storedPrestations[0]?.id || undefined
@@ -764,15 +781,25 @@ export default function PrestationsForm() {
 
           // Also submit products if they were selected alongside prestations
           // For mixed payments, products are recorded with their real amount and "mixed" payment method
-          const storedProducts = (window as any).__selectedProducts as Array<{ id: string, name: string, price: number, quantity: number }> | undefined;
           if (storedProducts && storedProducts.length > 0) {
+            const cashAmount = parseFloat(mixedCashAmount) || 0;
+            const cardAmount = parseFloat(mixedCardAmount) || 0;
+            const prestationsTotal = storedPrestations.reduce((sum, p) => sum + (p.price * p.quantity), 0);
+            const grandTotal = prestationsTotal + productsTotal;
+            
             for (const product of storedProducts) {
               for (let i = 0; i < product.quantity; i++) {
+                // Calculate proportional paymentBreakdown for this product
+                const productRatio = grandTotal > 0 ? product.price / grandTotal : 0;
+                const productCash = Math.round(cashAmount * productRatio * 100) / 100;
+                const productCard = Math.round(cardAmount * productRatio * 100) / 100;
+                
                 await addProduct.mutateAsync({
                   stylistId,
                   clientId: nextClientId || undefined,
                   amount: product.price,
                   paymentMethod: payment === "mixed" ? "mixed" : payment as any,
+                  paymentBreakdown: payment === "mixed" ? { cash: productCash, card: productCard } : undefined,
                   timestamp: ts,
                   productName: product.name || undefined,
                   productTypeId: product.id || undefined

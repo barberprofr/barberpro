@@ -34,12 +34,19 @@ export interface IClient extends Document {
     photos: string[];
 }
 
+export interface IPaymentBreakdown {
+    cash?: number;
+    card?: number;
+    check?: number;
+}
+
 export interface IPrestation extends Document {
     id: string;
     stylistId: string;
     clientId?: string;
     amount: number;
     paymentMethod: PaymentMethod;
+    paymentBreakdown?: IPaymentBreakdown;
     timestamp: number;
     pointsPercent: number;
     pointsAwarded: number;
@@ -87,6 +94,7 @@ export interface IProduct extends Document {
     clientId?: string;
     amount: number;
     paymentMethod: PaymentMethod;
+    paymentBreakdown?: IPaymentBreakdown;
     timestamp: number;
     productName?: string;
     productTypeId?: string;
@@ -149,6 +157,12 @@ const ClientSchema = new Schema({
     id: false
 });
 
+const PaymentBreakdownSchema = new Schema({
+    cash: { type: Number, min: 0 },
+    card: { type: Number, min: 0 },
+    check: { type: Number, min: 0 }
+}, { _id: false });
+
 const PrestationSchema = new Schema({
     id: { type: String, required: true, unique: true },
     stylistId: { type: String, required: true, index: true },
@@ -159,6 +173,7 @@ const PrestationSchema = new Schema({
         required: true,
         enum: ["cash", "check", "card", "mixed"]
     },
+    paymentBreakdown: { type: PaymentBreakdownSchema, default: null },
     timestamp: { type: Number, required: true },
     pointsPercent: { type: Number, required: true, min: 0, max: 100 },
     pointsAwarded: { type: Number, required: true, min: 0 },
@@ -216,6 +231,7 @@ const ProductSchema = new Schema({
         required: true,
         enum: ["cash", "check", "card", "mixed"]
     },
+    paymentBreakdown: { type: PaymentBreakdownSchema, default: null },
     timestamp: { type: Number, required: true },
     productName: { type: String },
     productTypeId: { type: String },

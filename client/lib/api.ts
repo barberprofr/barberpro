@@ -131,7 +131,8 @@ async function throwResponseError(res: Response): Promise<never> {
   throw new Error(JSON.stringify({ error: message || `HTTP ${res.status}` }));
 }
 
-export type PaymentMethod = "cash" | "check" | "card";
+export type PaymentMethod = "cash" | "check" | "card" | "mixed";
+export interface IPaymentBreakdownInput { cash?: number; card?: number; check?: number; }
 
 export interface StylistStats {
   dailyAmount: number;
@@ -218,7 +219,7 @@ export function useDashboardSummary() {
 export function useAddPrestation() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (input: { stylistId: string; clientId?: string; amount: number; paymentMethod: PaymentMethod; timestamp: number; pointsPercent?: number; serviceName?: string; serviceId?: string; }) => {
+    mutationFn: async (input: { stylistId: string; clientId?: string; amount: number; paymentMethod: PaymentMethod; paymentBreakdown?: IPaymentBreakdownInput; timestamp: number; pointsPercent?: number; serviceName?: string; serviceId?: string; }) => {
       const res = await apiFetch("/api/prestations", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(input) });
       if (!res.ok) await throwResponseError(res);
       return res.json() as Promise<{ prestation: Prestation; client?: Client }>;
@@ -234,7 +235,7 @@ export function useAddPrestation() {
 export function useAddProduct() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (input: { stylistId: string; clientId?: string; amount: number; paymentMethod: PaymentMethod; timestamp: number; productName?: string; productTypeId?: string; }) => {
+    mutationFn: async (input: { stylistId: string; clientId?: string; amount: number; paymentMethod: PaymentMethod; paymentBreakdown?: IPaymentBreakdownInput; timestamp: number; productName?: string; productTypeId?: string; }) => {
       const res = await apiFetch("/api/products", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(input) });
       if (!res.ok) await throwResponseError(res);
       return res.json() as Promise<{ product: Product; client?: Client }>;
@@ -353,14 +354,16 @@ export function usePointsUsageReport(day?: string, month?: string) {
 
 export type MethodKey = "cash" | "check" | "card";
 export interface PaymentBreakdown { amount: number; count: number }
+export type PaymentMethodWithMixed = "cash" | "check" | "card" | "mixed";
+export interface DailyEntry { id: string; amount: number; paymentMethod: PaymentMethodWithMixed; paymentBreakdown?: { cash?: number; card?: number; check?: number }; timestamp: number; kind: "prestation" | "produit"; name?: string }
 export interface StylistBreakdown {
   daily: { total: PaymentBreakdown; methods: Record<MethodKey, PaymentBreakdown> };
   monthly: { total: PaymentBreakdown; methods: Record<MethodKey, PaymentBreakdown> };
   range?: { total: PaymentBreakdown; methods: Record<MethodKey, PaymentBreakdown> };
   prestationRange?: { total: PaymentBreakdown; methods: Record<MethodKey, PaymentBreakdown> };
   rangeProductCount?: number;
-  dailyEntries?: { id: string; amount: number; paymentMethod: MethodKey; timestamp: number; kind: "prestation" | "produit"; name?: string }[];
-  rangeEntries?: { id: string; amount: number; paymentMethod: MethodKey; timestamp: number; kind: "prestation" | "produit"; name?: string }[];
+  dailyEntries?: DailyEntry[];
+  rangeEntries?: DailyEntry[];
 }
 
 export function useStylistBreakdown(stylistId?: string, date?: string, startDate?: string, endDate?: string) {
@@ -385,8 +388,8 @@ export interface GlobalBreakdown {
   daily: { total: PaymentBreakdown; methods: Record<MethodKey, PaymentBreakdown> };
   monthly: { total: PaymentBreakdown; methods: Record<MethodKey, PaymentBreakdown> };
   range?: { total: PaymentBreakdown; methods: Record<MethodKey, PaymentBreakdown> };
-  dailyEntries: { id: string; amount: number; paymentMethod: MethodKey; timestamp: number; kind: "prestation" | "produit"; name?: string }[];
-  rangeEntries: { id: string; amount: number; paymentMethod: MethodKey; timestamp: number; kind: "prestation" | "produit"; name?: string }[];
+  dailyEntries: DailyEntry[];
+  rangeEntries: DailyEntry[];
   dailyProductCount: number;
   monthlyProductCount: number;
   rangeProductCount: number;
