@@ -2040,41 +2040,41 @@ export default function Settings() {
                   </AccordionContent>
                 </div>
               </AccordionItem>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="grid grid-cols-3 gap-2 sm:gap-3">
                 <button
                   type="button"
                   onClick={() => setCoiffCaPopupOpen(true)}
-                  className="group relative flex flex-col items-center justify-center gap-1.5 rounded-2xl border-2 border-amber-400/60 bg-transparent px-3 py-4 transition-all duration-300 hover:scale-[1.05] hover:border-amber-300 hover:shadow-[0_0_25px_rgba(245,158,11,0.4)] active:scale-[1.18] active:rotate-2 active:border-yellow-200 active:bg-amber-400/20 active:shadow-[0_0_60px_rgba(255,200,50,1),0_0_120px_rgba(255,180,30,1),0_0_180px_rgba(245,158,11,0.8),0_0_250px_rgba(245,158,11,0.6),0_0_350px_rgba(245,158,11,0.4)] active:brightness-[3]"
+                  className="group relative flex flex-col items-center justify-center gap-1 sm:gap-1.5 rounded-xl sm:rounded-2xl border-2 border-amber-400/60 bg-transparent px-1.5 py-2.5 sm:px-3 sm:py-4 transition-all duration-300 hover:scale-[1.05] hover:border-amber-300 hover:shadow-[0_0_25px_rgba(245,158,11,0.4)] active:scale-[1.18] active:rotate-2 active:border-yellow-200 active:bg-amber-400/20 active:shadow-[0_0_60px_rgba(255,200,50,1),0_0_120px_rgba(255,180,30,1),0_0_180px_rgba(245,158,11,0.8),0_0_250px_rgba(245,158,11,0.6),0_0_350px_rgba(245,158,11,0.4)] active:brightness-[3]"
                 >
-                  <svg className="h-7 w-7 text-amber-400/70" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <svg className="h-5 w-5 sm:h-7 sm:w-7 text-amber-400/70" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
                   </svg>
-                  <span className="text-sm font-bold text-amber-400">CA Coiffeur</span>
-                  <span className="text-[10px] text-white/60">Chiffre d'affaires</span>
+                  <span className="text-[10px] sm:text-sm font-bold text-amber-400">CA Coiffeur</span>
+                  <span className="text-[8px] sm:text-[10px] text-white/60 hidden sm:block">Chiffre d'affaires</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setDailyCaPopupOpen(true)}
-                  className="group relative flex flex-col items-center justify-center gap-1.5 rounded-2xl border-2 border-amber-400/60 bg-transparent px-3 py-4 transition-all duration-300 hover:scale-[1.05] hover:border-amber-300 hover:shadow-[0_0_25px_rgba(245,158,11,0.4)] active:scale-[1.18] active:rotate-2 active:border-yellow-200 active:bg-amber-400/20 active:shadow-[0_0_60px_rgba(255,200,50,1),0_0_120px_rgba(255,180,30,1),0_0_180px_rgba(245,158,11,0.8),0_0_250px_rgba(245,158,11,0.6),0_0_350px_rgba(245,158,11,0.4)] active:brightness-[3]"
+                  className="group relative flex flex-col items-center justify-center gap-1 sm:gap-1.5 rounded-xl sm:rounded-2xl border-2 border-amber-400/60 bg-transparent px-1.5 py-2.5 sm:px-3 sm:py-4 transition-all duration-300 hover:scale-[1.05] hover:border-amber-300 hover:shadow-[0_0_25px_rgba(245,158,11,0.4)] active:scale-[1.18] active:rotate-2 active:border-yellow-200 active:bg-amber-400/20 active:shadow-[0_0_60px_rgba(255,200,50,1),0_0_120px_rgba(255,180,30,1),0_0_180px_rgba(245,158,11,0.8),0_0_250px_rgba(245,158,11,0.6),0_0_350px_rgba(245,158,11,0.4)] active:brightness-[3]"
                 >
-                  <svg className="h-7 w-7 text-amber-400/70" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <svg className="h-5 w-5 sm:h-7 sm:w-7 text-amber-400/70" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 18.75a60.07 60.07 0 0 1 15.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 0 1 3 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 0 0-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 0 1-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 0 0 3 15h-.75M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm3 0h.008v.008H18V10.5Zm-12 0h.008v.008H6V10.5Z" />
                   </svg>
-                  <span className="text-sm font-bold text-amber-400">CA Salon</span>
-                  <span className="text-[10px] text-white/60">Aujourd'hui</span>
+                  <span className="text-[10px] sm:text-sm font-bold text-amber-400">CA Salon</span>
+                  <span className="text-[8px] sm:text-[10px] text-white/60 hidden sm:block">Aujourd'hui</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setYearCaPopupOpen(true)}
-                  className="group relative flex flex-col items-center justify-center gap-1.5 rounded-2xl border-2 border-amber-400/60 bg-transparent px-3 py-4 transition-all duration-300 hover:scale-[1.05] hover:border-amber-300 hover:shadow-[0_0_25px_rgba(245,158,11,0.4)] active:scale-[1.18] active:rotate-2 active:border-yellow-200 active:bg-amber-400/20 active:shadow-[0_0_60px_rgba(255,200,50,1),0_0_120px_rgba(255,180,30,1),0_0_180px_rgba(245,158,11,0.8),0_0_250px_rgba(245,158,11,0.6),0_0_350px_rgba(245,158,11,0.4)] active:brightness-[3]"
+                  className="group relative flex flex-col items-center justify-center gap-1 sm:gap-1.5 rounded-xl sm:rounded-2xl border-2 border-amber-400/60 bg-transparent px-1.5 py-2.5 sm:px-3 sm:py-4 transition-all duration-300 hover:scale-[1.05] hover:border-amber-300 hover:shadow-[0_0_25px_rgba(245,158,11,0.4)] active:scale-[1.18] active:rotate-2 active:border-yellow-200 active:bg-amber-400/20 active:shadow-[0_0_60px_rgba(255,200,50,1),0_0_120px_rgba(255,180,30,1),0_0_180px_rgba(245,158,11,0.8),0_0_250px_rgba(245,158,11,0.6),0_0_350px_rgba(245,158,11,0.4)] active:brightness-[3]"
                 >
-                  <svg className="h-7 w-7 text-amber-400/70" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <svg className="h-5 w-5 sm:h-7 sm:w-7 text-amber-400/70" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" />
                   </svg>
-                  <span className="text-sm font-bold text-amber-400">CA Année</span>
-                  <span className="text-[10px] text-white/60">Cette année</span>
+                  <span className="text-[10px] sm:text-sm font-bold text-amber-400">CA Année</span>
+                  <span className="text-[8px] sm:text-[10px] text-white/60 hidden sm:block">Cette année</span>
                 </button>
               </div>
               <AnimatePresence>
