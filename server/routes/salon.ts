@@ -297,6 +297,7 @@ function makeScope() {
       cash: emptyBreakdown(),
       check: emptyBreakdown(),
       card: emptyBreakdown(),
+      mixed: emptyBreakdown(),
     } as Record<PaymentMethod, { amount: number; count: number }>,
   };
 }
