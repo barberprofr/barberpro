@@ -1141,30 +1141,36 @@ export default function PrestationsForm() {
                             onClick={() => handleStylistSelect(s.id)}
                             initial={false}
                             animate={stylistId === s.id ? {
-                              scale: 1.15,
+                              scale: 1.28,
+                              y: -6,
                               boxShadow: [
-                                "0 0 25px rgba(232,121,249,0.5)",
-                                "0 0 55px rgba(232,121,249,0.9)",
-                                "0 0 40px rgba(232,121,249,0.7)"
+                                "0 0 35px rgba(232,121,249,0.6), 0 0 60px rgba(255,184,0,0.4)",
+                                "0 0 70px rgba(232,121,249,1), 0 0 100px rgba(255,184,0,0.7)",
+                                "0 0 50px rgba(232,121,249,0.8), 0 0 80px rgba(255,184,0,0.5)"
                               ]
-                            } : { scale: 1 }}
-                            transition={{ duration: 0.3, ease: "easeOut" }}
-                            whileHover={{ scale: stylistId === s.id ? 1.18 : 1.05 }}
-                            whileTap={{ scale: 0.98 }}
+                            } : { scale: 1, y: 0 }}
+                            transition={{ duration: 0.35, ease: "easeOut" }}
+                            whileHover={{ scale: stylistId === s.id ? 1.32 : 1.08, y: stylistId === s.id ? -8 : -2 }}
+                            whileTap={{ scale: 0.95 }}
                             className={cn(
-                              "flex items-center gap-4 rounded-2xl border-2 border-white/30 bg-slate-800/40 px-6 py-5 text-left transition-colors duration-200 shadow-[0_0_20px_rgba(148,163,184,0.2)] hover:border-fuchsia-400 hover:bg-slate-700/50 hover:shadow-[0_0_25px_rgba(232,121,249,0.6)] focus:outline-none",
-                              stylistId === s.id && "border-fuchsia-400 bg-slate-700/50 shadow-[0_0_35px_rgba(232,121,249,0.7)]"
+                              "flex items-center gap-4 rounded-2xl border-2 border-white/30 bg-slate-800/40 px-6 py-5 text-left transition-colors duration-200 shadow-[0_0_20px_rgba(148,163,184,0.2)] hover:border-fuchsia-400 hover:bg-slate-700/50 hover:shadow-[0_0_35px_rgba(232,121,249,0.7),0_0_50px_rgba(255,184,0,0.4)] focus:outline-none",
+                              stylistId === s.id && "border-fuchsia-400 bg-slate-700/50 shadow-[0_0_50px_rgba(232,121,249,0.8),0_0_70px_rgba(255,184,0,0.5)]"
                             )}
                           >
                             <motion.span
                               className={cn(
                                 "h-3 w-3 rounded-full flex-shrink-0",
-                                stylistId === s.id ? "bg-fuchsia-300" : "bg-fuchsia-400/80"
+                                stylistId === s.id ? "bg-gradient-to-r from-fuchsia-300 to-amber-300" : "bg-fuchsia-400/80"
                               )}
                               animate={stylistId === s.id ? {
-                                boxShadow: ["0 0 8px rgba(232,121,249,0.7)", "0 0 20px rgba(232,121,249,1)", "0 0 14px rgba(232,121,249,0.9)"]
+                                boxShadow: [
+                                  "0 0 12px rgba(232,121,249,0.8), 0 0 20px rgba(255,184,0,0.5)",
+                                  "0 0 28px rgba(232,121,249,1), 0 0 40px rgba(255,184,0,0.8)",
+                                  "0 0 18px rgba(232,121,249,0.9), 0 0 30px rgba(255,184,0,0.6)"
+                                ],
+                                scale: [1, 1.3, 1]
                               } : {}}
-                              transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                              transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut" }}
                             />
                             <span className="text-lg sm:text-2xl font-bold text-white break-words" style={{ WebkitTextStroke: '0.5px black' }}>
                               {s.name}
