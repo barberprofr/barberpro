@@ -244,7 +244,7 @@ export default function StatsCards() {
               <span className="mt-2 text-[10px] font-semibold text-amber-400 uppercase tracking-wider">Coiffeurs</span>
             </motion.button>
           </PopoverTrigger>
-          <PopoverContent side="bottom" align="center" className="w-[min(90vw,36rem)] max-h-[80vh] overflow-y-auto rounded-2xl border border-white/20 bg-white/5 p-4 shadow-[0_40px_95px_rgba(8,15,40,0.3)] backdrop-blur-sm [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
+          <PopoverContent side="bottom" align="center" className="w-[min(95vw,42rem)] max-h-[80vh] overflow-y-auto rounded-2xl border border-white/20 bg-white/5 p-4 shadow-[0_40px_95px_rgba(8,15,40,0.3)] backdrop-blur-sm [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
             <StylistsList stylists={stylistsList} config={config} hasStylists={hasStylists} />
           </PopoverContent>
         </Popover>
