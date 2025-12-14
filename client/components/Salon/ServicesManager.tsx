@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useServices, useAddService, useDeleteService, useReorderServices, useProductTypes, useAddProductType, useDeleteProductType, Service } from "@/lib/api";
-import { Trash2, Plus, GripVertical, Check, Scissors, Package } from "lucide-react";
+import { Trash2, Plus, GripVertical, Check, Scissors, Package, UserRound } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 import { AnimatePresence, motion } from "framer-motion";
@@ -12,9 +12,10 @@ interface ServicesManagerProps {
   accordionValue?: string;
   onAccordionChange?: (value: string) => void;
   onCloseParent?: () => void;
+  onOpenCoiffeur?: () => void;
 }
 
-export default function ServicesManager({ accordionValue = "", onAccordionChange, onCloseParent }: ServicesManagerProps) {
+export default function ServicesManager({ accordionValue = "", onAccordionChange, onCloseParent, onOpenCoiffeur }: ServicesManagerProps) {
   const { data: services = [] } = useServices();
   const { data: productTypes = [] } = useProductTypes();
   const addService = useAddService();
@@ -263,7 +264,7 @@ export default function ServicesManager({ accordionValue = "", onAccordionChange
           }, 100);
         }
       }}>
-        <div className="grid grid-cols-2 gap-3 mb-4">
+        <div className="grid grid-cols-3 gap-3 mb-4">
           <AccordionItem value="services" className="border-0">
             <AccordionTrigger className="py-0 hover:no-underline [&>svg]:hidden w-full">
               <div className={cn(cardButtonClasses, "w-full min-h-[100px]")}>
@@ -283,6 +284,15 @@ export default function ServicesManager({ accordionValue = "", onAccordionChange
               </div>
             </AccordionTrigger>
           </AccordionItem>
+
+          <div 
+            className={cn(cardButtonClasses, "w-full min-h-[100px] cursor-pointer")}
+            onClick={() => onOpenCoiffeur?.()}
+          >
+            <UserRound className="h-7 w-7 text-orange-400/80" />
+            <span className="text-sm font-bold text-orange-400">Coiffeur</span>
+            <span className="text-[10px] text-white/60">Ajouter</span>
+          </div>
         </div>
 
         <AccordionItem value="services" className="border-0">
