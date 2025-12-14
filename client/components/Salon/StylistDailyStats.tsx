@@ -680,21 +680,22 @@ export function StylistMonthly({ id, commissionPct, stylistName }: { id: string;
                                         </span>
                                         <div className="min-w-0">
                                             <h3 className="text-base sm:text-lg font-bold text-white truncate">Encaissements</h3>
-                                        <p className="text-xs text-white/50">{formatDateDisplay(startDate)} au {formatDateDisplay(endDate)}</p>
+                                            <p className="text-xs text-white/50">{formatDateDisplay(startDate)} au {formatDateDisplay(endDate)}</p>
+                                        </div>
                                     </div>
+                                    <button
+                                        type="button"
+                                        onClick={() => setRangeEncaissementsOpen(false)}
+                                        className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-slate-400 transition hover:bg-white/10 hover:text-white"
+                                    >
+                                        <ChevronDown className="h-6 w-6" />
+                                    </button>
                                 </div>
-                                <button
-                                    type="button"
-                                    onClick={() => setRangeEncaissementsOpen(false)}
-                                    className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-slate-400 transition hover:bg-white/10 hover:text-white"
-                                >
-                                    <ChevronDown className="h-6 w-6" />
-                                </button>
-                            </div>
-                            <div className="p-2 sm:p-4 overflow-y-auto max-h-[calc(70vh-80px)]">
-                                <StylistRangeEncaissements entries={rangeEntries} onUpdate={handleUpdatePayment} />
-                            </div>
-                        </motion.div>
+                                <div className="p-2 sm:p-4 overflow-y-auto max-h-[calc(85vh-80px)]">
+                                    <StylistRangeEncaissements entries={rangeEntries} onUpdate={handleUpdatePayment} />
+                                </div>
+                            </motion.div>
+                        </div>
                     </motion.div>
                 )}
             </AnimatePresence>
