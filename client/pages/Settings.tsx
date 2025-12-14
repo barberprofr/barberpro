@@ -1319,38 +1319,6 @@ export default function Settings() {
     setIsMonthUsageVisible(false);
   };
 
-  const hasAnyPopupOpen = accordionValue !== "" || bestDaysAccordionValue !== "" || servicesAccordionValue !== "" || 
-    openStylistId !== null || coiffCaPopupOpen || dailyCaPopupOpen || yearCaPopupOpen || 
-    Object.values(openDaily).some(Boolean) || Object.values(openMonthly).some(Boolean) ||
-    isDayUsageVisible || isMonthUsageVisible;
-
-  const [isDragging, setIsDragging] = useState(false);
-
-  useEffect(() => {
-    const handleDragStart = () => setIsDragging(true);
-    const handleDragEnd = () => setIsDragging(false);
-    document.addEventListener('dragstart', handleDragStart);
-    document.addEventListener('dragend', handleDragEnd);
-    return () => {
-      document.removeEventListener('dragstart', handleDragStart);
-      document.removeEventListener('dragend', handleDragEnd);
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!hasAnyPopupOpen || isDragging) return;
-    const handleDocumentClick = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-      const isDraggable = target.closest('[draggable="true"]');
-      if (isDraggable) return;
-      const isInteractive = target.closest('button, input, select, [role="button"], [data-radix-collection-item], [data-state], .popover-content, [role="dialog"], [role="listbox"], [role="menu"]');
-      if (!isInteractive) {
-        closeAllPopups();
-      }
-    };
-    document.addEventListener('click', handleDocumentClick);
-    return () => document.removeEventListener('click', handleDocumentClick);
-  }, [hasAnyPopupOpen, isDragging]);
 
   const handleSalonNameSave = () => {
     const trimmed = salonNameDraft.trim();
