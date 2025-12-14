@@ -1,11 +1,12 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useServices, useAddService, useDeleteService, useReorderServices, useProductTypes, useAddProductType, useDeleteProductType, Service } from "@/lib/api";
-import { Trash2, Plus, GripVertical } from "lucide-react";
+import { Trash2, Plus, GripVertical, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
+import { AnimatePresence, motion } from "framer-motion";
 
 interface ServicesManagerProps {
   accordionValue?: string;
@@ -28,6 +29,18 @@ export default function ServicesManager({ accordionValue = "", onAccordionChange
 
   const [productName, setProductName] = useState("");
   const [productPrice, setProductPrice] = useState("");
+  
+  const [showAddConfirmation, setShowAddConfirmation] = useState(false);
+  const [confirmationType, setConfirmationType] = useState<"service" | "product">("service");
+  const confirmationTimeoutRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (confirmationTimeoutRef.current) {
+        window.clearTimeout(confirmationTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // Drag and drop state
   const [draggedServiceId, setDraggedServiceId] = useState<string | null>(null);
@@ -120,6 +133,15 @@ export default function ServicesManager({ accordionValue = "", onAccordionChange
           setServiceName("");
           setServicePrice("");
           setServiceDescription("");
+          
+          setConfirmationType("service");
+          setShowAddConfirmation(true);
+          if (confirmationTimeoutRef.current) {
+            window.clearTimeout(confirmationTimeoutRef.current);
+          }
+          confirmationTimeoutRef.current = window.setTimeout(() => {
+            setShowAddConfirmation(false);
+          }, 2000);
         },
       }
     );
@@ -139,6 +161,15 @@ export default function ServicesManager({ accordionValue = "", onAccordionChange
         onSuccess: () => {
           setProductName("");
           setProductPrice("");
+          
+          setConfirmationType("product");
+          setShowAddConfirmation(true);
+          if (confirmationTimeoutRef.current) {
+            window.clearTimeout(confirmationTimeoutRef.current);
+          }
+          confirmationTimeoutRef.current = window.setTimeout(() => {
+            setShowAddConfirmation(false);
+          }, 2000);
         },
       }
     );
@@ -149,7 +180,82 @@ export default function ServicesManager({ accordionValue = "", onAccordionChange
   const pillHeadingProductsClasses = "inline-flex items-center gap-2 rounded-full border-2 border-cyan-300/30 bg-cyan-500/10 backdrop-blur-sm px-4 py-2 text-sm font-bold uppercase tracking-[0.15em] text-cyan-100 transition-all duration-200 hover:scale-[1.02] hover:shadow-[0_20px_50px_rgba(6,182,212,0.4)] active:scale-105 active:border-white/80 active:shadow-[0_0_20px_rgba(6,182,212,0.8),0_25px_60px_rgba(6,182,212,0.6)] active:brightness-125";
 
   return (
-    <div className={cn(glassPanelClasses, "p-6 space-y-0")}>
+    <>
+      <AnimatePresence>
+        {showAddConfirmation && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm"
+            onClick={() => setShowAddConfirmation(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 10 }}
+              transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+              onClick={(e) => e.stopPropagation()}
+              className="relative"
+            >
+              <div
+                className="absolute -inset-1 rounded-2xl opacity-80"
+                style={{
+                  background: confirmationType === "service"
+                    ? "conic-gradient(from 0deg, #a855f7, #ec4899, #f97316, #eab308, #22c55e, #06b6d4, #3b82f6, #a855f7)"
+                    : "conic-gradient(from 0deg, #06b6d4, #3b82f6, #8b5cf6, #ec4899, #f97316, #22c55e, #06b6d4)",
+                  animation: "spin 3s linear infinite",
+                }}
+              />
+              <motion.div
+                animate={{
+                  boxShadow: [
+                    "0 0 20px rgba(168, 85, 247, 0.6), 0 0 40px rgba(168, 85, 247, 0.4), 0 0 60px rgba(168, 85, 247, 0.2)",
+                    "0 0 30px rgba(236, 72, 153, 0.6), 0 0 50px rgba(236, 72, 153, 0.4), 0 0 70px rgba(236, 72, 153, 0.2)",
+                    "0 0 25px rgba(34, 197, 94, 0.6), 0 0 45px rgba(34, 197, 94, 0.4), 0 0 65px rgba(34, 197, 94, 0.2)",
+                    "0 0 20px rgba(168, 85, 247, 0.6), 0 0 40px rgba(168, 85, 247, 0.4), 0 0 60px rgba(168, 85, 247, 0.2)",
+                  ],
+                }}
+                transition={{
+                  duration: 2,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }}
+                className="relative flex flex-col items-center justify-center gap-4 rounded-2xl border border-white/20 bg-slate-900/95 px-10 py-8 backdrop-blur-xl"
+              >
+                <motion.div
+                  animate={{ scale: [1, 1.1, 1] }}
+                  transition={{ duration: 0.6, repeat: Infinity, ease: "easeInOut" }}
+                  className={cn(
+                    "flex h-16 w-16 items-center justify-center rounded-full",
+                    confirmationType === "service"
+                      ? "bg-gradient-to-br from-purple-500 to-fuchsia-600"
+                      : "bg-gradient-to-br from-cyan-500 to-blue-600"
+                  )}
+                >
+                  <Check className="h-8 w-8 text-white" strokeWidth={3} />
+                </motion.div>
+                <div className="text-center">
+                  <p className="text-xl font-bold text-white">Ajout pris en compte</p>
+                  <p className="mt-1 text-sm text-white/60">
+                    {confirmationType === "service" ? "Prestation ajoutée" : "Produit ajouté"}
+                  </p>
+                </div>
+              </motion.div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <style>{`
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+      `}</style>
+
+      <div className={cn(glassPanelClasses, "p-6 space-y-0")}>
       <Accordion type="single" collapsible value={accordionValue} onValueChange={(val) => {
         onAccordionChange?.(val ?? "");
         if (val === "") {
@@ -336,5 +442,6 @@ export default function ServicesManager({ accordionValue = "", onAccordionChange
         </AccordionItem>
       </Accordion>
     </div>
+    </>
   );
 }
