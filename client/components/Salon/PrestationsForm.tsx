@@ -775,17 +775,16 @@ export default function PrestationsForm() {
           }
 
           // Also submit products if they were selected alongside prestations
-          // Note: For mixed payments, products are already included in the combined amount above
-          // Only submit products separately for non-mixed payments
           const storedProducts = (window as any).__selectedProducts as Array<{ id: string, name: string, price: number, quantity: number }> | undefined;
-          if (storedProducts && storedProducts.length > 0 && payment !== "mixed") {
+          if (storedProducts && storedProducts.length > 0) {
             for (const product of storedProducts) {
               for (let i = 0; i < product.quantity; i++) {
                 await addProduct.mutateAsync({
                   stylistId,
                   clientId: nextClientId || undefined,
-                  amount: product.price,
-                  paymentMethod: payment as any,
+                  // For mixed payments, use 0 amount since product amount is already included in the mixed payment totals
+                  amount: payment === "mixed" ? 0 : product.price,
+                  paymentMethod: payment === "mixed" ? "card" : payment as any,
                   timestamp: ts,
                   productName: product.name || undefined,
                   productTypeId: product.id || undefined
