@@ -327,8 +327,11 @@ async function aggregateByPayment(salonId: string, stylistId: string, refNowMs: 
     const inc = (scope: ReturnType<typeof makeScope>) => {
       scope.total.amount += p.amount;
       scope.total.count += 1;
-      scope.methods[p.paymentMethod].amount += p.amount;
-      scope.methods[p.paymentMethod].count += 1;
+      const method = p.paymentMethod as PaymentMethod;
+      if (scope.methods[method]) {
+        scope.methods[method].amount += p.amount;
+        scope.methods[method].count += 1;
+      }
     };
 
     if (startOfDayParis(p.timestamp) === todayStart) {
@@ -364,7 +367,10 @@ async function aggregateByPayment(salonId: string, stylistId: string, refNowMs: 
   for (const prod of products) {
     const incAmount = (scope: ReturnType<typeof makeScope>) => {
       scope.total.amount += prod.amount;
-      scope.methods[prod.paymentMethod].amount += prod.amount;
+      const method = prod.paymentMethod as PaymentMethod;
+      if (scope.methods[method]) {
+        scope.methods[method].amount += prod.amount;
+      }
     };
 
     if (startOfDayParis(prod.timestamp) === todayStart) {
@@ -427,8 +433,11 @@ async function aggregateAllPayments(salonId: string) {
     const inc = (scope: ReturnType<typeof makeScope>) => {
       scope.total.amount += p.amount;
       scope.total.count += 1;
-      scope.methods[p.paymentMethod].amount += p.amount;
-      scope.methods[p.paymentMethod].count += 1;
+      const method = p.paymentMethod as PaymentMethod;
+      if (scope.methods[method]) {
+        scope.methods[method].amount += p.amount;
+        scope.methods[method].count += 1;
+      }
     };
 
     if (startOfDayParis(p.timestamp) === todayStart) inc(daily);
@@ -438,7 +447,10 @@ async function aggregateAllPayments(salonId: string) {
   for (const prod of products) {
     const incAmount = (scope: ReturnType<typeof makeScope>) => {
       scope.total.amount += prod.amount;
-      scope.methods[prod.paymentMethod].amount += prod.amount;
+      const method = prod.paymentMethod as PaymentMethod;
+      if (scope.methods[method]) {
+        scope.methods[method].amount += prod.amount;
+      }
     };
 
     if (startOfDayParis(prod.timestamp) === todayStart) incAmount(daily);
@@ -2540,12 +2552,17 @@ export const reportByMonth: RequestHandler = async (req, res) => {
       }
       scope.total.amount += p.amount;
       scope.total.count += 1;
-      scope.methods[p.paymentMethod].amount += p.amount;
-      scope.methods[p.paymentMethod].count += 1;
+      const method = p.paymentMethod as PaymentMethod;
+      if (scope.methods[method]) {
+        scope.methods[method].amount += p.amount;
+        scope.methods[method].count += 1;
+      }
       yearlyScope.total.amount += p.amount;
       yearlyScope.total.count += 1;
-      yearlyScope.methods[p.paymentMethod].amount += p.amount;
-      yearlyScope.methods[p.paymentMethod].count += 1;
+      if (yearlyScope.methods[method]) {
+        yearlyScope.methods[method].amount += p.amount;
+        yearlyScope.methods[method].count += 1;
+      }
       const stylist = stylistMap.get(p.stylistId);
       const pct = typeof stylist?.commissionPct === "number" ? stylist.commissionPct : settings.commissionDefault;
       const salary = (p.amount * pct) / 100;
@@ -2563,9 +2580,14 @@ export const reportByMonth: RequestHandler = async (req, res) => {
         monthlyScopes.set(key, scope);
       }
       scope.total.amount += prod.amount;
-      scope.methods[prod.paymentMethod].amount += prod.amount;
+      const method = prod.paymentMethod as PaymentMethod;
+      if (scope.methods[method]) {
+        scope.methods[method].amount += prod.amount;
+      }
       yearlyScope.total.amount += prod.amount;
-      yearlyScope.methods[prod.paymentMethod].amount += prod.amount;
+      if (yearlyScope.methods[method]) {
+        yearlyScope.methods[method].amount += prod.amount;
+      }
       monthlyProductCounts.set(key, (monthlyProductCounts.get(key) || 0) + 1);
       yearlyProductCount++;
     }

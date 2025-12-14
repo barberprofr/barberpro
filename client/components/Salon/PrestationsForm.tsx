@@ -41,11 +41,10 @@ const playSuccessSound = () => {
   }
 };
 
-const PAYMENT_OPTIONS: { value: "cash" | "check" | "card" | "mixed"; label: string; icon: LucideIcon; colors: { outer: string; inner: string; glow: string } }[] = [
+const PAYMENT_OPTIONS: { value: "cash" | "check" | "card"; label: string; icon: LucideIcon; colors: { outer: string; inner: string; glow: string } }[] = [
   { value: "cash", label: "Espèces", icon: CircleDollarSign, colors: { outer: "conic-gradient(from 160deg, #CAFF58, #74FF9C, #16C772, #CAFF58)", inner: "linear-gradient(140deg, #D9FF96 0%, #7DFFAF 60%, #1FAA7C 100%)", glow: "0 8px 20px rgba(116,255,156,0.5)" } },
   { value: "card", label: "Carte", icon: CreditCard, colors: { outer: "conic-gradient(from 160deg, #9DF3FF, #52C7FF, #2B7FFF, #9DF3FF)", inner: "linear-gradient(140deg, #BFF6FF 0%, #63DAFF 60%, #318EFF 100%)", glow: "0 8px 20px rgba(82,199,255,0.5)" } },
   { value: "check", label: "Planity/Treatwell", icon: Building2, colors: { outer: "conic-gradient(from 160deg, #FFD27A, #FF8A4C, #FF5A39, #FFD27A)", inner: "linear-gradient(140deg, #FFE0A1 0%, #FF9C5C 60%, #F1472A 100%)", glow: "0 8px 20px rgba(255,138,76,0.5)" } },
-  { value: "mixed", label: "Mixte", icon: ArrowLeftRight, colors: { outer: "conic-gradient(from 160deg, #C084FC, #A855F7, #7C3AED, #C084FC)", inner: "linear-gradient(140deg, #E9D5FF 0%, #C084FC 60%, #7C3AED 100%)", glow: "0 8px 20px rgba(168,85,247,0.5)" } },
 ];
 
 export default function PrestationsForm() {
@@ -103,9 +102,6 @@ export default function PrestationsForm() {
   const [clientAccordion, setClientAccordion] = useState<string>("");
   const [servicesPickerOpen, setServicesPickerOpen] = useState(false);
   const [productsPickerOpen, setProductsPickerOpen] = useState(false);
-  const [mixedPaymentPopupOpen, setMixedPaymentPopupOpen] = useState(false);
-  const [mixedCashAmount, setMixedCashAmount] = useState<string>("");
-  const [mixedCardAmount, setMixedCardAmount] = useState<string>("");
   const successTimeoutRef = useRef<number | null>(null);
   const amountHintTimeoutRef = useRef<number | null>(null);
   const amountInputRef = useRef<HTMLInputElement | null>(null);
@@ -246,9 +242,6 @@ export default function PrestationsForm() {
     setPaymentPickerOpen(false);
     setServicesPickerOpen(false);
     setProductsPickerOpen(false);
-    setMixedPaymentPopupOpen(false);
-    setMixedCashAmount("");
-    setMixedCardAmount("");
     setAmount("");
     setClientId("");
     setNewClientFirstName("");
@@ -361,40 +354,10 @@ export default function PrestationsForm() {
   }, [setStylistId, setStylistPickerOpen]);
 
   const handlePaymentSelect = useCallback((value: string) => {
-    if (value === "mixed") {
-      setPaymentPickerOpen(false);
-      setMixedCashAmount("");
-      setMixedCardAmount("");
-      setMixedPaymentPopupOpen(true);
-    } else {
-      setPayment(value);
-      setPaymentSelected(true);
-      setPaymentPickerOpen(false);
-    }
-  }, [setPayment, setPaymentSelected, setPaymentPickerOpen]);
-
-  const handleMixedPaymentConfirm = useCallback(() => {
-    const cashVal = parseFloat(mixedCashAmount) || 0;
-    const cardVal = parseFloat(mixedCardAmount) || 0;
-    const total = Math.round((cashVal + cardVal) * 100) / 100;
-    const expectedTotal = Math.round((parseFloat(amount) || 0) * 100) / 100;
-    
-    if (Math.abs(total - expectedTotal) > 0.01) {
-      return;
-    }
-    
-    setPayment("mixed");
+    setPayment(value);
     setPaymentSelected(true);
-    setMixedPaymentPopupOpen(false);
-  }, [mixedCashAmount, mixedCardAmount, amount]);
-
-  const isMixedTotalValid = useMemo(() => {
-    const cashVal = parseFloat(mixedCashAmount) || 0;
-    const cardVal = parseFloat(mixedCardAmount) || 0;
-    const total = Math.round((cashVal + cardVal) * 100) / 100;
-    const expectedTotal = Math.round((parseFloat(amount) || 0) * 100) / 100;
-    return Math.abs(total - expectedTotal) <= 0.01;
-  }, [mixedCashAmount, mixedCardAmount, amount]);
+    setPaymentPickerOpen(false);
+  }, [setPayment, setPaymentSelected, setPaymentPickerOpen]);
 
   const handleClientAccordionChange = useCallback((next: string | null) => {
     const value = next ?? "";
@@ -587,35 +550,8 @@ export default function PrestationsForm() {
         };
 
         try {
-          if (payment === "mixed") {
-            const cashAmount = parseFloat(mixedCashAmount) || 0;
-            const cardAmount = parseFloat(mixedCardAmount) || 0;
-            if (cashAmount > 0) {
-              await addProduct.mutateAsync({
-                stylistId,
-                clientId: nextClientId || undefined,
-                amount: cashAmount,
-                paymentMethod: "cash" as any,
-                timestamp: ts,
-                productName: storedProducts.map(p => p.quantity > 1 ? `${p.name} (x${p.quantity})` : p.name).join(", ") || undefined,
-                productTypeId: storedProducts[0]?.id || undefined
-              });
-            }
-            if (cardAmount > 0) {
-              await addProduct.mutateAsync({
-                stylistId,
-                clientId: nextClientId || undefined,
-                amount: cardAmount,
-                paymentMethod: "card" as any,
-                timestamp: ts,
-                productName: storedProducts.map(p => p.quantity > 1 ? `${p.name} (x${p.quantity})` : p.name).join(", ") || undefined,
-                productTypeId: storedProducts[0]?.id || undefined
-              });
-            }
-          } else {
-            for (const product of storedProducts) {
-              await submitProduct(product);
-            }
+          for (const product of storedProducts) {
+            await submitProduct(product);
           }
           delete (window as any).__selectedProducts;
 
@@ -628,9 +564,6 @@ export default function PrestationsForm() {
           setPaymentPickerOpen(false);
           setServicesPickerOpen(false);
           setProductsPickerOpen(false);
-          setMixedPaymentPopupOpen(false);
-          setMixedCashAmount("");
-          setMixedCardAmount("");
           setAmount("");
           setClientId("");
           setIsProduct(false);
@@ -684,9 +617,6 @@ export default function PrestationsForm() {
               setPaymentPickerOpen(false);
               setServicesPickerOpen(false);
               setProductsPickerOpen(false);
-              setMixedPaymentPopupOpen(false);
-              setMixedCashAmount("");
-              setMixedCardAmount("");
               setAmount("");
               setClientId("");
               setIsProduct(false);
@@ -736,35 +666,8 @@ export default function PrestationsForm() {
         };
 
         try {
-          if (payment === "mixed") {
-            const cashAmount = parseFloat(mixedCashAmount) || 0;
-            const cardAmount = parseFloat(mixedCardAmount) || 0;
-            if (cashAmount > 0) {
-              await addPrestation.mutateAsync({
-                stylistId,
-                clientId: nextClientId || undefined,
-                amount: cashAmount,
-                paymentMethod: "cash" as any,
-                timestamp: ts,
-                serviceName: storedPrestations.map(p => p.quantity > 1 ? `${p.name} (x${p.quantity})` : p.name).join(", ") || undefined,
-                serviceId: storedPrestations[0]?.id || undefined
-              });
-            }
-            if (cardAmount > 0) {
-              await addPrestation.mutateAsync({
-                stylistId,
-                clientId: nextClientId || undefined,
-                amount: cardAmount,
-                paymentMethod: "card" as any,
-                timestamp: ts,
-                serviceName: storedPrestations.map(p => p.quantity > 1 ? `${p.name} (x${p.quantity})` : p.name).join(", ") || undefined,
-                serviceId: storedPrestations[0]?.id || undefined
-              });
-            }
-          } else {
-            for (const prestation of storedPrestations) {
-              await submitPrestation(prestation);
-            }
+          for (const prestation of storedPrestations) {
+            await submitPrestation(prestation);
           }
 
           // Also submit products if they were selected alongside prestations
@@ -797,9 +700,6 @@ export default function PrestationsForm() {
           setPaymentPickerOpen(false);
           setServicesPickerOpen(false);
           setProductsPickerOpen(false);
-          setMixedPaymentPopupOpen(false);
-          setMixedCashAmount("");
-          setMixedCardAmount("");
           setAmount("");
           setClientId("");
           setIsProduct(false);
@@ -854,9 +754,6 @@ export default function PrestationsForm() {
               setPaymentPickerOpen(false);
               setServicesPickerOpen(false);
               setProductsPickerOpen(false);
-              setMixedPaymentPopupOpen(false);
-              setMixedCashAmount("");
-              setMixedCardAmount("");
               setAmount("");
               setClientId("");
               setIsProduct(false);
@@ -1394,7 +1291,7 @@ export default function PrestationsForm() {
                     </div>
                     <div className="flex items-start gap-4">
                       <div className="flex-1 space-y-4">
-                        {PAYMENT_OPTIONS.filter(option => option.value !== "mixed").map((option) => {
+                        {PAYMENT_OPTIONS.map((option) => {
                           const Icon = option.icon;
                           const isSelected = payment === option.value;
                           return (
@@ -1459,139 +1356,6 @@ export default function PrestationsForm() {
                           );
                         })}
                       </div>
-                      <motion.button
-                        type="button"
-                        onClick={() => handlePaymentSelect("mixed")}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        className="flex items-center justify-start gap-3 rounded-xl border-2 border-white/20 bg-black/5 px-3 py-2.5 text-left font-bold transition-colors duration-200 hover:border-purple-400/80 hover:bg-purple-500/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-400 shadow-[0_6px_20px_rgba(8,15,40,0.3)] backdrop-blur-sm self-end mb-0"
-                      >
-                        <span
-                          className="relative flex h-10 w-10 items-center justify-center rounded-full"
-                          style={{ background: PAYMENT_OPTIONS.find(o => o.value === "mixed")?.colors.outer, boxShadow: PAYMENT_OPTIONS.find(o => o.value === "mixed")?.colors.glow }}
-                        >
-                          <span
-                            className="absolute inset-[2px] rounded-full"
-                            style={{ background: "radial-gradient(circle, rgba(15,23,42,0.92) 0%, rgba(30,41,59,0.78) 60%, rgba(15,23,42,0.55) 100%)", boxShadow: "inset 0 4px 12px rgba(255,255,255,0.08), inset 0 -8px 16px rgba(2,6,23,0.82)" }}
-                          />
-                          <span
-                            className="relative flex h-6 w-6 items-center justify-center rounded-md overflow-hidden"
-                            style={{ background: PAYMENT_OPTIONS.find(o => o.value === "mixed")?.colors.inner, boxShadow: "inset 0 1px 0 rgba(255,255,255,0.5)" }}
-                          >
-                            <ArrowLeftRight className="h-4 w-4 text-slate-900/80" />
-                          </span>
-                        </span>
-                        <span className="text-base font-black text-white">Mixte</span>
-                      </motion.button>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Popup Paiement Mixte */}
-              {mixedPaymentPopupOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 animate-in fade-in duration-200" onClick={(e) => e.stopPropagation()}>
-                  <div className="w-[360px] rounded-2xl border border-white/20 bg-slate-900/70 p-5 text-slate-50 shadow-[0_15px_40px_rgba(8,15,40,0.8)] backdrop-blur-xl animate-in zoom-in-95 duration-200" onClick={(e) => e.stopPropagation()}>
-                    <div className="mb-4 flex items-center gap-3">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setMixedPaymentPopupOpen(false);
-                          setPaymentPickerOpen(true);
-                        }}
-                        className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/20"
-                      >
-                        <ArrowLeft className="h-5 w-5" />
-                      </button>
-                      <span className="text-xl font-bold text-white">Mixte</span>
-                      <span className="ml-auto text-xl font-bold text-white">{amount} €</span>
-                    </div>
-                    
-                    <div className="space-y-3">
-                      <motion.div 
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 1.05, y: -2 }}
-                        className="flex items-center gap-3 rounded-xl bg-green-500/10 p-3 border border-green-400/50 shadow-[0_0_15px_rgba(34,197,94,0.4)] transition-all cursor-pointer">
-                        <span
-                          className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-full"
-                          style={{ background: "conic-gradient(from 160deg, rgba(202,255,88,0.6), rgba(116,255,156,0.6), rgba(22,199,114,0.6), rgba(202,255,88,0.6))", boxShadow: "0 0 15px rgba(116,255,156,0.4)" }}
-                        >
-                          <span
-                            className="absolute inset-[2px] rounded-full"
-                            style={{ background: "radial-gradient(circle, rgba(15,23,42,0.85) 0%, rgba(30,41,59,0.7) 60%, rgba(15,23,42,0.5) 100%)" }}
-                          />
-                          <span
-                            className="relative flex h-7 w-7 items-center justify-center rounded-lg"
-                            style={{ background: "linear-gradient(140deg, rgba(217,255,150,0.7) 0%, rgba(125,255,175,0.7) 60%, rgba(31,170,124,0.7) 100%)" }}
-                          >
-                            <CircleDollarSign className="h-4 w-4 text-slate-900/80" />
-                          </span>
-                        </span>
-                        <Input
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          placeholder="Espèces"
-                          value={mixedCashAmount}
-                          onChange={(e) => setMixedCashAmount(e.target.value)}
-                          className="h-12 flex-1 rounded-lg border-0 bg-slate-900/50 text-xl font-bold text-white text-center placeholder:text-green-400/50 focus:ring-2 focus:ring-green-400 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                        />
-                      </motion.div>
-                      
-                      <motion.div 
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 1.05, y: -2 }}
-                        className="flex items-center gap-3 rounded-xl bg-cyan-500/10 p-3 border border-cyan-400/50 shadow-[0_0_15px_rgba(34,211,238,0.4)] transition-all cursor-pointer">
-                        <span
-                          className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-full"
-                          style={{ background: "conic-gradient(from 160deg, rgba(157,243,255,0.6), rgba(82,199,255,0.6), rgba(43,127,255,0.6), rgba(157,243,255,0.6))", boxShadow: "0 0 15px rgba(82,199,255,0.4)" }}
-                        >
-                          <span
-                            className="absolute inset-[2px] rounded-full"
-                            style={{ background: "radial-gradient(circle, rgba(15,23,42,0.85) 0%, rgba(30,41,59,0.7) 60%, rgba(15,23,42,0.5) 100%)" }}
-                          />
-                          <span
-                            className="relative flex h-7 w-7 items-center justify-center rounded-lg"
-                            style={{ background: "linear-gradient(140deg, rgba(191,246,255,0.7) 0%, rgba(99,218,255,0.7) 60%, rgba(49,142,255,0.7) 100%)" }}
-                          >
-                            <CreditCard className="h-4 w-4 text-slate-900/80" />
-                          </span>
-                        </span>
-                        <Input
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          placeholder="Carte"
-                          value={mixedCardAmount}
-                          onChange={(e) => setMixedCardAmount(e.target.value)}
-                          className="h-12 flex-1 rounded-lg border-0 bg-slate-900/50 text-xl font-bold text-white text-center placeholder:text-cyan-400/50 focus:ring-2 focus:ring-cyan-400 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                        />
-                      </motion.div>
-                      
-                      <div className={cn(
-                        "text-center py-2 rounded-lg text-base font-bold",
-                        isMixedTotalValid
-                          ? "text-green-400 bg-green-500/20"
-                          : "text-red-400 bg-red-500/20"
-                      )}>
-                        {(Math.round(((parseFloat(mixedCashAmount) || 0) + (parseFloat(mixedCardAmount) || 0)) * 100) / 100).toFixed(2)} / {amount} €
-                      </div>
-                      
-                      <motion.button
-                        type="button"
-                        onClick={handleMixedPaymentConfirm}
-                        disabled={!isMixedTotalValid}
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        className={cn(
-                          "w-full py-3 rounded-xl font-bold text-lg transition-all duration-200",
-                          isMixedTotalValid
-                            ? "bg-gradient-to-r from-purple-500 to-violet-600 text-white shadow-[0_0_15px_rgba(168,85,247,0.5)]"
-                            : "bg-slate-700/50 text-slate-400 cursor-not-allowed"
-                        )}
-                      >
-                        Confirmer
-                      </motion.button>
                     </div>
                   </div>
                 </div>
