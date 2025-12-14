@@ -2239,15 +2239,8 @@ export default function Settings() {
                 onOpenCoiffeur={() => setAccordionValue("add-stylist")}
               />
 
-              <AccordionItem value="add-stylist">
-                <div className={cn(glassPanelClasses, "space-y-3.5 px-4 py-4")}>
-                  <AccordionTrigger className="group relative flex flex-col items-center justify-center gap-2 rounded-[20px] border border-cyan-500/30 bg-gradient-to-br from-cyan-900/40 via-slate-900/60 to-slate-900/80 backdrop-blur-xl px-5 py-5 shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] transition-all duration-200 hover:scale-[1.02] hover:border-cyan-400/50 hover:shadow-[0_12px_40px_rgba(6,182,212,0.3)] active:scale-[0.98] w-full">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full border border-cyan-400/40 bg-cyan-500/20">
-                      <UserRound className="h-5 w-5 text-cyan-300" />
-                    </div>
-                    <span className="text-sm font-semibold text-white">Ajouter un Coiffeur</span>
-                    <span className="text-xs text-white/50">Nouveau membre</span>
-                  </AccordionTrigger>
+              <AccordionItem value="add-stylist" className="border-0">
+                <AccordionTrigger className="hidden" />
                   <AccordionContent>
                     <div className="space-y-3.5">
                       <div className="flex flex-wrap gap-3">
@@ -2386,7 +2379,6 @@ export default function Settings() {
                       </div>
                     </div>
                   </AccordionContent>
-                </div>
               </AccordionItem>
             </Accordion>
           </CardContent>
