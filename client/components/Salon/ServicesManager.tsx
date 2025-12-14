@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useServices, useAddService, useDeleteService, useReorderServices, useProductTypes, useAddProductType, useDeleteProductType, Service } from "@/lib/api";
-import { Trash2, Plus, GripVertical, Check } from "lucide-react";
+import { Trash2, Plus, GripVertical, Check, Scissors, Package } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 import { AnimatePresence, motion } from "framer-motion";
@@ -176,8 +176,7 @@ export default function ServicesManager({ accordionValue = "", onAccordionChange
   };
 
   const glassPanelClasses = "relative rounded-3xl border border-white/10 bg-gradient-to-br from-white/5 via-white/3 to-transparent backdrop-blur-sm shadow-[0_32px_96px_rgba(8,15,40,0.25)]";
-  const pillHeadingClasses = "inline-flex items-center gap-2 rounded-full border-2 border-purple-300/30 bg-purple-500/10 backdrop-blur-sm px-4 py-2 text-sm font-bold uppercase tracking-[0.15em] text-purple-100 transition-all duration-200 hover:scale-[1.02] hover:shadow-[0_20px_50px_rgba(168,85,247,0.4)] active:scale-105 active:border-white/80 active:shadow-[0_0_20px_rgba(168,85,247,0.8),0_25px_60px_rgba(168,85,247,0.6)] active:brightness-125";
-  const pillHeadingProductsClasses = "inline-flex items-center gap-2 rounded-full border-2 border-cyan-300/30 bg-cyan-500/10 backdrop-blur-sm px-4 py-2 text-sm font-bold uppercase tracking-[0.15em] text-cyan-100 transition-all duration-200 hover:scale-[1.02] hover:shadow-[0_20px_50px_rgba(6,182,212,0.4)] active:scale-105 active:border-white/80 active:shadow-[0_0_20px_rgba(6,182,212,0.8),0_25px_60px_rgba(6,182,212,0.6)] active:brightness-125";
+  const cardButtonClasses = "group relative flex flex-col items-center justify-center gap-1.5 rounded-2xl border-2 border-orange-400/60 bg-orange-500/10 px-4 py-4 transition-all duration-300 hover:scale-[1.05] hover:border-orange-300 hover:shadow-[0_0_25px_rgba(249,115,22,0.4)] active:scale-[1.08] active:border-orange-200 active:bg-orange-400/20 active:shadow-[0_0_40px_rgba(249,115,22,0.6)]";
 
   return (
     <>
@@ -265,11 +264,12 @@ export default function ServicesManager({ accordionValue = "", onAccordionChange
         }
       }}>
         <AccordionItem value="services" className="border-0">
-          <AccordionTrigger className="flex items-center gap-2 py-0 hover:no-underline">
-            <span className={pillHeadingClasses}>
-              <span className="h-2.5 w-2.5 rounded-full bg-purple-300 animate-pulse" />
-              Enregistrer les prestations
-            </span>
+          <AccordionTrigger className="py-0 hover:no-underline [&>svg]:hidden">
+            <div className={cardButtonClasses}>
+              <Scissors className="h-7 w-7 text-orange-400/80" />
+              <span className="text-sm font-bold text-orange-400">Prestations</span>
+              <span className="text-[10px] text-white/60">Enregistrer</span>
+            </div>
           </AccordionTrigger>
           <AccordionContent className="border-0 pb-0 pt-6">
             <div className="space-y-6">
@@ -365,11 +365,12 @@ export default function ServicesManager({ accordionValue = "", onAccordionChange
         </AccordionItem>
 
         <AccordionItem value="products" className="border-0 mt-8">
-          <AccordionTrigger className="flex items-center gap-2 py-0 hover:no-underline">
-            <span className={pillHeadingProductsClasses}>
-              <span className="h-2.5 w-2.5 rounded-full bg-cyan-300 animate-pulse" />
-              Enregistrer les produits
-            </span>
+          <AccordionTrigger className="py-0 hover:no-underline [&>svg]:hidden">
+            <div className={cardButtonClasses}>
+              <Package className="h-7 w-7 text-orange-400/80" />
+              <span className="text-sm font-bold text-orange-400">Produits</span>
+              <span className="text-[10px] text-white/60">Enregistrer</span>
+            </div>
           </AccordionTrigger>
           <AccordionContent className="border-0 pb-0 pt-6">
             <div className="space-y-6">
