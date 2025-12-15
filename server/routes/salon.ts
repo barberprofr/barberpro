@@ -573,7 +573,8 @@ export const getConfig: RequestHandler = async (req, res) => {
       const trialActive = Boolean(trialEndsAt && trialEndsAt > now);
 
       if (!hasStripeSubscription && trialActive) {
-        if (settings.subscriptionStatus !== "trialing") {
+        // Only force trialing if we are NOT already active/paid (e.g. granted by admin or legacy)
+        if (settings.subscriptionStatus !== "trialing" && settings.subscriptionStatus !== "active" && settings.subscriptionStatus !== "paid") {
           settings.subscriptionStatus = "trialing";
           mutated = true;
         }

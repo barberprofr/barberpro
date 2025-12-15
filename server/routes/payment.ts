@@ -48,6 +48,7 @@ export const createCheckoutSession: RequestHandler = async (req, res) => {
       success_url: successUrl,
       cancel_url: cancelUrl,
       billing_address_collection: "auto",
+      metadata: { salonId },
       subscription_data: {
         metadata: { salonId }
       }
