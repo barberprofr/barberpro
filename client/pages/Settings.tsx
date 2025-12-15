@@ -2092,7 +2092,7 @@ export default function Settings() {
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.95 }}
                       transition={{ duration: 0.2 }}
-                      className="w-full max-w-lg max-h-[80vh] overflow-y-auto rounded-2xl border border-white/20 bg-slate-900/50 backdrop-blur-md p-4 shadow-[0_25px_80px_rgba(0,0,0,0.6)]"
+                      className="w-[calc(100%-2rem)] max-w-lg max-h-[80vh] overflow-y-auto rounded-2xl border border-white/20 bg-slate-900/50 backdrop-blur-md p-4 shadow-[0_25px_80px_rgba(0,0,0,0.6)]"
                       onClick={(e) => e.stopPropagation()}
                     >
                       <div className="flex items-center justify-center mb-4 relative">
@@ -2188,7 +2188,7 @@ export default function Settings() {
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.95 }}
                       transition={{ duration: 0.2 }}
-                      className="w-full max-w-lg max-h-[80vh] overflow-y-auto rounded-2xl border border-white/20 bg-slate-900/50 backdrop-blur-md p-4 shadow-[0_25px_80px_rgba(0,0,0,0.6)]"
+                      className="w-[calc(100%-2rem)] max-w-lg max-h-[80vh] overflow-y-auto rounded-2xl border border-white/20 bg-slate-900/50 backdrop-blur-md p-4 shadow-[0_25px_80px_rgba(0,0,0,0.6)]"
                       onClick={(e) => e.stopPropagation()}
                     >
                       <div className="flex items-center justify-between mb-4">
