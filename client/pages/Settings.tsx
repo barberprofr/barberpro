@@ -335,29 +335,32 @@ function GlobalTransactionRow({ entry: e, onUpdate }: { entry: any, onUpdate: (i
   };
 
   return (
-    <div className="grid grid-cols-[40px_1fr_auto] sm:grid-cols-[50px_1fr_1fr] px-1.5 py-2 border-t border-gray-700 items-center text-[10px] sm:text-sm sm:px-3">
-      <div className="text-[9px] sm:text-xs text-white/80">{fmtTime(e.timestamp)}</div>
+    <div className="grid grid-cols-[70px_1fr_1fr] px-2 py-2 border-t border-gray-700 items-center text-xs sm:text-sm sm:px-3">
+      <div className="flex flex-col">
+        <span className="font-medium">{fmtDate(e.timestamp)}</span>
+        <span className="text-[10px] text-white/50">{fmtTime(e.timestamp)}</span>
+      </div>
       <div>
         <Popover open={open} onOpenChange={setOpen}>
           <PopoverTrigger asChild>
             <button className={cn(
-              "flex items-center gap-1 sm:gap-1.5 rounded-lg border px-1.5 sm:px-2 py-1 transition-all hover:scale-105 focus:outline-none",
+              "flex items-center gap-1.5 rounded-lg border px-2 py-1 transition-all hover:scale-105 focus:outline-none",
               e.paymentMethod === "cash" ? "border-emerald-500/30 bg-gradient-to-br from-emerald-900/40 via-slate-900/60 to-slate-900/80" :
                 e.paymentMethod === "check" ? "border-amber-500/30 bg-gradient-to-br from-amber-900/40 via-slate-900/60 to-slate-900/80" :
                   "border-indigo-500/30 bg-gradient-to-br from-indigo-900/40 via-slate-900/60 to-slate-900/80"
             )}>
               <span className={cn(
-                "inline-flex h-4 w-4 sm:h-5 sm:w-5 items-center justify-center rounded-full border",
+                "inline-flex h-5 w-5 items-center justify-center rounded-full border",
                 e.paymentMethod === "cash" ? "border-emerald-400/40 bg-emerald-500/20" :
                   e.paymentMethod === "check" ? "border-amber-400/40 bg-amber-500/20" :
                     "border-indigo-400/40 bg-indigo-500/20"
               )}>
-                {e.paymentMethod === "card" && <svg className="h-2 w-2 sm:h-2.5 sm:w-2.5 text-indigo-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><rect x="2" y="5" width="20" height="14" rx="2" /><path d="M2 10h20" /></svg>}
-                {e.paymentMethod === "check" && <svg className="h-2 w-2 sm:h-2.5 sm:w-2.5 text-amber-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>}
-                {e.paymentMethod === "cash" && <svg className="h-2 w-2 sm:h-2.5 sm:w-2.5 text-emerald-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><rect x="2" y="6" width="20" height="12" rx="2" /><circle cx="12" cy="12" r="3" /><path d="M12 10v4m-1-3.5h2m-2 3h2" /></svg>}
+                {e.paymentMethod === "card" && <svg className="h-2.5 w-2.5 text-indigo-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><rect x="2" y="5" width="20" height="14" rx="2" /><path d="M2 10h20" /></svg>}
+                {e.paymentMethod === "check" && <svg className="h-2.5 w-2.5 text-amber-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>}
+                {e.paymentMethod === "cash" && <svg className="h-2.5 w-2.5 text-emerald-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><rect x="2" y="6" width="20" height="12" rx="2" /><circle cx="12" cy="12" r="3" /><path d="M12 10v4m-1-3.5h2m-2 3h2" /></svg>}
               </span>
-              <span className="text-[7px] sm:text-[9px] font-semibold uppercase tracking-wide text-white/80">
-                {e.paymentMethod === "check" ? <span className="flex flex-col leading-tight text-[6px] sm:text-[7px]"><span>Planity</span><span>Treatwell</span></span> : ({ cash: "ESP.", card: "CB" } as const)[e.paymentMethod as "cash" | "card"]}
+              <span className="text-[9px] font-semibold uppercase tracking-wide text-white/80">
+                {e.paymentMethod === "check" ? <span className="flex flex-col leading-tight text-[7px]"><span>Planity</span><span>Treatwell</span></span> : ({ cash: "ESPÈCES", card: "CARTE" } as const)[e.paymentMethod as "cash" | "card"]}
               </span>
             </button>
           </PopoverTrigger>
@@ -394,9 +397,9 @@ function GlobalTransactionRow({ entry: e, onUpdate }: { entry: any, onUpdate: (i
           </PopoverContent>
         </Popover>
       </div>
-      <div className="min-w-0 text-right">
-        <span className="font-medium text-[10px] sm:text-sm">{eur.format(e.amount)}</span>
-        <span className="text-[8px] sm:text-xs text-white/60 block truncate">{e.name || (e.kind === "prestation" ? "prest." : "prod.")}</span>
+      <div className="min-w-0">
+        <span className="font-medium">{eur.format(e.amount)}</span>
+        <span className="text-[10px] sm:text-xs text-white/60 block truncate">{e.name || (e.kind === "prestation" ? "prestation" : "produit")}</span>
       </div>
     </div>
   );
@@ -405,17 +408,21 @@ function GlobalTransactionRow({ entry: e, onUpdate }: { entry: any, onUpdate: (i
 function GlobalEncaissements({ entries, onUpdate }: { entries: any[]; onUpdate: (id: string, kind: "prestation" | "produit", method: "cash" | "check" | "card") => void }) {
   return (
     <div className="text-sm border border-gray-700 rounded-md overflow-hidden bg-slate-900/70 w-full">
-      <div className="grid grid-cols-[40px_1fr_auto] sm:grid-cols-[50px_1fr_1fr] bg-slate-800/80 text-gray-100 px-1.5 py-2 font-medium text-[10px] sm:text-sm sm:px-3">
-        <div>Heure</div>
-        <div>Mode</div>
-        <div>Montant</div>
-      </div>
-      <div className="max-h-[400px] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
-        {entries.length === 0 ? (
-          <div className="px-1.5 py-2 text-muted-foreground sm:px-3">Aucun encaissement pour cette période</div>
-        ) : entries.map((e: any, i: number) => (
-          <GlobalTransactionRow key={i} entry={e} onUpdate={onUpdate} />
-        ))}
+      <div className="overflow-x-auto">
+        <div className="min-w-[300px]">
+          <div className="grid grid-cols-[70px_1fr_1fr] bg-slate-800/80 text-gray-100 px-2 py-2 font-medium text-xs sm:text-sm sm:px-3">
+            <div>Date</div>
+            <div>Mode</div>
+            <div>Montant</div>
+          </div>
+          <div className="max-h-[400px] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
+            {entries.length === 0 ? (
+              <div className="px-2 py-2 text-muted-foreground sm:px-3">Aucun encaissement pour cette période</div>
+            ) : entries.map((e: any, i: number) => (
+              <GlobalTransactionRow key={i} entry={e} onUpdate={onUpdate} />
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -2085,7 +2092,7 @@ export default function Settings() {
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.95 }}
                       transition={{ duration: 0.2 }}
-                      className="w-[calc(100%-3rem)] max-w-md max-h-[80vh] overflow-y-auto rounded-2xl border border-white/20 bg-slate-900/50 backdrop-blur-md p-4 shadow-[0_25px_80px_rgba(0,0,0,0.6)]"
+                      className="w-[calc(100%-2rem)] max-w-lg max-h-[80vh] overflow-y-auto rounded-2xl border border-white/20 bg-slate-900/50 backdrop-blur-md p-4 shadow-[0_25px_80px_rgba(0,0,0,0.6)]"
                       onClick={(e) => e.stopPropagation()}
                     >
                       <div className="flex items-center justify-center mb-4 relative">
@@ -2145,7 +2152,7 @@ export default function Settings() {
                                   <span className="relative z-10 text-[10px] font-light text-white/90">{stylistCommissionPct}%</span>
                                 </button>
                               </PopoverTrigger>
-                              <PopoverContent className="w-[calc(100vw-2rem)] max-w-sm rounded-xl border border-white/14 bg-slate-900/95 backdrop-blur-xl p-2 sm:p-3 space-y-2 sm:space-y-2.5 shadow-[0_20px_50px_rgba(8,15,40,0.6)]" align="center" sideOffset={8}>
+                              <PopoverContent className="w-auto rounded-xl border border-white/14 bg-slate-900/95 backdrop-blur-xl p-3 space-y-2.5 shadow-[0_20px_50px_rgba(8,15,40,0.6)]" align="center" sideOffset={8}>
                                 <StylistTotals id={s.id} commissionPct={stylistCommissionPct} stylistName={s.name} />
                                 <div className="flex flex-wrap items-center gap-1.5 text-[11px]">
                                   <a className="inline-flex items-center gap-1.5 rounded-lg border border-white/20 bg-white/12 px-2 py-0.5 font-semibold uppercase tracking-[0.16em] text-white/80 transition hover:bg-white/18" href={"/api" + apiPath(`/reports/stylists/${s.id}.csv`)}>CSV</a>
@@ -2181,7 +2188,7 @@ export default function Settings() {
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.95 }}
                       transition={{ duration: 0.2 }}
-                      className="w-[calc(100%-3rem)] max-w-md max-h-[80vh] overflow-y-auto rounded-2xl border border-white/20 bg-slate-900/50 backdrop-blur-md p-4 shadow-[0_25px_80px_rgba(0,0,0,0.6)]"
+                      className="w-[calc(100%-2rem)] max-w-lg max-h-[80vh] overflow-y-auto rounded-2xl border border-white/20 bg-slate-900/50 backdrop-blur-md p-4 shadow-[0_25px_80px_rgba(0,0,0,0.6)]"
                       onClick={(e) => e.stopPropagation()}
                     >
                       <div className="flex items-center justify-between mb-4">
