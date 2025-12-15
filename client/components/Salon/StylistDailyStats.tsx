@@ -47,10 +47,10 @@ function StylistDaily({ id, date, commissionPct }: { id: string; date?: string; 
                     <div className="text-[9px] text-white/50">{d?.methods.card.count || 0} prest.</div>
                 </div>
                 <div className="flex flex-col items-center justify-center rounded-lg border border-amber-500/30 bg-gradient-to-br from-amber-900/40 via-slate-900/60 to-slate-900/80 backdrop-blur-xl px-2 py-2 shadow-[0_4px_16px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.1)]">
-                    <span className="inline-flex h-5 w-5 items-center justify-center rounded-full border border-amber-400/40 bg-amber-500/20 mb-1">
-                        <svg className="h-2.5 w-2.5 text-amber-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-                    </span>
-                    <div className="text-[10px] font-semibold uppercase text-white/80">EN LIGNE</div>
+                    <div className="flex flex-col items-center leading-tight mb-1">
+                        <span className="text-[8px] font-bold text-amber-300">Planity</span>
+                        <span className="text-[8px] font-bold text-amber-300">Treatwell</span>
+                    </div>
                     <div className="text-sm font-bold text-white">{eur.format(d?.methods.check.amount || 0)}</div>
                     <div className="text-[9px] text-white/50">{d?.methods.check.count || 0} prest.</div>
                 </div>
@@ -80,8 +80,8 @@ function StylistEncaissements({ id, date }: { id: string; date?: string }) {
     return (
         <div className="text-sm border border-gray-700 rounded-md overflow-hidden bg-slate-900/70 w-full">
             <div className="overflow-x-auto">
-                <div className="min-w-[280px]">
-                    <div className="grid grid-cols-[60px_1fr_1fr] bg-slate-800/80 text-gray-100 px-2 py-2 font-medium text-xs sm:text-sm sm:px-3">
+                <div className="min-w-[380px]">
+                    <div className="grid grid-cols-[60px_minmax(120px,1fr)_minmax(100px,1fr)] bg-slate-800/80 text-gray-100 px-3 py-2 font-medium text-xs sm:text-sm sm:px-4">
                         <div>Heure</div>
                         <div>Mode</div>
                         <div>Montant</div>
@@ -110,65 +110,79 @@ function RangeTransactionRow({ entry: e, onUpdate }: { entry: any, onUpdate: (id
         return d.toLocaleTimeString("fr-FR", { timeZone: "Europe/Paris", hour: "2-digit", minute: "2-digit" });
     };
 
+    const getPaymentStyle = (method: string) => {
+        switch (method) {
+            case "cash": return { border: "border-emerald-500/30", bg: "bg-gradient-to-br from-emerald-900/40 via-slate-900/60 to-slate-900/80", circle: "border-emerald-400/40 bg-emerald-500/20", iconColor: "text-emerald-300" };
+            case "check": return { border: "border-amber-500/30", bg: "bg-gradient-to-br from-amber-900/40 via-slate-900/60 to-slate-900/80", circle: "border-amber-400/40 bg-amber-500/20", iconColor: "text-amber-300" };
+            case "card": return { border: "border-indigo-500/30", bg: "bg-gradient-to-br from-indigo-900/40 via-slate-900/60 to-slate-900/80", circle: "border-indigo-400/40 bg-indigo-500/20", iconColor: "text-indigo-300" };
+            default: return { border: "border-indigo-500/30", bg: "bg-gradient-to-br from-indigo-900/40 via-slate-900/60 to-slate-900/80", circle: "border-indigo-400/40 bg-indigo-500/20", iconColor: "text-indigo-300" };
+        }
+    };
+    const style = getPaymentStyle(e.paymentMethod);
+
+    const renderIcon = (method: string) => {
+        switch (method) {
+            case "card": return <svg className="h-3 w-3 text-indigo-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><rect x="2" y="5" width="20" height="14" rx="2" /><path d="M2 10h20" /></svg>;
+            case "check": return <svg className="h-3 w-3 text-amber-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>;
+            case "cash": return <svg className="h-3 w-3 text-emerald-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><rect x="2" y="6" width="20" height="12" rx="2" /><circle cx="12" cy="12" r="3" /><path d="M12 10v4m-1-3.5h2m-2 3h2" /></svg>;
+            default: return <svg className="h-3 w-3 text-indigo-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><rect x="2" y="5" width="20" height="14" rx="2" /><path d="M2 10h20" /></svg>;
+        }
+    };
+
+    const getLabel = (method: string) => {
+        switch (method) {
+            case "cash": return "ESPÈCES";
+            case "card": return "CARTE";
+            case "check": return <span className="flex flex-col leading-tight text-[7px]"><span>Planity</span><span>Treatwell</span></span>;
+            default: return "CARTE";
+        }
+    };
+
     return (
-        <div className="grid grid-cols-[70px_1fr_1fr] px-2 py-2 border-t border-gray-700 items-center text-xs sm:text-sm sm:px-3">
+        <div className="grid grid-cols-[70px_minmax(120px,1fr)_minmax(100px,1fr)] px-3 py-2 border-t border-gray-700 items-center text-xs sm:text-sm sm:px-4">
             <div className="flex flex-col">
-                <span className="font-medium">{fmtDate(e.timestamp)}</span>
-                <span className="text-[10px] text-white/50">{fmtTime(e.timestamp)}</span>
+                <span className="font-light text-white">{fmtTime(e.timestamp)}</span>
             </div>
             <div>
                 <Popover open={open} onOpenChange={setOpen}>
                     <PopoverTrigger asChild>
                         <button className={cn(
                             "flex items-center gap-1.5 rounded-lg border px-2 py-1 transition-all hover:scale-105 focus:outline-none",
-                            e.paymentMethod === "cash" ? "border-emerald-500/30 bg-gradient-to-br from-emerald-900/40 via-slate-900/60 to-slate-900/80" :
-                                e.paymentMethod === "check" ? "border-amber-500/30 bg-gradient-to-br from-amber-900/40 via-slate-900/60 to-slate-900/80" :
-                                    "border-indigo-500/30 bg-gradient-to-br from-indigo-900/40 via-slate-900/60 to-slate-900/80"
+                            style.border, style.bg
                         )}>
-                            <span className={cn(
-                                "inline-flex h-5 w-5 items-center justify-center rounded-full border",
-                                e.paymentMethod === "cash" ? "border-emerald-400/40 bg-emerald-500/20" :
-                                    e.paymentMethod === "check" ? "border-amber-400/40 bg-amber-500/20" :
-                                        "border-indigo-400/40 bg-indigo-500/20"
-                            )}>
-                                {e.paymentMethod === "card" && <svg className="h-2.5 w-2.5 text-indigo-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><rect x="2" y="5" width="20" height="14" rx="2" /><path d="M2 10h20" /></svg>}
-                                {e.paymentMethod === "check" && <svg className="h-2.5 w-2.5 text-amber-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>}
-                                {e.paymentMethod === "cash" && <svg className="h-2.5 w-2.5 text-emerald-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><rect x="2" y="6" width="20" height="12" rx="2" /><circle cx="12" cy="12" r="3" /><path d="M12 10v4m-1-3.5h2m-2 3h2" /></svg>}
+                            <span className={cn("inline-flex h-5 w-5 items-center justify-center rounded-full border", style.circle)}>
+                                {renderIcon(e.paymentMethod)}
                             </span>
                             <span className="text-[9px] font-semibold uppercase tracking-wide text-white/80">
-                                {({ cash: "ESPÈCES", check: "EN LIGNE", card: "CARTE" } as const)[e.paymentMethod as "cash" | "check" | "card"]}
+                                {getLabel(e.paymentMethod)}
                             </span>
                         </button>
                     </PopoverTrigger>
                     <PopoverContent className="w-44 p-1.5 bg-slate-900/95 border-slate-700 backdrop-blur-xl">
                         <div className="grid gap-1">
-                            {(["cash", "check", "card"] as const).map((method) => (
-                                <button
-                                    key={method}
-                                    onClick={() => {
-                                        onUpdate(e.id, e.kind || "prestation", method);
-                                        setOpen(false);
-                                    }}
-                                    className={cn(
-                                        "flex items-center gap-2 w-full px-2 py-1.5 rounded-lg transition-all",
-                                        e.paymentMethod === method ? "bg-slate-800 border border-white/20" : "hover:bg-slate-800/50"
-                                    )}
-                                >
-                                    <span className={cn(
-                                        "inline-flex h-5 w-5 items-center justify-center rounded-full border",
-                                        method === "cash" ? "border-emerald-400/40 bg-emerald-500/20" :
-                                            method === "check" ? "border-amber-400/40 bg-amber-500/20" :
-                                                "border-indigo-400/40 bg-indigo-500/20"
-                                    )}>
-                                        {method === "card" && <svg className="h-2.5 w-2.5 text-indigo-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><rect x="2" y="5" width="20" height="14" rx="2" /><path d="M2 10h20" /></svg>}
-                                        {method === "check" && <svg className="h-2.5 w-2.5 text-amber-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>}
-                                        {method === "cash" && <svg className="h-2.5 w-2.5 text-emerald-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><rect x="2" y="6" width="20" height="12" rx="2" /><circle cx="12" cy="12" r="3" /><path d="M12 10v4m-1-3.5h2m-2 3h2" /></svg>}
-                                    </span>
-                                    <span className="text-[10px] font-semibold uppercase tracking-wide text-white/80">
-                                        {({ cash: "ESPÈCES", check: "EN LIGNE", card: "CARTE" } as const)[method]}
-                                    </span>
-                                </button>
-                            ))}
+                            {(["cash", "check", "card"] as const).map((method) => {
+                                const methodStyle = getPaymentStyle(method);
+                                return (
+                                    <button
+                                        key={method}
+                                        onClick={() => {
+                                            onUpdate(e.id, e.kind || "prestation", method);
+                                            setOpen(false);
+                                        }}
+                                        className={cn(
+                                            "flex items-center gap-2 w-full px-2 py-1.5 rounded-lg transition-all",
+                                            e.paymentMethod === method ? "bg-slate-800 border border-white/20" : "hover:bg-slate-800/50"
+                                        )}
+                                    >
+                                        <span className={cn("inline-flex h-5 w-5 items-center justify-center rounded-full border", methodStyle.circle)}>
+                                            {renderIcon(method)}
+                                        </span>
+                                        <span className="text-[10px] font-semibold uppercase tracking-wide text-white/80">
+                                            {getLabel(method)}
+                                        </span>
+                                    </button>
+                                );
+                            })}
                         </div>
                     </PopoverContent>
                 </Popover>
@@ -185,9 +199,9 @@ function StylistRangeEncaissements({ entries, onUpdate }: { entries: any[]; onUp
     return (
         <div className="text-sm border border-gray-700 rounded-md overflow-hidden bg-slate-900/70 w-full">
             <div className="overflow-x-auto">
-                <div className="min-w-[300px]">
-                    <div className="grid grid-cols-[70px_1fr_1fr] bg-slate-800/80 text-gray-100 px-2 py-2 font-medium text-xs sm:text-sm sm:px-3">
-                        <div>Date</div>
+                <div className="min-w-[380px]">
+                    <div className="grid grid-cols-[70px_minmax(120px,1fr)_minmax(100px,1fr)] bg-slate-800/80 text-gray-100 px-3 py-2 font-medium text-xs sm:text-sm sm:px-4">
+                        <div>Heure</div>
                         <div>Mode</div>
                         <div>Montant</div>
                     </div>
@@ -207,62 +221,77 @@ function StylistRangeEncaissements({ entries, onUpdate }: { entries: any[]; onUp
 function TransactionRow({ entry: e, fmt, onUpdate }: { entry: any, fmt: (ts: number) => string, onUpdate: (id: string, kind: "prestation" | "produit", method: "cash" | "check" | "card") => void }) {
     const [open, setOpen] = useState(false);
 
+    const getPaymentStyle = (method: string) => {
+        switch (method) {
+            case "cash": return { border: "border-emerald-500/30", bg: "bg-gradient-to-br from-emerald-900/40 via-slate-900/60 to-slate-900/80", circle: "border-emerald-400/40 bg-emerald-500/20" };
+            case "check": return { border: "border-amber-500/30", bg: "bg-gradient-to-br from-amber-900/40 via-slate-900/60 to-slate-900/80", circle: "border-amber-400/40 bg-amber-500/20" };
+            case "card": return { border: "border-indigo-500/30", bg: "bg-gradient-to-br from-indigo-900/40 via-slate-900/60 to-slate-900/80", circle: "border-indigo-400/40 bg-indigo-500/20" };
+            default: return { border: "border-indigo-500/30", bg: "bg-gradient-to-br from-indigo-900/40 via-slate-900/60 to-slate-900/80", circle: "border-indigo-400/40 bg-indigo-500/20" };
+        }
+    };
+    const style = getPaymentStyle(e.paymentMethod);
+
+    const renderIcon = (method: string) => {
+        switch (method) {
+            case "card": return <svg className="h-3 w-3 text-indigo-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><rect x="2" y="5" width="20" height="14" rx="2" /><path d="M2 10h20" /></svg>;
+            case "check": return <svg className="h-3 w-3 text-amber-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>;
+            case "cash": return <svg className="h-3 w-3 text-emerald-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><rect x="2" y="6" width="20" height="12" rx="2" /><circle cx="12" cy="12" r="3" /><path d="M12 10v4m-1-3.5h2m-2 3h2" /></svg>;
+            default: return <svg className="h-3 w-3 text-indigo-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><rect x="2" y="5" width="20" height="14" rx="2" /><path d="M2 10h20" /></svg>;
+        }
+    };
+
+    const getLabel = (method: string) => {
+        switch (method) {
+            case "cash": return "ESPÈCES";
+            case "card": return "CARTE";
+            case "check": return <span className="flex flex-col leading-tight text-[7px]"><span>Planity</span><span>Treatwell</span></span>;
+            default: return "CARTE";
+        }
+    };
+
     return (
-        <div className="grid grid-cols-[60px_1fr_1fr] px-2 py-2 border-t border-gray-700 items-center text-xs sm:text-sm sm:px-3">
+        <div className="grid grid-cols-[60px_minmax(120px,1fr)_minmax(100px,1fr)] px-3 py-2 border-t border-gray-700 items-center text-xs sm:text-sm sm:px-4">
             <div>{fmt(e.timestamp)}</div>
             <div>
                 <Popover open={open} onOpenChange={setOpen}>
                     <PopoverTrigger asChild>
                         <button className={cn(
                             "flex items-center gap-1.5 rounded-lg border px-2 py-1 transition-all hover:scale-105 focus:outline-none",
-                            e.paymentMethod === "cash" ? "border-emerald-500/30 bg-gradient-to-br from-emerald-900/40 via-slate-900/60 to-slate-900/80" :
-                                e.paymentMethod === "check" ? "border-amber-500/30 bg-gradient-to-br from-amber-900/40 via-slate-900/60 to-slate-900/80" :
-                                    "border-indigo-500/30 bg-gradient-to-br from-indigo-900/40 via-slate-900/60 to-slate-900/80"
+                            style.border, style.bg
                         )}>
-                            <span className={cn(
-                                "inline-flex h-5 w-5 items-center justify-center rounded-full border",
-                                e.paymentMethod === "cash" ? "border-emerald-400/40 bg-emerald-500/20" :
-                                    e.paymentMethod === "check" ? "border-amber-400/40 bg-amber-500/20" :
-                                        "border-indigo-400/40 bg-indigo-500/20"
-                            )}>
-                                {e.paymentMethod === "card" && <svg className="h-2.5 w-2.5 text-indigo-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><rect x="2" y="5" width="20" height="14" rx="2" /><path d="M2 10h20" /></svg>}
-                                {e.paymentMethod === "check" && <svg className="h-2.5 w-2.5 text-amber-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>}
-                                {e.paymentMethod === "cash" && <svg className="h-2.5 w-2.5 text-emerald-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><rect x="2" y="6" width="20" height="12" rx="2" /><circle cx="12" cy="12" r="3" /><path d="M12 10v4m-1-3.5h2m-2 3h2" /></svg>}
+                            <span className={cn("inline-flex h-5 w-5 items-center justify-center rounded-full border", style.circle)}>
+                                {renderIcon(e.paymentMethod)}
                             </span>
                             <span className="text-[9px] font-semibold uppercase tracking-wide text-white/80">
-                                {({ cash: "ESPÈCES", check: "EN LIGNE", card: "CARTE" } as const)[e.paymentMethod as "cash" | "check" | "card"]}
+                                {getLabel(e.paymentMethod)}
                             </span>
                         </button>
                     </PopoverTrigger>
                     <PopoverContent className="w-44 p-1.5 bg-slate-900/95 border-slate-700 backdrop-blur-xl">
                         <div className="grid gap-1">
-                            {(["cash", "check", "card"] as const).map((method) => (
-                                <button
-                                    key={method}
-                                    onClick={() => {
-                                        onUpdate(e.id, e.kind || "prestation", method);
-                                        setOpen(false);
-                                    }}
-                                    className={cn(
-                                        "flex items-center gap-2 w-full px-2 py-1.5 rounded-lg transition-all",
-                                        e.paymentMethod === method ? "bg-slate-800 border border-white/20" : "hover:bg-slate-800/50"
-                                    )}
-                                >
-                                    <span className={cn(
-                                        "inline-flex h-5 w-5 items-center justify-center rounded-full border",
-                                        method === "cash" ? "border-emerald-400/40 bg-emerald-500/20" :
-                                            method === "check" ? "border-amber-400/40 bg-amber-500/20" :
-                                                "border-indigo-400/40 bg-indigo-500/20"
-                                    )}>
-                                        {method === "card" && <svg className="h-2.5 w-2.5 text-indigo-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><rect x="2" y="5" width="20" height="14" rx="2" /><path d="M2 10h20" /></svg>}
-                                        {method === "check" && <svg className="h-2.5 w-2.5 text-amber-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>}
-                                        {method === "cash" && <svg className="h-2.5 w-2.5 text-emerald-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><rect x="2" y="6" width="20" height="12" rx="2" /><circle cx="12" cy="12" r="3" /><path d="M12 10v4m-1-3.5h2m-2 3h2" /></svg>}
-                                    </span>
-                                    <span className="text-[10px] font-semibold uppercase tracking-wide text-white/80">
-                                        {({ cash: "ESPÈCES", check: "EN LIGNE", card: "CARTE" } as const)[method]}
-                                    </span>
-                                </button>
-                            ))}
+                            {(["cash", "check", "card"] as const).map((method) => {
+                                const methodStyle = getPaymentStyle(method);
+                                return (
+                                    <button
+                                        key={method}
+                                        onClick={() => {
+                                            onUpdate(e.id, e.kind || "prestation", method);
+                                            setOpen(false);
+                                        }}
+                                        className={cn(
+                                            "flex items-center gap-2 w-full px-2 py-1.5 rounded-lg transition-all",
+                                            e.paymentMethod === method ? "bg-slate-800 border border-white/20" : "hover:bg-slate-800/50"
+                                        )}
+                                    >
+                                        <span className={cn("inline-flex h-5 w-5 items-center justify-center rounded-full border", methodStyle.circle)}>
+                                            {renderIcon(method)}
+                                        </span>
+                                        <span className="text-[10px] font-semibold uppercase tracking-wide text-white/80">
+                                            {getLabel(method)}
+                                        </span>
+                                    </button>
+                                );
+                            })}
                         </div>
                     </PopoverContent>
                 </Popover>
@@ -336,39 +365,41 @@ export function StylistDailySection({ id, commissionPct, stylistName }: { id: st
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.2 }}
-                        className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+                        className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-sm"
                         onClick={() => setEncaissementsOpen(false)}
                     >
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-                            onClick={(e) => e.stopPropagation()}
-                            className="relative w-[98%] max-w-2xl max-h-[70vh] overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900/98 via-violet-900/40 to-slate-800/98 border border-violet-500/30 shadow-[0_25px_80px_rgba(0,0,0,0.6),0_0_40px_rgba(139,92,246,0.2)] backdrop-blur-xl mx-auto"
-                        >
-                            <div className="sticky top-0 z-10 flex items-center justify-between px-3 sm:px-6 py-3 sm:py-4 border-b border-white/10 bg-slate-900/80 backdrop-blur-sm">
-                                <div className="flex items-center gap-3">
-                                    <span className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-violet-400/40 bg-violet-500/20">
-                                        <List className="h-5 w-5 text-violet-300" />
-                                    </span>
-                                    <div>
-                                        <h3 className="text-lg font-bold text-white">Encaissements</h3>
-                                        <p className="text-xs text-white/50">{formatDateDisplay(date)}</p>
+                        <div className="min-h-full flex items-center justify-center p-4">
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                                transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                                onClick={(e) => e.stopPropagation()}
+                                className="relative w-full max-w-2xl max-h-[85vh] overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900/98 via-violet-900/40 to-slate-800/98 border border-violet-500/30 shadow-[0_25px_80px_rgba(0,0,0,0.6),0_0_40px_rgba(139,92,246,0.2)] backdrop-blur-xl"
+                            >
+                                <div className="sticky top-0 z-10 flex items-center justify-between px-3 sm:px-6 py-3 sm:py-4 border-b border-white/10 bg-slate-900/80 backdrop-blur-sm">
+                                    <div className="flex items-center gap-3">
+                                        <span className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-violet-400/40 bg-violet-500/20">
+                                            <List className="h-5 w-5 text-violet-300" />
+                                        </span>
+                                        <div>
+                                            <h3 className="text-lg font-bold text-white">Encaissements</h3>
+                                            <p className="text-xs text-white/50">{formatDateDisplay(date)}</p>
+                                        </div>
                                     </div>
+                                    <button
+                                        type="button"
+                                        onClick={() => setEncaissementsOpen(false)}
+                                        className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-slate-400 transition hover:bg-white/10 hover:text-white"
+                                    >
+                                        <ChevronDown className="h-6 w-6" />
+                                    </button>
                                 </div>
-                                <button
-                                    type="button"
-                                    onClick={() => setEncaissementsOpen(false)}
-                                    className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-slate-400 transition hover:bg-white/10 hover:text-white"
-                                >
-                                    <ChevronDown className="h-6 w-6" />
-                                </button>
-                            </div>
-                            <div className="p-2 sm:p-4 overflow-y-auto max-h-[calc(70vh-80px)]">
-                                <StylistEncaissements id={id} date={date} />
-                            </div>
-                        </motion.div>
+                                <div className="p-2 sm:p-4 overflow-y-auto max-h-[calc(85vh-80px)]">
+                                    <StylistEncaissements id={id} date={date} />
+                                </div>
+                            </motion.div>
+                        </div>
                     </motion.div>
                 )}
             </AnimatePresence>
@@ -434,7 +465,7 @@ export function StylistMonthly({ id, commissionPct, stylistName }: { id: string;
     };
     
     return (
-        <div className="space-y-2 pb-4">
+        <div className="space-y-2 pb-4 min-w-[400px]">
             <div className="flex flex-wrap items-center gap-2 text-sm">
                 <button
                     onClick={() => setMode("today")}
@@ -474,7 +505,7 @@ export function StylistMonthly({ id, commissionPct, stylistName }: { id: string;
             {mode === "today" ? null : mode === "month" ? (
                 <div className="flex flex-wrap items-center gap-2 text-sm">
                     <span className="text-white/80 font-medium">Mois</span>
-                    <input type="month" value={month} onChange={(e) => setMonth(e.target.value)} className="border rounded-lg px-3 py-1.5 bg-slate-900/80 border-slate-600 text-white outline-none focus:border-cyan-400 transition-colors text-sm" />
+                    <input type="month" value={month} onChange={(e) => setMonth(e.target.value)} className="border rounded-lg px-3 py-1.5 bg-slate-900/80 border-slate-600 text-white outline-none focus:border-cyan-400 transition-colors text-sm min-w-[10rem]" />
                     <button
                         onClick={() => setMonth(defMonth)}
                         className={cn(
@@ -529,7 +560,7 @@ export function StylistMonthly({ id, commissionPct, stylistName }: { id: string;
             <div className="grid grid-cols-4 text-sm border rounded-md overflow-hidden">
                 <div className="bg-white/12 px-2 py-1"></div>
                 <div className="bg-white/12 px-2 py-1"><span className="inline-flex items-center px-1.5 py-0.5 rounded-full border-2 border-emerald-300 bg-emerald-100/30 text-emerald-100 text-[10px] font-semibold">Espèces</span></div>
-                <div className="bg-white/12 px-2 py-1"><span className="inline-flex items-center px-1.5 py-0.5 rounded-full border-2 border-amber-300 bg-amber-100/30 text-amber-100 text-[10px] font-semibold">En ligne</span></div>
+                <div className="bg-white/12 px-2 py-1"><span className="inline-flex items-center px-1.5 py-0.5 rounded-full border-2 border-amber-300 bg-amber-100/30 text-amber-100 text-[8px] font-semibold"><span className="flex flex-col leading-tight text-center"><span>Planity</span><span>Treatwell</span></span></span></div>
                 <div className="bg-white/12 px-2 py-1"><span className="inline-flex items-center px-1.5 py-0.5 rounded-full border-2 border-indigo-300 bg-indigo-100/30 text-indigo-100 text-[10px] font-semibold">Carte</span></div>
                 <div className="px-2 py-1 font-bold text-xs">{useTodayData ? "Jour" : useSingleDayRange ? "Jour" : useRangeData ? "Période" : "Mois"}</div>
                 <div className="px-2 py-1 text-xs">{eur.format(displayData?.methods.cash.amount || 0)}</div>
@@ -584,39 +615,41 @@ export function StylistMonthly({ id, commissionPct, stylistName }: { id: string;
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.2 }}
-                        className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+                        className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-sm"
                         onClick={() => setTodayEncaissementsOpen(false)}
                     >
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-                            onClick={(e) => e.stopPropagation()}
-                            className="relative w-[98%] max-w-2xl max-h-[70vh] overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900/98 via-fuchsia-900/40 to-slate-800/98 border border-fuchsia-500/30 shadow-[0_25px_80px_rgba(0,0,0,0.6),0_0_40px_rgba(236,72,153,0.2)] backdrop-blur-xl mx-auto"
-                        >
-                            <div className="sticky top-0 z-10 flex items-center justify-between px-3 sm:px-6 py-3 sm:py-4 border-b border-white/10 bg-slate-900/80 backdrop-blur-sm">
-                                <div className="flex items-center gap-3 min-w-0 flex-1">
-                                    <span className="inline-flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border border-fuchsia-400/40 bg-fuchsia-500/20">
-                                        <List className="h-5 w-5 text-fuchsia-300" />
-                                    </span>
-                                    <div className="min-w-0">
-                                        <h3 className="text-base sm:text-lg font-bold text-white truncate">Encaissements du jour</h3>
-                                        <p className="text-xs text-white/50">{useSingleDayRange ? formatDateDisplay(startDate) : formatDateDisplay(today)}</p>
+                        <div className="min-h-full flex items-center justify-center p-4">
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                                transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                                onClick={(e) => e.stopPropagation()}
+                                className="relative w-full max-w-2xl max-h-[85vh] overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900/98 via-fuchsia-900/40 to-slate-800/98 border border-fuchsia-500/30 shadow-[0_25px_80px_rgba(0,0,0,0.6),0_0_40px_rgba(236,72,153,0.2)] backdrop-blur-xl"
+                            >
+                                <div className="sticky top-0 z-10 flex items-center justify-between px-3 sm:px-6 py-3 sm:py-4 border-b border-white/10 bg-slate-900/80 backdrop-blur-sm">
+                                    <div className="flex items-center gap-3 min-w-0 flex-1">
+                                        <span className="inline-flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border border-fuchsia-400/40 bg-fuchsia-500/20">
+                                            <List className="h-5 w-5 text-fuchsia-300" />
+                                        </span>
+                                        <div className="min-w-0">
+                                            <h3 className="text-base sm:text-lg font-bold text-white truncate">Encaissements du jour</h3>
+                                            <p className="text-xs text-white/50">{useSingleDayRange ? formatDateDisplay(startDate) : formatDateDisplay(today)}</p>
+                                        </div>
                                     </div>
+                                    <button
+                                        type="button"
+                                        onClick={() => setTodayEncaissementsOpen(false)}
+                                        className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-slate-400 transition hover:bg-white/10 hover:text-white"
+                                    >
+                                        <ChevronDown className="h-6 w-6" />
+                                    </button>
                                 </div>
-                                <button
-                                    type="button"
-                                    onClick={() => setTodayEncaissementsOpen(false)}
-                                    className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-slate-400 transition hover:bg-white/10 hover:text-white"
-                                >
-                                    <ChevronDown className="h-6 w-6" />
-                                </button>
-                            </div>
-                            <div className="p-2 sm:p-4 overflow-y-auto max-h-[calc(70vh-80px)]">
-                                <StylistRangeEncaissements entries={useSingleDayRange ? rangeEntries : dailyEntries} onUpdate={handleUpdatePayment} />
-                            </div>
-                        </motion.div>
+                                <div className="p-2 sm:p-4 overflow-y-auto max-h-[calc(85vh-80px)]">
+                                    <StylistRangeEncaissements entries={useSingleDayRange ? rangeEntries : dailyEntries} onUpdate={handleUpdatePayment} />
+                                </div>
+                            </motion.div>
+                        </div>
                     </motion.div>
                 )}
             </AnimatePresence>
@@ -628,39 +661,41 @@ export function StylistMonthly({ id, commissionPct, stylistName }: { id: string;
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.2 }}
-                        className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+                        className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-sm"
                         onClick={() => setRangeEncaissementsOpen(false)}
                     >
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-                            onClick={(e) => e.stopPropagation()}
-                            className="relative w-[98%] max-w-2xl max-h-[70vh] overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900/98 via-violet-900/40 to-slate-800/98 border border-violet-500/30 shadow-[0_25px_80px_rgba(0,0,0,0.6),0_0_40px_rgba(139,92,246,0.2)] backdrop-blur-xl mx-auto"
-                        >
-                            <div className="sticky top-0 z-10 flex items-center justify-between px-3 sm:px-6 py-3 sm:py-4 border-b border-white/10 bg-slate-900/80 backdrop-blur-sm">
-                                <div className="flex items-center gap-3 min-w-0 flex-1">
-                                    <span className="inline-flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border border-violet-400/40 bg-violet-500/20">
-                                        <List className="h-5 w-5 text-violet-300" />
-                                    </span>
-                                    <div className="min-w-0">
-                                        <h3 className="text-base sm:text-lg font-bold text-white truncate">Encaissements</h3>
-                                        <p className="text-xs text-white/50">{formatDateDisplay(startDate)} au {formatDateDisplay(endDate)}</p>
+                        <div className="min-h-full flex items-center justify-center p-4">
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                                transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                                onClick={(e) => e.stopPropagation()}
+                                className="relative w-full max-w-2xl max-h-[85vh] overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900/98 via-violet-900/40 to-slate-800/98 border border-violet-500/30 shadow-[0_25px_80px_rgba(0,0,0,0.6),0_0_40px_rgba(139,92,246,0.2)] backdrop-blur-xl"
+                            >
+                                <div className="sticky top-0 z-10 flex items-center justify-between px-3 sm:px-6 py-3 sm:py-4 border-b border-white/10 bg-slate-900/80 backdrop-blur-sm">
+                                    <div className="flex items-center gap-3 min-w-0 flex-1">
+                                        <span className="inline-flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border border-violet-400/40 bg-violet-500/20">
+                                            <List className="h-5 w-5 text-violet-300" />
+                                        </span>
+                                        <div className="min-w-0">
+                                            <h3 className="text-base sm:text-lg font-bold text-white truncate">Encaissements</h3>
+                                            <p className="text-xs text-white/50">{formatDateDisplay(startDate)} au {formatDateDisplay(endDate)}</p>
+                                        </div>
                                     </div>
+                                    <button
+                                        type="button"
+                                        onClick={() => setRangeEncaissementsOpen(false)}
+                                        className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-slate-400 transition hover:bg-white/10 hover:text-white"
+                                    >
+                                        <ChevronDown className="h-6 w-6" />
+                                    </button>
                                 </div>
-                                <button
-                                    type="button"
-                                    onClick={() => setRangeEncaissementsOpen(false)}
-                                    className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-slate-400 transition hover:bg-white/10 hover:text-white"
-                                >
-                                    <ChevronDown className="h-6 w-6" />
-                                </button>
-                            </div>
-                            <div className="p-2 sm:p-4 overflow-y-auto max-h-[calc(70vh-80px)]">
-                                <StylistRangeEncaissements entries={rangeEntries} onUpdate={handleUpdatePayment} />
-                            </div>
-                        </motion.div>
+                                <div className="p-2 sm:p-4 overflow-y-auto max-h-[calc(85vh-80px)]">
+                                    <StylistRangeEncaissements entries={rangeEntries} onUpdate={handleUpdatePayment} />
+                                </div>
+                            </motion.div>
+                        </div>
                     </motion.div>
                 )}
             </AnimatePresence>

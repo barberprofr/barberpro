@@ -405,7 +405,7 @@ export function useGlobalBreakdown(date?: string, startDate?: string, endDate?: 
       if (startDate) params.set("startDate", startDate);
       if (endDate) params.set("endDate", endDate);
       const qs = params.toString();
-      const res = await apiFetch(`/api/reports/global-breakdown${qs ? `?${qs}` : ""}`);
+      const res = await apiFetch(`/api/salons/${salonId}/reports/global-breakdown${qs ? `?${qs}` : ""}`);
       if (!res.ok) throw new Error("Failed to load global breakdown");
       return res.json() as Promise<GlobalBreakdown>;
     }
@@ -745,6 +745,25 @@ export function useDeleteProductType() {
     },
     onSuccess: (_data, id) => {
       qc.setQueryData<ProductType[] | undefined>(["product-types"], (prev) => prev?.filter((p) => p.id !== id));
+      qc.invalidateQueries({ queryKey: ["product-types"] });
+    }
+  });
+}
+
+export function useReorderProductTypes() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (orderedIds: string[]) => {
+      const res = await apiFetch("/api/product-types/reorder", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", "x-admin-token": getAdminToken() || "" },
+        body: JSON.stringify({ orderedIds })
+      });
+      if (!res.ok) await throwResponseError(res);
+      return res.json() as Promise<{ productTypes: ProductType[] }>;
+    },
+    onSuccess: (data) => {
+      qc.setQueryData<ProductType[]>(["product-types"], data.productTypes);
       qc.invalidateQueries({ queryKey: ["product-types"] });
     }
   });

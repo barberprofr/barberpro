@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { useServices } from "@/lib/api";
-import { Check, X } from "lucide-react";
+import { useServices, useProductTypes } from "@/lib/api";
+import { Check, X, Package } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState, useEffect, useCallback } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -14,8 +14,15 @@ interface SelectedPrestation {
   quantity: number;
 }
 
+interface SelectedProduct {
+  id: string;
+  name: string;
+  price: number;
+  quantity: number;
+}
+
 interface ServicesPickerProps {
-  onServiceSelect?: (prestations: SelectedPrestation[]) => void;
+  onServiceSelect?: (prestations: SelectedPrestation[], products?: SelectedProduct[]) => void;
   onReset?: (closeFunc: () => void) => void;
   externalOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
@@ -24,6 +31,7 @@ interface ServicesPickerProps {
 
 export default function ServicesPicker({ onServiceSelect, onReset, externalOpen, onOpenChange, disabled }: ServicesPickerProps) {
   const { data: services = [] } = useServices();
+  const { data: productTypes = [] } = useProductTypes();
   const { toast } = useToast();
   const [internalOpen, setInternalOpen] = useState(false);
 
@@ -48,17 +56,22 @@ export default function ServicesPicker({ onServiceSelect, onReset, externalOpen,
 
 
   const [selectedPrestations, setSelectedPrestations] = useState<Map<string, SelectedPrestation>>(new Map());
+  const [selectedProducts, setSelectedProducts] = useState<Map<string, SelectedProduct>>(new Map());
   const [calculatorServiceId, setCalculatorServiceId] = useState<string | null>(null);
+  const [calculatorProductId, setCalculatorProductId] = useState<string | null>(null);
   const [animatingQtyId, setAnimatingQtyId] = useState<string | null>(null);
+  const [animatingProductQtyId, setAnimatingProductQtyId] = useState<string | null>(null);
 
   useEffect(() => {
     onReset?.(() => {
       setPopoverOpen(false);
       setSelectedPrestations(new Map());
+      setSelectedProducts(new Map());
     });
   }, [onReset]);
 
   const hasServices = services.length > 0;
+  const hasProducts = productTypes.length > 0;
 
   const toggleService = useCallback((serviceId: string, serviceName: string, price: number) => {
     setSelectedPrestations(prev => {
@@ -84,29 +97,60 @@ export default function ServicesPicker({ onServiceSelect, onReset, externalOpen,
     setCalculatorServiceId(null);
   }, []);
 
-  const total = Array.from(selectedPrestations.values()).reduce(
+  const toggleProduct = useCallback((productId: string, productName: string, price: number) => {
+    setSelectedProducts(prev => {
+      const newMap = new Map(prev);
+      if (newMap.has(productId)) {
+        newMap.delete(productId);
+      } else {
+        newMap.set(productId, { id: productId, name: productName, price, quantity: 1 });
+      }
+      return newMap;
+    });
+  }, []);
+
+  const setProductQuantity = useCallback((productId: string, quantity: number) => {
+    setSelectedProducts(prev => {
+      const newMap = new Map(prev);
+      const product = newMap.get(productId);
+      if (product) {
+        newMap.set(productId, { ...product, quantity });
+      }
+      return newMap;
+    });
+    setCalculatorProductId(null);
+  }, []);
+
+  const prestationsTotal = Array.from(selectedPrestations.values()).reduce(
     (sum, p) => sum + p.price * p.quantity,
     0
   );
 
+  const productsTotal = Array.from(selectedProducts.values()).reduce(
+    (sum, p) => sum + p.price * p.quantity,
+    0
+  );
+
+  const total = prestationsTotal + productsTotal;
+
   const handleValidate = useCallback(() => {
-    if (selectedPrestations.size > 0) {
-      onServiceSelect?.(Array.from(selectedPrestations.values()));
+    if (selectedPrestations.size > 0 || selectedProducts.size > 0) {
+      onServiceSelect?.(Array.from(selectedPrestations.values()), Array.from(selectedProducts.values()));
       setPopoverOpen(false);
     }
-  }, [selectedPrestations, onServiceSelect]);
+  }, [selectedPrestations, selectedProducts, onServiceSelect]);
 
   return (
     <Dialog open={popoverOpen} onOpenChange={setPopoverOpen}>
-      <DialogContent className="max-w-[min(90vw,36rem)] rounded-2xl border border-white/25 bg-black/15 shadow-[0_40px_95px_rgba(8,15,40,0.3)] backdrop-blur-[4px] p-0">
+      <DialogContent className="max-w-[min(90vw,42rem)] rounded-2xl border border-white/25 bg-black/15 shadow-[0_40px_95px_rgba(8,15,40,0.3)] backdrop-blur-[4px] p-0">
         <DialogHeader className="px-4 pt-4 pb-2">
-          <DialogTitle className="text-xl font-black text-white">PRESTATIONS</DialogTitle>
+          <DialogTitle className="text-xl font-black text-amber-400">PRESTATIONS & PRODUITS</DialogTitle>
         </DialogHeader>
-        {hasServices ? (
+        {(hasServices || hasProducts) ? (
           <div className="flex flex-col">
             {/* Total display at top */}
             <AnimatePresence>
-              {selectedPrestations.size > 0 && (
+              {(selectedPrestations.size > 0 || selectedProducts.size > 0) && (
                 <motion.div
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: "auto" }}
@@ -121,8 +165,14 @@ export default function ServicesPicker({ onServiceSelect, onReset, externalOpen,
               )}
             </AnimatePresence>
 
-            {/* Services list */}
-            <motion.div layout className="space-y-2 max-h-[60vh] overflow-y-auto p-4 elegant-scrollbar">
+            {/* Scrollable container for both services and products */}
+            <motion.div layout className="space-y-4 max-h-[50vh] overflow-y-auto p-4 elegant-scrollbar">
+              {/* Services section */}
+              {hasServices && (
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-sm font-bold text-white/70 uppercase tracking-wide">Prestations</span>
+                  </div>
               {services.map((service) => {
                 const isSelected = selectedPrestations.has(service.id);
                 const selectedData = selectedPrestations.get(service.id);
@@ -244,9 +294,130 @@ export default function ServicesPicker({ onServiceSelect, onReset, externalOpen,
                   </motion.div>
                 );
               })}
+                </div>
+              )}
+
+              {/* Products section */}
+              {hasProducts && (
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 mb-2 pt-2 border-t border-white/10">
+                    <Package className="h-4 w-4 text-cyan-400" />
+                    <span className="text-sm font-bold text-amber-400 uppercase tracking-wide">Produits</span>
+                  </div>
+                  {productTypes.map((product) => {
+                    const isSelected = selectedProducts.has(product.id);
+                    const selectedData = selectedProducts.get(product.id);
+
+                    return (
+                      <motion.div
+                        key={product.id}
+                        layout
+                        onClick={() => !isSelected && toggleProduct(product.id, product.name, product.price)}
+                        whileHover={!isSelected ? { scale: 1.03, y: -2, boxShadow: "0 0 20px rgba(6,182,212,0.4), 0 15px 40px rgba(15,23,42,0.25)" } : {}}
+                        whileTap={!isSelected ? { scale: 1.08, y: -6, boxShadow: "0 0 35px rgba(6,182,212,0.7), 0 0 60px rgba(52,211,153,0.4), 0 20px 50px rgba(52,211,153,0.3)" } : {}}
+                        transition={{ type: "spring", stiffness: 400, damping: 20 }}
+                        className={cn(
+                          "group relative w-full overflow-hidden rounded-2xl border p-3 shadow-[0_10px_30px_rgba(15,23,42,0.15)] backdrop-blur-[2px] transition",
+                          isSelected
+                            ? "border-cyan-400/50 bg-cyan-900/20"
+                            : "border-white/25 bg-slate-900/25 cursor-pointer hover:border-white/40 hover:bg-slate-800/30"
+                        )}
+                      >
+                        <div className="flex items-center gap-3">
+                          <motion.button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleProduct(product.id, product.name, product.price);
+                            }}
+                            animate={isSelected ? { 
+                              scale: [1, 1.15, 1],
+                              boxShadow: ["0 0 0px rgba(6,182,212,0)", "0 0 50px rgba(6,182,212,1)", "0 0 30px rgba(6,182,212,0.7)"]
+                            } : {}}
+                            transition={{ duration: 0.5 }}
+                            className="relative flex h-12 w-12 items-center justify-center rounded-full flex-shrink-0"
+                          >
+                            <div className={cn(
+                              "absolute inset-0 rounded-full transition-all duration-300",
+                              isSelected 
+                                ? "bg-gradient-to-br from-blue-500 via-cyan-500 to-teal-500 shadow-[0_0_25px_rgba(6,182,212,0.6)]"
+                                : "bg-gradient-to-br from-slate-600/50 via-slate-500/30 to-slate-600/50"
+                            )} />
+                            <div className={cn(
+                              "absolute inset-[3px] rounded-full transition-all duration-300",
+                              isSelected
+                                ? "bg-gradient-to-br from-white/90 via-gray-200/80 to-white/70 shadow-[inset_0_2px_4px_rgba(0,0,0,0.1)]"
+                                : "bg-gradient-to-br from-white/30 via-white/20 to-white/10"
+                            )} />
+                            <div className={cn(
+                              "absolute inset-[6px] rounded-full transition-all duration-300 flex items-center justify-center",
+                              isSelected
+                                ? "bg-gradient-to-br from-cyan-400/90 via-teal-500/85 to-emerald-600/90 shadow-[inset_0_3px_6px_rgba(255,255,255,0.4),inset_0_-3px_6px_rgba(0,0,0,0.2)]"
+                                : "bg-gradient-to-br from-white/15 via-white/10 to-white/5 shadow-[inset_0_2px_4px_rgba(255,255,255,0.1)]"
+                            )}>
+                              <div className="absolute inset-x-1 top-1 h-[45%] rounded-t-full bg-gradient-to-b from-white/50 to-transparent pointer-events-none" />
+                              {isSelected && <Check className="h-5 w-5 text-white drop-shadow-[0_2px_3px_rgba(0,0,0,0.4)] relative z-10" />}
+                            </div>
+                          </motion.button>
+
+                          <div className="flex-1 flex items-center justify-between gap-3">
+                            <span className="text-lg font-bold text-white">
+                              {product.name}
+                            </span>
+                            <span className="text-lg font-semibold text-white/80">
+                              {product.price.toFixed(2)}€
+                            </span>
+                          </div>
+
+                          <AnimatePresence>
+                            {isSelected && selectedData && (
+                              <motion.div
+                                initial={{ opacity: 0, scale: 0.8 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                exit={{ opacity: 0, scale: 0.8 }}
+                                className="flex items-center gap-2"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <motion.button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setAnimatingProductQtyId(product.id);
+                                    setTimeout(() => {
+                                      setAnimatingProductQtyId(null);
+                                      setCalculatorProductId(product.id);
+                                    }, 200);
+                                  }}
+                                  animate={animatingProductQtyId === product.id ? { scale: 1.15, boxShadow: "0 0 20px rgba(6,182,212,0.8)" } : { scale: 1, boxShadow: "0 0 0px rgba(6,182,212,0)" }}
+                                  transition={{ type: "spring", stiffness: 400, damping: 15 }}
+                                  className="relative flex items-center gap-1 rounded-lg border border-cyan-400/50 bg-cyan-950/40 px-3 py-1.5 hover:bg-cyan-900/50 transition cursor-pointer"
+                                >
+                                  <span className="text-sm font-bold text-cyan-100">
+                                    Qté: {selectedData.quantity}
+                                  </span>
+                                </motion.button>
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    toggleProduct(product.id, product.name, product.price);
+                                  }}
+                                  className="flex h-7 w-7 items-center justify-center rounded-full bg-red-500/80 text-white hover:bg-red-600 transition flex-shrink-0"
+                                >
+                                  <X className="h-4 w-4" />
+                                </button>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                        </div>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              )}
             </motion.div>
 
-            {/* Calculator Popup */}
+            {/* Calculator Popup for Services */}
             <AnimatePresence>
               {calculatorServiceId && (
                 <motion.div
@@ -283,9 +454,46 @@ export default function ServicesPicker({ onServiceSelect, onReset, externalOpen,
               )}
             </AnimatePresence>
 
+            {/* Calculator Popup for Products */}
+            <AnimatePresence>
+              {calculatorProductId && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+                  onClick={() => setCalculatorProductId(null)}
+                >
+                  <motion.div
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    exit={{ scale: 0.8, opacity: 0 }}
+                    onClick={(e) => e.stopPropagation()}
+                    className="w-[min(90vw,20rem)] rounded-3xl border border-cyan-400/50 bg-gradient-to-br from-slate-950/95 via-indigo-900/70 to-cyan-800/40 p-6 shadow-[0_40px_100px_rgba(8,15,40,0.8)] backdrop-blur-2xl"
+                  >
+                    <h3 className="mb-4 text-center text-xl font-bold text-cyan-100">
+                      Sélectionner la quantité
+                    </h3>
+                    <div className="grid grid-cols-3 gap-3">
+                      {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
+                        <button
+                          key={num}
+                          type="button"
+                          onClick={() => setProductQuantity(calculatorProductId, num)}
+                          className="flex h-16 w-full items-center justify-center rounded-xl border-2 border-cyan-400/50 bg-gradient-to-br from-cyan-600/30 to-cyan-700/20 text-2xl font-black text-white transition-all hover:scale-105 hover:border-cyan-300 hover:bg-gradient-to-br hover:from-cyan-500/40 hover:to-cyan-600/30 active:scale-95"
+                        >
+                          {num}
+                        </button>
+                      ))}
+                    </div>
+                  </motion.div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
             {/* Validate button at bottom */}
             <AnimatePresence>
-              {selectedPrestations.size > 0 && (
+              {(selectedPrestations.size > 0 || selectedProducts.size > 0) && (
                 <motion.div
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: "auto" }}
@@ -312,7 +520,9 @@ export default function ServicesPicker({ onServiceSelect, onReset, externalOpen,
                   >
                     {/* Reflet glass 3D */}
                     <div className="absolute inset-x-2 top-1 h-[40%] rounded-t-xl bg-gradient-to-b from-white/40 to-transparent pointer-events-none" />
-                    <span className="relative z-10 drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]">Valider ({selectedPrestations.size} prestation{selectedPrestations.size > 1 ? 's' : ''})</span>
+                    <span className="relative z-10 drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]">
+                      Valider ({selectedPrestations.size > 0 ? `${selectedPrestations.size} prest.` : ''}{selectedPrestations.size > 0 && selectedProducts.size > 0 ? ' + ' : ''}{selectedProducts.size > 0 ? `${selectedProducts.size} prod.` : ''})
+                    </span>
                   </motion.button>
                 </motion.div>
               )}

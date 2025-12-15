@@ -12,7 +12,7 @@ function Table({ id }: { id: string }) {
       <div className="grid grid-cols-4 bg-muted/40 px-3 py-2 font-medium">
         <div></div>
         <div>Espèces</div>
-        <div>En ligne</div>
+        <div className="flex flex-col leading-tight text-[10px]"><span>Planity</span><span>Treatwell</span></div>
         <div>Carte</div>
       </div>
       <div className="grid grid-cols-4 px-3 py-2 border-t">

@@ -327,8 +327,11 @@ async function aggregateByPayment(salonId: string, stylistId: string, refNowMs: 
     const inc = (scope: ReturnType<typeof makeScope>) => {
       scope.total.amount += p.amount;
       scope.total.count += 1;
-      scope.methods[p.paymentMethod].amount += p.amount;
-      scope.methods[p.paymentMethod].count += 1;
+      const method = p.paymentMethod as PaymentMethod;
+      if (scope.methods[method]) {
+        scope.methods[method].amount += p.amount;
+        scope.methods[method].count += 1;
+      }
     };
 
     if (startOfDayParis(p.timestamp) === todayStart) {
@@ -364,7 +367,10 @@ async function aggregateByPayment(salonId: string, stylistId: string, refNowMs: 
   for (const prod of products) {
     const incAmount = (scope: ReturnType<typeof makeScope>) => {
       scope.total.amount += prod.amount;
-      scope.methods[prod.paymentMethod].amount += prod.amount;
+      const method = prod.paymentMethod as PaymentMethod;
+      if (scope.methods[method]) {
+        scope.methods[method].amount += prod.amount;
+      }
     };
 
     if (startOfDayParis(prod.timestamp) === todayStart) {
@@ -427,8 +433,11 @@ async function aggregateAllPayments(salonId: string) {
     const inc = (scope: ReturnType<typeof makeScope>) => {
       scope.total.amount += p.amount;
       scope.total.count += 1;
-      scope.methods[p.paymentMethod].amount += p.amount;
-      scope.methods[p.paymentMethod].count += 1;
+      const method = p.paymentMethod as PaymentMethod;
+      if (scope.methods[method]) {
+        scope.methods[method].amount += p.amount;
+        scope.methods[method].count += 1;
+      }
     };
 
     if (startOfDayParis(p.timestamp) === todayStart) inc(daily);
@@ -438,7 +447,10 @@ async function aggregateAllPayments(salonId: string) {
   for (const prod of products) {
     const incAmount = (scope: ReturnType<typeof makeScope>) => {
       scope.total.amount += prod.amount;
-      scope.methods[prod.paymentMethod].amount += prod.amount;
+      const method = prod.paymentMethod as PaymentMethod;
+      if (scope.methods[method]) {
+        scope.methods[method].amount += prod.amount;
+      }
     };
 
     if (startOfDayParis(prod.timestamp) === todayStart) incAmount(daily);
@@ -1706,12 +1718,15 @@ export const getGlobalBreakdown: RequestHandler = async (req, res) => {
       const isDaily = ts === todayStart;
       const isMonthly = isSameMonthParis(p.timestamp, ref);
       const isRange = startDateMs && endDateMs && p.timestamp >= startDateMs && p.timestamp <= endDateMs;
+      const method = p.paymentMethod as PaymentMethod;
 
       if (isDaily) {
         daily.total.amount += p.amount;
         daily.total.count += 1;
-        daily.methods[p.paymentMethod].amount += p.amount;
-        daily.methods[p.paymentMethod].count += 1;
+        if (daily.methods[method]) {
+          daily.methods[method].amount += p.amount;
+          daily.methods[method].count += 1;
+        }
         dailyPrestationCount++;
         dailyEntries.push({
           id: p.id,
@@ -1725,15 +1740,19 @@ export const getGlobalBreakdown: RequestHandler = async (req, res) => {
       if (isMonthly) {
         monthly.total.amount += p.amount;
         monthly.total.count += 1;
-        monthly.methods[p.paymentMethod].amount += p.amount;
-        monthly.methods[p.paymentMethod].count += 1;
+        if (monthly.methods[method]) {
+          monthly.methods[method].amount += p.amount;
+          monthly.methods[method].count += 1;
+        }
         monthlyPrestationCount++;
       }
       if (isRange) {
         range.total.amount += p.amount;
         range.total.count += 1;
-        range.methods[p.paymentMethod].amount += p.amount;
-        range.methods[p.paymentMethod].count += 1;
+        if (range.methods[method]) {
+          range.methods[method].amount += p.amount;
+          range.methods[method].count += 1;
+        }
         rangePrestationCount++;
         rangeEntries.push({
           id: p.id,
@@ -1751,10 +1770,13 @@ export const getGlobalBreakdown: RequestHandler = async (req, res) => {
       const isDaily = ts === todayStart;
       const isMonthly = isSameMonthParis(prod.timestamp, ref);
       const isRange = startDateMs && endDateMs && prod.timestamp >= startDateMs && prod.timestamp <= endDateMs;
+      const prodMethod = prod.paymentMethod as PaymentMethod;
 
       if (isDaily) {
         daily.total.amount += prod.amount;
-        daily.methods[prod.paymentMethod].amount += prod.amount;
+        if (daily.methods[prodMethod]) {
+          daily.methods[prodMethod].amount += prod.amount;
+        }
         dailyProductCount++;
         dailyEntries.push({
           id: prod.id,
@@ -1767,12 +1789,16 @@ export const getGlobalBreakdown: RequestHandler = async (req, res) => {
       }
       if (isMonthly) {
         monthly.total.amount += prod.amount;
-        monthly.methods[prod.paymentMethod].amount += prod.amount;
+        if (monthly.methods[prodMethod]) {
+          monthly.methods[prodMethod].amount += prod.amount;
+        }
         monthlyProductCount++;
       }
       if (isRange) {
         range.total.amount += prod.amount;
-        range.methods[prod.paymentMethod].amount += prod.amount;
+        if (range.methods[prodMethod]) {
+          range.methods[prodMethod].amount += prod.amount;
+        }
         rangeProductCount++;
         rangeEntries.push({
           id: prod.id,
@@ -2108,7 +2134,7 @@ export const reorderServices: RequestHandler = async (req, res) => {
 export const listProductTypes: RequestHandler = async (req, res) => {
   try {
     const salonId = getSalonId(req);
-    const productTypes = await ProductType.find({ salonId });
+    const productTypes = await ProductType.find({ salonId }).sort({ sortOrder: 1, createdAt: 1 });
     res.json({ productTypes });
   } catch (error) {
     console.error('Error listing product types:', error);
@@ -2163,6 +2189,37 @@ export const deleteProductType: RequestHandler = async (req, res) => {
     res.json({ ok: true });
   } catch (error) {
     console.error('Error deleting product type:', error);
+    res.status(500).json({ error: "Erreur serveur" });
+  }
+};
+
+export const reorderProductTypes: RequestHandler = async (req, res) => {
+  try {
+    if (!(await requireAdmin(req, res))) return;
+
+    const body = await parseRequestBody(req);
+    const salonId = getSalonId(req);
+    const { orderedIds } = body as { orderedIds: string[] };
+
+    if (!Array.isArray(orderedIds)) {
+      return res.status(400).json({ error: "orderedIds must be an array" });
+    }
+
+    const bulkOps = orderedIds.map((id, index) => ({
+      updateOne: {
+        filter: { id, salonId },
+        update: { $set: { sortOrder: index } }
+      }
+    }));
+
+    if (bulkOps.length > 0) {
+      await ProductType.bulkWrite(bulkOps);
+    }
+
+    const productTypes = await ProductType.find({ salonId }).sort({ sortOrder: 1, createdAt: 1 });
+    res.json({ productTypes });
+  } catch (error) {
+    console.error('Error reordering product types:', error);
     res.status(500).json({ error: "Erreur serveur" });
   }
 };
@@ -2510,12 +2567,17 @@ export const reportByMonth: RequestHandler = async (req, res) => {
       }
       scope.total.amount += p.amount;
       scope.total.count += 1;
-      scope.methods[p.paymentMethod].amount += p.amount;
-      scope.methods[p.paymentMethod].count += 1;
+      const method = p.paymentMethod as PaymentMethod;
+      if (scope.methods[method]) {
+        scope.methods[method].amount += p.amount;
+        scope.methods[method].count += 1;
+      }
       yearlyScope.total.amount += p.amount;
       yearlyScope.total.count += 1;
-      yearlyScope.methods[p.paymentMethod].amount += p.amount;
-      yearlyScope.methods[p.paymentMethod].count += 1;
+      if (yearlyScope.methods[method]) {
+        yearlyScope.methods[method].amount += p.amount;
+        yearlyScope.methods[method].count += 1;
+      }
       const stylist = stylistMap.get(p.stylistId);
       const pct = typeof stylist?.commissionPct === "number" ? stylist.commissionPct : settings.commissionDefault;
       const salary = (p.amount * pct) / 100;
@@ -2533,9 +2595,14 @@ export const reportByMonth: RequestHandler = async (req, res) => {
         monthlyScopes.set(key, scope);
       }
       scope.total.amount += prod.amount;
-      scope.methods[prod.paymentMethod].amount += prod.amount;
+      const method = prod.paymentMethod as PaymentMethod;
+      if (scope.methods[method]) {
+        scope.methods[method].amount += prod.amount;
+      }
       yearlyScope.total.amount += prod.amount;
-      yearlyScope.methods[prod.paymentMethod].amount += prod.amount;
+      if (yearlyScope.methods[method]) {
+        yearlyScope.methods[method].amount += prod.amount;
+      }
       monthlyProductCounts.set(key, (monthlyProductCounts.get(key) || 0) + 1);
       yearlyProductCount++;
     }

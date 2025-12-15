@@ -42,7 +42,7 @@ const PAYMENT_METHOD_META: PaymentSummaryMeta[] = [
   },
   {
     key: "check",
-    label: "En ligne",
+    label: "Planity/Treatwell",
     icon: FileText,
     badgeClasses: "border border-amber-500/40 bg-amber-500/10",
     iconClasses: "text-amber-300",
@@ -360,7 +360,7 @@ function GlobalTransactionRow({ entry: e, onUpdate }: { entry: any, onUpdate: (i
                 {e.paymentMethod === "cash" && <svg className="h-2.5 w-2.5 text-emerald-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><rect x="2" y="6" width="20" height="12" rx="2" /><circle cx="12" cy="12" r="3" /><path d="M12 10v4m-1-3.5h2m-2 3h2" /></svg>}
               </span>
               <span className="text-[9px] font-semibold uppercase tracking-wide text-white/80">
-                {({ cash: "ESPÈCES", check: "EN LIGNE", card: "CARTE" } as const)[e.paymentMethod as "cash" | "check" | "card"]}
+                {e.paymentMethod === "check" ? <span className="flex flex-col leading-tight text-[7px]"><span>Planity</span><span>Treatwell</span></span> : ({ cash: "ESPÈCES", card: "CARTE" } as const)[e.paymentMethod as "cash" | "card"]}
               </span>
             </button>
           </PopoverTrigger>
@@ -389,7 +389,7 @@ function GlobalTransactionRow({ entry: e, onUpdate }: { entry: any, onUpdate: (i
                     {method === "cash" && <svg className="h-2.5 w-2.5 text-emerald-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><rect x="2" y="6" width="20" height="12" rx="2" /><circle cx="12" cy="12" r="3" /><path d="M12 10v4m-1-3.5h2m-2 3h2" /></svg>}
                   </span>
                   <span className="text-[10px] font-semibold uppercase tracking-wide text-white/80">
-                    {({ cash: "ESPÈCES", check: "EN LIGNE", card: "CARTE" } as const)[method]}
+                    {method === "check" ? <span className="flex flex-col leading-tight text-[7px]"><span>Planity</span><span>Treatwell</span></span> : ({ cash: "ESPÈCES", card: "CARTE" } as const)[method]}
                   </span>
                 </button>
               ))}
@@ -571,7 +571,7 @@ function GlobalRevenueStats() {
       <div className="grid grid-cols-4 text-sm border rounded-md overflow-hidden">
         <div className="bg-white/12 px-3 py-2"></div>
         <div className="bg-white/12 px-3 py-2"><span className="inline-flex items-center px-2 py-0.5 rounded-full border-2 border-emerald-300 bg-emerald-100/30 text-emerald-100 text-xs font-semibold">Espèces</span></div>
-        <div className="bg-white/12 px-3 py-2"><span className="inline-flex items-center px-2 py-0.5 rounded-full border-2 border-amber-300 bg-amber-100/30 text-amber-100 text-xs font-semibold">En ligne</span></div>
+        <div className="bg-white/12 px-3 py-2"><span className="inline-flex items-center px-2 py-0.5 rounded-full border-2 border-amber-300 bg-amber-100/30 text-amber-100 text-[8px] font-semibold"><span className="flex flex-col leading-tight text-center"><span>Planity</span><span>Treatwell</span></span></span></div>
         <div className="bg-white/12 px-3 py-2"><span className="inline-flex items-center px-2 py-0.5 rounded-full border-2 border-indigo-300 bg-indigo-100/30 text-indigo-100 text-xs font-semibold">Carte</span></div>
         <div className="px-3 py-2 font-bold">{useTodayData ? "Jour" : useRangeData ? "Période" : "Mois"}</div>
         <div className="px-3 py-2">{eur.format(displayData?.methods?.cash?.amount ?? 0)}</div>
@@ -1119,20 +1119,6 @@ function RevenueByMonth() {
                 <a className="px-2 py-1 rounded border hover:bg-accent" href={"/api" + apiPath(`/reports/by-month.pdf?year=${year}`)}>Export PDF</a>
               </div>
             </div>
-            <div className="grid grid-cols-3 bg-white/12 px-3 py-2 font-medium text-white/80 rounded">
-              <div>Mois</div>
-              <div>Montant</div>
-              <div>Détails</div>
-            </div>
-            <div className="max-h-48 overflow-y-auto space-y-1">
-              {data?.months.map((m) => (
-                <div key={m.month} className="grid grid-cols-3 px-3 py-2 border-t text-sm">
-                  <div>{m.month}</div>
-                  <div>{eur.format(m.amount)}</div>
-                  <div>{m.count} prest.{(m as any).productCount ? `, ${(m as any).productCount} prod.` : ""}</div>
-                </div>
-              ))}
-            </div>
           </PopoverContent>
         </Popover>
         <div className="flex items-center gap-2 text-sm">
@@ -1319,6 +1305,21 @@ export default function Settings() {
   const [openDaily, setOpenDaily] = useState<Record<string, boolean>>({});
   const [openMonthly, setOpenMonthly] = useState<Record<string, boolean>>({});
 
+  const closeAllPopups = () => {
+    setAccordionValue("");
+    setBestDaysAccordionValue("");
+    setServicesAccordionValue("");
+    setOpenStylistId(null);
+    setCoiffCaPopupOpen(false);
+    setDailyCaPopupOpen(false);
+    setYearCaPopupOpen(false);
+    setOpenDaily({});
+    setOpenMonthly({});
+    setIsDayUsageVisible(false);
+    setIsMonthUsageVisible(false);
+  };
+
+
   const handleSalonNameSave = () => {
     const trimmed = salonNameDraft.trim();
     if (!trimmed || trimmed === (config?.salonName ?? "") || updateConfig.isPending) {
@@ -1494,9 +1495,21 @@ export default function Settings() {
     );
   }
 
+  const hasAnyPopupOpen = accordionValue !== "" || bestDaysAccordionValue !== "" || servicesAccordionValue !== "" || 
+    openStylistId !== null || coiffCaPopupOpen || dailyCaPopupOpen || yearCaPopupOpen || 
+    Object.values(openDaily).some(Boolean) || Object.values(openMonthly).some(Boolean) ||
+    isDayUsageVisible || isMonthUsageVisible;
+
   return (
     <SharedLayout>
-      <div className="mx-auto max-w-2xl space-y-3 px-3 pb-8 lg:px-0 relative">
+      {hasAnyPopupOpen && (
+        <div 
+          className="fixed inset-0 z-[5]" 
+          onClick={closeAllPopups}
+          style={{ cursor: 'default' }}
+        />
+      )}
+      <div className="mx-auto max-w-2xl space-y-3 px-3 pb-8 lg:px-0 relative z-10">
         <Card className="relative overflow-hidden rounded-[24px] border border-white/20 bg-black/12 backdrop-blur-md shadow-[0_32px_96px_rgba(8,15,40,0.2)]">
           <CardHeader className="relative z-10 flex flex-col space-y-2 p-4 pb-2.5 text-white">
             <span className="inline-flex w-fit items-center gap-1.5 rounded-full border border-emerald-400/50 bg-gradient-to-r from-emerald-500/20 to-emerald-400/10 px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-emerald-100 shadow-[0_10px_24px_rgba(16,185,129,0.3),inset_0_1px_1px_rgba(255,255,255,0.2)]">🔐 Espace administration</span>
@@ -2027,41 +2040,41 @@ export default function Settings() {
                   </AccordionContent>
                 </div>
               </AccordionItem>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="grid grid-cols-3 gap-2 sm:gap-3">
                 <button
                   type="button"
                   onClick={() => setCoiffCaPopupOpen(true)}
-                  className="group relative flex flex-col items-center justify-center gap-1.5 rounded-2xl border-2 border-amber-400/60 bg-transparent px-3 py-4 transition-all duration-300 hover:scale-[1.05] hover:border-amber-300 hover:shadow-[0_0_25px_rgba(245,158,11,0.4)] active:scale-[1.18] active:rotate-2 active:border-yellow-200 active:bg-amber-400/20 active:shadow-[0_0_60px_rgba(255,200,50,1),0_0_120px_rgba(255,180,30,1),0_0_180px_rgba(245,158,11,0.8),0_0_250px_rgba(245,158,11,0.6),0_0_350px_rgba(245,158,11,0.4)] active:brightness-[3]"
+                  className="group relative flex flex-col items-center justify-center gap-1 sm:gap-1.5 rounded-xl sm:rounded-2xl border-2 border-amber-400/60 bg-transparent px-1.5 py-2.5 sm:px-3 sm:py-4 transition-all duration-300 hover:scale-[1.05] hover:border-amber-300 hover:shadow-[0_0_25px_rgba(245,158,11,0.4)] active:scale-[1.18] active:rotate-2 active:border-yellow-200 active:bg-amber-400/20 active:shadow-[0_0_60px_rgba(255,200,50,1),0_0_120px_rgba(255,180,30,1),0_0_180px_rgba(245,158,11,0.8),0_0_250px_rgba(245,158,11,0.6),0_0_350px_rgba(245,158,11,0.4)] active:brightness-[3]"
                 >
-                  <svg className="h-7 w-7 text-amber-400/70" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <svg className="h-5 w-5 sm:h-7 sm:w-7 text-amber-400/70" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
                   </svg>
-                  <span className="text-sm font-bold text-amber-400">CA Coiffeur</span>
-                  <span className="text-[10px] text-white/60">Chiffre d'affaires</span>
+                  <span className="text-[10px] sm:text-sm font-bold text-amber-400">CA Coiffeur</span>
+                  <span className="text-[8px] sm:text-[10px] text-white/60 hidden sm:block">Chiffre d'affaires</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setDailyCaPopupOpen(true)}
-                  className="group relative flex flex-col items-center justify-center gap-1.5 rounded-2xl border-2 border-amber-400/60 bg-transparent px-3 py-4 transition-all duration-300 hover:scale-[1.05] hover:border-amber-300 hover:shadow-[0_0_25px_rgba(245,158,11,0.4)] active:scale-[1.18] active:rotate-2 active:border-yellow-200 active:bg-amber-400/20 active:shadow-[0_0_60px_rgba(255,200,50,1),0_0_120px_rgba(255,180,30,1),0_0_180px_rgba(245,158,11,0.8),0_0_250px_rgba(245,158,11,0.6),0_0_350px_rgba(245,158,11,0.4)] active:brightness-[3]"
+                  className="group relative flex flex-col items-center justify-center gap-1 sm:gap-1.5 rounded-xl sm:rounded-2xl border-2 border-amber-400/60 bg-transparent px-1.5 py-2.5 sm:px-3 sm:py-4 transition-all duration-300 hover:scale-[1.05] hover:border-amber-300 hover:shadow-[0_0_25px_rgba(245,158,11,0.4)] active:scale-[1.18] active:rotate-2 active:border-yellow-200 active:bg-amber-400/20 active:shadow-[0_0_60px_rgba(255,200,50,1),0_0_120px_rgba(255,180,30,1),0_0_180px_rgba(245,158,11,0.8),0_0_250px_rgba(245,158,11,0.6),0_0_350px_rgba(245,158,11,0.4)] active:brightness-[3]"
                 >
-                  <svg className="h-7 w-7 text-amber-400/70" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <svg className="h-5 w-5 sm:h-7 sm:w-7 text-amber-400/70" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 18.75a60.07 60.07 0 0 1 15.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 0 1 3 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 0 0-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 0 1-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 0 0 3 15h-.75M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm3 0h.008v.008H18V10.5Zm-12 0h.008v.008H6V10.5Z" />
                   </svg>
-                  <span className="text-sm font-bold text-amber-400">CA Salon</span>
-                  <span className="text-[10px] text-white/60">Aujourd'hui</span>
+                  <span className="text-[10px] sm:text-sm font-bold text-amber-400">CA Salon</span>
+                  <span className="text-[8px] sm:text-[10px] text-white/60 hidden sm:block">Aujourd'hui</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setYearCaPopupOpen(true)}
-                  className="group relative flex flex-col items-center justify-center gap-1.5 rounded-2xl border-2 border-amber-400/60 bg-transparent px-3 py-4 transition-all duration-300 hover:scale-[1.05] hover:border-amber-300 hover:shadow-[0_0_25px_rgba(245,158,11,0.4)] active:scale-[1.18] active:rotate-2 active:border-yellow-200 active:bg-amber-400/20 active:shadow-[0_0_60px_rgba(255,200,50,1),0_0_120px_rgba(255,180,30,1),0_0_180px_rgba(245,158,11,0.8),0_0_250px_rgba(245,158,11,0.6),0_0_350px_rgba(245,158,11,0.4)] active:brightness-[3]"
+                  className="group relative flex flex-col items-center justify-center gap-1 sm:gap-1.5 rounded-xl sm:rounded-2xl border-2 border-amber-400/60 bg-transparent px-1.5 py-2.5 sm:px-3 sm:py-4 transition-all duration-300 hover:scale-[1.05] hover:border-amber-300 hover:shadow-[0_0_25px_rgba(245,158,11,0.4)] active:scale-[1.18] active:rotate-2 active:border-yellow-200 active:bg-amber-400/20 active:shadow-[0_0_60px_rgba(255,200,50,1),0_0_120px_rgba(255,180,30,1),0_0_180px_rgba(245,158,11,0.8),0_0_250px_rgba(245,158,11,0.6),0_0_350px_rgba(245,158,11,0.4)] active:brightness-[3]"
                 >
-                  <svg className="h-7 w-7 text-amber-400/70" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <svg className="h-5 w-5 sm:h-7 sm:w-7 text-amber-400/70" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" />
                   </svg>
-                  <span className="text-sm font-bold text-amber-400">CA Année</span>
-                  <span className="text-[10px] text-white/60">Cette année</span>
+                  <span className="text-[10px] sm:text-sm font-bold text-amber-400">CA Année</span>
+                  <span className="text-[8px] sm:text-[10px] text-white/60 hidden sm:block">Cette année</span>
                 </button>
               </div>
               <AnimatePresence>
@@ -2079,7 +2092,7 @@ export default function Settings() {
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.95 }}
                       transition={{ duration: 0.2 }}
-                      className="w-full max-w-lg max-h-[80vh] overflow-y-auto rounded-2xl border border-white/20 bg-slate-900/95 backdrop-blur-xl p-4 shadow-[0_25px_80px_rgba(0,0,0,0.6)]"
+                      className="w-full max-w-lg max-h-[80vh] overflow-y-auto rounded-2xl border border-white/20 bg-slate-900/50 backdrop-blur-md p-4 shadow-[0_25px_80px_rgba(0,0,0,0.6)]"
                       onClick={(e) => e.stopPropagation()}
                     >
                       <div className="flex items-center justify-center mb-4 relative">
@@ -2110,7 +2123,7 @@ export default function Settings() {
                               }}>
                               <PopoverTrigger asChild>
                                 <button
-                                  className="group relative flex h-36 w-full flex-col items-center justify-center gap-2 overflow-hidden rounded-[20px] border border-white/25 backdrop-blur-[26px] transition-all duration-200 hover:scale-[1.03] active:scale-105 active:brightness-110"
+                                  className="group relative flex h-24 w-full flex-col items-center justify-center gap-1 overflow-hidden rounded-[16px] border border-white/25 backdrop-blur-[26px] transition-all duration-200 hover:scale-[1.03] active:scale-105 active:brightness-110"
                                   style={{ background: "linear-gradient(160deg, rgba(30,41,59,0.95) 0%, rgba(15,23,42,0.98) 100%)", boxShadow: "0 24px 45px -20px rgba(15,23,42,0.65)" }}
                                   onClick={(e) => {
                                     e.preventDefault();
@@ -2118,25 +2131,25 @@ export default function Settings() {
                                     setOpenStylistId(s.id);
                                   }}
                                 >
-                                  <div className="absolute inset-x-4 top-2 h-10 rounded-full opacity-70" style={{ background: "linear-gradient(180deg, rgba(255,255,255,0.55), rgba(255,255,255,0))" }} />
+                                  <div className="absolute inset-x-4 top-1 h-6 rounded-full opacity-70" style={{ background: "linear-gradient(180deg, rgba(255,255,255,0.55), rgba(255,255,255,0))" }} />
                                   <div
-                                    className="relative flex h-[72px] w-[72px] items-center justify-center rounded-full"
+                                    className="relative flex h-[48px] w-[48px] items-center justify-center rounded-full"
                                     style={{ background: colors.outer, boxShadow: colors.glow }}
                                   >
                                     <div
-                                      className="absolute inset-[4px] rounded-full"
+                                      className="absolute inset-[3px] rounded-full"
                                       style={{ background: "radial-gradient(circle, rgba(15,23,42,0.92) 0%, rgba(30,41,59,0.78) 60%, rgba(15,23,42,0.55) 100%)", boxShadow: "inset 0 8px 20px rgba(255,255,255,0.08), inset 0 -14px 24px rgba(2,6,23,0.82)" }}
                                     />
                                     <div
-                                      className="relative h-10 w-10 rounded-[12px] overflow-hidden"
+                                      className="relative h-7 w-7 rounded-[8px] overflow-hidden"
                                       style={{ background: colors.inner, boxShadow: `0 8px 20px rgba(${colors.rgb},0.4), inset 0 2px 4px rgba(255,255,255,0.3), inset 0 -6px 10px rgba(15,23,42,0.55)` }}
                                     >
-                                      <img src="/barber-face.jpg" alt="" className="absolute inset-1 h-[calc(100%-8px)] w-[calc(100%-8px)] object-contain mix-blend-multiply" />
-                                      <div className="absolute inset-x-1 top-1 h-1/2 rounded-t-[10px] opacity-80" style={{ background: "linear-gradient(180deg, rgba(255,255,255,0.78), rgba(255,255,255,0))" }} />
+                                      <img src="/barber-face.jpg" alt="" className="absolute inset-0.5 h-[calc(100%-4px)] w-[calc(100%-4px)] object-contain mix-blend-multiply" />
+                                      <div className="absolute inset-x-0.5 top-0.5 h-1/2 rounded-t-[6px] opacity-80" style={{ background: "linear-gradient(180deg, rgba(255,255,255,0.78), rgba(255,255,255,0))" }} />
                                     </div>
                                   </div>
-                                  <span className="relative z-10 text-base font-black uppercase tracking-wider text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">{s.name}</span>
-                                  <span className="relative z-10 text-xs font-light text-white/90">{stylistCommissionPct}%</span>
+                                  <span className="relative z-10 text-sm font-black uppercase tracking-wider text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">{s.name}</span>
+                                  <span className="relative z-10 text-[10px] font-light text-white/90">{stylistCommissionPct}%</span>
                                 </button>
                               </PopoverTrigger>
                               <PopoverContent className="w-auto rounded-xl border border-white/14 bg-slate-900/95 backdrop-blur-xl p-3 space-y-2.5 shadow-[0_20px_50px_rgba(8,15,40,0.6)]" align="center" sideOffset={8}>
@@ -2175,7 +2188,7 @@ export default function Settings() {
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.95 }}
                       transition={{ duration: 0.2 }}
-                      className="w-full max-w-lg max-h-[80vh] overflow-y-auto rounded-2xl border border-white/20 bg-slate-900/95 backdrop-blur-xl p-4 shadow-[0_25px_80px_rgba(0,0,0,0.6)]"
+                      className="w-full max-w-lg max-h-[80vh] overflow-y-auto rounded-2xl border border-white/20 bg-slate-900/50 backdrop-blur-md p-4 shadow-[0_25px_80px_rgba(0,0,0,0.6)]"
                       onClick={(e) => e.stopPropagation()}
                     >
                       <div className="flex items-center justify-between mb-4">
@@ -2211,7 +2224,7 @@ export default function Settings() {
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.95 }}
                       transition={{ duration: 0.2 }}
-                      className="w-full max-w-2xl max-h-[80vh] overflow-y-auto rounded-2xl border border-white/20 bg-slate-900/95 backdrop-blur-xl p-4 shadow-[0_25px_80px_rgba(0,0,0,0.6)]"
+                      className="w-full max-w-2xl max-h-[80vh] overflow-y-auto rounded-2xl border border-white/20 bg-slate-900/50 backdrop-blur-md p-4 shadow-[0_25px_80px_rgba(0,0,0,0.6)]"
                       onClick={(e) => e.stopPropagation()}
                     >
                       <div className="flex items-center justify-between mb-4">
@@ -2236,17 +2249,13 @@ export default function Settings() {
                 accordionValue={servicesAccordionValue}
                 onAccordionChange={setServicesAccordionValue}
                 onCloseParent={() => setAccordionValue("")}
+                onOpenCoiffeur={() => setAccordionValue("add-stylist")}
+                isCoiffeurOpen={accordionValue === "add-stylist"}
+                onCloseCoiffeur={() => setAccordionValue("")}
               />
 
-              <AccordionItem value="add-stylist">
-                <div className={cn(glassPanelClasses, "space-y-3.5 px-4 py-4")}>
-                  <AccordionTrigger className="group relative flex flex-col items-center justify-center gap-2 rounded-[20px] border border-cyan-500/30 bg-gradient-to-br from-cyan-900/40 via-slate-900/60 to-slate-900/80 backdrop-blur-xl px-5 py-5 shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] transition-all duration-200 hover:scale-[1.02] hover:border-cyan-400/50 hover:shadow-[0_12px_40px_rgba(6,182,212,0.3)] active:scale-[0.98] w-full">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full border border-cyan-400/40 bg-cyan-500/20">
-                      <UserRound className="h-5 w-5 text-cyan-300" />
-                    </div>
-                    <span className="text-sm font-semibold text-white">Ajouter un Coiffeur</span>
-                    <span className="text-xs text-white/50">Nouveau membre</span>
-                  </AccordionTrigger>
+              <AccordionItem value="add-stylist" className="border-0">
+                <AccordionTrigger className="hidden" />
                   <AccordionContent>
                     <div className="space-y-3.5">
                       <div className="flex flex-wrap gap-3">
@@ -2385,7 +2394,6 @@ export default function Settings() {
                       </div>
                     </div>
                   </AccordionContent>
-                </div>
               </AccordionItem>
             </Accordion>
           </CardContent>

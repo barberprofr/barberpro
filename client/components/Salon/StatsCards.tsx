@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { ChevronDown, ChevronLeft, Euro, Scissors, Package, Users } from "lucide-react";
+import { ChevronDown, ChevronLeft, Euro, Scissors, Package, Users, UserRound } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useDashboardSummary, useStylists, useStylistBreakdown, useConfig, apiPath, useProducts, useStylistHasSecretCode, useVerifyStylistSecretCode } from "@/lib/api";
@@ -216,7 +216,7 @@ export default function StatsCards() {
   const dailyProductCount = dailyProducts.length;
   const paymentMethodOrder: ReadonlyArray<{ key: keyof typeof paymentCardStyles; label: string }> = [
     { key: "cash", label: "Espèces" },
-    { key: "check", label: "En ligne" },
+    { key: "check", label: "Planity/Treatwell" },
     { key: "card", label: "Carte" },
   ];
   const paymentTotalAmount = summary?.dailyPayments?.total?.amount ?? summary?.dailyAmount ?? 0;
@@ -228,32 +228,26 @@ export default function StatsCards() {
 
   return (
     <div className="space-y-4">
-      <Popover>
-        <PopoverTrigger asChild>
-          <motion.button
-            type="button"
-            whileHover={{ scale: 1.02, y: -2 }}
-            whileTap={{ scale: 1.08 }}
-            className="relative w-full overflow-hidden rounded-3xl border border-emerald-400/40 bg-gradient-to-br from-slate-800/40 via-slate-900/50 to-slate-950/40 backdrop-blur-sm shadow-[0_12px_40px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.1)] p-4 transition-all duration-300 hover:shadow-[0_16px_50px_rgba(16,185,129,0.3)] active:shadow-[0_0_30px_rgba(6,182,212,0.7),0_0_60px_rgba(16,185,129,0.5)] active:border-cyan-400/70"
-          >
-            <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 via-transparent to-transparent pointer-events-none" />
-            <div className="relative flex items-center gap-4">
-              <div className="relative flex items-center justify-center w-12 h-12 rounded-full overflow-hidden bg-emerald-900/30 shadow-[0_6px_24px_rgba(16,185,129,0.5)]">
-                <img src="/assets/barber-logo.jpg" alt="Coiffeurs" className="h-10 w-10 object-contain" />
-              </div>
-              <div className="flex flex-col items-start">
-                <span className="text-lg font-black text-white uppercase tracking-wide">Coiffeurs</span>
-              </div>
-            </div>
-          </motion.button>
-        </PopoverTrigger>
-        <PopoverContent side="bottom" align="center" className="w-[min(90vw,36rem)] max-h-[80vh] overflow-y-auto rounded-2xl border border-white/20 bg-white/5 p-4 shadow-[0_40px_95px_rgba(8,15,40,0.3)] backdrop-blur-sm [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
-          <StylistsList stylists={stylistsList} config={config} hasStylists={hasStylists} />
-        </PopoverContent>
-      </Popover>
-
       {/* Boutons style glassmorphisme avec icônes 3D */}
       <div className="flex justify-center items-center gap-4 mt-6 px-4">
+        <Popover>
+          <PopoverTrigger asChild>
+            <motion.button
+              type="button"
+              whileHover={{ scale: 1.03, y: -2 }}
+              whileTap={{ scale: 0.97 }}
+              className="relative flex flex-col items-center justify-center w-[100px] h-[100px] rounded-2xl border-2 border-amber-400/60 bg-transparent backdrop-blur-sm shadow-[0_8px_32px_rgba(0,0,0,0.4)] overflow-hidden transition-all duration-300 hover:border-amber-300 hover:shadow-[0_0_25px_rgba(245,158,11,0.4)]"
+            >
+              <div className="relative flex items-center justify-center w-14 h-14 rounded-full overflow-hidden">
+                <img src="/assets/barber-logo.jpg" alt="Coiffeurs" className="h-12 w-12 object-cover rounded-full" />
+              </div>
+              <span className="mt-2 text-[10px] font-semibold text-amber-400 uppercase tracking-wider">Coiffeurs</span>
+            </motion.button>
+          </PopoverTrigger>
+          <PopoverContent side="bottom" align="center" className="w-[min(95vw,42rem)] max-h-[80vh] overflow-y-auto rounded-2xl border border-white/20 bg-white/5 p-4 shadow-[0_40px_95px_rgba(8,15,40,0.3)] backdrop-blur-sm [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
+            <StylistsList stylists={stylistsList} config={config} hasStylists={hasStylists} />
+          </PopoverContent>
+        </Popover>
         <motion.button
           type="button"
           onClick={() => setTotalCAPopupOpen(true)}
@@ -262,9 +256,8 @@ export default function StatsCards() {
           className="relative flex flex-col items-center justify-center w-[100px] h-[100px] rounded-2xl border border-white/20 bg-gradient-to-br from-slate-800/40 via-slate-900/40 to-slate-950/40 backdrop-blur-sm shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] overflow-hidden transition-all duration-300 hover:shadow-[0_12px_40px_rgba(236,72,153,0.3)]"
         >
           <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none" />
-          <div className="relative flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-br from-pink-500 via-fuchsia-500 to-purple-600 shadow-[0_4px_20px_rgba(236,72,153,0.5),inset_0_2px_4px_rgba(255,255,255,0.3)]">
-            <div className="absolute inset-1 rounded-full bg-gradient-to-br from-pink-400 via-fuchsia-400 to-purple-500 shadow-[inset_0_-3px_8px_rgba(0,0,0,0.3)]" />
-            <Euro className="relative h-6 w-6 text-white drop-shadow-lg" />
+          <div className="relative flex items-center justify-center w-14 h-14 rounded-full border-2 border-pink-400/60 bg-transparent">
+            <Euro className="relative h-6 w-6 text-pink-400 drop-shadow-lg" />
           </div>
           <span className="mt-2 text-[10px] font-semibold text-white/80 uppercase tracking-wider">Total CA</span>
         </motion.button>
@@ -277,9 +270,8 @@ export default function StatsCards() {
           className="relative flex flex-col items-center justify-center w-[100px] h-[100px] rounded-2xl border border-white/20 bg-gradient-to-br from-slate-800/40 via-slate-900/40 to-slate-950/40 backdrop-blur-sm shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] overflow-hidden transition-all duration-300 hover:shadow-[0_12px_40px_rgba(6,182,212,0.3)]"
         >
           <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none" />
-          <div className="relative flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-br from-cyan-400 via-teal-500 to-emerald-600 shadow-[0_4px_20px_rgba(6,182,212,0.5),inset_0_2px_4px_rgba(255,255,255,0.3)]">
-            <div className="absolute inset-1 rounded-full bg-gradient-to-br from-cyan-300 via-teal-400 to-emerald-500 shadow-[inset_0_-3px_8px_rgba(0,0,0,0.3)]" />
-            <Scissors className="relative h-6 w-6 text-white drop-shadow-lg" />
+          <div className="relative flex items-center justify-center w-14 h-14 rounded-full border-2 border-cyan-400/60 bg-transparent">
+            <Scissors className="relative h-6 w-6 text-cyan-400 drop-shadow-lg" />
           </div>
           <span className="mt-2 text-[10px] font-semibold text-white/80 uppercase tracking-wider">Prestations</span>
         </motion.button>
@@ -292,9 +284,8 @@ export default function StatsCards() {
           className="relative flex flex-col items-center justify-center w-[100px] h-[100px] rounded-2xl border border-white/20 bg-gradient-to-br from-slate-800/40 via-slate-900/40 to-slate-950/40 backdrop-blur-sm shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] overflow-hidden transition-all duration-300 hover:shadow-[0_12px_40px_rgba(168,85,247,0.3)]"
         >
           <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none" />
-          <div className="relative flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-br from-violet-400 via-purple-500 to-indigo-600 shadow-[0_4px_20px_rgba(168,85,247,0.5),inset_0_2px_4px_rgba(255,255,255,0.3)]">
-            <div className="absolute inset-1 rounded-full bg-gradient-to-br from-violet-300 via-purple-400 to-indigo-500 shadow-[inset_0_-3px_8px_rgba(0,0,0,0.3)]" />
-            <Package className="relative h-6 w-6 text-white drop-shadow-lg" />
+          <div className="relative flex items-center justify-center w-14 h-14 rounded-full border-2 border-violet-400/60 bg-transparent">
+            <Package className="relative h-6 w-6 text-violet-400 drop-shadow-lg" />
           </div>
           <span className="mt-2 text-[10px] font-semibold text-white/80 uppercase tracking-wider">Produits</span>
         </motion.button>
