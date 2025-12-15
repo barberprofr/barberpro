@@ -335,7 +335,8 @@ function GlobalTransactionRow({ entry: e, onUpdate }: { entry: any, onUpdate: (i
   };
 
   return (
-    <div className="grid grid-cols-2 px-1.5 py-2 border-t border-gray-700 items-center text-[10px] sm:text-sm sm:px-3">
+    <div className="grid grid-cols-[40px_1fr_auto] sm:grid-cols-[50px_1fr_1fr] px-1.5 py-2 border-t border-gray-700 items-center text-[10px] sm:text-sm sm:px-3">
+      <div className="text-[9px] sm:text-xs text-white/80">{fmtTime(e.timestamp)}</div>
       <div>
         <Popover open={open} onOpenChange={setOpen}>
           <PopoverTrigger asChild>
@@ -404,9 +405,10 @@ function GlobalTransactionRow({ entry: e, onUpdate }: { entry: any, onUpdate: (i
 function GlobalEncaissements({ entries, onUpdate }: { entries: any[]; onUpdate: (id: string, kind: "prestation" | "produit", method: "cash" | "check" | "card") => void }) {
   return (
     <div className="text-sm border border-gray-700 rounded-md overflow-hidden bg-slate-900/70 w-full">
-      <div className="grid grid-cols-2 bg-slate-800/80 text-gray-100 px-1.5 py-2 font-medium text-[10px] sm:text-sm sm:px-3">
+      <div className="grid grid-cols-[40px_1fr_auto] sm:grid-cols-[50px_1fr_1fr] bg-slate-800/80 text-gray-100 px-1.5 py-2 font-medium text-[10px] sm:text-sm sm:px-3">
+        <div>Heure</div>
         <div>Mode</div>
-        <div className="text-right">Montant</div>
+        <div>Montant</div>
       </div>
       <div className="max-h-[400px] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
         {entries.length === 0 ? (
