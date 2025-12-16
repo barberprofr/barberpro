@@ -1026,13 +1026,13 @@ export default function PrestationsForm() {
                         <Scissors className="h-10 w-10 text-white drop-shadow-lg" />
                       </div>
                     </div>
-                    <span className="text-xl font-semibold text-violet-300 group-hover:text-violet-200 transition-colors duration-300">
+                    <span className="text-2xl font-light text-violet-300 group-hover:text-violet-200 transition-colors duration-300">
                       Prestations
                     </span>
                     {/* & au milieu */}
-                    <span className="text-base font-medium text-white/60">&</span>
+                    <span className="text-lg font-light text-white/60">&</span>
                     {/* Texte Produits */}
-                    <span className="text-base font-medium text-cyan-400/80">Produits</span>
+                    <span className="text-lg font-light text-cyan-400/80">Produits</span>
                   </motion.button>
                 </div>
               </div>
