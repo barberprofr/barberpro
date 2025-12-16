@@ -1122,7 +1122,7 @@ export default function PrestationsForm() {
                     </div>
                   </motion.div>
                   <span className={cn(
-                    "text-lg font-semibold transition-all duration-300",
+                    "text-lg font-light transition-all duration-300",
                     stylistId ? "text-white" : "text-slate-300"
                   )}>
                     {selectedStylist ? selectedStylist.name : "Coiffeur"}
