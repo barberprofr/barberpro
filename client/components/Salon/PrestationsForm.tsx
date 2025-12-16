@@ -1115,7 +1115,7 @@ export default function PrestationsForm() {
                     transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
                     className="rounded-full overflow-hidden"
                   >
-                    <span className="h-36 w-36 flex items-center justify-center text-8xl">💇‍♂️</span>
+                    <span className="h-36 w-36 flex items-center justify-center text-8xl">👨</span>
                   </motion.div>
                   <span className={cn(
                     "text-lg font-semibold transition-all duration-300",
