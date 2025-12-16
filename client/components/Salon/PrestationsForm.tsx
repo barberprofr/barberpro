@@ -1015,9 +1015,9 @@ export default function PrestationsForm() {
                       setShowTypePickerPopup(false);
                       setTimeout(() => setServicesPickerOpen(true), 100);
                     }}
-                    whileHover={{ scale: 1.08, y: -6, boxShadow: "0 0 30px rgba(139,92,246,0.6)" }}
-                    whileTap={{ scale: 1.15, y: -10, boxShadow: "0 0 50px rgba(139,92,246,0.8)" }}
-                    className="group relative flex flex-col items-center justify-center w-44 h-44 rounded-2xl border border-white/10 bg-gradient-to-br from-slate-800/35 via-slate-900/35 to-slate-800/35 backdrop-blur-sm shadow-[0_8px_32px_rgba(0,0,0,0.4)] transition-all duration-300 hover:border-violet-400/40 hover:shadow-[0_12px_40px_rgba(139,92,246,0.25)]"
+                    whileHover={{ scale: 1.18, y: -12, boxShadow: "0 0 60px rgba(139,92,246,0.8), 0 0 100px rgba(139,92,246,0.5), 0 0 140px rgba(139,92,246,0.3)" }}
+                    whileTap={{ scale: 1.25, y: -16, boxShadow: "0 0 80px rgba(139,92,246,1), 0 0 120px rgba(139,92,246,0.7)" }}
+                    className="group relative flex flex-col items-center justify-center w-44 h-44 rounded-2xl border border-white/10 bg-gradient-to-br from-slate-800/35 via-slate-900/35 to-slate-800/35 backdrop-blur-sm shadow-[0_8px_32px_rgba(0,0,0,0.4)] transition-all duration-300 hover:border-violet-400/70 hover:shadow-[0_0_50px_rgba(139,92,246,0.6),0_0_80px_rgba(139,92,246,0.4)]"
                   >
                     {/* Halo lumineux derrière l'icône */}
                     <div className="relative flex items-center justify-center mb-3">
