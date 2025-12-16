@@ -1033,9 +1033,10 @@ export default function PrestationsForm() {
                     <span className="text-base font-semibold text-violet-300 group-hover:text-violet-200 transition-colors duration-300">
                       Prestations
                     </span>
-                    {/* & + Petite icône + texte Produits */}
-                    <div className="flex items-center gap-1.5 mt-1">
-                      <span className="text-sm font-medium text-white/60">&</span>
+                    {/* & au milieu */}
+                    <span className="text-sm font-medium text-white/60">&</span>
+                    {/* Petite icône + texte Produits */}
+                    <div className="flex items-center gap-1.5">
                       <div 
                         className="flex h-5 w-5 items-center justify-center rounded-full"
                         style={{ 
