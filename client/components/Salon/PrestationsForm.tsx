@@ -999,7 +999,7 @@ export default function PrestationsForm() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 10 }}
               transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-              className="relative sm:max-w-lg w-[90%] rounded-2xl border border-slate-700/50 bg-gradient-to-br from-slate-900/35 via-slate-800/35 to-slate-900/35 backdrop-blur-sm shadow-[0_25px_80px_rgba(0,0,0,0.6)] p-8"
+              className="relative sm:max-w-lg w-[90%] p-8"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex flex-col items-center justify-center">
