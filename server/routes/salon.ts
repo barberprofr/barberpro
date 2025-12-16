@@ -329,7 +329,11 @@ async function aggregateByPayment(salonId: string, stylistId: string, refNowMs: 
       scope.total.amount += p.amount;
       scope.total.count += 1;
       const method = p.paymentMethod as PaymentMethod;
-      if (scope.methods[method]) {
+      if (method === "mixed" && (p as any).mixedCardAmount && (p as any).mixedCashAmount) {
+        scope.methods.card.amount += (p as any).mixedCardAmount;
+        scope.methods.cash.amount += (p as any).mixedCashAmount;
+        scope.methods.mixed.count += 1;
+      } else if (scope.methods[method]) {
         scope.methods[method].amount += p.amount;
         scope.methods[method].count += 1;
       }
@@ -373,7 +377,10 @@ async function aggregateByPayment(salonId: string, stylistId: string, refNowMs: 
     const incAmount = (scope: ReturnType<typeof makeScope>) => {
       scope.total.amount += prod.amount;
       const method = prod.paymentMethod as PaymentMethod;
-      if (scope.methods[method]) {
+      if (method === "mixed" && (prod as any).mixedCardAmount && (prod as any).mixedCashAmount) {
+        scope.methods.card.amount += (prod as any).mixedCardAmount;
+        scope.methods.cash.amount += (prod as any).mixedCashAmount;
+      } else if (scope.methods[method]) {
         scope.methods[method].amount += prod.amount;
       }
     };
@@ -443,7 +450,11 @@ async function aggregateAllPayments(salonId: string) {
       scope.total.amount += p.amount;
       scope.total.count += 1;
       const method = p.paymentMethod as PaymentMethod;
-      if (scope.methods[method]) {
+      if (method === "mixed" && (p as any).mixedCardAmount && (p as any).mixedCashAmount) {
+        scope.methods.card.amount += (p as any).mixedCardAmount;
+        scope.methods.cash.amount += (p as any).mixedCashAmount;
+        scope.methods.mixed.count += 1;
+      } else if (scope.methods[method]) {
         scope.methods[method].amount += p.amount;
         scope.methods[method].count += 1;
       }
@@ -457,7 +468,10 @@ async function aggregateAllPayments(salonId: string) {
     const incAmount = (scope: ReturnType<typeof makeScope>) => {
       scope.total.amount += prod.amount;
       const method = prod.paymentMethod as PaymentMethod;
-      if (scope.methods[method]) {
+      if (method === "mixed" && (prod as any).mixedCardAmount && (prod as any).mixedCashAmount) {
+        scope.methods.card.amount += (prod as any).mixedCardAmount;
+        scope.methods.cash.amount += (prod as any).mixedCashAmount;
+      } else if (scope.methods[method]) {
         scope.methods[method].amount += prod.amount;
       }
     };
@@ -1736,7 +1750,11 @@ export const getGlobalBreakdown: RequestHandler = async (req, res) => {
       if (isDaily) {
         daily.total.amount += p.amount;
         daily.total.count += 1;
-        if (daily.methods[method]) {
+        if (method === "mixed" && (p as any).mixedCardAmount && (p as any).mixedCashAmount) {
+          daily.methods.card.amount += (p as any).mixedCardAmount;
+          daily.methods.cash.amount += (p as any).mixedCashAmount;
+          daily.methods.mixed.count += 1;
+        } else if (daily.methods[method]) {
           daily.methods[method].amount += p.amount;
           daily.methods[method].count += 1;
         }
@@ -1755,7 +1773,11 @@ export const getGlobalBreakdown: RequestHandler = async (req, res) => {
       if (isMonthly) {
         monthly.total.amount += p.amount;
         monthly.total.count += 1;
-        if (monthly.methods[method]) {
+        if (method === "mixed" && (p as any).mixedCardAmount && (p as any).mixedCashAmount) {
+          monthly.methods.card.amount += (p as any).mixedCardAmount;
+          monthly.methods.cash.amount += (p as any).mixedCashAmount;
+          monthly.methods.mixed.count += 1;
+        } else if (monthly.methods[method]) {
           monthly.methods[method].amount += p.amount;
           monthly.methods[method].count += 1;
         }
@@ -1764,7 +1786,11 @@ export const getGlobalBreakdown: RequestHandler = async (req, res) => {
       if (isRange) {
         range.total.amount += p.amount;
         range.total.count += 1;
-        if (range.methods[method]) {
+        if (method === "mixed" && (p as any).mixedCardAmount && (p as any).mixedCashAmount) {
+          range.methods.card.amount += (p as any).mixedCardAmount;
+          range.methods.cash.amount += (p as any).mixedCashAmount;
+          range.methods.mixed.count += 1;
+        } else if (range.methods[method]) {
           range.methods[method].amount += p.amount;
           range.methods[method].count += 1;
         }
@@ -1791,7 +1817,10 @@ export const getGlobalBreakdown: RequestHandler = async (req, res) => {
 
       if (isDaily) {
         daily.total.amount += prod.amount;
-        if (daily.methods[prodMethod]) {
+        if (prodMethod === "mixed" && (prod as any).mixedCardAmount && (prod as any).mixedCashAmount) {
+          daily.methods.card.amount += (prod as any).mixedCardAmount;
+          daily.methods.cash.amount += (prod as any).mixedCashAmount;
+        } else if (daily.methods[prodMethod]) {
           daily.methods[prodMethod].amount += prod.amount;
         }
         dailyProductCount++;
@@ -1808,14 +1837,20 @@ export const getGlobalBreakdown: RequestHandler = async (req, res) => {
       }
       if (isMonthly) {
         monthly.total.amount += prod.amount;
-        if (monthly.methods[prodMethod]) {
+        if (prodMethod === "mixed" && (prod as any).mixedCardAmount && (prod as any).mixedCashAmount) {
+          monthly.methods.card.amount += (prod as any).mixedCardAmount;
+          monthly.methods.cash.amount += (prod as any).mixedCashAmount;
+        } else if (monthly.methods[prodMethod]) {
           monthly.methods[prodMethod].amount += prod.amount;
         }
         monthlyProductCount++;
       }
       if (isRange) {
         range.total.amount += prod.amount;
-        if (range.methods[prodMethod]) {
+        if (prodMethod === "mixed" && (prod as any).mixedCardAmount && (prod as any).mixedCashAmount) {
+          range.methods.card.amount += (prod as any).mixedCardAmount;
+          range.methods.cash.amount += (prod as any).mixedCashAmount;
+        } else if (range.methods[prodMethod]) {
           range.methods[prodMethod].amount += prod.amount;
         }
         rangeProductCount++;
@@ -2507,13 +2542,22 @@ export const reportByDay: RequestHandler = async (req, res) => {
         };
         dailyMethodTotals.set(dStart, scope);
       }
-      scope[p.paymentMethod].amount += p.amount;
-      scope[p.paymentMethod].count += 1;
+      if (p.paymentMethod === "mixed" && (p as any).mixedCardAmount && (p as any).mixedCashAmount) {
+        scope.card.amount += (p as any).mixedCardAmount;
+        scope.cash.amount += (p as any).mixedCashAmount;
+        scope.mixed.count += 1;
+        monthlyTotals.methods.card.amount += (p as any).mixedCardAmount;
+        monthlyTotals.methods.cash.amount += (p as any).mixedCashAmount;
+        monthlyTotals.methods.mixed.count += 1;
+      } else {
+        scope[p.paymentMethod].amount += p.amount;
+        scope[p.paymentMethod].count += 1;
+        monthlyTotals.methods[p.paymentMethod].amount += p.amount;
+        monthlyTotals.methods[p.paymentMethod].count += 1;
+      }
 
       monthlyTotals.total.amount += p.amount;
       monthlyTotals.total.count += 1;
-      monthlyTotals.methods[p.paymentMethod].amount += p.amount;
-      monthlyTotals.methods[p.paymentMethod].count += 1;
     }
 
     for (const prod of products) {
@@ -2534,12 +2578,19 @@ export const reportByDay: RequestHandler = async (req, res) => {
         };
         dailyMethodTotals.set(dStart, scope);
       }
-      scope[prod.paymentMethod].amount += prod.amount;
+      if (prod.paymentMethod === "mixed" && (prod as any).mixedCardAmount && (prod as any).mixedCashAmount) {
+        scope.card.amount += (prod as any).mixedCardAmount;
+        scope.cash.amount += (prod as any).mixedCashAmount;
+        monthlyTotals.methods.card.amount += (prod as any).mixedCardAmount;
+        monthlyTotals.methods.cash.amount += (prod as any).mixedCashAmount;
+      } else {
+        scope[prod.paymentMethod].amount += prod.amount;
+        monthlyTotals.methods[prod.paymentMethod].amount += prod.amount;
+      }
 
       dailyProductCounts.set(dStart, (dailyProductCounts.get(dStart) || 0) + 1);
 
       monthlyTotals.total.amount += prod.amount;
-      monthlyTotals.methods[prod.paymentMethod].amount += prod.amount;
     }
 
     for (let t = startDate.getTime(); t <= end; t += dayMs) {
@@ -2596,16 +2647,23 @@ export const reportByMonth: RequestHandler = async (req, res) => {
       scope.total.amount += p.amount;
       scope.total.count += 1;
       const method = p.paymentMethod as PaymentMethod;
-      if (scope.methods[method]) {
+      if (method === "mixed" && (p as any).mixedCardAmount && (p as any).mixedCashAmount) {
+        scope.methods.card.amount += (p as any).mixedCardAmount;
+        scope.methods.cash.amount += (p as any).mixedCashAmount;
+        scope.methods.mixed.count += 1;
+        yearlyScope.methods.card.amount += (p as any).mixedCardAmount;
+        yearlyScope.methods.cash.amount += (p as any).mixedCashAmount;
+        yearlyScope.methods.mixed.count += 1;
+      } else if (scope.methods[method]) {
         scope.methods[method].amount += p.amount;
         scope.methods[method].count += 1;
+        if (yearlyScope.methods[method]) {
+          yearlyScope.methods[method].amount += p.amount;
+          yearlyScope.methods[method].count += 1;
+        }
       }
       yearlyScope.total.amount += p.amount;
       yearlyScope.total.count += 1;
-      if (yearlyScope.methods[method]) {
-        yearlyScope.methods[method].amount += p.amount;
-        yearlyScope.methods[method].count += 1;
-      }
       const stylist = stylistMap.get(p.stylistId);
       const pct = typeof stylist?.commissionPct === "number" ? stylist.commissionPct : settings.commissionDefault;
       const salary = (p.amount * pct) / 100;
@@ -2624,13 +2682,18 @@ export const reportByMonth: RequestHandler = async (req, res) => {
       }
       scope.total.amount += prod.amount;
       const method = prod.paymentMethod as PaymentMethod;
-      if (scope.methods[method]) {
+      if (method === "mixed" && (prod as any).mixedCardAmount && (prod as any).mixedCashAmount) {
+        scope.methods.card.amount += (prod as any).mixedCardAmount;
+        scope.methods.cash.amount += (prod as any).mixedCashAmount;
+        yearlyScope.methods.card.amount += (prod as any).mixedCardAmount;
+        yearlyScope.methods.cash.amount += (prod as any).mixedCashAmount;
+      } else if (scope.methods[method]) {
         scope.methods[method].amount += prod.amount;
+        if (yearlyScope.methods[method]) {
+          yearlyScope.methods[method].amount += prod.amount;
+        }
       }
       yearlyScope.total.amount += prod.amount;
-      if (yearlyScope.methods[method]) {
-        yearlyScope.methods[method].amount += prod.amount;
-      }
       monthlyProductCounts.set(key, (monthlyProductCounts.get(key) || 0) + 1);
       yearlyProductCount++;
     }
