@@ -10,7 +10,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { AnimatePresence, motion } from "framer-motion";
 import barberBg from "@/assets/barber-bg.avif";
-import { useViewportSize } from "@/hooks/use-mobile";
+import { useViewportSize, useOrientation } from "@/hooks/use-mobile";
 
 export default function SharedLayout({ children }: PropsWithChildren) {
   const location = useLocation();
@@ -18,6 +18,8 @@ export default function SharedLayout({ children }: PropsWithChildren) {
   const current = location.pathname;
   const { data: config, refetch } = useConfig();
   const viewport = useViewportSize();
+  const orientation = useOrientation();
+  const layoutKey = `${orientation}-${viewport.width}-${viewport.height}`;
   const qc = useQueryClient();
   // Lock access if not admin OR if admin but subscription not active or trialing
   const locked = !config?.isAdmin || (config?.isAdmin && config?.subscriptionStatus !== "active" && config?.subscriptionStatus !== "trialing" && config?.subscriptionStatus !== "paid");
@@ -97,8 +99,9 @@ export default function SharedLayout({ children }: PropsWithChildren) {
   }, [config, hasActiveSubscription]);
   return (
     <div 
+      key={layoutKey}
       className="relative min-h-screen bg-gradient-to-br from-blue-950 via-sky-800 to-amber-700"
-      data-viewport={`${viewport.width}x${viewport.height}`}
+      style={{ minHeight: '100dvh' }}
     >
       <div 
         className="fixed inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-40 pointer-events-none"
