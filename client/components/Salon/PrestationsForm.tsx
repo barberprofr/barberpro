@@ -1035,22 +1035,8 @@ export default function PrestationsForm() {
                     </span>
                     {/* & au milieu */}
                     <span className="text-sm font-medium text-white/60">&</span>
-                    {/* Petite icône + texte Produits */}
-                    <div className="flex items-center gap-1.5">
-                      <div 
-                        className="flex h-5 w-5 items-center justify-center rounded-full"
-                        style={{ 
-                          background: "linear-gradient(140deg, rgba(191,246,255,0.6) 0%, rgba(99,218,255,0.6) 60%, rgba(49,142,255,0.6) 100%)"
-                        }}
-                      >
-                        <svg className="h-3 w-3 text-slate-900/70" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
-                          <rect x="6" y="10" width="12" height="10" rx="2" />
-                          <rect x="8" y="6" width="8" height="4" rx="1" />
-                          <path d="M10 6V4h4v2" />
-                        </svg>
-                      </div>
-                      <span className="text-sm font-medium text-cyan-400/80">Produits</span>
-                    </div>
+                    {/* Texte Produits */}
+                    <span className="text-sm font-medium text-cyan-400/80">Produits</span>
                   </motion.button>
                 </div>
               </div>
