@@ -1013,26 +1013,26 @@ export default function PrestationsForm() {
                     }}
                     whileHover={{ scale: 1.18, y: -12, boxShadow: "0 0 60px rgba(139,92,246,0.8), 0 0 100px rgba(139,92,246,0.5), 0 0 140px rgba(139,92,246,0.3)" }}
                     whileTap={{ scale: 1.25, y: -16, boxShadow: "0 0 80px rgba(139,92,246,1), 0 0 120px rgba(139,92,246,0.7)" }}
-                    className="group relative flex flex-col items-center justify-center w-44 h-44 rounded-2xl transition-all duration-300"
+                    className="group relative flex flex-col items-center justify-center w-56 h-56 rounded-2xl transition-all duration-300"
                   >
                     {/* Halo lumineux derrière l'icône */}
-                    <div className="relative flex items-center justify-center mb-3">
+                    <div className="relative flex items-center justify-center mb-4">
                       {/* Cercle externe avec gradient */}
-                      <div className="absolute w-24 h-24 rounded-full bg-gradient-to-br from-violet-500/30 via-fuchsia-500/20 to-purple-600/30 blur-md group-hover:from-violet-400/40 group-hover:via-fuchsia-400/30 group-hover:to-purple-500/40 transition-all duration-300" />
+                      <div className="absolute w-32 h-32 rounded-full bg-gradient-to-br from-violet-500/30 via-fuchsia-500/20 to-purple-600/30 blur-md group-hover:from-violet-400/40 group-hover:via-fuchsia-400/30 group-hover:to-purple-500/40 transition-all duration-300" />
                       {/* Cercle intermédiaire */}
-                      <div className="absolute w-20 h-20 rounded-full border-2 border-violet-400/50 group-hover:border-violet-300/70 transition-all duration-300 shadow-[0_0_20px_rgba(139,92,246,0.4),inset_0_0_15px_rgba(139,92,246,0.2)]" />
+                      <div className="absolute w-28 h-28 rounded-full border-2 border-violet-400/50 group-hover:border-violet-300/70 transition-all duration-300 shadow-[0_0_25px_rgba(139,92,246,0.4),inset_0_0_20px_rgba(139,92,246,0.2)]" />
                       {/* Fond icône avec gradient */}
-                      <div className="relative flex items-center justify-center w-14 h-14 rounded-xl bg-gradient-to-br from-fuchsia-500 via-violet-500 to-purple-600 shadow-[0_4px_20px_rgba(168,85,247,0.5)] group-hover:shadow-[0_6px_25px_rgba(168,85,247,0.7)] transition-all duration-300">
-                        <Scissors className="h-7 w-7 text-white drop-shadow-lg" />
+                      <div className="relative flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-fuchsia-500 via-violet-500 to-purple-600 shadow-[0_6px_30px_rgba(168,85,247,0.5)] group-hover:shadow-[0_8px_35px_rgba(168,85,247,0.7)] transition-all duration-300">
+                        <Scissors className="h-10 w-10 text-white drop-shadow-lg" />
                       </div>
                     </div>
-                    <span className="text-base font-semibold text-violet-300 group-hover:text-violet-200 transition-colors duration-300">
+                    <span className="text-xl font-semibold text-violet-300 group-hover:text-violet-200 transition-colors duration-300">
                       Prestations
                     </span>
                     {/* & au milieu */}
-                    <span className="text-sm font-medium text-white/60">&</span>
+                    <span className="text-base font-medium text-white/60">&</span>
                     {/* Texte Produits */}
-                    <span className="text-sm font-medium text-cyan-400/80">Produits</span>
+                    <span className="text-base font-medium text-cyan-400/80">Produits</span>
                   </motion.button>
                 </div>
               </div>
