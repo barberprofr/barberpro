@@ -1003,10 +1003,6 @@ export default function PrestationsForm() {
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex flex-col items-center justify-center">
-                <h2 className="text-xl font-semibold text-white mb-8">
-                  Que souhaitez-vous enregistrer ?
-                </h2>
-                
                 <div className="flex justify-center">
                   {/* Carte Prestations & Produits combinée */}
                   <motion.button
