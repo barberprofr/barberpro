@@ -297,6 +297,7 @@ function makeScope() {
       cash: emptyBreakdown(),
       check: emptyBreakdown(),
       card: emptyBreakdown(),
+      mixed: emptyBreakdown(),
     } as Record<PaymentMethod, { amount: number; count: number }>,
   };
 }
@@ -319,8 +320,8 @@ async function aggregateByPayment(salonId: string, stylistId: string, refNowMs: 
   const prestationDaily = makeScope();
   const prestationMonthly = makeScope();
   const prestationRange = makeScope();
-  const dailyEntries: { id: string; amount: number; paymentMethod: PaymentMethod; timestamp: number; kind: "prestation" | "produit"; name?: string }[] = [];
-  const rangeEntries: { id: string; amount: number; paymentMethod: PaymentMethod; timestamp: number; kind: "prestation" | "produit"; name?: string }[] = [];
+  const dailyEntries: { id: string; amount: number; paymentMethod: PaymentMethod; timestamp: number; kind: "prestation" | "produit"; name?: string; mixedCardAmount?: number; mixedCashAmount?: number }[] = [];
+  const rangeEntries: { id: string; amount: number; paymentMethod: PaymentMethod; timestamp: number; kind: "prestation" | "produit"; name?: string; mixedCardAmount?: number; mixedCashAmount?: number }[] = [];
   let rangeProductCount = 0;
 
   for (const p of prestations) {
@@ -343,7 +344,9 @@ async function aggregateByPayment(salonId: string, stylistId: string, refNowMs: 
         paymentMethod: p.paymentMethod,
         timestamp: p.timestamp,
         kind: "prestation",
-        name: p.serviceName
+        name: p.serviceName,
+        mixedCardAmount: (p as any).mixedCardAmount,
+        mixedCashAmount: (p as any).mixedCashAmount
       });
     }
     if (isSameMonthParis(p.timestamp, now)) {
@@ -359,7 +362,9 @@ async function aggregateByPayment(salonId: string, stylistId: string, refNowMs: 
         paymentMethod: p.paymentMethod,
         timestamp: p.timestamp,
         kind: "prestation",
-        name: p.serviceName
+        name: p.serviceName,
+        mixedCardAmount: (p as any).mixedCardAmount,
+        mixedCashAmount: (p as any).mixedCashAmount
       });
     }
   }
@@ -381,7 +386,9 @@ async function aggregateByPayment(salonId: string, stylistId: string, refNowMs: 
         paymentMethod: prod.paymentMethod,
         timestamp: prod.timestamp,
         kind: "produit",
-        name: prod.productName
+        name: prod.productName,
+        mixedCardAmount: (prod as any).mixedCardAmount,
+        mixedCashAmount: (prod as any).mixedCashAmount
       });
     }
     if (isSameMonthParis(prod.timestamp, now)) incAmount(monthly);
@@ -394,7 +401,9 @@ async function aggregateByPayment(salonId: string, stylistId: string, refNowMs: 
         paymentMethod: prod.paymentMethod,
         timestamp: prod.timestamp,
         kind: "produit",
-        name: prod.productName
+        name: prod.productName,
+        mixedCardAmount: (prod as any).mixedCardAmount,
+        mixedCashAmount: (prod as any).mixedCashAmount
       });
     }
   }
@@ -1708,8 +1717,8 @@ export const getGlobalBreakdown: RequestHandler = async (req, res) => {
     const daily = makeScope();
     const monthly = makeScope();
     const range = makeScope();
-    const dailyEntries: Array<{ id: string; timestamp: number; amount: number; paymentMethod: PaymentMethod; name?: string; kind: "prestation" | "produit" }> = [];
-    const rangeEntries: Array<{ id: string; timestamp: number; amount: number; paymentMethod: PaymentMethod; name?: string; kind: "prestation" | "produit" }> = [];
+    const dailyEntries: Array<{ id: string; timestamp: number; amount: number; paymentMethod: PaymentMethod; name?: string; kind: "prestation" | "produit"; mixedCardAmount?: number; mixedCashAmount?: number }> = [];
+    const rangeEntries: Array<{ id: string; timestamp: number; amount: number; paymentMethod: PaymentMethod; name?: string; kind: "prestation" | "produit"; mixedCardAmount?: number; mixedCashAmount?: number }> = [];
     let dailyProductCount = 0;
     let monthlyProductCount = 0;
     let rangeProductCount = 0;
@@ -1738,7 +1747,9 @@ export const getGlobalBreakdown: RequestHandler = async (req, res) => {
           amount: p.amount,
           paymentMethod: p.paymentMethod,
           name: (p as any).serviceName || "prestation",
-          kind: "prestation"
+          kind: "prestation",
+          mixedCardAmount: (p as any).mixedCardAmount,
+          mixedCashAmount: (p as any).mixedCashAmount
         });
       }
       if (isMonthly) {
@@ -1764,7 +1775,9 @@ export const getGlobalBreakdown: RequestHandler = async (req, res) => {
           amount: p.amount,
           paymentMethod: p.paymentMethod,
           name: (p as any).serviceName || "prestation",
-          kind: "prestation"
+          kind: "prestation",
+          mixedCardAmount: (p as any).mixedCardAmount,
+          mixedCashAmount: (p as any).mixedCashAmount
         });
       }
     }
@@ -1788,7 +1801,9 @@ export const getGlobalBreakdown: RequestHandler = async (req, res) => {
           amount: prod.amount,
           paymentMethod: prod.paymentMethod,
           name: "produit",
-          kind: "produit"
+          kind: "produit",
+          mixedCardAmount: (prod as any).mixedCardAmount,
+          mixedCashAmount: (prod as any).mixedCashAmount
         });
       }
       if (isMonthly) {
@@ -1810,7 +1825,9 @@ export const getGlobalBreakdown: RequestHandler = async (req, res) => {
           amount: prod.amount,
           paymentMethod: prod.paymentMethod,
           name: "produit",
-          kind: "produit"
+          kind: "produit",
+          mixedCardAmount: (prod as any).mixedCardAmount,
+          mixedCashAmount: (prod as any).mixedCashAmount
         });
       }
     }
@@ -2486,6 +2503,7 @@ export const reportByDay: RequestHandler = async (req, res) => {
           cash: { amount: 0, count: 0 },
           check: { amount: 0, count: 0 },
           card: { amount: 0, count: 0 },
+          mixed: { amount: 0, count: 0 },
         };
         dailyMethodTotals.set(dStart, scope);
       }
@@ -2512,6 +2530,7 @@ export const reportByDay: RequestHandler = async (req, res) => {
           cash: { amount: 0, count: 0 },
           check: { amount: 0, count: 0 },
           card: { amount: 0, count: 0 },
+          mixed: { amount: 0, count: 0 },
         };
         dailyMethodTotals.set(dStart, scope);
       }
@@ -2532,6 +2551,7 @@ export const reportByDay: RequestHandler = async (req, res) => {
         cash: { amount: methodTotals?.cash.amount ?? 0, count: methodTotals?.cash.count ?? 0 },
         check: { amount: methodTotals?.check.amount ?? 0, count: methodTotals?.check.count ?? 0 },
         card: { amount: methodTotals?.card.amount ?? 0, count: methodTotals?.card.count ?? 0 },
+        mixed: { amount: methodTotals?.mixed.amount ?? 0, count: methodTotals?.mixed.count ?? 0 },
       };
       days.push({ date: iso, amount: v.amount, count: v.count, salary: salaryTotals.get(key) || 0, productCount: dailyProductCounts.get(key) || 0, methods });
     }
