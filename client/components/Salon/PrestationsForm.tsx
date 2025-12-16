@@ -835,7 +835,7 @@ export default function PrestationsForm() {
   }, [stylistId, amount, refreshStylists, servicesPickerOpen, productsPickerOpen, paymentPickerOpen]);
 
   return (
-    <Card className="border-none shadow-md bg-slate-900/20 backdrop-blur-sm" onClick={handleBackgroundClick}>
+    <Card className={cn("border-none shadow-md backdrop-blur-sm transition-all duration-300", showTypePickerPopup ? "bg-transparent" : "bg-slate-900/20")} onClick={handleBackgroundClick}>
       <CardHeader>
         <div className="flex items-center justify-center">
           <span 
