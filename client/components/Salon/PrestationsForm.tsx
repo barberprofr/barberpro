@@ -1444,9 +1444,9 @@ export default function PrestationsForm() {
                       </div>
                       
                       <div className="space-y-3">
-                        <div className="flex items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-blue-500/20 to-cyan-500/20 border border-cyan-400/30">
-                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-cyan-400 to-blue-500">
-                            <CreditCard className="h-5 w-5 text-white" />
+                        <div className="flex items-center gap-4 p-4 rounded-xl bg-gradient-to-r from-blue-500/20 to-cyan-500/20 border border-cyan-400/30">
+                          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 shadow-lg shadow-cyan-500/30">
+                            <CreditCard className="h-7 w-7 text-white" />
                           </div>
                           <div className="flex-1">
                             <label className="text-sm text-cyan-300 font-medium">Montant Carte</label>
@@ -1471,9 +1471,9 @@ export default function PrestationsForm() {
                           <span className="text-xl font-bold text-cyan-300">€</span>
                         </div>
                         
-                        <div className="flex items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-green-500/20 to-emerald-500/20 border border-green-400/30">
-                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-green-400 to-emerald-500">
-                            <CircleDollarSign className="h-5 w-5 text-white" />
+                        <div className="flex items-center gap-4 p-4 rounded-xl bg-gradient-to-r from-green-500/20 to-emerald-500/20 border border-green-400/30">
+                          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-green-400 to-emerald-500 shadow-lg shadow-emerald-500/30">
+                            <CircleDollarSign className="h-7 w-7 text-white" />
                           </div>
                           <div className="flex-1">
                             <label className="text-sm text-green-300 font-medium">Montant Espèces</label>
