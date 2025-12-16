@@ -1048,7 +1048,7 @@ export default function PrestationsForm() {
       <form 
         ref={formRef} 
         onSubmit={onSubmit} 
-        className="space-y-3 min-h-[50vh]"
+        className={cn("space-y-3 min-h-[50vh] transition-opacity duration-300", showTypePickerPopup && "opacity-0 pointer-events-none")}
         onClick={(e) => {
           const target = e.target as HTMLElement;
           const isButton = target.closest('button');
