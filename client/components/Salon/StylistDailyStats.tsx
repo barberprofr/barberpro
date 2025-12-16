@@ -193,11 +193,6 @@ function RangeTransactionRow({ entry: e, onUpdate }: { entry: any, onUpdate: (id
             <div className="min-w-0">
                 <span className="font-medium">{eur.format(e.amount)}</span>
                 <span className="text-[10px] sm:text-xs text-white/60 block truncate">{e.name || (e.kind === "prestation" ? "prestation" : "produit")}</span>
-                {e.paymentMethod === "mixed" && e.mixedCardAmount && e.mixedCashAmount && (
-                    <span className="text-[9px] text-violet-300/80 block">
-                        💳 {eur.format(e.mixedCardAmount)} • 💵 {eur.format(e.mixedCashAmount)}
-                    </span>
-                )}
             </div>
         </div>
     );
@@ -310,11 +305,6 @@ function TransactionRow({ entry: e, fmt, onUpdate }: { entry: any, fmt: (ts: num
             <div className="min-w-0">
                 <span className="font-medium">{eur.format(e.amount)}</span>
                 <span className="text-[10px] sm:text-xs text-white/60 block truncate">{e.name || (e.kind === "prestation" ? "prestation" : "produit")}</span>
-                {e.paymentMethod === "mixed" && e.mixedCardAmount && e.mixedCashAmount && (
-                    <span className="text-[9px] text-violet-300/80 block">
-                        💳 {eur.format(e.mixedCardAmount)} • 💵 {eur.format(e.mixedCashAmount)}
-                    </span>
-                )}
             </div>
         </div>
     );
