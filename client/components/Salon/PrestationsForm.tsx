@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Loader2, Check, ChevronDown, CircleDollarSign, CreditCard, FileText, Sparkles, ArrowLeft, Scissors, Users, UserPlus, Euro, X, ClipboardList, Package, Building2, ArrowLeftRight, SprayCan } from "lucide-react";
+import { Loader2, Check, ChevronDown, CircleDollarSign, CreditCard, FileText, Sparkles, ArrowLeft, Scissors, Users, UserPlus, Euro, X, ClipboardList, Package, Building2, ArrowLeftRight, SprayCan, Wallet } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Input } from "@/components/ui/input";
@@ -41,9 +41,10 @@ const playSuccessSound = () => {
   }
 };
 
-const PAYMENT_OPTIONS: { value: "cash" | "check" | "card"; label: string; icon: LucideIcon; colors: { outer: string; inner: string; glow: string } }[] = [
+const PAYMENT_OPTIONS: { value: "cash" | "check" | "card" | "mixed"; label: string; icon: LucideIcon; colors: { outer: string; inner: string; glow: string } }[] = [
   { value: "cash", label: "Espèces", icon: CircleDollarSign, colors: { outer: "conic-gradient(from 160deg, #CAFF58, #74FF9C, #16C772, #CAFF58)", inner: "linear-gradient(140deg, #D9FF96 0%, #7DFFAF 60%, #1FAA7C 100%)", glow: "0 8px 20px rgba(116,255,156,0.5)" } },
   { value: "card", label: "Carte", icon: CreditCard, colors: { outer: "conic-gradient(from 160deg, #9DF3FF, #52C7FF, #2B7FFF, #9DF3FF)", inner: "linear-gradient(140deg, #BFF6FF 0%, #63DAFF 60%, #318EFF 100%)", glow: "0 8px 20px rgba(82,199,255,0.5)" } },
+  { value: "mixed", label: "Carte + Espèces", icon: Wallet, colors: { outer: "conic-gradient(from 160deg, #C084FC, #818CF8, #22D3EE, #4ADE80, #C084FC)", inner: "linear-gradient(140deg, #E879F9 0%, #818CF8 40%, #22D3EE 70%, #4ADE80 100%)", glow: "0 8px 20px rgba(139,92,246,0.5)" } },
   { value: "check", label: "Planity/Treatwell", icon: Building2, colors: { outer: "conic-gradient(from 160deg, #FFD27A, #FF8A4C, #FF5A39, #FFD27A)", inner: "linear-gradient(140deg, #FFE0A1 0%, #FF9C5C 60%, #F1472A 100%)", glow: "0 8px 20px rgba(255,138,76,0.5)" } },
 ];
 
@@ -102,6 +103,9 @@ export default function PrestationsForm() {
   const [clientAccordion, setClientAccordion] = useState<string>("");
   const [servicesPickerOpen, setServicesPickerOpen] = useState(false);
   const [productsPickerOpen, setProductsPickerOpen] = useState(false);
+  const [mixedPaymentOpen, setMixedPaymentOpen] = useState(false);
+  const [mixedCardAmount, setMixedCardAmount] = useState<string>("");
+  const [mixedCashAmount, setMixedCashAmount] = useState<string>("");
   const successTimeoutRef = useRef<number | null>(null);
   const amountHintTimeoutRef = useRef<number | null>(null);
   const amountInputRef = useRef<HTMLInputElement | null>(null);
@@ -354,10 +358,31 @@ export default function PrestationsForm() {
   }, [setStylistId, setStylistPickerOpen]);
 
   const handlePaymentSelect = useCallback((value: string) => {
-    setPayment(value);
-    setPaymentSelected(true);
-    setPaymentPickerOpen(false);
-  }, [setPayment, setPaymentSelected, setPaymentPickerOpen]);
+    if (value === "mixed") {
+      const total = parseFloat(amount) || 0;
+      setMixedCardAmount(total.toFixed(2));
+      setMixedCashAmount("0.00");
+      setMixedPaymentOpen(true);
+      setPaymentPickerOpen(false);
+    } else {
+      setPayment(value);
+      setPaymentSelected(true);
+      setPaymentPickerOpen(false);
+      setMixedCardAmount("");
+      setMixedCashAmount("");
+    }
+  }, [amount, setPayment, setPaymentSelected, setPaymentPickerOpen, setMixedPaymentOpen, setMixedCardAmount, setMixedCashAmount]);
+
+  const handleMixedPaymentConfirm = useCallback(() => {
+    const cardVal = parseFloat(mixedCardAmount) || 0;
+    const cashVal = parseFloat(mixedCashAmount) || 0;
+    const total = parseFloat(amount) || 0;
+    if (Math.abs((cardVal + cashVal) - total) < 0.01) {
+      setPayment("mixed");
+      setPaymentSelected(true);
+      setMixedPaymentOpen(false);
+    }
+  }, [mixedCardAmount, mixedCashAmount, amount, setPayment, setPaymentSelected, setMixedPaymentOpen]);
 
   const handleClientAccordionChange = useCallback((next: string | null) => {
     const value = next ?? "";
@@ -537,6 +562,13 @@ export default function PrestationsForm() {
       if (storedProducts && storedProducts.length > 0) {
         const submitProduct = async (product: { id: string, name: string, price: number, quantity: number }, paymentMethodOverride?: string) => {
           for (let i = 0; i < product.quantity; i++) {
+            const totalAmount = parseFloat(amount) || 0;
+            const productMixedCardAmount = payment === "mixed" && totalAmount > 0 
+              ? (product.price / totalAmount) * (parseFloat(mixedCardAmount) || 0)
+              : undefined;
+            const productMixedCashAmount = payment === "mixed" && totalAmount > 0 
+              ? (product.price / totalAmount) * (parseFloat(mixedCashAmount) || 0)
+              : undefined;
             await addProduct.mutateAsync({
               stylistId,
               clientId: nextClientId || undefined,
@@ -544,7 +576,9 @@ export default function PrestationsForm() {
               paymentMethod: (paymentMethodOverride || payment) as any,
               timestamp: ts,
               productName: product.name || undefined,
-              productTypeId: product.id || undefined
+              productTypeId: product.id || undefined,
+              mixedCardAmount: productMixedCardAmount,
+              mixedCashAmount: productMixedCashAmount
             });
           }
         };
@@ -653,6 +687,13 @@ export default function PrestationsForm() {
         // Submit multiple prestations
         const submitPrestation = async (prestation: { id: string, name: string, price: number, quantity: number }, paymentMethodOverride?: string) => {
           for (let i = 0; i < prestation.quantity; i++) {
+            const totalAmount = parseFloat(amount) || 0;
+            const prestationMixedCardAmount = payment === "mixed" && totalAmount > 0 
+              ? (prestation.price / totalAmount) * (parseFloat(mixedCardAmount) || 0)
+              : undefined;
+            const prestationMixedCashAmount = payment === "mixed" && totalAmount > 0 
+              ? (prestation.price / totalAmount) * (parseFloat(mixedCashAmount) || 0)
+              : undefined;
             await addPrestation.mutateAsync({
               stylistId,
               clientId: nextClientId || undefined,
@@ -660,7 +701,9 @@ export default function PrestationsForm() {
               paymentMethod: (paymentMethodOverride || payment) as any,
               timestamp: ts,
               serviceName: prestation.name || undefined,
-              serviceId: prestation.id || undefined
+              serviceId: prestation.id || undefined,
+              mixedCardAmount: prestationMixedCardAmount,
+              mixedCashAmount: prestationMixedCashAmount
             });
           }
         };
@@ -673,8 +716,15 @@ export default function PrestationsForm() {
           // Also submit products if they were selected alongside prestations
           const storedProducts = (window as any).__selectedProducts as Array<{ id: string, name: string, price: number, quantity: number }> | undefined;
           if (storedProducts && storedProducts.length > 0) {
+            const totalAmount = parseFloat(amount) || 0;
             for (const product of storedProducts) {
               for (let i = 0; i < product.quantity; i++) {
+                const productMixedCardAmount = payment === "mixed" && totalAmount > 0 
+                  ? (product.price / totalAmount) * (parseFloat(mixedCardAmount) || 0)
+                  : undefined;
+                const productMixedCashAmount = payment === "mixed" && totalAmount > 0 
+                  ? (product.price / totalAmount) * (parseFloat(mixedCashAmount) || 0)
+                  : undefined;
                 await addProduct.mutateAsync({
                   stylistId,
                   clientId: nextClientId || undefined,
@@ -682,7 +732,9 @@ export default function PrestationsForm() {
                   paymentMethod: payment as any,
                   timestamp: ts,
                   productName: product.name || undefined,
-                  productTypeId: product.id || undefined
+                  productTypeId: product.id || undefined,
+                  mixedCardAmount: productMixedCardAmount,
+                  mixedCashAmount: productMixedCashAmount
                 });
               }
             }
@@ -1354,6 +1406,118 @@ export default function PrestationsForm() {
                           );
                         })}
                       </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Modal de saisie paiement mixte */}
+              {mixedPaymentOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 animate-in fade-in duration-200">
+                  <div className="w-full max-w-md rounded-3xl border border-white/20 bg-black/5 p-6 text-slate-50 shadow-[0_40px_100px_rgba(8,15,40,0.8)] backdrop-blur-md animate-in zoom-in-95 duration-200">
+                    <div className="mb-4 flex items-center gap-3">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setMixedPaymentOpen(false);
+                          setPaymentPickerOpen(true);
+                        }}
+                        className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-slate-200 transition hover:bg-white/10 hover:scale-105 active:scale-95"
+                      >
+                        <ArrowLeft className="h-5 w-5" />
+                      </button>
+                      <span className="text-xl font-bold text-white">Répartir le paiement</span>
+                    </div>
+                    
+                    <div className="space-y-4">
+                      <div className="text-center p-3 rounded-xl bg-white/5 border border-white/10">
+                        <span className="text-sm text-slate-400">Total à payer</span>
+                        <div className="text-3xl font-bold text-white">{parseFloat(amount || "0").toFixed(2)} €</div>
+                      </div>
+                      
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-blue-500/20 to-cyan-500/20 border border-cyan-400/30">
+                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-cyan-400 to-blue-500">
+                            <CreditCard className="h-5 w-5 text-white" />
+                          </div>
+                          <div className="flex-1">
+                            <label className="text-sm text-cyan-300 font-medium">Montant Carte</label>
+                            <Input
+                              type="number"
+                              step="0.01"
+                              min="0"
+                              value={mixedCardAmount}
+                              onChange={(e) => {
+                                const cardVal = parseFloat(e.target.value) || 0;
+                                const total = parseFloat(amount) || 0;
+                                setMixedCardAmount(e.target.value);
+                                setMixedCashAmount((total - cardVal).toFixed(2));
+                              }}
+                              className="mt-1 bg-white/10 border-white/20 text-white text-lg font-bold h-12"
+                              placeholder="0.00"
+                            />
+                          </div>
+                          <span className="text-xl font-bold text-cyan-300">€</span>
+                        </div>
+                        
+                        <div className="flex items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-green-500/20 to-emerald-500/20 border border-green-400/30">
+                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-green-400 to-emerald-500">
+                            <CircleDollarSign className="h-5 w-5 text-white" />
+                          </div>
+                          <div className="flex-1">
+                            <label className="text-sm text-green-300 font-medium">Montant Espèces</label>
+                            <Input
+                              type="number"
+                              step="0.01"
+                              min="0"
+                              value={mixedCashAmount}
+                              onChange={(e) => {
+                                const cashVal = parseFloat(e.target.value) || 0;
+                                const total = parseFloat(amount) || 0;
+                                setMixedCashAmount(e.target.value);
+                                setMixedCardAmount((total - cashVal).toFixed(2));
+                              }}
+                              className="mt-1 bg-white/10 border-white/20 text-white text-lg font-bold h-12"
+                              placeholder="0.00"
+                            />
+                          </div>
+                          <span className="text-xl font-bold text-green-300">€</span>
+                        </div>
+                      </div>
+                      
+                      {(() => {
+                        const cardVal = parseFloat(mixedCardAmount) || 0;
+                        const cashVal = parseFloat(mixedCashAmount) || 0;
+                        const total = parseFloat(amount) || 0;
+                        const isValid = Math.abs((cardVal + cashVal) - total) < 0.01;
+                        const diff = (cardVal + cashVal) - total;
+                        
+                        return (
+                          <>
+                            {!isValid && (cardVal > 0 || cashVal > 0) && (
+                              <div className="text-center p-2 rounded-lg bg-red-500/20 border border-red-400/30">
+                                <span className="text-sm text-red-300">
+                                  {diff > 0 ? `Trop ${diff.toFixed(2)} €` : `Manque ${Math.abs(diff).toFixed(2)} €`}
+                                </span>
+                              </div>
+                            )}
+                            
+                            <Button
+                              type="button"
+                              onClick={handleMixedPaymentConfirm}
+                              disabled={!isValid || cardVal <= 0 || cashVal <= 0}
+                              className={cn(
+                                "w-full h-14 text-lg font-bold rounded-xl transition-all",
+                                isValid && cardVal > 0 && cashVal > 0
+                                  ? "bg-gradient-to-r from-violet-500 via-purple-500 to-fuchsia-500 hover:from-violet-600 hover:via-purple-600 hover:to-fuchsia-600 text-white shadow-[0_0_30px_rgba(139,92,246,0.5)]"
+                                  : "bg-white/10 text-white/50 cursor-not-allowed"
+                              )}
+                            >
+                              Confirmer la répartition
+                            </Button>
+                          </>
+                        );
+                      })()}
                     </div>
                   </div>
                 </div>

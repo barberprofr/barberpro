@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
-export type PaymentMethod = "cash" | "check" | "card";
+export type PaymentMethod = "cash" | "check" | "card" | "mixed";
 
 // Interfaces étendues pour Mongoose
 export interface IStylist extends Document {
@@ -40,6 +40,8 @@ export interface IPrestation extends Document {
     clientId?: string;
     amount: number;
     paymentMethod: PaymentMethod;
+    mixedCardAmount?: number;
+    mixedCashAmount?: number;
     timestamp: number;
     pointsPercent: number;
     pointsAwarded: number;
@@ -87,6 +89,8 @@ export interface IProduct extends Document {
     clientId?: string;
     amount: number;
     paymentMethod: PaymentMethod;
+    mixedCardAmount?: number;
+    mixedCashAmount?: number;
     timestamp: number;
     productName?: string;
     productTypeId?: string;
@@ -157,8 +161,10 @@ const PrestationSchema = new Schema({
     paymentMethod: {
         type: String,
         required: true,
-        enum: ["cash", "check", "card"]
+        enum: ["cash", "check", "card", "mixed"]
     },
+    mixedCardAmount: { type: Number, min: 0 },
+    mixedCashAmount: { type: Number, min: 0 },
     timestamp: { type: Number, required: true },
     pointsPercent: { type: Number, required: true, min: 0, max: 100 },
     pointsAwarded: { type: Number, required: true, min: 0 },
@@ -215,8 +221,10 @@ const ProductSchema = new Schema({
     paymentMethod: {
         type: String,
         required: true,
-        enum: ["cash", "check", "card"]
+        enum: ["cash", "check", "card", "mixed"]
     },
+    mixedCardAmount: { type: Number, min: 0 },
+    mixedCashAmount: { type: Number, min: 0 },
     timestamp: { type: Number, required: true },
     productName: { type: String },
     productTypeId: { type: String },
@@ -243,7 +251,7 @@ const SettingsSchema = new Schema({
     loyaltyPercentDefault: { type: Number, default: 5, min: 0, max: 100 },
     paymentModes: [{
         type: String,
-        enum: ["cash", "check", "card"]
+        enum: ["cash", "check", "card", "mixed"]
     }],
     commissionDefault: { type: Number, default: 50, min: 0, max: 100 },
     pointsRedeemDefault: { type: Number, default: 10, min: 0 }

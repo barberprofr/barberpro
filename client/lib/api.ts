@@ -218,7 +218,7 @@ export function useDashboardSummary() {
 export function useAddPrestation() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (input: { stylistId: string; clientId?: string; amount: number; paymentMethod: PaymentMethod; timestamp: number; pointsPercent?: number; serviceName?: string; serviceId?: string; }) => {
+    mutationFn: async (input: { stylistId: string; clientId?: string; amount: number; paymentMethod: PaymentMethod; timestamp: number; pointsPercent?: number; serviceName?: string; serviceId?: string; mixedCardAmount?: number; mixedCashAmount?: number; }) => {
       const res = await apiFetch("/api/prestations", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(input) });
       if (!res.ok) await throwResponseError(res);
       return res.json() as Promise<{ prestation: Prestation; client?: Client }>;
@@ -234,7 +234,7 @@ export function useAddPrestation() {
 export function useAddProduct() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (input: { stylistId: string; clientId?: string; amount: number; paymentMethod: PaymentMethod; timestamp: number; productName?: string; productTypeId?: string; }) => {
+    mutationFn: async (input: { stylistId: string; clientId?: string; amount: number; paymentMethod: PaymentMethod; timestamp: number; productName?: string; productTypeId?: string; mixedCardAmount?: number; mixedCashAmount?: number; }) => {
       const res = await apiFetch("/api/products", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(input) });
       if (!res.ok) await throwResponseError(res);
       return res.json() as Promise<{ product: Product; client?: Client }>;

@@ -1422,7 +1422,7 @@ export const createPrestation: RequestHandler = async (req, res) => {
     const body = await parseRequestBody(req);
     const salonId = getSalonId(req);
     const settings = await getSettings(salonId);
-    const { stylistId, clientId, amount, paymentMethod, timestamp, pointsPercent, serviceName, serviceId } = body as {
+    const { stylistId, clientId, amount, paymentMethod, timestamp, pointsPercent, serviceName, serviceId, mixedCardAmount, mixedCashAmount } = body as {
       stylistId?: string;
       clientId?: string;
       amount?: number;
@@ -1431,6 +1431,8 @@ export const createPrestation: RequestHandler = async (req, res) => {
       pointsPercent?: number;
       serviceName?: string;
       serviceId?: string;
+      mixedCardAmount?: number;
+      mixedCashAmount?: number;
     };
 
     if (!stylistId || typeof amount !== "number" || !paymentMethod) {
@@ -1460,6 +1462,8 @@ export const createPrestation: RequestHandler = async (req, res) => {
       clientId: finalClientId,
       amount,
       paymentMethod,
+      mixedCardAmount: paymentMethod === "mixed" ? mixedCardAmount : undefined,
+      mixedCashAmount: paymentMethod === "mixed" ? mixedCashAmount : undefined,
       timestamp: ts,
       pointsPercent: pct,
       pointsAwarded: points,
@@ -2228,7 +2232,7 @@ export const createProduct: RequestHandler = async (req, res) => {
   try {
     const body = await parseRequestBody(req);
     const salonId = getSalonId(req);
-    const { stylistId, clientId, amount, paymentMethod, timestamp, productName, productTypeId } = body as {
+    const { stylistId, clientId, amount, paymentMethod, timestamp, productName, productTypeId, mixedCardAmount, mixedCashAmount } = body as {
       stylistId?: string;
       clientId?: string;
       amount?: number;
@@ -2236,6 +2240,8 @@ export const createProduct: RequestHandler = async (req, res) => {
       timestamp?: number;
       productName?: string;
       productTypeId?: string;
+      mixedCardAmount?: number;
+      mixedCashAmount?: number;
     };
 
     if (!stylistId || typeof amount !== "number" || !paymentMethod) {
@@ -2256,6 +2262,8 @@ export const createProduct: RequestHandler = async (req, res) => {
       clientId: finalClientId,
       amount,
       paymentMethod,
+      mixedCardAmount: paymentMethod === "mixed" ? mixedCardAmount : undefined,
+      mixedCashAmount: paymentMethod === "mixed" ? mixedCashAmount : undefined,
       timestamp: ts,
       productName,
       productTypeId,
