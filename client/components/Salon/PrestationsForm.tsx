@@ -1115,7 +1115,11 @@ export default function PrestationsForm() {
                     transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
                     className="rounded-full overflow-hidden"
                   >
-                    <span className="h-36 w-36 flex items-center justify-center text-8xl">👨</span>
+                    <div className="h-36 w-36 flex items-center justify-center rounded-full bg-gradient-to-br from-slate-700 to-slate-900">
+                      <svg className="h-20 w-20 text-cyan-400" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                      </svg>
+                    </div>
                   </motion.div>
                   <span className={cn(
                     "text-lg font-semibold transition-all duration-300",
