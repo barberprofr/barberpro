@@ -144,7 +144,7 @@ export default function ServicesPicker({ onServiceSelect, onReset, externalOpen,
     <Dialog open={popoverOpen} onOpenChange={setPopoverOpen}>
       <DialogContent className="max-w-[min(90vw,42rem)] rounded-2xl border border-white/25 bg-black/15 shadow-[0_40px_95px_rgba(8,15,40,0.3)] backdrop-blur-[4px] p-0">
         <DialogHeader className="px-4 pt-4 pb-2">
-          <DialogTitle className="text-xl font-black text-amber-400">PRESTATIONS & PRODUITS</DialogTitle>
+          <DialogTitle className="text-xl font-light text-amber-400">PRESTATIONS & PRODUITS</DialogTitle>
         </DialogHeader>
         {(hasServices || hasProducts) ? (
           <div className="flex flex-col">
@@ -171,7 +171,7 @@ export default function ServicesPicker({ onServiceSelect, onReset, externalOpen,
               {hasServices && (
                 <div className="space-y-2">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="text-sm font-bold text-white/70 uppercase tracking-wide">Prestations</span>
+                    <span className="text-sm font-light text-white/70 uppercase tracking-wide">Prestations</span>
                   </div>
               {services.map((service) => {
                 const isSelected = selectedPrestations.has(service.id);
