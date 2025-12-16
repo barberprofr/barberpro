@@ -3,55 +3,24 @@ import * as React from "react";
 const MOBILE_BREAKPOINT = 768;
 const TABLET_BREAKPOINT = 1024;
 
-function getViewportDimensions() {
-  if (typeof window === "undefined") {
-    return { width: 0, height: 0 };
-  }
-  
-  const vv = window.visualViewport;
-  if (vv) {
-    return { width: vv.width, height: vv.height };
-  }
-  
-  const de = document.documentElement;
-  if (de) {
-    return { width: de.clientWidth, height: de.clientHeight };
-  }
-  
-  return { width: window.innerWidth, height: window.innerHeight };
-}
-
 export function useIsMobile() {
-  const [isMobile, setIsMobile] = React.useState<boolean | undefined>(undefined);
+  const [isMobile, setIsMobile] = React.useState<boolean | undefined>(
+    undefined,
+  );
 
   React.useEffect(() => {
     const mql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`);
-    
     const onChange = () => {
-      setIsMobile(getViewportDimensions().width < MOBILE_BREAKPOINT);
+      setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
     };
-    
-    const handleMediaChange = (e: MediaQueryListEvent | MediaQueryList) => {
-      setIsMobile(e.matches);
-    };
-    
-    if (mql.addEventListener) {
-      mql.addEventListener("change", handleMediaChange);
-    } else if (mql.addListener) {
-      mql.addListener(handleMediaChange);
-    }
-    
+    mql.addEventListener("change", onChange);
     window.addEventListener("resize", onChange);
-    
-    onChange();
-    
+    window.addEventListener("orientationchange", onChange);
+    setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
     return () => {
-      if (mql.removeEventListener) {
-        mql.removeEventListener("change", handleMediaChange);
-      } else if (mql.removeListener) {
-        mql.removeListener(handleMediaChange);
-      }
+      mql.removeEventListener("change", onChange);
       window.removeEventListener("resize", onChange);
+      window.removeEventListener("orientationchange", onChange);
     };
   }, []);
 
@@ -63,15 +32,17 @@ export function useIsTablet() {
 
   React.useEffect(() => {
     const checkTablet = () => {
-      const width = getViewportDimensions().width;
+      const width = window.innerWidth;
       setIsTablet(width >= MOBILE_BREAKPOINT && width < TABLET_BREAKPOINT);
     };
     
     window.addEventListener("resize", checkTablet);
+    window.addEventListener("orientationchange", checkTablet);
     checkTablet();
     
     return () => {
       window.removeEventListener("resize", checkTablet);
+      window.removeEventListener("orientationchange", checkTablet);
     };
   }, []);
 
@@ -79,71 +50,36 @@ export function useIsTablet() {
 }
 
 export function useViewportSize() {
-  const [size, setSize] = React.useState(getViewportDimensions);
+  const [size, setSize] = React.useState({
+    width: typeof window !== "undefined" ? window.innerWidth : 0,
+    height: typeof window !== "undefined" ? window.innerHeight : 0,
+  });
 
   React.useEffect(() => {
-    let rafId: number | null = null;
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
     
-    const updateSize = () => {
-      const newSize = getViewportDimensions();
-      setSize(prev => {
-        if (prev.width !== newSize.width || prev.height !== newSize.height) {
-          return newSize;
-        }
-        return prev;
-      });
-    };
-    
-    const scheduleUpdate = () => {
-      if (rafId) {
-        cancelAnimationFrame(rafId);
+    const handleResize = () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
       }
-      rafId = requestAnimationFrame(updateSize);
+      timeoutId = setTimeout(() => {
+        setSize({
+          width: window.innerWidth,
+          height: window.innerHeight,
+        });
+      }, 100);
     };
 
-    const resizeObserver = new ResizeObserver(() => {
-      scheduleUpdate();
-    });
+    window.addEventListener("resize", handleResize);
+    window.addEventListener("orientationchange", handleResize);
     
-    resizeObserver.observe(document.documentElement);
-    
-    const orientationMql = window.matchMedia("(orientation: portrait)");
-    
-    const handleOrientationChange = () => {
-      setTimeout(scheduleUpdate, 100);
-    };
-    
-    if (orientationMql.addEventListener) {
-      orientationMql.addEventListener("change", handleOrientationChange);
-    } else if (orientationMql.addListener) {
-      orientationMql.addListener(handleOrientationChange);
-    }
-    
-    window.addEventListener("resize", scheduleUpdate);
-    
-    if (window.visualViewport) {
-      window.visualViewport.addEventListener("resize", scheduleUpdate);
-    }
-    
-    updateSize();
+    handleResize();
     
     return () => {
-      resizeObserver.disconnect();
-      
-      if (orientationMql.removeEventListener) {
-        orientationMql.removeEventListener("change", handleOrientationChange);
-      } else if (orientationMql.removeListener) {
-        orientationMql.removeListener(handleOrientationChange);
-      }
-      
-      window.removeEventListener("resize", scheduleUpdate);
-      
-      if (window.visualViewport) {
-        window.visualViewport.removeEventListener("resize", scheduleUpdate);
-      }
-      
-      if (rafId) {
-        cancelAnimationFrame(rafId);
+      window.removeEventListener("resize", handleResize);
+      window.removeEventListener("orientationchange", handleResize);
+      if (timeoutId) {
+        clearTimeout(timeoutId);
       }
     };
   }, []);
@@ -152,59 +88,27 @@ export function useViewportSize() {
 }
 
 export function useOrientation() {
-  const [orientation, setOrientation] = React.useState<"portrait" | "landscape">(() => {
-    const { width, height } = getViewportDimensions();
-    return height > width ? "portrait" : "landscape";
-  });
+  const [orientation, setOrientation] = React.useState<"portrait" | "landscape">(
+    typeof window !== "undefined" 
+      ? window.innerHeight > window.innerWidth ? "portrait" : "landscape"
+      : "portrait"
+  );
 
   React.useEffect(() => {
-    const updateOrientation = () => {
-      const { width, height } = getViewportDimensions();
-      setOrientation(height > width ? "portrait" : "landscape");
-    };
-    
-    const scheduleUpdate = () => {
-      setTimeout(updateOrientation, 100);
+    const handleOrientationChange = () => {
+      setTimeout(() => {
+        setOrientation(
+          window.innerHeight > window.innerWidth ? "portrait" : "landscape"
+        );
+      }, 100);
     };
 
-    const resizeObserver = new ResizeObserver(() => {
-      scheduleUpdate();
-    });
-    
-    resizeObserver.observe(document.documentElement);
-    
-    const orientationMql = window.matchMedia("(orientation: portrait)");
-    
-    const handleMediaChange = () => {
-      scheduleUpdate();
-    };
-    
-    if (orientationMql.addEventListener) {
-      orientationMql.addEventListener("change", handleMediaChange);
-    } else if (orientationMql.addListener) {
-      orientationMql.addListener(handleMediaChange);
-    }
-    
-    window.addEventListener("resize", scheduleUpdate);
-    
-    if (window.visualViewport) {
-      window.visualViewport.addEventListener("resize", scheduleUpdate);
-    }
+    window.addEventListener("resize", handleOrientationChange);
+    window.addEventListener("orientationchange", handleOrientationChange);
     
     return () => {
-      resizeObserver.disconnect();
-      
-      if (orientationMql.removeEventListener) {
-        orientationMql.removeEventListener("change", handleMediaChange);
-      } else if (orientationMql.removeListener) {
-        orientationMql.removeListener(handleMediaChange);
-      }
-      
-      window.removeEventListener("resize", scheduleUpdate);
-      
-      if (window.visualViewport) {
-        window.visualViewport.removeEventListener("resize", scheduleUpdate);
-      }
+      window.removeEventListener("resize", handleOrientationChange);
+      window.removeEventListener("orientationchange", handleOrientationChange);
     };
   }, []);
 
