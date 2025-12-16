@@ -171,7 +171,7 @@ export default function ServicesPicker({ onServiceSelect, onReset, externalOpen,
               {hasServices && (
                 <div className="space-y-2">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="text-sm font-light text-white/70 uppercase tracking-wide">Prestations</span>
+                    <span className="text-lg font-light text-white/70 uppercase tracking-wide">Prestations</span>
                   </div>
               {services.map((service) => {
                 const isSelected = selectedPrestations.has(service.id);
