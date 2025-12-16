@@ -1015,8 +1015,8 @@ export default function PrestationsForm() {
                     }}
                     whileHover={{ scale: 1.18, y: -12, boxShadow: "0 0 60px rgba(139,92,246,0.8), 0 0 100px rgba(139,92,246,0.5), 0 0 140px rgba(139,92,246,0.3)" }}
                     whileTap={{ scale: 1.25, y: -16, boxShadow: "0 0 100px rgba(139,92,246,1), 0 0 150px rgba(139,92,246,0.8), 0 0 200px rgba(139,92,246,0.5)" }}
-                    transition={{ type: "spring", stiffness: 300, damping: 15 }}
-                    className="group relative flex flex-col items-center justify-center w-56 h-56 rounded-2xl transition-all duration-300 active:scale-125"
+                    transition={{ duration: 0.1 }}
+                    className="group relative flex flex-col items-center justify-center w-56 h-56 rounded-2xl"
                   >
                     {/* Halo lumineux derrière l'icône */}
                     <div className="relative flex items-center justify-center mb-4">
@@ -1086,8 +1086,9 @@ export default function PrestationsForm() {
                   data-stylist-card
                   whileHover={{ scale: 1.12, boxShadow: "0 0 50px rgba(34,211,238,0.7), 0 0 80px rgba(34,211,238,0.5), 0 0 120px rgba(34,211,238,0.3)" }}
                   whileTap={{ scale: 1.15, boxShadow: "0 0 60px rgba(34,211,238,0.8), 0 0 100px rgba(34,211,238,0.6), 0 0 140px rgba(34,211,238,0.4)" }}
+                  transition={{ duration: 0.1 }}
                   className={cn(
-                    "group relative flex flex-col items-center justify-center gap-2 w-full rounded-[2.5rem] border-2 bg-slate-950/75 px-4 py-4 transition-all duration-300 focus:outline-none backdrop-blur-sm active:border-cyan-400",
+                    "group relative flex flex-col items-center justify-center gap-2 w-full rounded-[2.5rem] border-2 bg-slate-950/75 px-4 py-4 focus:outline-none backdrop-blur-sm",
                     stylistId 
                       ? "border-cyan-400 shadow-[0_0_35px_rgba(34,211,238,0.5),0_0_60px_rgba(34,211,238,0.3),inset_0_0_20px_rgba(34,211,238,0.1)]" 
                       : "border-slate-700/70 shadow-[0_0_20px_rgba(0,0,0,0.4)] hover:border-cyan-400 hover:shadow-[0_0_50px_rgba(34,211,238,0.7),0_0_80px_rgba(34,211,238,0.5),0_0_120px_rgba(34,211,238,0.3)]"
