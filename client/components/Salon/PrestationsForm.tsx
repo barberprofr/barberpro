@@ -1443,14 +1443,14 @@ export default function PrestationsForm() {
                           <div className="flex-1">
                             <label className="text-sm text-cyan-300 font-medium">Montant Carte</label>
                             <Input
-                              type="number"
-                              step="0.01"
-                              min="0"
+                              type="text"
+                              inputMode="decimal"
                               value={mixedCardAmount}
                               onChange={(e) => {
-                                const cardVal = parseFloat(e.target.value) || 0;
+                                const val = e.target.value.replace(/[^0-9.,]/g, '').replace(',', '.');
+                                const cardVal = parseFloat(val) || 0;
                                 const total = parseFloat(amount) || 0;
-                                setMixedCardAmount(e.target.value);
+                                setMixedCardAmount(val);
                                 setMixedCashAmount((total - cardVal).toFixed(2));
                               }}
                               className="mt-1 bg-white/10 border-white/20 text-white text-lg font-bold h-12"
@@ -1467,14 +1467,14 @@ export default function PrestationsForm() {
                           <div className="flex-1">
                             <label className="text-sm text-green-300 font-medium">Montant Espèces</label>
                             <Input
-                              type="number"
-                              step="0.01"
-                              min="0"
+                              type="text"
+                              inputMode="decimal"
                               value={mixedCashAmount}
                               onChange={(e) => {
-                                const cashVal = parseFloat(e.target.value) || 0;
+                                const val = e.target.value.replace(/[^0-9.,]/g, '').replace(',', '.');
+                                const cashVal = parseFloat(val) || 0;
                                 const total = parseFloat(amount) || 0;
-                                setMixedCashAmount(e.target.value);
+                                setMixedCashAmount(val);
                                 setMixedCardAmount((total - cashVal).toFixed(2));
                               }}
                               className="mt-1 bg-white/10 border-white/20 text-white text-lg font-bold h-12"
