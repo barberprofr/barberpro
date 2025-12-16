@@ -16,11 +16,17 @@ export function useIsMobile() {
     mql.addEventListener("change", onChange);
     window.addEventListener("resize", onChange);
     window.addEventListener("orientationchange", onChange);
+    if (screen.orientation) {
+      screen.orientation.addEventListener("change", onChange);
+    }
     setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
     return () => {
       mql.removeEventListener("change", onChange);
       window.removeEventListener("resize", onChange);
       window.removeEventListener("orientationchange", onChange);
+      if (screen.orientation) {
+        screen.orientation.removeEventListener("change", onChange);
+      }
     };
   }, []);
 
@@ -38,11 +44,17 @@ export function useIsTablet() {
     
     window.addEventListener("resize", checkTablet);
     window.addEventListener("orientationchange", checkTablet);
+    if (screen.orientation) {
+      screen.orientation.addEventListener("change", checkTablet);
+    }
     checkTablet();
     
     return () => {
       window.removeEventListener("resize", checkTablet);
       window.removeEventListener("orientationchange", checkTablet);
+      if (screen.orientation) {
+        screen.orientation.removeEventListener("change", checkTablet);
+      }
     };
   }, []);
 
@@ -57,29 +69,60 @@ export function useViewportSize() {
 
   React.useEffect(() => {
     let timeoutId: ReturnType<typeof setTimeout> | null = null;
+    let rafId: number | null = null;
+    
+    const updateSize = () => {
+      setSize({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
+    };
     
     const handleResize = () => {
       if (timeoutId) {
         clearTimeout(timeoutId);
       }
+      if (rafId) {
+        cancelAnimationFrame(rafId);
+      }
       timeoutId = setTimeout(() => {
-        setSize({
-          width: window.innerWidth,
-          height: window.innerHeight,
-        });
-      }, 100);
+        rafId = requestAnimationFrame(updateSize);
+      }, 50);
+    };
+    
+    const handleOrientationChange = () => {
+      setTimeout(() => {
+        rafId = requestAnimationFrame(updateSize);
+      }, 150);
     };
 
     window.addEventListener("resize", handleResize);
-    window.addEventListener("orientationchange", handleResize);
+    window.addEventListener("orientationchange", handleOrientationChange);
     
-    handleResize();
+    if (screen.orientation) {
+      screen.orientation.addEventListener("change", handleOrientationChange);
+    }
+    
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener("resize", handleResize);
+    }
+    
+    updateSize();
     
     return () => {
       window.removeEventListener("resize", handleResize);
-      window.removeEventListener("orientationchange", handleResize);
+      window.removeEventListener("orientationchange", handleOrientationChange);
+      if (screen.orientation) {
+        screen.orientation.removeEventListener("change", handleOrientationChange);
+      }
+      if (window.visualViewport) {
+        window.visualViewport.removeEventListener("resize", handleResize);
+      }
       if (timeoutId) {
         clearTimeout(timeoutId);
+      }
+      if (rafId) {
+        cancelAnimationFrame(rafId);
       }
     };
   }, []);
@@ -95,20 +138,36 @@ export function useOrientation() {
   );
 
   React.useEffect(() => {
+    const updateOrientation = () => {
+      setOrientation(
+        window.innerHeight > window.innerWidth ? "portrait" : "landscape"
+      );
+    };
+    
     const handleOrientationChange = () => {
-      setTimeout(() => {
-        setOrientation(
-          window.innerHeight > window.innerWidth ? "portrait" : "landscape"
-        );
-      }, 100);
+      setTimeout(updateOrientation, 150);
     };
 
     window.addEventListener("resize", handleOrientationChange);
     window.addEventListener("orientationchange", handleOrientationChange);
     
+    if (screen.orientation) {
+      screen.orientation.addEventListener("change", handleOrientationChange);
+    }
+    
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener("resize", handleOrientationChange);
+    }
+    
     return () => {
       window.removeEventListener("resize", handleOrientationChange);
       window.removeEventListener("orientationchange", handleOrientationChange);
+      if (screen.orientation) {
+        screen.orientation.removeEventListener("change", handleOrientationChange);
+      }
+      if (window.visualViewport) {
+        window.visualViewport.removeEventListener("resize", handleOrientationChange);
+      }
     };
   }, []);
 
