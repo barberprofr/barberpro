@@ -1014,8 +1014,9 @@ export default function PrestationsForm() {
                       setTimeout(() => setServicesPickerOpen(true), 100);
                     }}
                     whileHover={{ scale: 1.18, y: -12, boxShadow: "0 0 60px rgba(139,92,246,0.8), 0 0 100px rgba(139,92,246,0.5), 0 0 140px rgba(139,92,246,0.3)" }}
-                    whileTap={{ scale: 1.25, y: -16, boxShadow: "0 0 80px rgba(139,92,246,1), 0 0 120px rgba(139,92,246,0.7)" }}
-                    className="group relative flex flex-col items-center justify-center w-56 h-56 rounded-2xl transition-all duration-300"
+                    whileTap={{ scale: 1.25, y: -16, boxShadow: "0 0 100px rgba(139,92,246,1), 0 0 150px rgba(139,92,246,0.8), 0 0 200px rgba(139,92,246,0.5)" }}
+                    transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                    className="group relative flex flex-col items-center justify-center w-56 h-56 rounded-2xl transition-all duration-300 active:scale-125"
                   >
                     {/* Halo lumineux derrière l'icône */}
                     <div className="relative flex items-center justify-center mb-4">
