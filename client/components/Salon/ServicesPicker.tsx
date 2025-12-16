@@ -302,7 +302,7 @@ export default function ServicesPicker({ onServiceSelect, onReset, externalOpen,
                 <div className="space-y-2">
                   <div className="flex items-center gap-2 mb-2 pt-2 border-t border-white/10">
                     <Package className="h-4 w-4 text-cyan-400" />
-                    <span className="text-sm font-bold text-amber-400 uppercase tracking-wide">Produits</span>
+                    <span className="text-lg font-light text-amber-400 uppercase tracking-wide">Produits</span>
                   </div>
                   {productTypes.map((product) => {
                     const isSelected = selectedProducts.has(product.id);
