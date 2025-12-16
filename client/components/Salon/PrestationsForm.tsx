@@ -1047,7 +1047,7 @@ export default function PrestationsForm() {
                           <path d="M10 6V4h4v2" />
                         </svg>
                       </div>
-                      <span className="text-xs font-medium text-cyan-400/80">Produits</span>
+                      <span className="text-sm font-medium text-cyan-400/80">Produits</span>
                     </div>
                   </motion.button>
                 </div>
