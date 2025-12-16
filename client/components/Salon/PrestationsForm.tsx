@@ -1097,13 +1097,13 @@ export default function PrestationsForm() {
                 <motion.button
                   type="button"
                   data-stylist-card
-                  whileHover={{ scale: 1.03 }}
+                  whileHover={{ scale: 1.12 }}
                   whileTap={{ scale: 0.98 }}
                   className={cn(
                     "group relative flex flex-col items-center justify-center gap-2 w-full rounded-[2.5rem] border-2 bg-slate-950/75 px-4 py-4 transition-all duration-300 focus:outline-none backdrop-blur-sm",
                     stylistId 
                       ? "border-cyan-400 shadow-[0_0_35px_rgba(34,211,238,0.5),0_0_60px_rgba(34,211,238,0.3),inset_0_0_20px_rgba(34,211,238,0.1)]" 
-                      : "border-slate-700/70 shadow-[0_0_20px_rgba(0,0,0,0.4)] hover:border-cyan-500/50 hover:shadow-[0_0_28px_rgba(34,211,238,0.3)]"
+                      : "border-slate-700/70 shadow-[0_0_20px_rgba(0,0,0,0.4)] hover:border-cyan-400 hover:shadow-[0_0_50px_rgba(34,211,238,0.7),0_0_80px_rgba(34,211,238,0.5),0_0_120px_rgba(34,211,238,0.3)]"
                   )}
                 >
                   <motion.div
