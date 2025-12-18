@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Loader2, Check, ChevronDown, CircleDollarSign, CreditCard, FileText, Sparkles, ArrowLeft, Scissors, Users, UserPlus, Euro, X, ClipboardList, Package, Building2, ArrowLeftRight, SprayCan, Wallet } from "lucide-react";
+import { Loader2, Check, ChevronDown, CircleDollarSign, CreditCard, FileText, Sparkles, ArrowLeft, Scissors, Users, UserPlus, Euro, X, ClipboardList, Package, Building2, ArrowLeftRight, SprayCan, Wallet, Camera, Image as ImageIcon } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Input } from "@/components/ui/input";
@@ -10,7 +10,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
-import { useAddClient, useAddPrestation, useAddProduct, useClients, useConfig, useStylists, useDashboardSummary } from "@/lib/api";
+import { useAddClient, useAddPrestation, useAddProduct, useClients, useConfig, useStylists, useDashboardSummary, useUploadClientPhoto, useDeleteClientPhoto, useAdminLogin, useDeleteClient } from "@/lib/api";
 import ServicesPicker from "./ServicesPicker";
 import ProductsPicker from "./ProductsPicker";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -55,6 +55,10 @@ export default function PrestationsForm() {
   const addPrestation = useAddPrestation();
   const addProduct = useAddProduct();
   const addClient = useAddClient();
+  const uploadPhoto = useUploadClientPhoto();
+  const deletePhoto = useDeleteClientPhoto();
+  const adminLogin = useAdminLogin();
+  const delClient = useDeleteClient();
   const { data: config } = useConfig();
   const { data: summary } = useDashboardSummary();
   const { toast } = useToast();
@@ -106,6 +110,7 @@ export default function PrestationsForm() {
   const [mixedPaymentOpen, setMixedPaymentOpen] = useState(false);
   const [mixedCardAmount, setMixedCardAmount] = useState<string>("");
   const [mixedCashAmount, setMixedCashAmount] = useState<string>("");
+  const [expandedClientId, setExpandedClientId] = useState<string | null>(null);
   const successTimeoutRef = useRef<number | null>(null);
   const amountHintTimeoutRef = useRef<number | null>(null);
   const amountInputRef = useRef<HTMLInputElement | null>(null);
@@ -1607,39 +1612,157 @@ export default function PrestationsForm() {
                   </div>
                 ) : (
                   <div className="space-y-3">
-                    {filteredClients.map((c) => (
-                      <div
-                        key={c.id}
-                        className="rounded-2xl border border-white/20 bg-slate-900/90 p-4 space-y-3 shadow-[0_15px_40px_rgba(0,0,0,0.3)] backdrop-blur-xl transition-all duration-300 hover:border-white/30"
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <span className="h-3 w-3 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.6)]" />
-                            <div className="flex flex-col">
-                              <span className="text-xl font-bold text-white">{c.name}</span>
-                              {c.phone && (
-                                <span className="text-sm font-medium text-white/60">{c.phone}</span>
-                              )}
+                    {filteredClients.map((c) => {
+                      const isExpanded = expandedClientId === c.id;
+                      return (
+                        <div
+                          key={c.id}
+                          className="rounded-2xl border border-white/20 bg-slate-900/90 p-4 space-y-3 shadow-[0_15px_40px_rgba(0,0,0,0.3)] backdrop-blur-xl transition-all duration-300 hover:border-white/30"
+                        >
+                          <div 
+                            className="flex items-center justify-between cursor-pointer"
+                            onClick={() => setExpandedClientId(isExpanded ? null : c.id)}
+                          >
+                            <div className="flex items-center gap-3">
+                              <span className="h-3 w-3 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.6)]" />
+                              <div className="flex flex-col">
+                                <span className="text-xl font-bold text-white">{c.name}</span>
+                                {c.phone && (
+                                  <span className="text-sm font-medium text-white/60">{c.phone}</span>
+                                )}
+                              </div>
+                            </div>
+                            <div className="rounded-xl border border-cyan-400/50 bg-cyan-500/10 px-4 py-2">
+                              <span className="text-lg font-bold text-cyan-300">{c.points} pts</span>
                             </div>
                           </div>
-                          <div className="rounded-xl border border-cyan-400/50 bg-cyan-500/10 px-4 py-2">
-                            <span className="text-lg font-bold text-cyan-300">{c.points} pts</span>
-                          </div>
+
+                          {isExpanded ? (
+                            <>
+                              <div className="flex gap-3">
+                                <button
+                                  type="button"
+                                  onClick={() => setExpandedClientId(null)}
+                                  className="flex-1 rounded-xl border border-white/30 bg-white/10 py-3 text-base font-semibold text-white transition hover:bg-white/20 backdrop-blur-sm"
+                                >
+                                  Fermer
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    const email = window.prompt("Email admin requis:") || "";
+                                    if (!/.+@.+\..+/.test(email)) return;
+                                    const pwd = window.prompt("Code admin requis:") || "";
+                                    if (!pwd) return;
+                                    adminLogin.mutate({ email, password: pwd }, {
+                                      onSuccess: () => {
+                                        delClient.mutate(c.id, {
+                                          onSuccess: () => {
+                                            setExpandedClientId(null);
+                                            qc.invalidateQueries({ queryKey: ["clients"] });
+                                          }
+                                        });
+                                      },
+                                    });
+                                  }}
+                                  className="flex-1 rounded-xl border-0 bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 text-white transition hover:from-amber-600 hover:via-orange-600 hover:to-amber-700 py-3 text-base font-semibold shadow-[0_4px_15px_rgba(245,158,11,0.4)]"
+                                >
+                                  Supprimer
+                                </button>
+                              </div>
+
+                              <div className="h-px bg-white/10" />
+                              <h4 className="text-sm font-medium text-white/80">Photos</h4>
+                              <div className="grid grid-cols-3 gap-2">
+                                {c.photos?.map((photo, i) => (
+                                  <div key={i} className="relative group">
+                                    <img
+                                      src={photo}
+                                      alt={`Client photo ${i + 1}`}
+                                      className="aspect-square rounded-lg object-cover border border-white/10 cursor-pointer hover:opacity-80 transition w-full"
+                                    />
+                                    <button
+                                      type="button"
+                                      className="absolute top-1 right-1 rounded-full bg-black/50 p-1 text-white opacity-0 group-hover:opacity-100 transition hover:bg-red-500/80"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        if (window.confirm("Supprimer cette photo ?")) {
+                                          deletePhoto.mutate({ clientId: c.id, photoUrl: photo });
+                                        }
+                                      }}
+                                    >
+                                      <X className="h-3 w-3" />
+                                    </button>
+                                  </div>
+                                ))}
+                                <label className="flex aspect-square cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border border-dashed border-white/25 bg-white/5 hover:bg-white/10 transition">
+                                  {uploadPhoto.isPending ? (
+                                    <Loader2 className="h-5 w-5 animate-spin text-white/60" />
+                                  ) : (
+                                    <ImageIcon className="h-5 w-5 text-white/60" />
+                                  )}
+                                  <span className="text-[10px] text-white/60">Galerie</span>
+                                  <input
+                                    type="file"
+                                    className="hidden"
+                                    accept="image/*"
+                                    disabled={uploadPhoto.isPending}
+                                    onChange={async (e) => {
+                                      if (e.target.files && e.target.files[0]) {
+                                        await uploadPhoto.mutateAsync({ clientId: c.id, file: e.target.files[0] });
+                                      }
+                                    }}
+                                  />
+                                </label>
+                                <label className="flex aspect-square cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border border-dashed border-white/25 bg-white/5 hover:bg-white/10 transition">
+                                  {uploadPhoto.isPending ? (
+                                    <Loader2 className="h-5 w-5 animate-spin text-white/60" />
+                                  ) : (
+                                    <Camera className="h-5 w-5 text-white/60" />
+                                  )}
+                                  <span className="text-[10px] text-white/60">Caméra</span>
+                                  <input
+                                    type="file"
+                                    className="hidden"
+                                    accept="image/*"
+                                    capture="environment"
+                                    disabled={uploadPhoto.isPending}
+                                    onChange={async (e) => {
+                                      if (e.target.files && e.target.files[0]) {
+                                        await uploadPhoto.mutateAsync({ clientId: c.id, file: e.target.files[0] });
+                                      }
+                                    }}
+                                  />
+                                </label>
+                              </div>
+
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setClientId(c.id);
+                                  setClientPickerOpen(false);
+                                  setClientSearch("");
+                                  setClientAccordion("");
+                                  setExpandedClientId(null);
+                                }}
+                                className="w-full rounded-xl border-0 bg-gradient-to-r from-cyan-500 via-blue-500 to-cyan-600 text-white transition hover:from-cyan-600 hover:via-blue-600 hover:to-cyan-700 px-5 py-3 text-base font-semibold shadow-[0_4px_15px_rgba(6,182,212,0.4)]"
+                              >
+                                Sélectionner ce client
+                              </button>
+                            </>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => setExpandedClientId(c.id)}
+                              className="w-full rounded-xl border-0 bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 text-white transition hover:from-amber-600 hover:via-orange-600 hover:to-amber-700 px-5 py-3 text-base font-semibold shadow-[0_4px_15px_rgba(245,158,11,0.4)]"
+                            >
+                              Sélectionner
+                            </button>
+                          )}
                         </div>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setClientId(c.id);
-                            setClientPickerOpen(false);
-                            setClientSearch("");
-                            setClientAccordion("");
-                          }}
-                          className="w-full rounded-xl border-0 bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 text-white transition hover:from-amber-600 hover:via-orange-600 hover:to-amber-700 px-5 py-3 text-base font-semibold shadow-[0_4px_15px_rgba(245,158,11,0.4)]"
-                        >
-                          Sélectionner
-                        </button>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </div>
