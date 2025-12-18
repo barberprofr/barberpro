@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { useAdminLogin, useDeleteClient, useClients, useRedeemPoints, useConfig, useStylists, useUploadClientPhoto, useDeleteClientPhoto } from "@/lib/api";
 import { useQueryClient } from "@tanstack/react-query";
@@ -356,150 +357,172 @@ export default function Clients() {
         <div className="space-y-3">
           {filtered.length > 0 ? (
             filtered.map((c) => {
-              const isSelected = selected === c.id;
               return (
                 <Card
                   key={c.id}
-                  className={cn(
-                    "overflow-hidden rounded-2xl border border-white/20 bg-slate-900/90 shadow-[0_25px_60px_rgba(0,0,0,0.4)] backdrop-blur-xl transition-all duration-300",
-                    isSelected
-                      ? "ring-2 ring-cyan-400/60"
-                      : "hover:border-white/30 hover:shadow-[0_30px_70px_rgba(0,0,0,0.5)]"
-                  )}
+                  className="overflow-hidden rounded-2xl border border-white/20 bg-slate-900/90 shadow-[0_25px_60px_rgba(0,0,0,0.4)] backdrop-blur-xl transition-all duration-300 hover:border-white/30 hover:shadow-[0_30px_70px_rgba(0,0,0,0.5)] cursor-pointer"
+                  onClick={() => {
+                    setSelected(c.id);
+                    setQuery(c.name);
+                    setRedeemPoints(redeemDefault > 0 ? String(redeemDefault) : "");
+                  }}
                 >
-                  <CardContent
-                    className="p-5 space-y-4"
-                    onClick={() => {
-                      setSelected((prev) => {
-                        const next = prev === c.id ? "" : c.id;
-                        if (prev !== c.id) {
-                          setQuery(c.name);
-                          setRedeemPoints(redeemDefault > 0 ? String(redeemDefault) : "");
-                        }
-                        return next;
-                      });
-                    }}
-                  >
+                  <CardContent className="p-5 space-y-4">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <span className="h-3 w-3 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.6)]" />
-                        <span className="text-xl font-bold text-white">{c.name}</span>
+                        <div className="flex flex-col">
+                          <span className="text-xl font-bold text-white">{c.name}</span>
+                          {c.phone && (
+                            <span className="text-sm font-medium text-white/60">{c.phone}</span>
+                          )}
+                        </div>
                       </div>
                       <div className="rounded-xl border border-cyan-400/50 bg-cyan-500/10 px-4 py-2">
                         <span className="text-lg font-bold text-cyan-300">{c.points} pts</span>
                       </div>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <Button
-                        size="default"
-                        variant="ghost"
-                        className="flex-1 rounded-xl border border-white/20 bg-slate-800/80 text-white/90 transition hover:bg-slate-700 hover:text-white px-5 py-3 text-base font-semibold"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelected((prev) => {
-                            const next = prev === c.id ? "" : c.id;
-                            if (prev !== c.id) {
-                              setQuery(c.name);
-                              setRedeemPoints(redeemDefault > 0 ? String(redeemDefault) : "");
-                            }
-                            return next;
-                          });
-                        }}
-                      >
-                        {isSelected ? "Fermer" : "Sélectionner"}
-                      </Button>
-                      <Button
-                        size="default"
-                        variant="ghost"
-                        className="flex-1 rounded-xl border-0 bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 text-white transition hover:from-amber-600 hover:via-orange-600 hover:to-amber-700 px-5 py-3 text-base font-semibold shadow-[0_4px_15px_rgba(245,158,11,0.4)]"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          const email = window.prompt("Email admin requis:") || "";
-                          if (!/.+@.+\..+/.test(email)) return;
-                          const pwd = window.prompt("Code admin requis:") || "";
-                          if (!pwd) return;
-                          adminLogin.mutate({ email, password: pwd }, {
-                            onSuccess: () => delClient.mutate(c.id),
-                          });
-                        }}
-                      >
-                        Supprimer
-                      </Button>
-                    </div>
+                    <Button
+                      size="default"
+                      variant="ghost"
+                      className="w-full rounded-xl border-0 bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 text-white transition hover:from-amber-600 hover:via-orange-600 hover:to-amber-700 px-5 py-3 text-base font-semibold shadow-[0_4px_15px_rgba(245,158,11,0.4)]"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelected(c.id);
+                        setQuery(c.name);
+                        setRedeemPoints(redeemDefault > 0 ? String(redeemDefault) : "");
+                      }}
+                    >
+                      Sélectionner
+                    </Button>
                   </CardContent>
-                  {isSelected && (
-                    <div className="px-4 pb-4 space-y-3">
-                      <div className="h-px bg-white/10" />
-                      <h4 className="text-sm font-medium text-white/80">Photos</h4>
-                      <div className="grid grid-cols-3 gap-2">
-                        {c.photos?.map((photo, i) => (
-                          <div key={i} className="relative group">
-                            <img
-                              src={photo}
-                              alt={`Client photo ${i + 1}`}
-                              className="aspect-square rounded-lg object-cover border border-white/10 cursor-pointer hover:opacity-80 transition w-full"
-                              onClick={() => setViewingPhotoIndex(i)}
-                            />
-                            <button
-                              className="absolute top-1 right-1 rounded-full bg-black/50 p-1 text-white opacity-0 group-hover:opacity-100 transition hover:bg-red-500/80"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                if (window.confirm("Supprimer cette photo ?")) {
-                                  deletePhoto.mutate({ clientId: c.id, photoUrl: photo });
-                                }
-                              }}
-                            >
-                              <X className="h-3 w-3" />
-                            </button>
-                          </div>
-                        ))}
-                        <label className="flex aspect-square cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border border-dashed border-white/25 bg-white/5 hover:bg-white/10 transition">
-                          {uploadPhoto.isPending ? (
-                            <Loader2 className="h-5 w-5 animate-spin text-white/60" />
-                          ) : (
-                            <ImageIcon className="h-5 w-5 text-white/60" />
-                          )}
-                          <span className="text-[10px] text-white/60">Galerie</span>
-                          <input
-                            type="file"
-                            className="hidden"
-                            accept="image/*"
-                            disabled={uploadPhoto.isPending}
-                            onChange={async (e) => {
-                              if (e.target.files && e.target.files[0]) {
-                                await uploadPhoto.mutateAsync({ clientId: c.id, file: e.target.files[0] });
-                              }
-                            }}
-                          />
-                        </label>
-                        <label className="flex aspect-square cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border border-dashed border-white/25 bg-white/5 hover:bg-white/10 transition">
-                          {uploadPhoto.isPending ? (
-                            <Loader2 className="h-5 w-5 animate-spin text-white/60" />
-                          ) : (
-                            <Camera className="h-5 w-5 text-white/60" />
-                          )}
-                          <span className="text-[10px] text-white/60">Caméra</span>
-                          <input
-                            type="file"
-                            className="hidden"
-                            accept="image/*"
-                            capture="environment"
-                            disabled={uploadPhoto.isPending}
-                            onChange={async (e) => {
-                              if (e.target.files && e.target.files[0]) {
-                                await uploadPhoto.mutateAsync({ clientId: c.id, file: e.target.files[0] });
-                              }
-                            }}
-                          />
-                        </label>
-                      </div>
-                    </div>
-                  )}
                 </Card>
               );
             })
           ) : null}
         </div>
+
+        {/* Popup Client sélectionné */}
+        <Dialog open={!!selected && !!selectedClient} onOpenChange={(open) => {
+          if (!open) {
+            setSelected("");
+          }
+        }}>
+          <DialogContent className="w-[min(95vw,32rem)] max-h-[90vh] overflow-y-auto rounded-2xl border border-white/25 bg-slate-900/95 p-0 shadow-[0_25px_60px_rgba(0,0,0,0.5)] backdrop-blur-xl">
+            {selectedClient && (
+              <div className="p-5 space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <span className="h-3 w-3 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.6)]" />
+                    <div className="flex flex-col">
+                      <span className="text-xl font-bold text-white">{selectedClient.name}</span>
+                      {selectedClient.phone && (
+                        <span className="text-sm font-medium text-white/60">{selectedClient.phone}</span>
+                      )}
+                    </div>
+                  </div>
+                  <div className="rounded-xl border border-cyan-400/50 bg-cyan-500/10 px-4 py-2">
+                    <span className="text-lg font-bold text-cyan-300">{selectedClient.points} pts</span>
+                  </div>
+                </div>
+
+                <div className="flex gap-3">
+                  <Button
+                    size="default"
+                    variant="ghost"
+                    className="flex-1 rounded-xl border border-white/20 bg-slate-800/80 text-white/90 transition hover:bg-slate-700 hover:text-white px-5 py-3 text-base font-semibold"
+                    onClick={() => setSelected("")}
+                  >
+                    Fermer
+                  </Button>
+                  <Button
+                    size="default"
+                    variant="ghost"
+                    className="flex-1 rounded-xl border-0 bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 text-white transition hover:from-amber-600 hover:via-orange-600 hover:to-amber-700 px-5 py-3 text-base font-semibold shadow-[0_4px_15px_rgba(245,158,11,0.4)]"
+                    onClick={() => {
+                      const email = window.prompt("Email admin requis:") || "";
+                      if (!/.+@.+\..+/.test(email)) return;
+                      const pwd = window.prompt("Code admin requis:") || "";
+                      if (!pwd) return;
+                      adminLogin.mutate({ email, password: pwd }, {
+                        onSuccess: () => delClient.mutate(selectedClient.id, {
+                          onSuccess: () => setSelected("")
+                        }),
+                      });
+                    }}
+                  >
+                    Supprimer
+                  </Button>
+                </div>
+
+                <div className="h-px bg-white/10" />
+                <h4 className="text-sm font-medium text-white/80">Photos</h4>
+                <div className="grid grid-cols-2 gap-3">
+                  {selectedClient.photos?.map((photo, i) => (
+                    <div key={i} className="relative group">
+                      <img
+                        src={photo}
+                        alt={`Client photo ${i + 1}`}
+                        className="aspect-square rounded-lg object-cover border border-white/10 cursor-pointer hover:opacity-80 transition w-full"
+                        onClick={() => setViewingPhotoIndex(i)}
+                      />
+                      <button
+                        className="absolute top-1 right-1 rounded-full bg-black/50 p-1 text-white opacity-0 group-hover:opacity-100 transition hover:bg-red-500/80"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (window.confirm("Supprimer cette photo ?")) {
+                            deletePhoto.mutate({ clientId: selectedClient.id, photoUrl: photo });
+                          }
+                        }}
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </div>
+                  ))}
+                  <label className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-white/25 bg-white/5 hover:bg-white/10 transition min-h-[100px] py-4">
+                    {uploadPhoto.isPending ? (
+                      <Loader2 className="h-10 w-10 animate-spin text-white/60" />
+                    ) : (
+                      <ImageIcon className="h-10 w-10 text-white/60" />
+                    )}
+                    <span className="text-sm font-medium text-white/60">Galerie</span>
+                    <input
+                      type="file"
+                      className="hidden"
+                      accept="image/*"
+                      disabled={uploadPhoto.isPending}
+                      onChange={async (e) => {
+                        if (e.target.files && e.target.files[0]) {
+                          await uploadPhoto.mutateAsync({ clientId: selectedClient.id, file: e.target.files[0] });
+                        }
+                      }}
+                    />
+                  </label>
+                  <label className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-white/25 bg-white/5 hover:bg-white/10 transition min-h-[100px] py-4">
+                    {uploadPhoto.isPending ? (
+                      <Loader2 className="h-10 w-10 animate-spin text-white/60" />
+                    ) : (
+                      <Camera className="h-10 w-10 text-white/60" />
+                    )}
+                    <span className="text-sm font-medium text-white/60">Caméra</span>
+                    <input
+                      type="file"
+                      className="hidden"
+                      accept="image/*"
+                      capture="environment"
+                      disabled={uploadPhoto.isPending}
+                      onChange={async (e) => {
+                        if (e.target.files && e.target.files[0]) {
+                          await uploadPhoto.mutateAsync({ clientId: selectedClient.id, file: e.target.files[0] });
+                        }
+                      }}
+                    />
+                  </label>
+                </div>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
       </div>
     </SharedLayout>
