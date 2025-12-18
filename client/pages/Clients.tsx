@@ -508,8 +508,8 @@ export default function Clients() {
                     <input
                       type="file"
                       className="hidden"
-                      accept="image/*"
-                      capture="environment"
+                      accept="image/*;capture=camera"
+                      capture
                       disabled={uploadPhoto.isPending}
                       onChange={async (e) => {
                         if (e.target.files && e.target.files[0]) {
