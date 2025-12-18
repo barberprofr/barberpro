@@ -356,7 +356,9 @@ export default function Clients() {
         </Card>
         <div className="space-y-3">
           {filtered.length > 0 ? (
-            filtered.map((c) => {
+            filtered
+              .filter((c) => !selected || selected === c.id)
+              .map((c) => {
               return (
                 <Card
                   key={c.id}
