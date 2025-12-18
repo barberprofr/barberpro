@@ -1625,7 +1625,7 @@ export default function PrestationsForm() {
                             <span className="text-xs font-medium text-white/60">{c.phone}</span>
                           )}
                         </div>
-                        <span className="rounded-full bg-emerald-500/30 px-3 py-1.5 text-base font-bold text-emerald-300 shadow-sm">
+                        <span className="rounded-full bg-emerald-500/30 px-4 py-2 text-lg font-bold text-emerald-300 shadow-md border border-emerald-400/30">
                           {c.points} pts
                         </span>
                       </button>
