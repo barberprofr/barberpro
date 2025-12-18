@@ -249,110 +249,7 @@ export default function Clients() {
                 <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-cyan-200" />
               </div>
             </motion.div>
-            {selectedClient && (
-              <div className="text-xs">Client sélectionné: <span className="inline-block bg-secondary text-secondary-foreground rounded px-2 py-0.5">{selectedClient.name}</span></div>
-            )}
-            {redeemStylist && (
-              <div className="text-[11px] text-muted-foreground">Coiffeur sélectionné: <span className="font-medium text-primary">{redeemStylist.name}</span></div>
-            )}
-            <div className="space-y-3">
-              <div>
-                <label className="text-sm font-medium">Points à utiliser</label>
-                <div className="mt-1 flex gap-2">
-                  <Input
-                    ref={pointsRef}
-                    placeholder={redeemDefault > 0 ? String(redeemDefault) : "0"}
-                    type="text"
-                    inputMode="numeric"
-                    pattern="[0-9]*"
-                    value={redeemDefault > 0 ? String(redeemDefault) : redeemPoints}
-                    readOnly={redeemDefault > 0}
-                    onWheelCapture={(e) => e.preventDefault()}
-                    onKeyDown={(e) => { if (["ArrowUp", "ArrowDown", "PageUp", "PageDown"].includes(e.key)) e.preventDefault(); }}
-                    onChange={(e) => {
-                      if (redeemDefault > 0) {
-                        setRedeemPoints(String(redeemDefault));
-                        return;
-                      }
-                      setRedeemPoints(e.target.value.replace(/[^0-9]/g, ""));
-                    }}
-                  />
-                  <Button disabled={!canRedeem || redeem.isPending} onClick={handleRedeem}>Utiliser</Button>
-                </div>
-                {redeemDefault > 0 ? (
-                  <p className="text-[11px] text-muted-foreground">
-                    Montant fixe: {redeemDefault} point{redeemDefault > 1 ? "s" : ""}. Modifiez-le dans Paramètres.
-                  </p>
-                ) : null}
-              </div>
-              <Accordion
-                type="single"
-                collapsible
-                value={stylistAccordionOpen ? "stylist" : ""}
-                onValueChange={(value) => {
-                  const isOpen = value === "stylist";
-                  setStylistAccordionOpen(isOpen);
-                  if (!isOpen) {
-                    setRedeemStylistId("");
-                  }
-                }}
-              >
-                <AccordionItem
-                  value="stylist"
-                  className="overflow-hidden rounded-3xl border border-transparent bg-[#050b18]/40 shadow-[0_26px_60px_rgba(5,11,24,0.35)] backdrop-blur-sm transition duration-300 data-[state=open]:border-white/25"
-                >
-                  <AccordionTrigger className="relative px-4 py-3 text-sm font-semibold text-slate-100 before:absolute before:inset-0 before:-z-10 before:bg-[linear-gradient(135deg,rgba(9,14,30,0.40)0%,rgba(24,34,85,0.35)45%,rgba(12,111,91,0.25)100%)] before:opacity-95 before:transition before:duration-300">
-                    <div className="flex w-full items-center justify-between gap-3">
-                      <span className="inline-flex items-center gap-2 rounded-full border border-white/45 bg-white/20 px-3.5 py-1 text-[11px] font-semibold text-white shadow-[0_8px_18px_rgba(79,70,229,0.35)]">
-                        <Sparkles className="h-3 w-3 text-amber-200" />
-                        Coiffeur utilisateur des points
-                      </span>
-                      <span className={`inline-flex items-center gap-2 rounded-full border px-3.5 py-1 text-sm font-semibold tracking-wide transition ${redeemStylist ? "border-emerald-300/70 bg-emerald-400/20 text-emerald-100 shadow-[0_8px_18px_rgba(16,185,129,0.35)]" : stylistsAvailable ? "border-white/45 bg-white/20 text-white" : "border-red-300/60 bg-red-400/25 text-red-100"}`}>
-                        {redeemStylist ? redeemStylist.name : stylistsAvailable ? "Sélectionner" : "Aucun coiffeur"}
-                      </span>
-                    </div>
-                  </AccordionTrigger>
-                  <AccordionContent className="px-0 pb-0">
-                    <div className="space-y-2 px-4 pb-4 pt-2">
-                      {stylistsAvailable ? (
-                        stylists?.map((s) => {
-                          const isSelectedStylist = redeemStylistId === s.id;
-                          return (
-                            <button
-                              key={s.id}
-                              type="button"
-                              onClick={() => {
-                                setRedeemStylistId(s.id);
-                                setStylistAccordionOpen(false);
-                              }}
-                              className={`flex w-full items-center justify-between rounded-2xl border px-3.5 py-2.5 text-sm font-semibold backdrop-blur-md transition ${isSelectedStylist ? "border-emerald-300/70 bg-emerald-300/20 text-emerald-100 shadow-[0_12px_32px_rgba(16,185,129,0.25)]" : "border-white/18 bg-white/10 text-slate-100 hover:border-emerald-300/50 hover:bg-white/15"}`}
-                            >
-                              <span className="inline-flex items-center gap-2 text-base font-semibold text-white">
-                                <span className="h-1.5 w-1.5 rounded-full bg-emerald-300" />
-                                {s.name}
-                              </span>
-                              <span className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${isSelectedStylist ? "border-white/40 bg-white/15 text-white" : "border-white/28 bg-white/10 text-white/80"}`}>
-                                {isSelectedStylist ? "Choisi" : "Choisir"}
-                              </span>
-                            </button>
-                          );
-                        })
-                      ) : (
-                        <div className="rounded-2xl border border-white/15 bg-white/10 px-3.5 py-2.5 text-xs text-white/85 backdrop-blur-md">
-                          Aucun coiffeur disponible. Ajoutez-en depuis Paramètres.
-                        </div>
-                      )}
-                    </div>
-                  </AccordionContent>
-                </AccordionItem>
-              </Accordion>
-              {redeemStylist ? (
-                <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
-                  {`Points imputés à ${redeemStylist.name}.`}
-                </p>
-              ) : null}
-            </div>
-          </CardContent>
+            </CardContent>
         </Card>
         <div className="space-y-3">
           {filtered.length > 0 ? (
@@ -455,6 +352,103 @@ export default function Clients() {
                   >
                     Supprimer
                   </Button>
+                </div>
+
+                <div className="h-px bg-white/10" />
+                <h4 className="text-sm font-medium text-white/80">Utiliser des points</h4>
+                <div className="space-y-3">
+                  <div>
+                    <div className="flex gap-2">
+                      <Input
+                        ref={pointsRef}
+                        placeholder={redeemDefault > 0 ? String(redeemDefault) : "0"}
+                        type="text"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
+                        value={redeemDefault > 0 ? String(redeemDefault) : redeemPoints}
+                        readOnly={redeemDefault > 0}
+                        className="bg-slate-800/80 border-white/20 text-white"
+                        onWheelCapture={(e) => e.preventDefault()}
+                        onKeyDown={(e) => { if (["ArrowUp", "ArrowDown", "PageUp", "PageDown"].includes(e.key)) e.preventDefault(); }}
+                        onChange={(e) => {
+                          if (redeemDefault > 0) {
+                            setRedeemPoints(String(redeemDefault));
+                            return;
+                          }
+                          setRedeemPoints(e.target.value.replace(/[^0-9]/g, ""));
+                        }}
+                      />
+                      <Button disabled={!canRedeem || redeem.isPending} onClick={handleRedeem} className="bg-gradient-to-r from-emerald-500 to-cyan-500 text-white">
+                        Utiliser
+                      </Button>
+                    </div>
+                    {redeemDefault > 0 ? (
+                      <p className="text-[11px] text-white/60 mt-1">
+                        Montant fixe: {redeemDefault} point{redeemDefault > 1 ? "s" : ""}
+                      </p>
+                    ) : null}
+                  </div>
+                  <Accordion
+                    type="single"
+                    collapsible
+                    value={stylistAccordionOpen ? "stylist" : ""}
+                    onValueChange={(value) => {
+                      const isOpen = value === "stylist";
+                      setStylistAccordionOpen(isOpen);
+                      if (!isOpen) {
+                        setRedeemStylistId("");
+                      }
+                    }}
+                  >
+                    <AccordionItem
+                      value="stylist"
+                      className="overflow-hidden rounded-xl border border-white/20 bg-slate-800/50"
+                    >
+                      <AccordionTrigger className="px-4 py-3 text-sm font-semibold text-white">
+                        <div className="flex w-full items-center justify-between gap-3">
+                          <span className="inline-flex items-center gap-2 text-sm text-white/80">
+                            <Sparkles className="h-3 w-3 text-amber-300" />
+                            Coiffeur
+                          </span>
+                          <span className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold ${redeemStylist ? "border-emerald-400/50 bg-emerald-500/20 text-emerald-300" : "border-white/30 bg-white/10 text-white/70"}`}>
+                            {redeemStylist ? redeemStylist.name : "Sélectionner"}
+                          </span>
+                        </div>
+                      </AccordionTrigger>
+                      <AccordionContent className="px-0 pb-0">
+                        <div className="space-y-2 px-4 pb-4 pt-2">
+                          {stylistsAvailable ? (
+                            stylists?.map((s) => {
+                              const isSelectedStylist = redeemStylistId === s.id;
+                              return (
+                                <button
+                                  key={s.id}
+                                  type="button"
+                                  onClick={() => {
+                                    setRedeemStylistId(s.id);
+                                    setStylistAccordionOpen(false);
+                                  }}
+                                  className={`flex w-full items-center justify-between rounded-xl border px-3 py-2 text-sm font-medium transition ${isSelectedStylist ? "border-emerald-400/50 bg-emerald-500/20 text-emerald-300" : "border-white/20 bg-white/5 text-white hover:bg-white/10"}`}
+                                >
+                                  <span className="inline-flex items-center gap-2">
+                                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                                    {s.name}
+                                  </span>
+                                  <span className="text-xs opacity-70">
+                                    {isSelectedStylist ? "Choisi" : "Choisir"}
+                                  </span>
+                                </button>
+                              );
+                            })
+                          ) : (
+                            <div className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-xs text-white/60">
+                              Aucun coiffeur disponible
+                            </div>
+                          )}
+                        </div>
+                      </AccordionContent>
+                    </AccordionItem>
+                  </Accordion>
                 </div>
 
                 <div className="h-px bg-white/10" />
