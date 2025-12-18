@@ -519,6 +519,17 @@ export default function Clients() {
                     />
                   </label>
                 </div>
+
+                <Button
+                  size="default"
+                  variant="ghost"
+                  className="w-full rounded-xl border-0 bg-gradient-to-r from-cyan-500 via-blue-500 to-cyan-600 text-white transition hover:from-cyan-600 hover:via-blue-600 hover:to-cyan-700 px-5 py-3 text-base font-semibold shadow-[0_4px_15px_rgba(6,182,212,0.4)]"
+                  onClick={() => {
+                    setSelected("");
+                  }}
+                >
+                  Sélectionner ce client
+                </Button>
               </div>
             )}
           </DialogContent>
