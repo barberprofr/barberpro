@@ -1444,7 +1444,6 @@ export const createPrestation: RequestHandler = async (req, res) => {
   try {
     const body = await parseRequestBody(req);
     const salonId = getSalonId(req);
-    const settings = await getSettings(salonId);
     const { stylistId, clientId, amount, paymentMethod, timestamp, pointsPercent, serviceName, serviceId, mixedCardAmount, mixedCashAmount } = body as {
       stylistId?: string;
       clientId?: string;
@@ -1462,18 +1461,17 @@ export const createPrestation: RequestHandler = async (req, res) => {
       return res.status(400).json({ error: "stylistId, amount and paymentMethod are required" });
     }
 
-    const stylist = await Stylist.findOne({ id: stylistId, salonId });
+    // Paralléliser les requêtes initiales pour gagner du temps
+    const [settings, stylist, existingClient] = await Promise.all([
+      getSettings(salonId),
+      Stylist.findOne({ id: stylistId, salonId }),
+      clientId ? Client.findOne({ id: clientId, salonId }) : Promise.resolve(null)
+    ]);
+
     if (!stylist) return res.status(404).json({ error: "stylist not found" });
 
-    // Resolve clientId – if none provided, it remains undefined (optional)
-    let finalClientId = clientId;
-    if (finalClientId) {
-      const client = await Client.findOne({ id: finalClientId, salonId });
-      if (!client) {
-        // If provided ID is invalid, treat as no client
-        finalClientId = undefined;
-      }
-    }
+    // Resolve clientId – if none provided or invalid, it remains undefined
+    const finalClientId = existingClient ? clientId : undefined;
 
     const ts = typeof timestamp === "number" ? timestamp : Date.now();
     const pct = typeof pointsPercent === "number" ? pointsPercent : (settings.loyaltyPercentDefault ?? 5);
@@ -1495,20 +1493,24 @@ export const createPrestation: RequestHandler = async (req, res) => {
       salonId
     });
 
-    await prestation.save();
-
-    // Only award points if client is selected
+    // Sauvegarder la prestation et mettre à jour les points en parallèle
+    const savePromises: Promise<any>[] = [prestation.save()];
     if (finalClientId) {
-      await Client.findOneAndUpdate(
-        { id: finalClientId, salonId },
-        { $inc: { points } }
+      savePromises.push(
+        Client.findOneAndUpdate(
+          { id: finalClientId, salonId },
+          { $inc: { points } },
+          { new: true }
+        )
       );
     }
+    const [savedPrestation, updatedClient] = await Promise.all(savePromises);
 
+    // Récupérer les stats en parallèle avec le client si non déjà mis à jour
     const stylistStats = await aggregateForStylist(stylistId, salonId);
-    const client = finalClientId ? await Client.findOne({ id: finalClientId, salonId }) : undefined;
+    const client = finalClientId ? (updatedClient || await Client.findOne({ id: finalClientId, salonId })) : undefined;
 
-    res.status(201).json({ prestation, stylistStats, client });
+    res.status(201).json({ prestation: savedPrestation, stylistStats, client });
   } catch (error) {
     console.error('Error creating prestation:', error);
     res.status(500).json({ error: "Erreur serveur" });
@@ -1530,19 +1532,24 @@ export const redeemPoints: RequestHandler = async (req, res) => {
       return res.status(400).json({ error: "clientId and positive points required" });
     }
 
-    const client = await Client.findOne({ id: clientId, salonId });
+    // Paralléliser les vérifications initiales
+    const [client, stylist] = await Promise.all([
+      Client.findOne({ id: clientId, salonId }),
+      stylistId ? Stylist.findOne({ id: stylistId, salonId }) : Promise.resolve(null)
+    ]);
+
     if (!client) return res.status(404).json({ error: "client not found" });
     if (client.points < points) return res.status(400).json({ error: "insufficient points" });
+    if (stylistId && !stylist) return res.status(404).json({ error: "stylist not found" });
 
-    if (stylistId) {
-      const stylist = await Stylist.findOne({ id: stylistId, salonId });
-      if (!stylist) return res.status(404).json({ error: "stylist not found" });
-    }
-
-    await Client.findOneAndUpdate(
-      { id: clientId, salonId },
-      { $inc: { points: -points } }
-    );
+    // Préparer les opérations à exécuter en parallèle
+    const operations: Promise<any>[] = [
+      Client.findOneAndUpdate(
+        { id: clientId, salonId },
+        { $inc: { points: -points } },
+        { new: true }
+      )
+    ];
 
     let usage: IPointsRedemption | null = null;
     if (stylistId) {
@@ -1555,10 +1562,10 @@ export const redeemPoints: RequestHandler = async (req, res) => {
         reason: (reason ?? "redeem").toString(),
         salonId
       });
-      await usage.save();
+      operations.push(usage.save());
     }
 
-    const updatedClient = await Client.findOne({ id: clientId, salonId });
+    const [updatedClient] = await Promise.all(operations);
     res.json({ client: updatedClient, reason: reason ?? "redeem", usage });
   } catch (error) {
     console.error('Error redeeming points:', error);
