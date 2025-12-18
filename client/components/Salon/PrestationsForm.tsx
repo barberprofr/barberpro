@@ -1641,40 +1641,6 @@ export default function PrestationsForm() {
 
                           {isExpanded ? (
                             <>
-                              <div className="flex gap-3">
-                                <button
-                                  type="button"
-                                  onClick={() => setExpandedClientId(null)}
-                                  className="flex-1 rounded-xl border border-white/30 bg-white/10 py-3 text-base font-semibold text-white transition hover:bg-white/20 backdrop-blur-sm"
-                                >
-                                  Fermer
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    const email = window.prompt("Email admin requis:") || "";
-                                    if (!/.+@.+\..+/.test(email)) return;
-                                    const pwd = window.prompt("Code admin requis:") || "";
-                                    if (!pwd) return;
-                                    adminLogin.mutate({ email, password: pwd }, {
-                                      onSuccess: () => {
-                                        delClient.mutate(c.id, {
-                                          onSuccess: () => {
-                                            setExpandedClientId(null);
-                                            qc.invalidateQueries({ queryKey: ["clients"] });
-                                          }
-                                        });
-                                      },
-                                    });
-                                  }}
-                                  className="flex-1 rounded-xl border-0 bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 text-white transition hover:from-amber-600 hover:via-orange-600 hover:to-amber-700 py-3 text-base font-semibold shadow-[0_4px_15px_rgba(245,158,11,0.4)]"
-                                >
-                                  Supprimer
-                                </button>
-                              </div>
-
-                              <div className="h-px bg-white/10" />
                               <h4 className="text-sm font-medium text-white/80">Photos</h4>
                               <div className="grid grid-cols-2 gap-3">
                                 {c.photos?.map((photo, i) => (
