@@ -37,30 +37,38 @@ function StylistDaily({ id, date, commissionPct }: { id: string; date?: string; 
                 </div>
                 <div className="text-xs text-white">{prestationTotal?.count || 0} prestation{(prestationTotal?.count ?? 0) > 1 ? "s" : ""}{dailyProductCount ? `, ${dailyProductCount} produit${dailyProductCount > 1 ? "s" : ""}` : ""}</div>
             </div>
-            <div className="grid grid-cols-3 gap-1.5">
-                <div className="flex flex-col items-center justify-center rounded-lg border border-indigo-500/30 bg-gradient-to-br from-indigo-900/40 via-slate-900/60 to-slate-900/80 backdrop-blur-xl px-2 py-2 shadow-[0_4px_16px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.1)]">
+            <div className="grid grid-cols-4 gap-1.5">
+                <div className="flex flex-col items-center justify-center rounded-lg border border-indigo-500/30 bg-gradient-to-br from-indigo-900/40 via-slate-900/60 to-slate-900/80 backdrop-blur-xl px-1.5 py-2 shadow-[0_4px_16px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.1)]">
                     <span className="inline-flex h-5 w-5 items-center justify-center rounded-full border border-indigo-400/40 bg-indigo-500/20 mb-1">
                         <svg className="h-2.5 w-2.5 text-indigo-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><rect x="2" y="5" width="20" height="14" rx="2" /><path d="M2 10h20" /></svg>
                     </span>
-                    <div className="text-[10px] font-semibold uppercase text-white/80">CARTE</div>
+                    <div className="text-[9px] font-semibold uppercase text-white/80">CARTE</div>
                     <div className="text-sm font-bold text-white">{eur.format(d?.methods.card.amount || 0)}</div>
                     <div className="text-[9px] text-white/50">{d?.methods.card.count || 0} prest.</div>
                 </div>
-                <div className="flex flex-col items-center justify-center rounded-lg border border-amber-500/30 bg-gradient-to-br from-amber-900/40 via-slate-900/60 to-slate-900/80 backdrop-blur-xl px-2 py-2 shadow-[0_4px_16px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.1)]">
+                <div className="flex flex-col items-center justify-center rounded-lg border border-amber-500/30 bg-gradient-to-br from-amber-900/40 via-slate-900/60 to-slate-900/80 backdrop-blur-xl px-1.5 py-2 shadow-[0_4px_16px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.1)]">
                     <div className="flex flex-col items-center leading-tight mb-1">
-                        <span className="text-[8px] font-bold text-amber-300">Planity</span>
-                        <span className="text-[8px] font-bold text-amber-300">Treatwell</span>
+                        <span className="text-[7px] font-bold text-amber-300">Planity</span>
+                        <span className="text-[7px] font-bold text-amber-300">Treatwell</span>
                     </div>
                     <div className="text-sm font-bold text-white">{eur.format(d?.methods.check.amount || 0)}</div>
                     <div className="text-[9px] text-white/50">{d?.methods.check.count || 0} prest.</div>
                 </div>
-                <div className="flex flex-col items-center justify-center rounded-lg border border-emerald-500/30 bg-gradient-to-br from-emerald-900/40 via-slate-900/60 to-slate-900/80 backdrop-blur-xl px-2 py-2 shadow-[0_4px_16px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.1)]">
+                <div className="flex flex-col items-center justify-center rounded-lg border border-emerald-500/30 bg-gradient-to-br from-emerald-900/40 via-slate-900/60 to-slate-900/80 backdrop-blur-xl px-1.5 py-2 shadow-[0_4px_16px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.1)]">
                     <span className="inline-flex h-5 w-5 items-center justify-center rounded-full border border-emerald-400/40 bg-emerald-500/20 mb-1">
                         <svg className="h-2.5 w-2.5 text-emerald-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><rect x="2" y="6" width="20" height="12" rx="2" /><circle cx="12" cy="12" r="3" /><path d="M12 10v4m-1-3.5h2m-2 3h2" /></svg>
                     </span>
-                    <div className="text-[10px] font-semibold uppercase text-white/80">ESPÈCES</div>
+                    <div className="text-[9px] font-semibold uppercase text-white/80">ESPÈCES</div>
                     <div className="text-sm font-bold text-white">{eur.format(d?.methods.cash.amount || 0)}</div>
                     <div className="text-[9px] text-white/50">{d?.methods.cash.count || 0} prest.</div>
+                </div>
+                <div className="flex flex-col items-center justify-center rounded-lg border border-violet-500/30 bg-gradient-to-br from-violet-900/40 via-fuchsia-900/40 to-slate-900/80 backdrop-blur-xl px-1.5 py-2 shadow-[0_4px_16px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.1)]">
+                    <span className="inline-flex h-5 w-5 items-center justify-center rounded-full border border-violet-400/40 bg-violet-500/20 mb-1">
+                        <svg className="h-2.5 w-2.5 text-violet-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h14a2 2 0 012 2v14a2 2 0 01-2 2z" /><path d="M3 10h18M10 3v18" /></svg>
+                    </span>
+                    <div className="text-[9px] font-semibold uppercase text-white/80">MIXTE</div>
+                    <div className="text-sm font-bold text-white">{(d?.methods as any)?.mixed?.count || 0}</div>
+                    <div className="text-[9px] text-white/50">paiement{((d?.methods as any)?.mixed?.count || 0) > 1 ? "s" : ""}</div>
                 </div>
             </div>
         </div>

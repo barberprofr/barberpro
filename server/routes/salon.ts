@@ -73,7 +73,17 @@ function getSalonId(req: any): string {
   return id.toLowerCase();
 }
 
+// Cache pour les settings (évite les requêtes répétées à la base de données)
+const settingsCache = new Map<string, { data: ISettings; expiry: number }>();
+const SETTINGS_CACHE_TTL = 30000; // 30 secondes
+
 async function getSettings(salonId: string): Promise<ISettings> {
+  // Vérifier le cache d'abord
+  const cached = settingsCache.get(salonId);
+  if (cached && cached.expiry > Date.now()) {
+    return cached.data;
+  }
+
   let settings = await Settings.findOne({ salonId });
   if (!settings) {
     settings = new Settings({
@@ -102,7 +112,15 @@ async function getSettings(salonId: string): Promise<ISettings> {
     await settings.save();
   }
 
+  // Mettre en cache
+  settingsCache.set(salonId, { data: settings, expiry: Date.now() + SETTINGS_CACHE_TTL });
+
   return settings;
+}
+
+// Fonction pour invalider le cache (appelée après modification des settings)
+function invalidateSettingsCache(salonId: string) {
+  settingsCache.delete(salonId);
 }
 
 // Helper functions
@@ -610,6 +628,7 @@ export const getConfig: RequestHandler = async (req, res) => {
 
     if (mutated) {
       await settings.save();
+      invalidateSettingsCache(salonId);
     }
 
     res.json({
@@ -1319,6 +1338,7 @@ export const updateConfig: RequestHandler = async (req, res) => {
     }
 
     await Settings.findOneAndUpdate({ salonId }, { $set: updates });
+    invalidateSettingsCache(salonId);
     res.json({ ok: true });
   } catch (error) {
     console.error('Error updating config:', error);
