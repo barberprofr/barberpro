@@ -347,14 +347,14 @@ export default function Clients() {
                 <Card
                   key={c.id}
                   className={cn(
-                    "overflow-hidden border border-white/12 bg-gradient-to-br from-slate-950/85 via-indigo-900/60 to-emerald-800/35 shadow-[0_20px_55px_rgba(8,15,40,0.55)] backdrop-blur-xl transition-all duration-300",
+                    "overflow-hidden rounded-2xl border border-white/20 bg-slate-900/90 shadow-[0_25px_60px_rgba(0,0,0,0.4)] backdrop-blur-xl transition-all duration-300",
                     isSelected
-                      ? "ring-2 ring-emerald-300/70"
-                      : "hover:border-emerald-300/45 hover:shadow-[0_24px_60px_rgba(16,185,129,0.35)] hover:-translate-y-0.5"
+                      ? "ring-2 ring-cyan-400/60"
+                      : "hover:border-white/30 hover:shadow-[0_30px_70px_rgba(0,0,0,0.5)]"
                   )}
                 >
                   <CardContent
-                    className="flex cursor-pointer items-center justify-between gap-4 p-5"
+                    className="p-5 space-y-4"
                     onClick={() => {
                       setSelected((prev) => {
                         const next = prev === c.id ? "" : c.id;
@@ -366,23 +366,20 @@ export default function Clients() {
                       });
                     }}
                   >
-                    <div className="space-y-3">
-                      <span className="inline-flex items-center gap-2 rounded-full border border-white/35 bg-white/15 px-4 py-2 text-lg font-bold text-white">
-                        <span className="h-2 w-2 rounded-full bg-emerald-300" />
-                        {c.name}
-                      </span>
-                      <span className="inline-flex items-center gap-2 rounded-full border border-emerald-300/45 bg-emerald-300/15 px-4 py-1.5 text-base font-bold text-emerald-100">
-                        Solde <span className="text-white">{c.points} pts</span>
-                      </span>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <span className="h-3 w-3 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.6)]" />
+                        <span className="text-xl font-bold text-white">{c.name}</span>
+                      </div>
+                      <div className="rounded-xl border border-cyan-400/50 bg-cyan-500/10 px-4 py-2">
+                        <span className="text-lg font-bold text-cyan-300">{c.points} pts</span>
+                      </div>
                     </div>
                     <div className="flex items-center gap-3">
                       <Button
                         size="default"
                         variant="ghost"
-                        className={cn(
-                          "rounded-full border border-white/30 bg-white/15 text-white/90 transition hover:border-emerald-300/60 hover:bg-emerald-400/25 hover:text-white px-5 py-2 text-base font-semibold",
-                          isSelected && "border-emerald-300/70 bg-emerald-400/25 text-white"
-                        )}
+                        className="flex-1 rounded-xl border border-white/20 bg-slate-800/80 text-white/90 transition hover:bg-slate-700 hover:text-white px-5 py-3 text-base font-semibold"
                         onClick={(e) => {
                           e.stopPropagation();
                           setSelected((prev) => {
@@ -400,7 +397,7 @@ export default function Clients() {
                       <Button
                         size="default"
                         variant="ghost"
-                        className="rounded-full border border-red-400/60 bg-red-400/20 text-red-100 transition hover:border-red-300 hover:bg-red-400/35 px-5 py-2 text-base font-semibold"
+                        className="flex-1 rounded-xl border-0 bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 text-white transition hover:from-amber-600 hover:via-orange-600 hover:to-amber-700 px-5 py-3 text-base font-semibold shadow-[0_4px_15px_rgba(245,158,11,0.4)]"
                         onClick={(e) => {
                           e.stopPropagation();
                           const email = window.prompt("Email admin requis:") || "";
