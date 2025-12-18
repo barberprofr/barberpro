@@ -1606,29 +1606,39 @@ export default function PrestationsForm() {
                     Aucun client trouvé
                   </div>
                 ) : (
-                  <div className="space-y-2">
+                  <div className="space-y-3">
                     {filteredClients.map((c) => (
-                      <button
+                      <div
                         key={c.id}
-                        type="button"
-                        onClick={() => {
-                          setClientId(c.id);
-                          setClientPickerOpen(false);
-                          setClientSearch("");
-                          setClientAccordion("");
-                        }}
-                        className="flex w-full items-center justify-between rounded-xl border border-white/15 bg-black/25 px-4 py-3 text-left transition hover:border-emerald-400/50 hover:bg-black/40"
+                        className="rounded-2xl border border-white/20 bg-slate-900/90 p-4 space-y-3 shadow-[0_15px_40px_rgba(0,0,0,0.3)] backdrop-blur-xl transition-all duration-300 hover:border-white/30"
                       >
-                        <div className="flex flex-col gap-0.5">
-                          <span className="text-xl font-bold text-white">{c.name}</span>
-                          {c.phone && (
-                            <span className="text-xs font-medium text-white/60">{c.phone}</span>
-                          )}
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <span className="h-3 w-3 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.6)]" />
+                            <div className="flex flex-col">
+                              <span className="text-xl font-bold text-white">{c.name}</span>
+                              {c.phone && (
+                                <span className="text-sm font-medium text-white/60">{c.phone}</span>
+                              )}
+                            </div>
+                          </div>
+                          <div className="rounded-xl border border-cyan-400/50 bg-cyan-500/10 px-4 py-2">
+                            <span className="text-lg font-bold text-cyan-300">{c.points} pts</span>
+                          </div>
                         </div>
-                        <span className="rounded-full bg-emerald-500/30 px-4 py-2 text-lg font-bold text-emerald-300 shadow-md border border-emerald-400/30">
-                          {c.points} pts
-                        </span>
-                      </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setClientId(c.id);
+                            setClientPickerOpen(false);
+                            setClientSearch("");
+                            setClientAccordion("");
+                          }}
+                          className="w-full rounded-xl border-0 bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 text-white transition hover:from-amber-600 hover:via-orange-600 hover:to-amber-700 px-5 py-3 text-base font-semibold shadow-[0_4px_15px_rgba(245,158,11,0.4)]"
+                        >
+                          Sélectionner
+                        </button>
+                      </div>
                     ))}
                   </div>
                 )}
