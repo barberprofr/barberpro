@@ -1612,7 +1612,9 @@ export default function PrestationsForm() {
                   </div>
                 ) : (
                   <div className="space-y-3">
-                    {filteredClients.map((c) => {
+                    {filteredClients
+                      .filter((c) => expandedClientId === null || expandedClientId === c.id)
+                      .map((c) => {
                       const isExpanded = expandedClientId === c.id;
                       return (
                         <div
