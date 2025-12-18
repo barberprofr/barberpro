@@ -24,67 +24,44 @@ const parsedTrialDays = Number(process.env.SUBSCRIPTION_TRIAL_DAYS ?? "14");
 const TRIAL_DURATION_DAYS = Number.isFinite(parsedTrialDays) ? Math.max(0, parsedTrialDays) : 14;
 const TRIAL_DURATION_MS = TRIAL_DURATION_DAYS * 24 * 60 * 60 * 1000;
 
-// Parser manuel pour Netlify Functions - CORRIGÉ
+// Parser manuel pour Netlify Functions - OPTIMISÉ (sans logs)
 async function parseRequestBody(req: any): Promise<any> {
   return new Promise((resolve, reject) => {
     try {
-      console.log('🔍 [parseRequestBody] Début du parsing');
       const body = (req as any)?.body;
-      console.log('🔍 [parseRequestBody] req.body exists:', !!body);
-      console.log('🔍 [parseRequestBody] req.body type:', typeof body);
 
       // Déjà parsé (objet non vide)
       if (body && typeof body === 'object' && !Buffer.isBuffer(body) && Object.keys(body).length > 0) {
-        console.log('🔍 [parseRequestBody] Body déjà parsé (objet normal):', Object.keys(body));
         return resolve(body);
       }
 
       // Buffer (cas Netlify)
       if (Buffer.isBuffer(body)) {
-        console.log('🔍 [parseRequestBody] Body est un Buffer, conversion en string');
         try {
           const bodyString = body.toString('utf8');
-          console.log('🔍 [parseRequestBody] Buffer converti en string:', bodyString.substring(0, 200));
           const parsed = bodyString ? JSON.parse(bodyString) : {};
-          console.log('🔍 [parseRequestBody] JSON parsé avec succès:', typeof parsed === 'object' ? Object.keys(parsed) : typeof parsed);
           return resolve(parsed);
-        } catch (error) {
-          console.error('❌ [parseRequestBody] Erreur de parsing du Buffer:', error);
+        } catch {
           return reject(new Error('Invalid JSON from Buffer'));
         }
       }
 
       // Objet vide
       if (body && typeof body === 'object' && Object.keys(body).length === 0) {
-        console.log('🔍 [parseRequestBody] Body est un objet vide');
         return resolve({});
       }
 
       // Fallback: lecture du stream
-      console.log('🔍 [parseRequestBody] Lecture manuelle du stream');
       let data = '';
       (req as IncomingMessage).on('data', chunk => { data += chunk.toString(); });
       (req as IncomingMessage).on('end', () => {
         try {
-          console.log('🔍 [parseRequestBody] Données brutes reçues:', data.substring(0, 200));
-          if (data) {
-            const parsed = JSON.parse(data);
-            console.log('🔍 [parseRequestBody] JSON parsé avec succès:', Object.keys(parsed));
-            resolve(parsed);
-          } else {
-            console.log('🔍 [parseRequestBody] Aucune donnée reçue');
-            resolve({});
-          }
-        } catch (error) {
-          console.error('❌ [parseRequestBody] Erreur de parsing JSON:', error);
-          console.error('❌ [parseRequestBody] Données reçues:', data);
+          resolve(data ? JSON.parse(data) : {});
+        } catch {
           reject(new Error('Invalid JSON'));
         }
       });
-      (req as IncomingMessage).on('error', (error) => {
-        console.error('❌ [parseRequestBody] Erreur de stream:', error);
-        reject(error);
-      });
+      (req as IncomingMessage).on('error', reject);
     } catch (e) {
       reject(e);
     }
@@ -1506,11 +1483,10 @@ export const createPrestation: RequestHandler = async (req, res) => {
     }
     const [savedPrestation, updatedClient] = await Promise.all(savePromises);
 
-    // Récupérer les stats en parallèle avec le client si non déjà mis à jour
-    const stylistStats = await aggregateForStylist(stylistId, salonId);
-    const client = finalClientId ? (updatedClient || await Client.findOne({ id: finalClientId, salonId })) : undefined;
+    // Retourner immédiatement sans attendre les stats (gain de temps significatif)
+    const client = finalClientId ? updatedClient : undefined;
 
-    res.status(201).json({ prestation: savedPrestation, stylistStats, client });
+    res.status(201).json({ prestation: savedPrestation, client });
   } catch (error) {
     console.error('Error creating prestation:', error);
     res.status(500).json({ error: "Erreur serveur" });
