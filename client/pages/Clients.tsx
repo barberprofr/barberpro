@@ -121,8 +121,19 @@ export default function Clients() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [viewingPhotoIndex, selectedClient]);
 
+  const handleBackgroundClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      setSelected("");
+      setQuery("");
+      setRedeemPoints(redeemDefault > 0 ? String(redeemDefault) : "");
+      setRedeemStylistId("");
+      setStylistAccordionOpen(false);
+    }
+  };
+
   return (
     <SharedLayout>
+      <div className="min-h-full" onClick={handleBackgroundClick}>
       <AnimatePresence>
         {viewingPhotoIndex !== null && selectedClient?.photos && (
           <motion.div
@@ -486,6 +497,7 @@ export default function Clients() {
             })
           ) : null}
         </div>
+      </div>
       </div>
     </SharedLayout>
   );
