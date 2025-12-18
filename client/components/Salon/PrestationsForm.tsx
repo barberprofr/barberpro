@@ -1601,7 +1601,7 @@ export default function PrestationsForm() {
               </motion.div>
 
               {/* Liste des clients */}
-              <div className="max-h-[40vh] overflow-y-auto">
+              <div className="max-h-[60vh] overflow-y-auto">
                 {clientSearch.trim().length === 0 ? (
                   <div className="py-8 text-center text-sm font-medium text-white/60">
                     Tapez un nom ou un numéro pour afficher les clients.
