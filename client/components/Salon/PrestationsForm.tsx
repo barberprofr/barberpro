@@ -1554,7 +1554,7 @@ export default function PrestationsForm() {
             setClientSearch("");
           }
         }}>
-          <DialogContent className="w-[min(90vw,24rem)] overflow-hidden rounded-2xl border border-white/25 bg-black/10 p-0 shadow-[0_25px_60px_rgba(0,0,0,0.15),inset_0_1px_0_rgba(255,255,255,0.2)] backdrop-blur-[3px]">
+          <DialogContent className="w-[min(92vw,28rem)] max-h-[85vh] overflow-y-auto rounded-2xl border border-white/25 bg-black/10 p-0 shadow-[0_25px_60px_rgba(0,0,0,0.15),inset_0_1px_0_rgba(255,255,255,0.2)] backdrop-blur-[3px]">
             <div className="p-5 space-y-5">
               {/* Barre de recherche */}
               <motion.div 
@@ -1696,13 +1696,13 @@ export default function PrestationsForm() {
                                     </button>
                                   </div>
                                 ))}
-                                <label className="flex aspect-square cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-white/25 bg-white/5 hover:bg-white/10 transition min-h-[80px]">
+                                <label className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-white/25 bg-white/5 hover:bg-white/10 transition min-h-[100px] py-4">
                                   {uploadPhoto.isPending ? (
-                                    <Loader2 className="h-8 w-8 animate-spin text-white/60" />
+                                    <Loader2 className="h-10 w-10 animate-spin text-white/60" />
                                   ) : (
-                                    <ImageIcon className="h-8 w-8 text-white/60" />
+                                    <ImageIcon className="h-10 w-10 text-white/60" />
                                   )}
-                                  <span className="text-xs text-white/60">Galerie</span>
+                                  <span className="text-sm font-medium text-white/60">Galerie</span>
                                   <input
                                     type="file"
                                     className="hidden"
@@ -1715,13 +1715,13 @@ export default function PrestationsForm() {
                                     }}
                                   />
                                 </label>
-                                <label className="flex aspect-square cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-white/25 bg-white/5 hover:bg-white/10 transition min-h-[80px]">
+                                <label className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-white/25 bg-white/5 hover:bg-white/10 transition min-h-[100px] py-4">
                                   {uploadPhoto.isPending ? (
-                                    <Loader2 className="h-8 w-8 animate-spin text-white/60" />
+                                    <Loader2 className="h-10 w-10 animate-spin text-white/60" />
                                   ) : (
-                                    <Camera className="h-8 w-8 text-white/60" />
+                                    <Camera className="h-10 w-10 text-white/60" />
                                   )}
-                                  <span className="text-xs text-white/60">Caméra</span>
+                                  <span className="text-sm font-medium text-white/60">Caméra</span>
                                   <input
                                     type="file"
                                     className="hidden"
