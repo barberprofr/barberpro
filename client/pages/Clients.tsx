@@ -35,7 +35,10 @@ export default function Clients() {
   const searchRef = useRef<HTMLInputElement>(null);
 
   const searchTerm = query.trim().toLowerCase();
-  const filtered = searchTerm === "" ? [] : (clients ?? []).filter(c => c.name.toLowerCase().includes(searchTerm));
+  const filtered = searchTerm === "" ? [] : (clients ?? []).filter(c => 
+    c.name.toLowerCase().includes(searchTerm) || 
+    (c.phone && c.phone.replace(/\D/g, "").includes(searchTerm.replace(/\D/g, "")))
+  );
   const selectedClient = clients?.find(c => c.id === selected);
   const redeemStylist = stylists?.find(s => s.id === redeemStylistId) ?? null;
   const stylistsAvailable = (stylists?.length ?? 0) > 0;
@@ -238,7 +241,7 @@ export default function Clients() {
                 <Input
                   ref={searchRef}
                   className="relative z-10 h-12 rounded-2xl border border-transparent bg-slate-950/70 pl-11 pr-4 text-sm font-semibold text-slate-100 shadow-[0_18px_45px_rgba(56,189,248,0.25)] placeholder:text-slate-400 focus-visible:ring-2 focus-visible:ring-cyan-300"
-                  placeholder="Rechercher un client (nom, prénom)"
+                  placeholder="Rechercher un client (nom, prénom, téléphone)"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                 />
