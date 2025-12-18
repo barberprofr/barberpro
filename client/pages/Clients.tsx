@@ -354,7 +354,7 @@ export default function Clients() {
                   )}
                 >
                   <CardContent
-                    className="flex cursor-pointer items-center justify-between gap-4 p-4"
+                    className="flex cursor-pointer items-center justify-between gap-4 p-5"
                     onClick={() => {
                       setSelected((prev) => {
                         const next = prev === c.id ? "" : c.id;
@@ -366,21 +366,21 @@ export default function Clients() {
                       });
                     }}
                   >
-                    <div className="space-y-2">
-                      <span className="inline-flex items-center gap-2 rounded-full border border-white/35 bg-white/15 px-3 py-1 text-sm font-semibold text-white">
-                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-300" />
+                    <div className="space-y-3">
+                      <span className="inline-flex items-center gap-2 rounded-full border border-white/35 bg-white/15 px-4 py-2 text-lg font-bold text-white">
+                        <span className="h-2 w-2 rounded-full bg-emerald-300" />
                         {c.name}
                       </span>
-                      <span className="inline-flex items-center gap-2 rounded-full border border-emerald-300/45 bg-emerald-300/15 px-3 py-0.5 text-xs font-semibold text-emerald-100">
+                      <span className="inline-flex items-center gap-2 rounded-full border border-emerald-300/45 bg-emerald-300/15 px-4 py-1.5 text-base font-bold text-emerald-100">
                         Solde <span className="text-white">{c.points} pts</span>
                       </span>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-3">
                       <Button
-                        size="sm"
+                        size="default"
                         variant="ghost"
                         className={cn(
-                          "rounded-full border border-white/30 bg-white/15 text-white/90 transition hover:border-emerald-300/60 hover:bg-emerald-400/25 hover:text-white",
+                          "rounded-full border border-white/30 bg-white/15 text-white/90 transition hover:border-emerald-300/60 hover:bg-emerald-400/25 hover:text-white px-5 py-2 text-base font-semibold",
                           isSelected && "border-emerald-300/70 bg-emerald-400/25 text-white"
                         )}
                         onClick={(e) => {
@@ -398,9 +398,9 @@ export default function Clients() {
                         {isSelected ? "Fermer" : "Sélectionner"}
                       </Button>
                       <Button
-                        size="sm"
+                        size="default"
                         variant="ghost"
-                        className="rounded-full border border-red-400/60 bg-red-400/20 text-red-100 transition hover:border-red-300 hover:bg-red-400/35"
+                        className="rounded-full border border-red-400/60 bg-red-400/20 text-red-100 transition hover:border-red-300 hover:bg-red-400/35 px-5 py-2 text-base font-semibold"
                         onClick={(e) => {
                           e.stopPropagation();
                           const email = window.prompt("Email admin requis:") || "";
