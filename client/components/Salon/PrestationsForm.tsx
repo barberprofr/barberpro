@@ -1674,7 +1674,7 @@ export default function PrestationsForm() {
 
                               <div className="h-px bg-white/10" />
                               <h4 className="text-sm font-medium text-white/80">Photos</h4>
-                              <div className="grid grid-cols-3 gap-2">
+                              <div className="grid grid-cols-2 gap-3">
                                 {c.photos?.map((photo, i) => (
                                   <div key={i} className="relative group">
                                     <img
@@ -1696,13 +1696,13 @@ export default function PrestationsForm() {
                                     </button>
                                   </div>
                                 ))}
-                                <label className="flex aspect-square cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border border-dashed border-white/25 bg-white/5 hover:bg-white/10 transition">
+                                <label className="flex aspect-square cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-white/25 bg-white/5 hover:bg-white/10 transition min-h-[80px]">
                                   {uploadPhoto.isPending ? (
-                                    <Loader2 className="h-5 w-5 animate-spin text-white/60" />
+                                    <Loader2 className="h-8 w-8 animate-spin text-white/60" />
                                   ) : (
-                                    <ImageIcon className="h-5 w-5 text-white/60" />
+                                    <ImageIcon className="h-8 w-8 text-white/60" />
                                   )}
-                                  <span className="text-[10px] text-white/60">Galerie</span>
+                                  <span className="text-xs text-white/60">Galerie</span>
                                   <input
                                     type="file"
                                     className="hidden"
@@ -1715,13 +1715,13 @@ export default function PrestationsForm() {
                                     }}
                                   />
                                 </label>
-                                <label className="flex aspect-square cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border border-dashed border-white/25 bg-white/5 hover:bg-white/10 transition">
+                                <label className="flex aspect-square cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-white/25 bg-white/5 hover:bg-white/10 transition min-h-[80px]">
                                   {uploadPhoto.isPending ? (
-                                    <Loader2 className="h-5 w-5 animate-spin text-white/60" />
+                                    <Loader2 className="h-8 w-8 animate-spin text-white/60" />
                                   ) : (
-                                    <Camera className="h-5 w-5 text-white/60" />
+                                    <Camera className="h-8 w-8 text-white/60" />
                                   )}
-                                  <span className="text-[10px] text-white/60">Caméra</span>
+                                  <span className="text-xs text-white/60">Caméra</span>
                                   <input
                                     type="file"
                                     className="hidden"
