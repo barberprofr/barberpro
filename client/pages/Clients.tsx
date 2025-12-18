@@ -31,6 +31,7 @@ export default function Clients() {
   const [stylistAccordionOpen, setStylistAccordionOpen] = useState(false);
   const [refreshPulse, setRefreshPulse] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [pointsRemovedPopup, setPointsRemovedPopup] = useState<{ show: boolean; points: number }>({ show: false, points: 0 });
   const refreshTimeoutRef = useRef<number | null>(null);
   const pointsRef = useRef<HTMLInputElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
@@ -87,8 +88,9 @@ export default function Clients() {
 
   const handleRedeem = () => {
     if (!selected || !(redeemAmount > 0) || !redeemStylist) return;
+    const pointsToRedeem = redeemAmount;
     redeem.mutate(
-      { clientId: selected, points: redeemAmount, reason: "remise", stylistId: redeemStylist.id },
+      { clientId: selected, points: pointsToRedeem, reason: "remise", stylistId: redeemStylist.id },
       {
         onSuccess: () => {
           setRedeemPoints(redeemDefault > 0 ? String(redeemDefault) : "");
@@ -96,7 +98,8 @@ export default function Clients() {
           setQuery("");
           setRedeemStylistId("");
           setStylistAccordionOpen(false);
-          searchRef.current?.focus();
+          setPointsRemovedPopup({ show: true, points: pointsToRedeem });
+          setTimeout(() => setPointsRemovedPopup({ show: false, points: 0 }), 3000);
         },
       }
     );
@@ -530,6 +533,24 @@ export default function Clients() {
             )}
           </DialogContent>
         </Dialog>
+
+        {/* Popup Points supprimés */}
+        <AnimatePresence>
+          {pointsRemovedPopup.show && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.8, y: 20 }}
+              className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none"
+            >
+              <div className="rounded-2xl border border-emerald-400/50 bg-slate-900/95 px-8 py-6 shadow-[0_25px_60px_rgba(0,0,0,0.5)] backdrop-blur-xl text-center">
+                <div className="text-4xl mb-3">✓</div>
+                <h3 className="text-xl font-bold text-emerald-400 mb-2">Points supprimés</h3>
+                <p className="text-3xl font-bold text-white">{pointsRemovedPopup.points} point{pointsRemovedPopup.points > 1 ? "s" : ""}</p>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
       </div>
     </SharedLayout>
