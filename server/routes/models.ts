@@ -98,6 +98,19 @@ export interface IProduct extends Document {
     createdAt: Date;
 }
 
+export interface IAcompte extends Document {
+    id: string;
+    stylistId: string;
+    amount: number;
+    timestamp: number;
+    validated: boolean;
+    validatedAt?: number;
+    note?: string;
+    salonId: string;
+    createdAt: Date;
+    updatedAt: Date;
+}
+
 export interface ISettings extends Document {
     salonId: string;
     loginPasswordHash: string | null;
@@ -234,6 +247,22 @@ const ProductSchema = new Schema({
     id: false
 });
 
+const AcompteSchema = new Schema({
+    id: { type: String, required: true, unique: true },
+    stylistId: { type: String, required: true, index: true },
+    amount: { type: Number, required: true, min: 0 },
+    timestamp: { type: Number, required: true },
+    validated: { type: Boolean, default: false },
+    validatedAt: { type: Number, default: null },
+    note: { type: String, default: null },
+    salonId: { type: String, required: true, index: true }
+}, {
+    timestamps: true,
+    id: false
+});
+
+AcompteSchema.index({ salonId: 1, stylistId: 1, timestamp: -1 });
+
 const SettingsSchema = new Schema({
     salonId: { type: String, required: true, unique: true },
     loginPasswordHash: { type: String, default: null },
@@ -293,3 +322,4 @@ export const ProductType = (mongoose.models.ProductType || mongoose.model<IProdu
 export const Product = (mongoose.models.Product || mongoose.model<IProduct>('Product', ProductSchema)) as mongoose.Model<IProduct>;
 export const Settings = (mongoose.models.Settings || mongoose.model<ISettings>('Settings', SettingsSchema)) as mongoose.Model<ISettings>;
 export const AdminUser = (mongoose.models.AdminUser || mongoose.model<IAdminUser>('AdminUser', AdminUserSchema)) as mongoose.Model<IAdminUser>;
+export const Acompte = (mongoose.models.Acompte || mongoose.model<IAcompte>('Acompte', AcompteSchema)) as mongoose.Model<IAcompte>;

@@ -4,7 +4,7 @@ import cors from "cors";
 import { handleDemo } from "./routes/demo";
 import { adminRouter } from "./routes/admin";
 import { connectDatabase } from './db';
-import { addClient, addStylist, adminLogin, createPrestation, createProduct, listProducts, exportSummaryCSV, exportSummaryPDF, getConfig, getStylistBreakdown, getGlobalBreakdown, listClients, listStylists, pointsUsageReport, redeemPoints, reportByDay, reportByMonth, setAdminPassword, setStylistCommission, summaryReport, updateConfig, deleteStylist, deleteClient, recoverAdminPassword, recoverAdminVerify, exportStylistCSV, exportStylistPDF, exportByDayCSV, exportByDayPDF, exportByMonthCSV, exportByMonthPDF, setupAdminAccount, verifyAdminCode, updateStylist, listServices, addService, deleteService, reorderServices, listProductTypes, addProductType, deleteProductType, reorderProductTypes, recoverAdminCode, verifyAdminCodeRecovery, addPoints, updateTransactionPaymentMethod, uploadClientPhoto, deleteClientPhoto, setStylistSecretCode, verifyStylistSecretCode, getStylistHasSecretCode } from "./routes/salon";
+import { addClient, addStylist, adminLogin, createPrestation, createProduct, listProducts, exportSummaryCSV, exportSummaryPDF, getConfig, getStylistBreakdown, getGlobalBreakdown, listClients, listStylists, pointsUsageReport, redeemPoints, reportByDay, reportByMonth, setAdminPassword, setStylistCommission, summaryReport, updateConfig, deleteStylist, deleteClient, recoverAdminPassword, recoverAdminVerify, exportStylistCSV, exportStylistPDF, exportByDayCSV, exportByDayPDF, exportByMonthCSV, exportByMonthPDF, setupAdminAccount, verifyAdminCode, updateStylist, listServices, addService, deleteService, reorderServices, listProductTypes, addProductType, deleteProductType, reorderProductTypes, recoverAdminCode, verifyAdminCodeRecovery, addPoints, updateTransactionPaymentMethod, uploadClientPhoto, deleteClientPhoto, setStylistSecretCode, verifyStylistSecretCode, getStylistHasSecretCode, listAcomptes, createAcompte, validateAcompte, deleteAcompte, getStylistAcompteSummary } from "./routes/salon";
 import { createCheckoutSession, createPortalSession, webhookHandler } from "./routes/payment";
 
 export function createServer() {
@@ -118,6 +118,13 @@ export function createServer() {
   app.get("/api/reports/by-month", reportByMonth);
   app.get("/api/reports/by-month.csv", exportByMonthCSV);
   app.get("/api/reports/by-month.pdf", exportByMonthPDF);
+  
+  // Acomptes (deposits)
+  app.get("/api/acomptes", listAcomptes);
+  app.post("/api/acomptes", createAcompte);
+  app.patch("/api/acomptes/:id/validate", validateAcompte);
+  app.delete("/api/acomptes/:id", deleteAcompte);
+  app.get("/api/stylists/:stylistId/acomptes", getStylistAcompteSummary);
 
   // Multi-salon namespace (data shared for now; salonId ignored by handlers)
   app.get("/api/salons/:salonId/config", getConfig);
@@ -170,6 +177,13 @@ export function createServer() {
   app.get("/api/salons/:salonId/reports/by-month", reportByMonth);
   app.get("/api/salons/:salonId/reports/by-month.csv", exportByMonthCSV);
   app.get("/api/salons/:salonId/reports/by-month.pdf", exportByMonthPDF);
+  
+  // Acomptes multi-salon
+  app.get("/api/salons/:salonId/acomptes", listAcomptes);
+  app.post("/api/salons/:salonId/acomptes", createAcompte);
+  app.patch("/api/salons/:salonId/acomptes/:id/validate", validateAcompte);
+  app.delete("/api/salons/:salonId/acomptes/:id", deleteAcompte);
+  app.get("/api/salons/:salonId/stylists/:stylistId/acomptes", getStylistAcompteSummary);
 
   // Routes pour la récupération du CODE ADMIN
   app.post("/api/admin/recover-code", recoverAdminCode);
