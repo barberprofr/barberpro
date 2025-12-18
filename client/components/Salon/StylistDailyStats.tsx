@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { useStylistBreakdown, useUpdateTransactionPaymentMethod } from "@/lib/api";
+import { useStylistBreakdown, useUpdateTransactionPaymentMethod, useStylistAcomptes, useCreateAcompte, useValidateAcompte, useDeleteAcompte, Acompte } from "@/lib/api";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, List } from "lucide-react";
+import { ChevronDown, List, Wallet, Plus, Check, Trash2, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const eur = new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" });
@@ -318,6 +318,229 @@ function TransactionRow({ entry: e, fmt, onUpdate }: { entry: any, fmt: (ts: num
     );
 }
 
+function StylistAcomptes({ stylistId, startDate, endDate, commissionPct, salary }: { 
+    stylistId: string; 
+    startDate?: number; 
+    endDate?: number;
+    commissionPct: number;
+    salary: number;
+}) {
+    const [isOpen, setIsOpen] = useState(false);
+    const [newAmount, setNewAmount] = useState("");
+    const [newNote, setNewNote] = useState("");
+    const { data, isLoading } = useStylistAcomptes(stylistId, startDate, endDate);
+    const createAcompte = useCreateAcompte();
+    const validateAcompte = useValidateAcompte();
+    const deleteAcompte = useDeleteAcompte();
+
+    const acomptes = data?.acomptes || [];
+    const totalValidated = data?.totalValidated || 0;
+    const netSalary = salary - totalValidated;
+
+    const handleCreate = () => {
+        const amount = parseFloat(newAmount);
+        if (!amount || amount <= 0) return;
+        
+        createAcompte.mutate(
+            { stylistId, amount, note: newNote || undefined },
+            {
+                onSuccess: () => {
+                    setNewAmount("");
+                    setNewNote("");
+                }
+            }
+        );
+    };
+
+    const formatDate = (timestamp: number) => {
+        return new Date(timestamp).toLocaleDateString("fr-FR", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit"
+        });
+    };
+
+    return (
+        <div className="space-y-3">
+            <motion.button
+                onClick={() => setIsOpen(true)}
+                whileHover={{ scale: 1.02, y: -2 }}
+                whileTap={{ scale: 1.05 }}
+                transition={{ type: "spring", stiffness: 400, damping: 15 }}
+                className="w-full flex items-center justify-between rounded-xl border border-orange-500/40 bg-gradient-to-br from-orange-900/40 via-slate-900/60 to-slate-900/80 backdrop-blur-xl px-3 py-2 shadow-[0_4px_16px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.1)] transition-all hover:border-orange-400/60"
+            >
+                <div className="flex items-center gap-2">
+                    <span className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-orange-400/40 bg-orange-500/20">
+                        <Wallet className="h-4 w-4 text-orange-300" />
+                    </span>
+                    <div className="text-left">
+                        <div className="text-xs font-semibold uppercase tracking-wide text-white/90">Acomptes</div>
+                        <div className="text-[10px] text-orange-300">{acomptes.length} acompte{acomptes.length > 1 ? "s" : ""} • Total: {eur.format(totalValidated)}</div>
+                    </div>
+                </div>
+                <div className="flex items-center gap-2">
+                    <div className="text-right">
+                        <div className="text-xs text-white/60">Salaire net</div>
+                        <div className="text-sm font-bold text-orange-300">{eur.format(netSalary)}</div>
+                    </div>
+                    <ChevronDown className="h-4 w-4 text-orange-300" />
+                </div>
+            </motion.button>
+
+            <AnimatePresence>
+                {isOpen && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-sm"
+                        onClick={() => setIsOpen(false)}
+                    >
+                        <div className="min-h-full flex items-center justify-center p-4">
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                                transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                                onClick={(e) => e.stopPropagation()}
+                                className="relative w-full max-w-lg max-h-[85vh] overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900/98 via-orange-900/30 to-slate-800/98 border border-orange-500/30 shadow-[0_25px_80px_rgba(0,0,0,0.6),0_0_40px_rgba(249,115,22,0.2)] backdrop-blur-xl"
+                            >
+                                <div className="sticky top-0 z-10 flex items-center justify-between px-4 py-4 border-b border-white/10 bg-slate-900/80 backdrop-blur-sm">
+                                    <div className="flex items-center gap-3">
+                                        <span className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-orange-400/40 bg-orange-500/20">
+                                            <Wallet className="h-5 w-5 text-orange-300" />
+                                        </span>
+                                        <div>
+                                            <h3 className="text-lg font-bold text-white">Acomptes</h3>
+                                            <p className="text-xs text-white/50">Gérer les acomptes du coiffeur</p>
+                                        </div>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={() => setIsOpen(false)}
+                                        className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-slate-400 transition hover:bg-white/10 hover:text-white"
+                                    >
+                                        <X className="h-5 w-5" />
+                                    </button>
+                                </div>
+
+                                <div className="p-4 space-y-4 overflow-y-auto max-h-[calc(85vh-120px)]">
+                                    {/* Résumé */}
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <div className="rounded-xl border border-emerald-500/30 bg-emerald-900/20 p-3 text-center">
+                                            <div className="text-xs text-white/60">Salaire brut</div>
+                                            <div className="text-lg font-bold text-emerald-300">{eur.format(salary)}</div>
+                                        </div>
+                                        <div className="rounded-xl border border-orange-500/30 bg-orange-900/20 p-3 text-center">
+                                            <div className="text-xs text-white/60">Acomptes validés</div>
+                                            <div className="text-lg font-bold text-orange-300">- {eur.format(totalValidated)}</div>
+                                        </div>
+                                    </div>
+                                    <div className="rounded-xl border border-cyan-500/30 bg-cyan-900/20 p-3 text-center">
+                                        <div className="text-xs text-white/60">Salaire net à payer</div>
+                                        <div className="text-2xl font-black text-cyan-300">{eur.format(netSalary)}</div>
+                                    </div>
+
+                                    {/* Formulaire d'ajout */}
+                                    <div className="rounded-xl border border-white/10 bg-slate-800/50 p-3 space-y-3">
+                                        <div className="text-sm font-semibold text-white/80">Ajouter un acompte</div>
+                                        <div className="flex gap-2">
+                                            <input
+                                                type="number"
+                                                placeholder="Montant"
+                                                value={newAmount}
+                                                onChange={(e) => setNewAmount(e.target.value)}
+                                                className="flex-1 rounded-lg border border-slate-600 bg-slate-900/80 px-3 py-2 text-white placeholder-white/40 outline-none focus:border-orange-400"
+                                            />
+                                            <input
+                                                type="text"
+                                                placeholder="Note (optionnel)"
+                                                value={newNote}
+                                                onChange={(e) => setNewNote(e.target.value)}
+                                                className="flex-1 rounded-lg border border-slate-600 bg-slate-900/80 px-3 py-2 text-white placeholder-white/40 outline-none focus:border-orange-400"
+                                            />
+                                        </div>
+                                        <Button
+                                            onClick={handleCreate}
+                                            disabled={!newAmount || parseFloat(newAmount) <= 0 || createAcompte.isPending}
+                                            className="w-full bg-orange-600 hover:bg-orange-500 text-white"
+                                        >
+                                            <Plus className="h-4 w-4 mr-2" />
+                                            {createAcompte.isPending ? "Ajout..." : "Ajouter l'acompte"}
+                                        </Button>
+                                    </div>
+
+                                    {/* Liste des acomptes */}
+                                    <div className="space-y-2">
+                                        <div className="text-sm font-semibold text-white/80">Historique des acomptes</div>
+                                        {isLoading ? (
+                                            <div className="text-center py-4 text-white/50">Chargement...</div>
+                                        ) : acomptes.length === 0 ? (
+                                            <div className="text-center py-4 text-white/50">Aucun acompte</div>
+                                        ) : (
+                                            <div className="space-y-2">
+                                                {acomptes.map((acompte: Acompte) => (
+                                                    <div
+                                                        key={acompte.id}
+                                                        className={cn(
+                                                            "flex items-center justify-between rounded-lg border p-3",
+                                                            acompte.validated
+                                                                ? "border-emerald-500/30 bg-emerald-900/20"
+                                                                : "border-amber-500/30 bg-amber-900/20"
+                                                        )}
+                                                    >
+                                                        <div>
+                                                            <div className="font-bold text-white">{eur.format(acompte.amount)}</div>
+                                                            <div className="text-xs text-white/50">{formatDate(acompte.timestamp)}</div>
+                                                            {acompte.note && (
+                                                                <div className="text-xs text-white/60 italic">{acompte.note}</div>
+                                                            )}
+                                                        </div>
+                                                        <div className="flex items-center gap-2">
+                                                            {acompte.validated ? (
+                                                                <span className="flex items-center gap-1 text-xs text-emerald-400">
+                                                                    <Check className="h-4 w-4" />
+                                                                    Validé
+                                                                </span>
+                                                            ) : (
+                                                                <Button
+                                                                    size="sm"
+                                                                    onClick={() => validateAcompte.mutate(acompte.id)}
+                                                                    disabled={validateAcompte.isPending}
+                                                                    className="bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-2 py-1 h-7"
+                                                                >
+                                                                    <Check className="h-3 w-3 mr-1" />
+                                                                    Valider
+                                                                </Button>
+                                                            )}
+                                                            <Button
+                                                                size="sm"
+                                                                variant="ghost"
+                                                                onClick={() => deleteAcompte.mutate(acompte.id)}
+                                                                disabled={deleteAcompte.isPending}
+                                                                className="text-red-400 hover:text-red-300 hover:bg-red-900/30 h-7 w-7 p-0"
+                                                            >
+                                                                <Trash2 className="h-4 w-4" />
+                                                            </Button>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            </motion.div>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </div>
+    );
+}
+
 export function StylistDailySection({ id, commissionPct, stylistName }: { id: string; commissionPct: number; stylistName?: string }) {
     const today = parisDateString();
     const [date, setDate] = useState<string>(today);
@@ -621,6 +844,50 @@ export function StylistMonthly({ id, commissionPct, stylistName }: { id: string;
                     <ChevronDown className="h-4 w-4 text-violet-300" />
                 </motion.button>
             )}
+
+            {/* Acomptes */}
+            <StylistAcomptes
+                stylistId={id}
+                startDate={(() => {
+                    if (mode === "today") {
+                        const todayDate = new Date(today);
+                        todayDate.setHours(0, 0, 0, 0);
+                        return todayDate.getTime();
+                    }
+                    if (mode === "month") {
+                        const [y, m] = month.split("-").map(Number);
+                        return new Date(y, m - 1, 1).getTime();
+                    }
+                    if (mode === "range" && startDate) {
+                        return new Date(startDate).getTime();
+                    }
+                    return undefined;
+                })()}
+                endDate={(() => {
+                    if (mode === "today") {
+                        const todayDate = new Date(today);
+                        todayDate.setHours(23, 59, 59, 999);
+                        return todayDate.getTime();
+                    }
+                    if (mode === "month") {
+                        const [y, m] = month.split("-").map(Number);
+                        return new Date(y, m, 0, 23, 59, 59, 999).getTime();
+                    }
+                    if (mode === "range" && endDate) {
+                        const end = new Date(endDate);
+                        end.setHours(23, 59, 59, 999);
+                        return end.getTime();
+                    }
+                    if (mode === "range" && startDate && !endDate) {
+                        const end = new Date(startDate);
+                        end.setHours(23, 59, 59, 999);
+                        return end.getTime();
+                    }
+                    return undefined;
+                })()}
+                commissionPct={commissionPct}
+                salary={salary}
+            />
 
             <AnimatePresence>
                 {todayEncaissementsOpen && (
