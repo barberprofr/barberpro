@@ -908,6 +908,21 @@ export function useStylistDeposits(stylistId?: string, month?: number) {
   });
 }
 
+export function useAllDepositsForMonth(month: number) {
+  const salonId = getSelectedSalon();
+  return useQuery({
+    queryKey: ['all-deposits-month', salonId, month],
+    queryFn: async () => {
+      const params = new URLSearchParams();
+      params.set('month', String(month));
+      const res = await apiFetch(`/api/stylist-deposits?${params.toString()}`);
+      if (!res.ok) throw new Error('Failed to load deposits');
+      const data = await res.json() as { deposits: StylistDeposit[] };
+      return data.deposits;
+    }
+  });
+}
+
 export function useAddStylistDeposit() {
   const qc = useQueryClient();
   return useMutation({

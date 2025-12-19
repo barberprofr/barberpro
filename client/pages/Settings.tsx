@@ -12,7 +12,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { useAdminUpdateCode, useAdminVerifyCode, useAddStylist, useConfig, useUpdateConfig, useDashboardSummary, usePointsUsageReport, useStylists, useStylistBreakdown, useRevenueByDay, useRevenueByMonth, useDeleteStylist, useSetStylistCommission, useAdminRecoverCode, useAdminRecoverCodeVerify, useServices, useAddService, useDeleteService, useGlobalBreakdown, useUpdateTransactionPaymentMethod, useSetStylistSecretCode, useStylistHasSecretCode, useVerifyStylistSecretCode, useStylistDeposits, useAddStylistDeposit, useDeleteStylistDeposit, StylistDeposit } from "@/lib/api";
+import { useAdminUpdateCode, useAdminVerifyCode, useAddStylist, useConfig, useUpdateConfig, useDashboardSummary, usePointsUsageReport, useStylists, useStylistBreakdown, useRevenueByDay, useRevenueByMonth, useDeleteStylist, useSetStylistCommission, useAdminRecoverCode, useAdminRecoverCodeVerify, useServices, useAddService, useDeleteService, useGlobalBreakdown, useUpdateTransactionPaymentMethod, useSetStylistSecretCode, useStylistHasSecretCode, useVerifyStylistSecretCode, useStylistDeposits, useAddStylistDeposit, useDeleteStylistDeposit, useAllDepositsForMonth, StylistDeposit } from "@/lib/api";
 import { StylistMonthly } from "@/components/Salon/StylistDailyStats";
 import type { SummaryPayments, MethodKey, Stylist, PointsUsageGroup, DashboardSummary, Service } from "@/lib/api";
 import { cn } from "@/lib/utils";
@@ -1380,6 +1380,20 @@ export default function Settings() {
     selectedStylistForDeposit?.id,
     depositMonth
   );
+  const currentMonth = useMemo(() => {
+    const now = new Date();
+    return now.getFullYear() * 100 + (now.getMonth() + 1);
+  }, []);
+  const { data: allDepositsCurrentMonth } = useAllDepositsForMonth(currentMonth);
+  const depositTotalsByStylist = useMemo(() => {
+    const map: Record<string, number> = {};
+    if (allDepositsCurrentMonth) {
+      for (const d of allDepositsCurrentMonth) {
+        map[d.stylistId] = (map[d.stylistId] || 0) + d.amount;
+      }
+    }
+    return map;
+  }, [allDepositsCurrentMonth]);
   const [confirmPopup, setConfirmPopup] = useState<{ open: boolean; title: string; description: string; variant: "emerald" | "violet" }>({ open: false, title: "", description: "", variant: "emerald" });
 
   const showConfirmPopup = (title: string, description: string, variant: "emerald" | "violet" = "emerald") => {
@@ -2650,23 +2664,17 @@ export default function Settings() {
                                   </div>
                                   <span className="text-lg font-semibold text-white">{s.name}</span>
                                 </div>
-                                <div className="flex items-center gap-3">
+                                <div className="flex items-center gap-4">
                                   <div className="text-right">
                                     <div className="text-sm text-white/60">Commission</div>
                                     <div className="text-lg font-bold text-emerald-400">{s.commissionPct}%</div>
                                   </div>
-                                  <button
-                                    type="button"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setSelectedStylistForDeposit(s);
-                                      setDepositDetailsOpen(true);
-                                    }}
-                                    className="flex h-9 w-9 items-center justify-center rounded-full border border-violet-400/40 bg-violet-500/20 text-violet-300 transition hover:bg-violet-500/40"
-                                    title="Détails"
-                                  >
-                                    <List className="h-4 w-4" />
-                                  </button>
+                                  <div className="text-right min-w-[70px]">
+                                    <div className="text-sm text-white/60">Acompte</div>
+                                    <div className="text-lg font-bold text-violet-400">
+                                      {eur.format(depositTotalsByStylist[s.id] || 0)}
+                                    </div>
+                                  </div>
                                 </div>
                               </div>
                             </div>
