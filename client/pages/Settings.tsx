@@ -18,7 +18,7 @@ import type { SummaryPayments, MethodKey, Stylist, PointsUsageGroup, DashboardSu
 import { cn } from "@/lib/utils";
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { CreditCard, Coins, FileText, ChevronDown, CalendarDays, Sun, Scissors, UserRound, TrendingUp, Crown, Search, Check, List } from "lucide-react";
+import { CreditCard, Coins, FileText, ChevronDown, ChevronRight, CalendarDays, Sun, Scissors, UserRound, TrendingUp, Crown, Search, Check, List } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
@@ -1291,6 +1291,7 @@ export default function Settings() {
   const [dailyCaPopupOpen, setDailyCaPopupOpen] = useState(false);
   const [yearCaPopupOpen, setYearCaPopupOpen] = useState(false);
   const [coiffeurPopupOpen, setCoiffeurPopupOpen] = useState(false);
+  const [reglagesPopupOpen, setReglagesPopupOpen] = useState(false);
   const [confirmPopup, setConfirmPopup] = useState<{ open: boolean; title: string; description: string; variant: "emerald" | "violet" }>({ open: false, title: "", description: "", variant: "emerald" });
 
   const showConfirmPopup = (title: string, description: string, variant: "emerald" | "violet" = "emerald") => {
@@ -1304,6 +1305,12 @@ export default function Settings() {
     setManageName("");
     setManageSecretCode("");
     queryClient.invalidateQueries({ queryKey: ["stylists"] });
+    queryClient.invalidateQueries({ queryKey: ["config"] });
+  }, [queryClient]);
+
+  const closeReglagesPopupAndRefresh = useCallback(() => {
+    setReglagesPopupOpen(false);
+    setBestDaysAccordionValue("");
     queryClient.invalidateQueries({ queryKey: ["config"] });
   }, [queryClient]);
 
@@ -1326,6 +1333,7 @@ export default function Settings() {
     setDailyCaPopupOpen(false);
     setYearCaPopupOpen(false);
     setCoiffeurPopupOpen(false);
+    setReglagesPopupOpen(false);
     setOpenDaily({});
     setOpenMonthly({});
     setIsDayUsageVisible(false);
@@ -1704,47 +1712,58 @@ export default function Settings() {
               </div>
             </div>
 
-            <Accordion
-              type="single"
-              collapsible
-              value={accordionValue}
-              onValueChange={(val) => {
-                const next = val ?? "";
-                setAccordionValue(next);
-                if (next !== "points-usage") {
-                  setHasOpenedDayUsage(false);
-                  setIsDayUsageVisible(false);
-                  setIsMonthUsageVisible(false);
-                }
-                if (next !== "coiff-ca") {
-                  setOpenStylistId(null);
-                  setOpenDaily({});
-                  setOpenMonthly({});
-                }
-                if (next !== "add-stylist") {
-                  setManageStylistId("");
-                  setManageName("");
-                }
-              }}
-              className="space-y-2.5"
-            >
-              <AccordionItem value="settings-config" className="border-none">
-                <div className={cn(glassPanelClasses, "space-y-0 overflow-hidden p-2 sm:p-3 ")}
+            {/* Bouton Réglages de paramètres */}
+            <div className={cn(glassPanelClasses, "space-y-0 overflow-hidden p-2 sm:p-3")}>
+              <button
+                type="button"
+                onClick={() => setReglagesPopupOpen(true)}
+                className="flex w-full items-center justify-between rounded-xl border-2 border-emerald-400/30 bg-[linear-gradient(135deg,rgba(16,185,129,0.1)0%,rgba(79,70,229,0.08)100%)] backdrop-blur-sm px-4 py-4 text-left text-base font-bold text-emerald-50 shadow-[0_16px_42px_rgba(16,185,129,0.2)] transition-all duration-200 hover:scale-[1.02] hover:border-emerald-300/60 hover:shadow-[0_20px_50px_rgba(16,185,129,0.4)] active:scale-105 active:border-white/80 active:shadow-[0_0_20px_rgba(16,185,129,0.8),0_25px_60px_rgba(16,185,129,0.6)] active:brightness-125"
+              >
+                <span className="inline-flex items-center gap-2 rounded-full border-2 border-emerald-300/30 bg-emerald-500/10 backdrop-blur-sm px-4 py-2 text-sm font-bold uppercase tracking-[0.15em] text-emerald-100">
+                  <span className="h-2 w-2 rounded-full bg-emerald-300 animate-pulse" />
+                  Réglages de paramètres
+                </span>
+                <ChevronRight className="h-5 w-5 text-emerald-300" />
+              </button>
+            </div>
+
+            {/* Popup Réglages de paramètres */}
+            <AnimatePresence>
+              {reglagesPopupOpen && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.15 }}
+                  className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+                  onClick={closeReglagesPopupAndRefresh}
                 >
-                  <AccordionTrigger className="flex w-full items-center justify-between rounded-xl border-2 border-emerald-400/30 bg-[linear-gradient(135deg,rgba(16,185,129,0.1)0%,rgba(79,70,229,0.08)100%)] backdrop-blur-sm px-4 py-4 text-left text-base font-bold text-emerald-50 shadow-[0_16px_42px_rgba(16,185,129,0.2)] transition-all duration-200 hover:no-underline hover:scale-[1.02] hover:border-emerald-300/60 hover:shadow-[0_20px_50px_rgba(16,185,129,0.4)] active:scale-105 active:border-white/80 active:shadow-[0_0_20px_rgba(16,185,129,0.8),0_25px_60px_rgba(16,185,129,0.6)] active:brightness-125">
-                    <span className={cn("inline-flex items-center gap-2 rounded-full border-2 border-emerald-300/30 bg-emerald-500/10 backdrop-blur-sm px-4 py-2 text-sm font-bold uppercase tracking-[0.15em] text-emerald-100")}>
-                      <span className="h-2 w-2 rounded-full bg-emerald-300 animate-pulse" />
-                      Réglages de paramètres
-                    </span>
-                  </AccordionTrigger>
-                  <AccordionContent className="px-3 pb-3 pt-2">
-                    <div className="grid gap-3 text-[11px] sm:grid-cols-2">
-                      <div className={cn(inputShellClasses, "col-span-full flex-col items-start gap-2 border-white/14 bg-slate-950/70 sm:col-span-2 xl:col-span-2")}
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                    transition={{ duration: 0.2 }}
+                    className="relative w-[95vw] max-w-lg max-h-[85vh] overflow-y-auto rounded-2xl border-2 border-emerald-400/30 bg-gradient-to-br from-slate-900/95 via-slate-800/95 to-emerald-900/40 p-5 shadow-[0_25px_60px_rgba(16,185,129,0.3)]"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <div className="flex items-center justify-between mb-6">
+                      <h3 className="text-xl font-bold text-white">Réglages de paramètres</h3>
+                      <button
+                        type="button"
+                        onClick={closeReglagesPopupAndRefresh}
+                        className="flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition hover:bg-white/20"
                       >
+                        ✕
+                      </button>
+                    </div>
+
+                    <div className="space-y-4">
+                      {/* Nom du salon */}
+                      <div className={cn(inputShellClasses, "flex-col items-start gap-2 border-white/14 bg-slate-950/70")}>
                         <span className="font-semibold text-white/80">Modifier le nom du salon</span>
                         <div className="flex w-full flex-col gap-1.5 sm:flex-row sm:items-center sm:gap-2">
                           <Input
-                            className={cn(inputFieldClasses, "h-9 w-full bg-slate-950/85 text-sm font-semibold text-white caret-emerald-200 placeholder:text-white/65")}
+                            className={cn(inputFieldClasses, "h-10 w-full bg-slate-950/85 text-base font-semibold text-white caret-emerald-200 placeholder:text-white/65")}
                             type="text"
                             value={salonNameDraft}
                             maxLength={80}
@@ -1752,7 +1771,7 @@ export default function Settings() {
                           />
                           <Button
                             size="sm"
-                            className="h-8 rounded-lg border border-white/20 bg-[linear-gradient(135deg,rgba(59,130,246,0.8)0%,rgba(129,140,248,0.68)50%,rgba(16,185,129,0.55)100%)] px-3 text-[9px] font-bold uppercase tracking-[0.2em] text-white shadow-[0_14px_36px_rgba(59,130,246,0.38)]"
+                            className="h-9 rounded-lg border border-white/20 bg-[linear-gradient(135deg,rgba(59,130,246,0.8)0%,rgba(129,140,248,0.68)50%,rgba(16,185,129,0.55)100%)] px-4 text-xs font-bold uppercase tracking-[0.2em] text-white shadow-[0_14px_36px_rgba(59,130,246,0.38)]"
                             disabled={!salonNameDraft.trim() || salonNameDraft.trim() === (config?.salonName ?? "") || updateConfig.isPending}
                             onClick={handleSalonNameSave}
                           >
@@ -1761,12 +1780,12 @@ export default function Settings() {
                         </div>
                       </div>
 
-                      <div className={cn(inputShellClasses, "justify-between border-white/14 bg-slate-950/70")}
-                      >
+                      {/* Rémunération par défaut */}
+                      <div className={cn(inputShellClasses, "justify-between border-white/14 bg-slate-950/70")}>
                         <span className="font-semibold text-white/80">Rémunération par défaut (%)</span>
                         <div className="flex items-center gap-1.5">
                           <Input
-                            className={cn(inputFieldClasses, "h-9 w-20 bg-slate-950/85 text-sm font-semibold text-white caret-emerald-200 placeholder:text-white/65")}
+                            className={cn(inputFieldClasses, "h-10 w-20 bg-slate-950/85 text-base font-semibold text-white caret-emerald-200 placeholder:text-white/65")}
                             type="text"
                             inputMode="numeric"
                             pattern="[0-9]*"
@@ -1777,7 +1796,7 @@ export default function Settings() {
                           />
                           <Button
                             size="sm"
-                            className="h-8 rounded-lg border border-white/20 bg-[linear-gradient(135deg,rgba(79,70,229,0.8)0%,rgba(147,197,253,0.62)100%)] px-2.5 text-[9px] font-bold uppercase tracking-[0.2em] text-white shadow-[0_14px_36px_rgba(79,70,229,0.38)]"
+                            className="h-9 rounded-lg border border-white/20 bg-[linear-gradient(135deg,rgba(79,70,229,0.8)0%,rgba(147,197,253,0.62)100%)] px-3 text-xs font-bold uppercase tracking-[0.2em] text-white shadow-[0_14px_36px_rgba(79,70,229,0.38)]"
                             onClick={() => {
                               const val = Math.max(0, Math.min(100, Number(commissionDefaultStr) || 0));
                               updateConfig.mutate({ commissionDefault: val }, {
@@ -1791,12 +1810,13 @@ export default function Settings() {
                           </Button>
                         </div>
                       </div>
-                      <div className={cn(inputShellClasses, "justify-between border-white/14 bg-slate-950/70")}
-                      >
+
+                      {/* Points à déduire */}
+                      <div className={cn(inputShellClasses, "justify-between border-white/14 bg-slate-950/70")}>
                         <span className="font-semibold text-white/80">Points à déduire (pts)</span>
                         <div className="flex items-center gap-1.5">
                           <Input
-                            className={cn(inputFieldClasses, "h-9 w-24 bg-slate-950/85 text-sm font-semibold text-white caret-emerald-200 placeholder:text-white/65")}
+                            className={cn(inputFieldClasses, "h-10 w-24 bg-slate-950/85 text-base font-semibold text-white caret-emerald-200 placeholder:text-white/65")}
                             type="text"
                             inputMode="numeric"
                             pattern="[0-9]*"
@@ -1807,7 +1827,7 @@ export default function Settings() {
                           />
                           <Button
                             size="sm"
-                            className="h-8 rounded-lg border border-white/20 bg-[linear-gradient(135deg,rgba(249,115,22,0.8)0%,rgba(244,114,182,0.62)100%)] px-2.5 text-[9px] font-bold uppercase tracking-[0.2em] text-white shadow-[0_14px_36px_rgba(249,115,22,0.36)]"
+                            className="h-9 rounded-lg border border-white/20 bg-[linear-gradient(135deg,rgba(249,115,22,0.8)0%,rgba(244,114,182,0.62)100%)] px-3 text-xs font-bold uppercase tracking-[0.2em] text-white shadow-[0_14px_36px_rgba(249,115,22,0.36)]"
                             onClick={() => {
                               const parsed = Math.max(0, Math.min(1_000_000, Number(pointsRedeemDefaultStr) || 0));
                               setPointsRedeemDefaultStr(String(parsed));
@@ -1822,23 +1842,16 @@ export default function Settings() {
                           </Button>
                         </div>
                       </div>
-                    </div>
-                    <div className={cn(glassPanelClasses, "p-6 space-y-0")}>
-                      <div className="space-y-6">
-                        <Accordion type="single" collapsible value={bestDaysAccordionValue} onValueChange={(val) => {
-                          setBestDaysAccordionValue(val ?? "");
-                          if (val === "") {
-                            setTimeout(() => {
-                              setAccordionValue("");
-                            }, 100);
-                          }
-                        }}>
+
+                      {/* Statistiques meilleurs jours */}
+                      <div className={cn(glassPanelClasses, "p-4 space-y-0 mt-4")}>
+                        <Accordion type="single" collapsible value={bestDaysAccordionValue} onValueChange={(val) => setBestDaysAccordionValue(val ?? "")}>
                           <AccordionItem value="best-days-stats" className="border-0">
                             <AccordionTrigger className="flex items-center gap-2 py-0 hover:no-underline">
                               <span className="inline-flex items-center gap-2 rounded-full border-2 border-purple-300/30 bg-purple-500/10 backdrop-blur-sm px-4 py-2 text-sm font-bold uppercase tracking-[0.15em] text-purple-100 transition-all duration-200 hover:scale-[1.02] hover:shadow-[0_20px_50px_rgba(168,85,247,0.4)] active:scale-105 active:border-white/80 active:shadow-[0_0_20px_rgba(168,85,247,0.8),0_25px_60px_rgba(168,85,247,0.6)] active:brightness-125">
                                 <span className="h-2.5 w-2.5 rounded-full bg-purple-300 animate-pulse" />
                                 <TrendingUp className="h-5 w-5" />
-                                Statistiques meilleurs jours du mois
+                                Statistiques meilleurs jours
                               </span>
                             </AccordionTrigger>
                             <AccordionContent className="border-0 pb-0 pt-6">
@@ -1848,10 +1861,10 @@ export default function Settings() {
                         </Accordion>
                       </div>
                     </div>
-                  </AccordionContent>
-                </div>
-              </AccordionItem>
-            </Accordion>
+                  </motion.div>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
 
             <Accordion
