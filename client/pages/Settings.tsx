@@ -88,11 +88,13 @@ const MONTHS_FR = ["Jan", "Fév", "Mar", "Avr", "Mai", "Juin", "Juil", "Août", 
 function MonthYearPicker({ 
   value, 
   onChange, 
-  variant = "emerald" 
+  variant = "emerald",
+  showYearNav = true
 }: { 
   value: number; 
   onChange: (v: number) => void; 
   variant?: "emerald" | "violet";
+  showYearNav?: boolean;
 }) {
   const year = Math.floor(value / 100);
   const month = value % 100;
@@ -114,23 +116,25 @@ function MonthYearPicker({
   
   return (
     <div className={`rounded-2xl border ${borderColor} bg-slate-800/50 p-4`}>
-      <div className="flex items-center justify-between mb-4">
-        <button
-          type="button"
-          onClick={() => setYear(year - 1)}
-          className={`flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition ${arrowBg}`}
-        >
-          <ChevronLeft className="h-5 w-5" />
-        </button>
-        <span className="text-lg font-bold text-white">{year}</span>
-        <button
-          type="button"
-          onClick={() => setYear(year + 1)}
-          className={`flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition ${arrowBg}`}
-        >
-          <ChevronRight className="h-5 w-5" />
-        </button>
-      </div>
+      {showYearNav && (
+        <div className="flex items-center justify-between mb-4">
+          <button
+            type="button"
+            onClick={() => setYear(year - 1)}
+            className={`flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition ${arrowBg}`}
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </button>
+          <span className="text-lg font-bold text-white">{year}</span>
+          <button
+            type="button"
+            onClick={() => setYear(year + 1)}
+            className={`flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition ${arrowBg}`}
+          >
+            <ChevronRight className="h-5 w-5" />
+          </button>
+        </div>
+      )}
       <div className="grid grid-cols-4 gap-2">
         {MONTHS_FR.map((m, i) => {
           const monthNum = i + 1;
@@ -2724,13 +2728,14 @@ export default function Settings() {
                                 </button>
                               </div>
                               
-                              {/* Sélecteur de mois/année */}
+                              {/* Sélecteur de mois */}
                               <div className="mb-4">
                                 <label className="block text-sm font-medium text-white/80 mb-2">Mois</label>
                                 <MonthYearPicker 
                                   value={depositMonth} 
                                   onChange={setDepositMonth} 
-                                  variant="emerald" 
+                                  variant="emerald"
+                                  showYearNav={false}
                                 />
                               </div>
                               
