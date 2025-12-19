@@ -1288,6 +1288,7 @@ export default function Settings() {
   const [coiffCaPopupOpen, setCoiffCaPopupOpen] = useState(false);
   const [dailyCaPopupOpen, setDailyCaPopupOpen] = useState(false);
   const [yearCaPopupOpen, setYearCaPopupOpen] = useState(false);
+  const [coiffeurPopupOpen, setCoiffeurPopupOpen] = useState(false);
   const [confirmPopup, setConfirmPopup] = useState<{ open: boolean; title: string; description: string; variant: "emerald" | "violet" }>({ open: false, title: "", description: "", variant: "emerald" });
 
   const showConfirmPopup = (title: string, description: string, variant: "emerald" | "violet" = "emerald") => {
@@ -1313,6 +1314,7 @@ export default function Settings() {
     setCoiffCaPopupOpen(false);
     setDailyCaPopupOpen(false);
     setYearCaPopupOpen(false);
+    setCoiffeurPopupOpen(false);
     setOpenDaily({});
     setOpenMonthly({});
     setIsDayUsageVisible(false);
@@ -2249,152 +2251,192 @@ export default function Settings() {
                 accordionValue={servicesAccordionValue}
                 onAccordionChange={setServicesAccordionValue}
                 onCloseParent={() => setAccordionValue("")}
-                onOpenCoiffeur={() => setAccordionValue("add-stylist")}
-                isCoiffeurOpen={accordionValue === "add-stylist"}
-                onCloseCoiffeur={() => setAccordionValue("")}
+                onOpenCoiffeur={() => setCoiffeurPopupOpen(true)}
+                isCoiffeurOpen={coiffeurPopupOpen}
+                onCloseCoiffeur={() => setCoiffeurPopupOpen(false)}
               />
 
-              <AccordionItem value="add-stylist" className="border-0">
-                <AccordionTrigger className="hidden" />
-                  <AccordionContent>
-                    <div className="space-y-3.5">
-                      <div className="flex flex-wrap gap-3">
-                        <div className="flex-1 min-w-[14rem]">
-                          <Input
-                            placeholder="Nom du coiffeur"
-                            value={stylistName}
-                            onChange={(e) => setStylistName(e.target.value)}
-                            className={cn(inputFieldClasses, "h-10 w-full bg-slate-950/70 px-4 text-base font-semibold text-white caret-emerald-200 placeholder:text-white/60")}
-                          />
-                        </div>
-                        <Select
-                          value={commissionPct || undefined}
-                          onValueChange={(value) => setCommissionPct(value)}
+              {/* Popup Coiffeurs */}
+              <AnimatePresence>
+                {coiffeurPopupOpen && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.15 }}
+                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+                    onClick={() => setCoiffeurPopupOpen(false)}
+                  >
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                      transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                      className="w-full max-w-lg max-h-[85vh] overflow-y-auto rounded-3xl border border-violet-500/30 bg-gradient-to-br from-slate-900/98 via-violet-900/40 to-slate-800/98 p-6 shadow-[0_25px_80px_rgba(0,0,0,0.6),0_0_40px_rgba(139,92,246,0.2)] backdrop-blur-xl"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <div className="flex items-center justify-between mb-6">
+                        <h3 className="text-xl font-bold text-white">Gestion des coiffeurs</h3>
+                        <button
+                          type="button"
+                          onClick={() => setCoiffeurPopupOpen(false)}
+                          className="flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition hover:bg-white/20"
                         >
-                          <SelectTrigger className={cn(selectTriggerClasses, "h-10 max-w-[6.5rem] bg-slate-950/70 px-3.5 text-xs font-semibold text-white uppercase tracking-[0.22em]")}>
-                            <SelectValue placeholder="%" />
-                          </SelectTrigger>
-                          <SelectContent className="w-[6.5rem] max-h-48 overflow-y-auto rounded-xl border border-emerald-300/50 bg-slate-950/95 text-slate-100">
-                            {STYLIST_COMMISSION_CHOICES.map((choice) => (
-                              <SelectItem key={choice} value={String(choice)}>
-                                {choice} %
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <Button
-                          className={addStylistButtonClasses}
-                          disabled={!stylistName.trim() || !commissionPct}
-                          aria-label="Ajouter un coiffeur"
-                          onClick={() => {
-                            const trimmed = stylistName.trim();
-                            if (!trimmed || !commissionPct) return;
-                            const pctValue = Math.max(0, Math.min(60, Number(commissionPct) || 0));
-                            addStylist.mutate({ name: trimmed, commissionPct: pctValue }, {
-                              onSuccess: () => {
-                                setStylistName("");
-                                setCommissionPct("");
-                                setAccordionValue("");
-                                showConfirmPopup("Coiffeur ajouté", `${trimmed} (${pctValue}%)`, "violet");
-                              },
-                            });
-                          }}
-                        >
-                          Ajouter
-                        </Button>
+                          ✕
+                        </button>
                       </div>
-                      <div className="h-px bg-white/25" />
-                      <div className="space-y-2.5">
-                        <div className="text-sm font-semibold text-white/85">Gérer un coiffeur</div>
-                        <div className="flex flex-wrap items-center gap-2.5">
-                          <select
-                            className={cn(
-                              "h-10 rounded-2xl border px-3 text-sm font-semibold transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300/70",
-                              manageStylistId
-                                ? "border-emerald-300/70 bg-emerald-400/20 text-emerald-100 shadow-[0_14px_34px_rgba(16,185,129,0.3)]"
-                                : "border-white/18 bg-slate-950/70 text-white",
-                              "[&>option]:bg-slate-900 [&>option]:text-white"
+                      
+                      <div className="space-y-5">
+                        {/* Ajouter un coiffeur */}
+                        <div className="space-y-3">
+                          <div className="text-sm font-semibold text-violet-300">Ajouter un coiffeur</div>
+                          <div className="flex flex-wrap gap-3">
+                            <div className="flex-1 min-w-[10rem]">
+                              <Input
+                                placeholder="Nom du coiffeur"
+                                value={stylistName}
+                                onChange={(e) => setStylistName(e.target.value)}
+                                className={cn(inputFieldClasses, "h-12 w-full bg-slate-950/70 px-4 text-base font-semibold text-white caret-emerald-200 placeholder:text-white/60")}
+                              />
+                            </div>
+                            <Select
+                              value={commissionPct || undefined}
+                              onValueChange={(value) => setCommissionPct(value)}
+                            >
+                              <SelectTrigger className={cn(selectTriggerClasses, "h-12 max-w-[6.5rem] bg-slate-950/70 px-3.5 text-sm font-semibold text-white uppercase tracking-wide")}>
+                                <SelectValue placeholder="%" />
+                              </SelectTrigger>
+                              <SelectContent className="w-[6.5rem] max-h-48 overflow-y-auto rounded-xl border border-emerald-300/50 bg-slate-950/95 text-slate-100">
+                                {STYLIST_COMMISSION_CHOICES.map((choice) => (
+                                  <SelectItem key={choice} value={String(choice)}>
+                                    {choice} %
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            <Button
+                              className={cn(addStylistButtonClasses, "h-12")}
+                              disabled={!stylistName.trim() || !commissionPct}
+                              aria-label="Ajouter un coiffeur"
+                              onClick={() => {
+                                const trimmed = stylistName.trim();
+                                if (!trimmed || !commissionPct) return;
+                                const pctValue = Math.max(0, Math.min(60, Number(commissionPct) || 0));
+                                addStylist.mutate({ name: trimmed, commissionPct: pctValue }, {
+                                  onSuccess: () => {
+                                    setStylistName("");
+                                    setCommissionPct("");
+                                    showConfirmPopup("Coiffeur ajouté", `${trimmed} (${pctValue}%)`, "violet");
+                                  },
+                                });
+                              }}
+                            >
+                              Ajouter
+                            </Button>
+                          </div>
+                        </div>
+                        
+                        <div className="h-px bg-white/20" />
+                        
+                        {/* Gérer un coiffeur */}
+                        <div className="space-y-3">
+                          <div className="text-sm font-semibold text-violet-300">Gérer un coiffeur</div>
+                          <div className="space-y-3">
+                            <select
+                              className={cn(
+                                "h-12 w-full rounded-2xl border px-4 text-base font-semibold transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300/70",
+                                manageStylistId
+                                  ? "border-emerald-300/70 bg-emerald-400/20 text-emerald-100 shadow-[0_14px_34px_rgba(16,185,129,0.3)]"
+                                  : "border-white/18 bg-slate-950/70 text-white",
+                                "[&>option]:bg-slate-900 [&>option]:text-white"
+                              )}
+                              value={manageStylistId}
+                              onChange={(e) => setManageStylistId(e.target.value)}
+                            >
+                              <option value="" className="bg-slate-900 text-white">Sélectionner un coiffeur</option>
+                              {stylists?.map((s) => (
+                                <option key={s.id} value={s.id} className="bg-slate-900 text-white">{s.name}</option>
+                              ))}
+                            </select>
+                            
+                            {manageStylistId && (
+                              <>
+                                <Input
+                                  className={cn(inputFieldClasses, "h-12 w-full bg-slate-950/70 text-base font-semibold text-white caret-emerald-200 placeholder:text-white/60")}
+                                  placeholder="Nouveau nom"
+                                  value={manageName}
+                                  onChange={(e) => setManageName(e.target.value)}
+                                />
+                                <div className="flex gap-3">
+                                  <Button
+                                    className={cn(gradientButtonClasses, "flex-1 h-12")}
+                                    disabled={!manageName.trim()}
+                                    onClick={() => {
+                                      const trimmedName = manageName.trim();
+                                      if (!trimmedName) return;
+                                      updateStylist.mutate({ id: manageStylistId, name: trimmedName }, {
+                                        onSuccess: () => {
+                                          setManageStylistId("");
+                                          setManageName("");
+                                          showConfirmPopup("Coiffeur modifié", trimmedName, "violet");
+                                        }
+                                      });
+                                    }}
+                                  >
+                                    Enregistrer
+                                  </Button>
+                                  <Button
+                                    className="h-12 flex-1 rounded-2xl border border-white/25 bg-[linear-gradient(135deg,rgba(239,68,68,0.82)0%,rgba(250,204,21,0.62)100%)] text-sm font-semibold uppercase tracking-wide text-white shadow-[0_20px_52px_rgba(239,68,68,0.38)]"
+                                    onClick={() => {
+                                      const s = stylists?.find(st => st.id === manageStylistId);
+                                      if (!s) return;
+                                      if (!confirm(`Supprimer ${s.name} ?`)) return;
+                                      if (!confirm("Confirmer la suppression ?")) return;
+                                      delStylist.mutate(manageStylistId, { onSuccess: () => { setManageStylistId(""); setManageName(""); setManageSecretCode(""); } });
+                                    }}
+                                  >
+                                    Supprimer
+                                  </Button>
+                                </div>
+                                
+                                <div className="h-px bg-white/15 my-2" />
+                                
+                                <div className="text-xs font-medium text-white/60 mb-2">Code d'accès</div>
+                                <div className="flex gap-3">
+                                  <Input
+                                    className={cn(inputFieldClasses, "flex-1 h-12 bg-slate-950/70 text-base font-semibold text-white caret-emerald-200 placeholder:text-white/60")}
+                                    placeholder="Code d'accès"
+                                    type="password"
+                                    value={manageSecretCode}
+                                    onChange={(e) => setManageSecretCode(e.target.value)}
+                                  />
+                                  <Button
+                                    className={cn(gradientButtonClasses, "h-12 px-6")}
+                                    disabled={setStylistSecretCode.isPending}
+                                    onClick={() => {
+                                      setStylistSecretCode.mutate({ stylistId: manageStylistId, secretCode: manageSecretCode.trim() }, {
+                                        onSuccess: (data) => {
+                                          setManageSecretCode("");
+                                          showConfirmPopup("Code mis à jour", data.hasCode ? "Code d'accès défini" : "Code d'accès supprimé", "violet");
+                                        },
+                                        onError: () => {
+                                          toast({ title: "Erreur", description: "Impossible de modifier le code", variant: "destructive" });
+                                        }
+                                      });
+                                    }}
+                                  >
+                                    {manageSecretCode.trim() ? "Définir" : "Supprimer"}
+                                  </Button>
+                                </div>
+                              </>
                             )}
-                            value={manageStylistId}
-                            onChange={(e) => setManageStylistId(e.target.value)}
-                          >
-                            <option value="" className="bg-slate-900 text-white">Sélectionner</option>
-                            {stylists?.map((s) => (
-                              <option key={s.id} value={s.id} className="bg-slate-900 text-white">{s.name}</option>
-                            ))}
-                          </select>
-                          <Input
-                            className={cn(inputFieldClasses, "flex-1 min-w-[160px] bg-slate-950/70 text-sm font-semibold text-white caret-emerald-200 placeholder:text-white/60")}
-                            placeholder="Nom du coiffeur"
-                            value={manageName}
-                            onChange={(e) => setManageName(e.target.value)}
-                            disabled={!manageStylistId}
-                          />
-                          <Button
-                            className={cn(gradientButtonClasses, "min-h-10 px-4")}
-                            disabled={!manageStylistId || !manageName.trim()}
-                            onClick={() => {
-                              if (!manageStylistId) return;
-                              const trimmedName = manageName.trim();
-                              if (!trimmedName) return;
-                              updateStylist.mutate({ id: manageStylistId, name: trimmedName }, {
-                                onSuccess: () => {
-                                  setManageStylistId("");
-                                  setManageName("");
-                                  setAccordionValue("");
-                                }
-                              });
-                            }}
-                          >
-                            Enregistrer
-                          </Button>
-                          <Button
-                            disabled={!manageStylistId}
-                            className="min-h-10 rounded-2xl border border-white/25 bg-[linear-gradient(135deg,rgba(239,68,68,0.82)0%,rgba(250,204,21,0.62)100%)] px-3.5 text-xs font-semibold uppercase tracking-[0.22em] text-white shadow-[0_20px_52px_rgba(239,68,68,0.38)]"
-                            onClick={() => {
-                              if (!manageStylistId) return;
-                              const s = stylists?.find(st => st.id === manageStylistId);
-                              if (!s) return;
-                              if (!confirm(`Supprimer ${s.name} ?`)) return;
-                              if (!confirm("Confirmer la suppression ?")) return;
-                              delStylist.mutate(manageStylistId, { onSuccess: () => { setManageStylistId(""); setManageName(""); setManageSecretCode(""); setAccordionValue(""); } });
-                            }}
-                          >
-                            Supprimer
-                          </Button>
-                        </div>
-                        <div className="flex flex-wrap items-center gap-2.5 mt-3">
-                          <Input
-                            className={cn(inputFieldClasses, "flex-1 min-w-[140px] bg-slate-950/70 text-sm font-semibold text-white caret-emerald-200 placeholder:text-white/60")}
-                            placeholder="Code d'accès coiffeur"
-                            type="password"
-                            value={manageSecretCode}
-                            onChange={(e) => setManageSecretCode(e.target.value)}
-                            disabled={!manageStylistId}
-                          />
-                          <Button
-                            className={cn(gradientButtonClasses, "min-h-10 px-4")}
-                            disabled={!manageStylistId || setStylistSecretCode.isPending}
-                            onClick={() => {
-                              if (!manageStylistId) return;
-                              setStylistSecretCode.mutate({ stylistId: manageStylistId, secretCode: manageSecretCode.trim() }, {
-                                onSuccess: (data) => {
-                                  setManageSecretCode("");
-                                  showConfirmPopup("Code mis à jour", data.hasCode ? "Code d'accès défini" : "Code d'accès supprimé", "violet");
-                                },
-                                onError: () => {
-                                  toast({ title: "Erreur", description: "Impossible de modifier le code", variant: "destructive" });
-                                }
-                              });
-                            }}
-                          >
-                            {manageSecretCode.trim() ? "Définir code" : "Suppr. code"}
-                          </Button>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </AccordionContent>
-              </AccordionItem>
+                    </motion.div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </Accordion>
           </CardContent>
         </Card>
