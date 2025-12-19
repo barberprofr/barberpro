@@ -37,22 +37,17 @@ export default function Clients() {
   const searchRef = useRef<HTMLInputElement>(null);
 
   const searchTerm = query.trim().toLowerCase();
-  const filtered = searchTerm === "" ? [] : (clients ?? []).filter(c => 
-    c.name.toLowerCase().includes(searchTerm) || 
-    (c.phone && c.phone.replace(/\D/g, "").includes(searchTerm.replace(/\D/g, "")))
-  ).sort((a, b) => {
+  const filtered = searchTerm === "" ? [] : (clients ?? []).filter(c => {
+    const nameLower = c.name.toLowerCase();
+    const nameParts = nameLower.split(/\s+/);
+    const nameStartsWith = nameLower.startsWith(searchTerm) || nameParts.some(part => part.startsWith(searchTerm));
+    const phoneMatch = c.phone && c.phone.replace(/\D/g, "").startsWith(searchTerm.replace(/\D/g, ""));
+    return nameStartsWith || phoneMatch;
+  }).sort((a, b) => {
     const aName = a.name.toLowerCase();
     const bName = b.name.toLowerCase();
-    const aStartsWith = aName.startsWith(searchTerm);
-    const bStartsWith = bName.startsWith(searchTerm);
-    if (aStartsWith && !bStartsWith) return -1;
-    if (!aStartsWith && bStartsWith) return 1;
-    const aFirstName = aName.split(" ")[0] || "";
-    const bFirstName = bName.split(" ")[0] || "";
-    const aFirstStartsWith = aFirstName.startsWith(searchTerm);
-    const bFirstStartsWith = bFirstName.startsWith(searchTerm);
-    if (aFirstStartsWith && !bFirstStartsWith) return -1;
-    if (!aFirstStartsWith && bFirstStartsWith) return 1;
+    if (aName.startsWith(searchTerm) && !bName.startsWith(searchTerm)) return -1;
+    if (!aName.startsWith(searchTerm) && bName.startsWith(searchTerm)) return 1;
     return aName.localeCompare(bName);
   });
   const selectedClient = clients?.find(c => c.id === selected);
