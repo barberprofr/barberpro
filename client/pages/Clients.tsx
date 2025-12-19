@@ -39,15 +39,13 @@ export default function Clients() {
   const searchTerm = query.trim().toLowerCase();
   const filtered = searchTerm === "" ? [] : (clients ?? []).filter(c => {
     const nameLower = c.name.toLowerCase();
-    const nameParts = nameLower.split(/\s+/);
-    const nameStartsWith = nameLower.startsWith(searchTerm) || nameParts.some(part => part.startsWith(searchTerm));
+    const firstName = nameLower.split(/\s+/)[0] || "";
+    const nameStartsWith = firstName.startsWith(searchTerm);
     const phoneMatch = c.phone && c.phone.replace(/\D/g, "").startsWith(searchTerm.replace(/\D/g, ""));
     return nameStartsWith || phoneMatch;
   }).sort((a, b) => {
     const aName = a.name.toLowerCase();
     const bName = b.name.toLowerCase();
-    if (aName.startsWith(searchTerm) && !bName.startsWith(searchTerm)) return -1;
-    if (!aName.startsWith(searchTerm) && bName.startsWith(searchTerm)) return 1;
     return aName.localeCompare(bName);
   });
   const selectedClient = clients?.find(c => c.id === selected);
