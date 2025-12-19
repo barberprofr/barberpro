@@ -12,7 +12,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { useAdminUpdateCode, useAdminVerifyCode, useAddStylist, useConfig, useUpdateConfig, useDashboardSummary, usePointsUsageReport, useStylists, useStylistBreakdown, useRevenueByDay, useRevenueByMonth, useDeleteStylist, useSetStylistCommission, useAdminRecoverCode, useAdminRecoverCodeVerify, useServices, useAddService, useDeleteService, useGlobalBreakdown, useUpdateTransactionPaymentMethod, useSetStylistSecretCode, useStylistHasSecretCode, useVerifyStylistSecretCode } from "@/lib/api";
+import { useAdminUpdateCode, useAdminVerifyCode, useAddStylist, useConfig, useUpdateConfig, useDashboardSummary, usePointsUsageReport, useStylists, useStylistBreakdown, useRevenueByDay, useRevenueByMonth, useDeleteStylist, useSetStylistCommission, useAdminRecoverCode, useAdminRecoverCodeVerify, useServices, useAddService, useDeleteService, useGlobalBreakdown, useUpdateTransactionPaymentMethod, useSetStylistSecretCode, useStylistHasSecretCode, useVerifyStylistSecretCode, useStylistDeposits, useAddStylistDeposit, useDeleteStylistDeposit, StylistDeposit } from "@/lib/api";
 import { StylistMonthly } from "@/components/Salon/StylistDailyStats";
 import type { SummaryPayments, MethodKey, Stylist, PointsUsageGroup, DashboardSummary, Service } from "@/lib/api";
 import { cn } from "@/lib/utils";
@@ -1294,6 +1294,19 @@ export default function Settings() {
   const [reglagesPopupOpen, setReglagesPopupOpen] = useState(false);
   const [statsPopupOpen, setStatsPopupOpen] = useState(false);
   const [acomptePopupOpen, setAcomptePopupOpen] = useState(false);
+  const [selectedStylistForDeposit, setSelectedStylistForDeposit] = useState<Stylist | null>(null);
+  const [depositAmount, setDepositAmount] = useState("");
+  const [depositMonth, setDepositMonth] = useState(() => {
+    const now = new Date();
+    return now.getFullYear() * 100 + (now.getMonth() + 1);
+  });
+  const [depositDetailsOpen, setDepositDetailsOpen] = useState(false);
+  const addStylistDeposit = useAddStylistDeposit();
+  const deleteStylistDeposit = useDeleteStylistDeposit();
+  const { data: stylistDeposits, refetch: refetchDeposits } = useStylistDeposits(
+    selectedStylistForDeposit?.id,
+    depositMonth
+  );
   const [confirmPopup, setConfirmPopup] = useState<{ open: boolean; title: string; description: string; variant: "emerald" | "violet" }>({ open: false, title: "", description: "", variant: "emerald" });
 
   const showConfirmPopup = (title: string, description: string, variant: "emerald" | "violet" = "emerald") => {
@@ -2551,7 +2564,11 @@ export default function Settings() {
                           stylists.map((s) => (
                             <div
                               key={s.id}
-                              className="rounded-2xl border border-emerald-400/30 bg-slate-800/50 p-4 transition-all hover:border-emerald-400/60 hover:bg-slate-700/50"
+                              onClick={() => {
+                                setSelectedStylistForDeposit(s);
+                                setDepositAmount("");
+                              }}
+                              className="rounded-2xl border border-emerald-400/30 bg-slate-800/50 p-4 transition-all hover:border-emerald-400/60 hover:bg-slate-700/50 cursor-pointer"
                             >
                               <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-3">
@@ -2573,6 +2590,223 @@ export default function Settings() {
                           </div>
                         )}
                       </div>
+                      
+                      {/* Sous-popup saisie acompte */}
+                      <AnimatePresence>
+                        {selectedStylistForDeposit && (
+                          <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.15 }}
+                            className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm"
+                            onClick={() => setSelectedStylistForDeposit(null)}
+                          >
+                            <motion.div
+                              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                              animate={{ opacity: 1, scale: 1, y: 0 }}
+                              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                              transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                              className="w-full max-w-md max-h-[85vh] overflow-y-auto rounded-3xl border border-emerald-500/30 bg-gradient-to-br from-slate-900/98 via-emerald-900/40 to-slate-800/98 p-6 shadow-[0_25px_80px_rgba(0,0,0,0.6),0_0_40px_rgba(16,185,129,0.2)] backdrop-blur-xl"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <div className="flex items-center justify-between mb-6">
+                                <div className="flex items-center gap-3">
+                                  <div className="h-12 w-12 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center">
+                                    <span className="text-xl font-bold text-white">{selectedStylistForDeposit.name.charAt(0).toUpperCase()}</span>
+                                  </div>
+                                  <div>
+                                    <h3 className="text-lg font-bold text-white">{selectedStylistForDeposit.name}</h3>
+                                    <p className="text-sm text-white/60">Ajouter un acompte</p>
+                                  </div>
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => setSelectedStylistForDeposit(null)}
+                                  className="flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition hover:bg-white/20"
+                                >
+                                  ✕
+                                </button>
+                              </div>
+                              
+                              {/* Sélecteur de mois */}
+                              <div className="mb-4">
+                                <label className="block text-sm font-medium text-white/80 mb-2">Mois</label>
+                                <select
+                                  value={depositMonth}
+                                  onChange={(e) => setDepositMonth(Number(e.target.value))}
+                                  className="w-full h-12 rounded-xl border border-white/20 bg-slate-800/70 px-4 text-white focus:outline-none focus:ring-2 focus:ring-emerald-400/50"
+                                >
+                                  {Array.from({ length: 12 }, (_, i) => {
+                                    const now = new Date();
+                                    const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+                                    const value = date.getFullYear() * 100 + (date.getMonth() + 1);
+                                    const label = date.toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
+                                    return (
+                                      <option key={value} value={value} className="bg-slate-900">
+                                        {label.charAt(0).toUpperCase() + label.slice(1)}
+                                      </option>
+                                    );
+                                  })}
+                                </select>
+                              </div>
+                              
+                              {/* Champ montant */}
+                              <div className="mb-6">
+                                <label className="block text-sm font-medium text-white/80 mb-2">Montant (€)</label>
+                                <Input
+                                  type="number"
+                                  placeholder="0.00"
+                                  value={depositAmount}
+                                  onChange={(e) => setDepositAmount(e.target.value)}
+                                  className="h-14 w-full rounded-xl border border-white/20 bg-slate-800/70 px-4 text-xl font-bold text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-emerald-400/50"
+                                />
+                              </div>
+                              
+                              {/* Boutons */}
+                              <div className="flex gap-3">
+                                <Button
+                                  onClick={() => {
+                                    const amount = parseFloat(depositAmount);
+                                    if (!amount || amount <= 0) {
+                                      toast({ title: "Erreur", description: "Montant invalide", variant: "destructive" });
+                                      return;
+                                    }
+                                    addStylistDeposit.mutate({
+                                      stylistId: selectedStylistForDeposit.id,
+                                      amount,
+                                      month: depositMonth,
+                                    }, {
+                                      onSuccess: () => {
+                                        showConfirmPopup("Acompte ajouté", `${amount.toFixed(2)} €`, "emerald");
+                                        setDepositAmount("");
+                                        refetchDeposits();
+                                      },
+                                      onError: () => {
+                                        toast({ title: "Erreur", description: "Impossible d'ajouter l'acompte", variant: "destructive" });
+                                      }
+                                    });
+                                  }}
+                                  disabled={addStylistDeposit.isPending || !depositAmount}
+                                  className="flex-1 h-12 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 font-bold text-white shadow-lg hover:shadow-emerald-500/30"
+                                >
+                                  Enregistrer
+                                </Button>
+                                <Button
+                                  onClick={() => setDepositDetailsOpen(true)}
+                                  className="h-12 rounded-xl border border-white/20 bg-white/10 font-bold text-white hover:bg-white/20"
+                                >
+                                  <List className="h-5 w-5 mr-2" />
+                                  Détails
+                                </Button>
+                              </div>
+                            </motion.div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                      
+                      {/* Sous-popup détails acomptes */}
+                      <AnimatePresence>
+                        {depositDetailsOpen && selectedStylistForDeposit && (
+                          <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.15 }}
+                            className="fixed inset-0 z-[70] flex items-center justify-center bg-black/60 backdrop-blur-sm"
+                            onClick={() => setDepositDetailsOpen(false)}
+                          >
+                            <motion.div
+                              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                              animate={{ opacity: 1, scale: 1, y: 0 }}
+                              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                              transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                              className="w-full max-w-md max-h-[85vh] overflow-y-auto rounded-3xl border border-violet-500/30 bg-gradient-to-br from-slate-900/98 via-violet-900/40 to-slate-800/98 p-6 shadow-[0_25px_80px_rgba(0,0,0,0.6),0_0_40px_rgba(139,92,246,0.2)] backdrop-blur-xl"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <div className="flex items-center justify-between mb-6">
+                                <div>
+                                  <h3 className="text-lg font-bold text-white">Détail acomptes</h3>
+                                  <p className="text-sm text-white/60">{selectedStylistForDeposit.name}</p>
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => setDepositDetailsOpen(false)}
+                                  className="flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition hover:bg-white/20"
+                                >
+                                  ✕
+                                </button>
+                              </div>
+                              
+                              {/* Filtre mois */}
+                              <div className="mb-4">
+                                <select
+                                  value={depositMonth}
+                                  onChange={(e) => setDepositMonth(Number(e.target.value))}
+                                  className="w-full h-10 rounded-xl border border-white/20 bg-slate-800/70 px-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-violet-400/50"
+                                >
+                                  {Array.from({ length: 12 }, (_, i) => {
+                                    const now = new Date();
+                                    const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+                                    const value = date.getFullYear() * 100 + (date.getMonth() + 1);
+                                    const label = date.toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
+                                    return (
+                                      <option key={value} value={value} className="bg-slate-900">
+                                        {label.charAt(0).toUpperCase() + label.slice(1)}
+                                      </option>
+                                    );
+                                  })}
+                                </select>
+                              </div>
+                              
+                              {/* Liste des acomptes */}
+                              <div className="space-y-3">
+                                {stylistDeposits && stylistDeposits.length > 0 ? (
+                                  <>
+                                    <div className="flex justify-between items-center py-2 px-3 rounded-xl bg-violet-500/20 border border-violet-400/30">
+                                      <span className="text-sm font-medium text-white/80">Total</span>
+                                      <span className="text-lg font-bold text-violet-300">
+                                        {eur.format(stylistDeposits.reduce((sum, d) => sum + d.amount, 0))}
+                                      </span>
+                                    </div>
+                                    {stylistDeposits.map((deposit) => (
+                                      <div
+                                        key={deposit.id}
+                                        className="flex items-center justify-between rounded-xl border border-white/10 bg-slate-800/50 p-3"
+                                      >
+                                        <div>
+                                          <div className="text-base font-bold text-white">{eur.format(deposit.amount)}</div>
+                                          <div className="text-xs text-white/50">
+                                            {new Date(deposit.createdAt).toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" })}
+                                          </div>
+                                        </div>
+                                        <button
+                                          onClick={() => {
+                                            if (!confirm("Supprimer cet acompte ?")) return;
+                                            deleteStylistDeposit.mutate(deposit.id, {
+                                              onSuccess: () => {
+                                                refetchDeposits();
+                                                showConfirmPopup("Acompte supprimé", "", "violet");
+                                              }
+                                            });
+                                          }}
+                                          className="flex h-8 w-8 items-center justify-center rounded-full border border-red-400/30 bg-red-500/20 text-red-300 transition hover:bg-red-500/40"
+                                        >
+                                          ✕
+                                        </button>
+                                      </div>
+                                    ))}
+                                  </>
+                                ) : (
+                                  <div className="text-center py-8 text-white/60">
+                                    Aucun acompte pour ce mois
+                                  </div>
+                                )}
+                              </div>
+                            </motion.div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
                     </motion.div>
                   </motion.div>
                 )}

@@ -148,6 +148,7 @@ export interface Prestation { id: string; stylistId: string; clientId?: string; 
 export interface Product { id: string; stylistId: string; clientId?: string; amount: number; paymentMethod: PaymentMethod; timestamp: number }
 export interface Service { id: string; name: string; price: number; description?: string; sortOrder?: number }
 export interface ProductType { id: string; name: string; price: number; description?: string }
+export interface StylistDeposit { id: string; stylistId: string; amount: number; month: number; note?: string; createdAt: string }
 export interface PointsUsageEntry {
   id: string;
   clientId: string;
@@ -884,6 +885,59 @@ export function useStylistHasSecretCode(stylistId?: string) {
       const res = await apiFetch(`/api/stylists/${stylistId}/has-code`);
       if (!res.ok) throw new Error('Failed to check stylist code');
       return res.json() as Promise<{ hasCode: boolean }>;
+    }
+  });
+}
+
+// === STYLIST DEPOSITS (ACOMPTES) ===
+
+export function useStylistDeposits(stylistId?: string, month?: number) {
+  const salonId = getSelectedSalon();
+  return useQuery({
+    queryKey: ['stylist-deposits', salonId, stylistId, month],
+    enabled: !!stylistId,
+    queryFn: async () => {
+      const params = new URLSearchParams();
+      if (stylistId) params.set('stylistId', stylistId);
+      if (month) params.set('month', String(month));
+      const res = await apiFetch(`/api/stylist-deposits?${params.toString()}`);
+      if (!res.ok) throw new Error('Failed to load deposits');
+      const data = await res.json() as { deposits: StylistDeposit[] };
+      return data.deposits;
+    }
+  });
+}
+
+export function useAddStylistDeposit() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: { stylistId: string; amount: number; month: number; note?: string }) => {
+      const res = await apiFetch('/api/stylist-deposits', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(input),
+      });
+      if (!res.ok) await throwResponseError(res);
+      return res.json() as Promise<{ deposit: StylistDeposit }>;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['stylist-deposits'] });
+    }
+  });
+}
+
+export function useDeleteStylistDeposit() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (depositId: string) => {
+      const res = await apiFetch(`/api/stylist-deposits/${depositId}`, {
+        method: 'DELETE',
+      });
+      if (!res.ok) await throwResponseError(res);
+      return res.json() as Promise<{ ok: boolean }>;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['stylist-deposits'] });
     }
   });
 }

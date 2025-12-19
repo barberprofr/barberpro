@@ -4,7 +4,7 @@ import cors from "cors";
 import { handleDemo } from "./routes/demo";
 import { adminRouter } from "./routes/admin";
 import { connectDatabase } from './db';
-import { addClient, addStylist, adminLogin, createPrestation, createProduct, listProducts, exportSummaryCSV, exportSummaryPDF, getConfig, getStylistBreakdown, getGlobalBreakdown, listClients, listStylists, pointsUsageReport, redeemPoints, reportByDay, reportByMonth, setAdminPassword, setStylistCommission, summaryReport, updateConfig, deleteStylist, deleteClient, recoverAdminPassword, recoverAdminVerify, exportStylistCSV, exportStylistPDF, exportByDayCSV, exportByDayPDF, exportByMonthCSV, exportByMonthPDF, setupAdminAccount, verifyAdminCode, updateStylist, listServices, addService, deleteService, reorderServices, listProductTypes, addProductType, deleteProductType, reorderProductTypes, recoverAdminCode, verifyAdminCodeRecovery, addPoints, updateTransactionPaymentMethod, uploadClientPhoto, deleteClientPhoto, setStylistSecretCode, verifyStylistSecretCode, getStylistHasSecretCode } from "./routes/salon";
+import { addClient, addStylist, adminLogin, createPrestation, createProduct, listProducts, exportSummaryCSV, exportSummaryPDF, getConfig, getStylistBreakdown, getGlobalBreakdown, listClients, listStylists, pointsUsageReport, redeemPoints, reportByDay, reportByMonth, setAdminPassword, setStylistCommission, summaryReport, updateConfig, deleteStylist, deleteClient, recoverAdminPassword, recoverAdminVerify, exportStylistCSV, exportStylistPDF, exportByDayCSV, exportByDayPDF, exportByMonthCSV, exportByMonthPDF, setupAdminAccount, verifyAdminCode, updateStylist, listServices, addService, deleteService, reorderServices, listProductTypes, addProductType, deleteProductType, reorderProductTypes, recoverAdminCode, verifyAdminCodeRecovery, addPoints, updateTransactionPaymentMethod, uploadClientPhoto, deleteClientPhoto, setStylistSecretCode, verifyStylistSecretCode, getStylistHasSecretCode, addStylistDeposit, listStylistDeposits, deleteStylistDeposit } from "./routes/salon";
 import { createCheckoutSession, createPortalSession, webhookHandler } from "./routes/payment";
 
 export function createServer() {
@@ -85,6 +85,9 @@ export function createServer() {
   app.put("/api/stylists/:id/secret-code", setStylistSecretCode);
   app.post("/api/stylists/:id/verify-code", verifyStylistSecretCode);
   app.get("/api/stylists/:id/has-code", getStylistHasSecretCode);
+  app.get("/api/stylist-deposits", listStylistDeposits);
+  app.post("/api/stylist-deposits", addStylistDeposit);
+  app.delete("/api/stylist-deposits/:depositId", deleteStylistDeposit);
   app.get("/api/clients", listClients);
   app.post("/api/clients", addClient);
   app.delete("/api/clients/:id", deleteClient);
@@ -138,6 +141,9 @@ export function createServer() {
   app.put("/api/salons/:salonId/stylists/:id/secret-code", setStylistSecretCode);
   app.post("/api/salons/:salonId/stylists/:id/verify-code", verifyStylistSecretCode);
   app.get("/api/salons/:salonId/stylists/:id/has-code", getStylistHasSecretCode);
+  app.get("/api/salons/:salonId/stylist-deposits", listStylistDeposits);
+  app.post("/api/salons/:salonId/stylist-deposits", addStylistDeposit);
+  app.delete("/api/salons/:salonId/stylist-deposits/:depositId", deleteStylistDeposit);
   app.get("/api/salons/:salonId/clients", listClients);
   app.post("/api/salons/:salonId/clients", addClient);
   app.delete("/api/salons/:salonId/clients/:id", deleteClient);

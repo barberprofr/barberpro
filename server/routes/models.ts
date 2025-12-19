@@ -98,6 +98,16 @@ export interface IProduct extends Document {
     createdAt: Date;
 }
 
+export interface IStylistDeposit extends Document {
+    id: string;
+    stylistId: string;
+    amount: number;
+    month: number; // Format: YYYYMM (ex: 202412 pour décembre 2024)
+    note?: string;
+    salonId: string;
+    createdAt: Date;
+}
+
 export interface ISettings extends Document {
     salonId: string;
     loginPasswordHash: string | null;
@@ -268,11 +278,24 @@ const SettingsSchema = new Schema({
     id: false
 });
 
+const StylistDepositSchema = new Schema({
+    id: { type: String, required: true, unique: true },
+    stylistId: { type: String, required: true, index: true },
+    amount: { type: Number, required: true, min: 0 },
+    month: { type: Number, required: true }, // Format YYYYMM
+    note: { type: String },
+    salonId: { type: String, required: true, index: true }
+}, {
+    timestamps: { createdAt: true, updatedAt: false },
+    id: false
+});
+
 // Index composés pour les performances
 PrestationSchema.index({ salonId: 1, timestamp: -1 });
 PrestationSchema.index({ salonId: 1, stylistId: 1, timestamp: -1 });
 ProductSchema.index({ salonId: 1, timestamp: -1 });
 PointsRedemptionSchema.index({ salonId: 1, timestamp: -1 });
+StylistDepositSchema.index({ salonId: 1, stylistId: 1, month: -1 });
 
 const AdminUserSchema = new Schema({
     email: { type: String, required: true, unique: true },
@@ -293,3 +316,4 @@ export const ProductType = (mongoose.models.ProductType || mongoose.model<IProdu
 export const Product = (mongoose.models.Product || mongoose.model<IProduct>('Product', ProductSchema)) as mongoose.Model<IProduct>;
 export const Settings = (mongoose.models.Settings || mongoose.model<ISettings>('Settings', SettingsSchema)) as mongoose.Model<ISettings>;
 export const AdminUser = (mongoose.models.AdminUser || mongoose.model<IAdminUser>('AdminUser', AdminUserSchema)) as mongoose.Model<IAdminUser>;
+export const StylistDeposit = (mongoose.models.StylistDeposit || mongoose.model<IStylistDeposit>('StylistDeposit', StylistDepositSchema)) as mongoose.Model<IStylistDeposit>;

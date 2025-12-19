@@ -7,9 +7,9 @@ import { IncomingMessage } from "node:http";
 import { EmailService } from './emailService.ts';
 import {
   Stylist, Client, Prestation, PointsRedemption,
-  Service, ProductType, Product, Settings,
+  Service, ProductType, Product, Settings, StylistDeposit,
   IStylist, IClient, IPrestation, IPointsRedemption,
-  IService, IProductType, IProduct, ISettings,
+  IService, IProductType, IProduct, ISettings, IStylistDeposit,
   PaymentMethod
 } from "./models.ts";
 
@@ -1370,6 +1370,80 @@ export const addStylist: RequestHandler = async (req, res) => {
     res.status(500).json({ error: "Erreur serveur" });
   }
 };
+
+// === STYLIST DEPOSITS (ACOMPTES) ===
+
+export const addStylistDeposit: RequestHandler = async (req, res) => {
+  try {
+    const body = await parseRequestBody(req);
+    const salonId = getSalonId(req);
+    const { stylistId, amount, month, note } = body as { 
+      stylistId?: string; 
+      amount?: number; 
+      month?: number;
+      note?: string;
+    };
+
+    if (!stylistId) return res.status(400).json({ error: "stylistId is required" });
+    if (typeof amount !== "number" || amount <= 0) return res.status(400).json({ error: "amount must be positive" });
+    if (typeof month !== "number") return res.status(400).json({ error: "month is required (YYYYMM format)" });
+
+    const stylist = await Stylist.findOne({ id: stylistId, salonId });
+    if (!stylist) return res.status(404).json({ error: "Stylist not found" });
+
+    const id = `dep-${stylistId.slice(0, 8)}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+    const deposit = new StylistDeposit({
+      id,
+      stylistId,
+      amount,
+      month,
+      note: note?.trim() || undefined,
+      salonId
+    });
+
+    await deposit.save();
+    res.status(201).json({ deposit });
+  } catch (error) {
+    console.error('Error adding stylist deposit:', error);
+    res.status(500).json({ error: "Erreur serveur" });
+  }
+};
+
+export const listStylistDeposits: RequestHandler = async (req, res) => {
+  try {
+    const salonId = getSalonId(req);
+    const { stylistId, month } = req.query as { stylistId?: string; month?: string };
+
+    const query: any = { salonId };
+    if (stylistId) query.stylistId = stylistId;
+    if (month) query.month = parseInt(month, 10);
+
+    const deposits = await StylistDeposit.find(query).sort({ createdAt: -1 });
+    res.json({ deposits });
+  } catch (error) {
+    console.error('Error listing stylist deposits:', error);
+    res.status(500).json({ error: "Erreur serveur" });
+  }
+};
+
+export const deleteStylistDeposit: RequestHandler = async (req, res) => {
+  try {
+    const salonId = getSalonId(req);
+    const { depositId } = req.params;
+
+    const result = await StylistDeposit.deleteOne({ id: depositId, salonId });
+    if (result.deletedCount === 0) {
+      return res.status(404).json({ error: "Deposit not found" });
+    }
+
+    res.json({ ok: true });
+  } catch (error) {
+    console.error('Error deleting stylist deposit:', error);
+    res.status(500).json({ error: "Erreur serveur" });
+  }
+};
+
+// === CLIENTS ===
 
 export const listClients: RequestHandler = async (req, res) => {
   try {
