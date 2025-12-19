@@ -18,7 +18,7 @@ import type { SummaryPayments, MethodKey, Stylist, PointsUsageGroup, DashboardSu
 import { cn } from "@/lib/utils";
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { CreditCard, Coins, FileText, ChevronDown, ChevronRight, CalendarDays, Sun, Scissors, UserRound, TrendingUp, Crown, Search, Check, List } from "lucide-react";
+import { CreditCard, Coins, FileText, ChevronDown, ChevronRight, ChevronLeft, CalendarDays, Sun, Scissors, UserRound, TrendingUp, Crown, Search, Check, List } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
@@ -79,6 +79,79 @@ function PaymentSummaryGrid({ items }: { items: PaymentSummaryItem[] }) {
           <span className="text-sm font-bold text-white">{eur.format(item.amount)}</span>
         </div>
       ))}
+    </div>
+  );
+}
+
+const MONTHS_FR = ["Jan", "Fév", "Mar", "Avr", "Mai", "Juin", "Juil", "Août", "Sep", "Oct", "Nov", "Déc"];
+
+function MonthYearPicker({ 
+  value, 
+  onChange, 
+  variant = "emerald" 
+}: { 
+  value: number; 
+  onChange: (v: number) => void; 
+  variant?: "emerald" | "violet";
+}) {
+  const year = Math.floor(value / 100);
+  const month = value % 100;
+  
+  const setYear = (newYear: number) => {
+    onChange(newYear * 100 + month);
+  };
+  
+  const setMonth = (newMonth: number) => {
+    onChange(year * 100 + newMonth);
+  };
+  
+  const borderColor = variant === "violet" ? "border-violet-400/30" : "border-emerald-400/30";
+  const selectedBg = variant === "violet" 
+    ? "bg-gradient-to-r from-violet-500 to-fuchsia-500" 
+    : "bg-gradient-to-r from-emerald-500 to-teal-500";
+  const hoverBg = variant === "violet" ? "hover:bg-violet-500/20" : "hover:bg-emerald-500/20";
+  const arrowBg = variant === "violet" ? "hover:bg-violet-500/30" : "hover:bg-emerald-500/30";
+  
+  return (
+    <div className={`rounded-2xl border ${borderColor} bg-slate-800/50 p-4`}>
+      <div className="flex items-center justify-between mb-4">
+        <button
+          type="button"
+          onClick={() => setYear(year - 1)}
+          className={`flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition ${arrowBg}`}
+        >
+          <ChevronLeft className="h-5 w-5" />
+        </button>
+        <span className="text-lg font-bold text-white">{year}</span>
+        <button
+          type="button"
+          onClick={() => setYear(year + 1)}
+          className={`flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition ${arrowBg}`}
+        >
+          <ChevronRight className="h-5 w-5" />
+        </button>
+      </div>
+      <div className="grid grid-cols-4 gap-2">
+        {MONTHS_FR.map((m, i) => {
+          const monthNum = i + 1;
+          const isSelected = month === monthNum;
+          return (
+            <button
+              key={m}
+              type="button"
+              onClick={() => setMonth(monthNum)}
+              className={cn(
+                "h-10 rounded-xl text-sm font-semibold transition-all",
+                isSelected 
+                  ? `${selectedBg} text-white shadow-lg` 
+                  : `bg-slate-700/50 text-white/70 ${hoverBg}`
+              )}
+            >
+              {m}
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }
@@ -2629,26 +2702,14 @@ export default function Settings() {
                                 </button>
                               </div>
                               
-                              {/* Sélecteur de mois */}
+                              {/* Sélecteur de mois/année */}
                               <div className="mb-4">
                                 <label className="block text-sm font-medium text-white/80 mb-2">Mois</label>
-                                <select
-                                  value={depositMonth}
-                                  onChange={(e) => setDepositMonth(Number(e.target.value))}
-                                  className="w-full h-12 rounded-xl border border-white/20 bg-slate-800/70 px-4 text-white focus:outline-none focus:ring-2 focus:ring-emerald-400/50"
-                                >
-                                  {Array.from({ length: 12 }, (_, i) => {
-                                    const now = new Date();
-                                    const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
-                                    const value = date.getFullYear() * 100 + (date.getMonth() + 1);
-                                    const label = date.toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
-                                    return (
-                                      <option key={value} value={value} className="bg-slate-900">
-                                        {label.charAt(0).toUpperCase() + label.slice(1)}
-                                      </option>
-                                    );
-                                  })}
-                                </select>
+                                <MonthYearPicker 
+                                  value={depositMonth} 
+                                  onChange={setDepositMonth} 
+                                  variant="emerald" 
+                                />
                               </div>
                               
                               {/* Champ montant */}
@@ -2738,25 +2799,13 @@ export default function Settings() {
                                 </button>
                               </div>
                               
-                              {/* Filtre mois */}
+                              {/* Filtre mois/année */}
                               <div className="mb-4">
-                                <select
-                                  value={depositMonth}
-                                  onChange={(e) => setDepositMonth(Number(e.target.value))}
-                                  className="w-full h-10 rounded-xl border border-white/20 bg-slate-800/70 px-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-violet-400/50"
-                                >
-                                  {Array.from({ length: 12 }, (_, i) => {
-                                    const now = new Date();
-                                    const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
-                                    const value = date.getFullYear() * 100 + (date.getMonth() + 1);
-                                    const label = date.toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
-                                    return (
-                                      <option key={value} value={value} className="bg-slate-900">
-                                        {label.charAt(0).toUpperCase() + label.slice(1)}
-                                      </option>
-                                    );
-                                  })}
-                                </select>
+                                <MonthYearPicker 
+                                  value={depositMonth} 
+                                  onChange={setDepositMonth} 
+                                  variant="violet" 
+                                />
                               </div>
                               
                               {/* Liste des acomptes */}
