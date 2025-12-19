@@ -2650,9 +2650,23 @@ export default function Settings() {
                                   </div>
                                   <span className="text-lg font-semibold text-white">{s.name}</span>
                                 </div>
-                                <div className="text-right">
-                                  <div className="text-sm text-white/60">Commission</div>
-                                  <div className="text-lg font-bold text-emerald-400">{s.commissionPct}%</div>
+                                <div className="flex items-center gap-3">
+                                  <div className="text-right">
+                                    <div className="text-sm text-white/60">Commission</div>
+                                    <div className="text-lg font-bold text-emerald-400">{s.commissionPct}%</div>
+                                  </div>
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setSelectedStylistForDeposit(s);
+                                      setDepositDetailsOpen(true);
+                                    }}
+                                    className="flex h-9 w-9 items-center justify-center rounded-full border border-violet-400/40 bg-violet-500/20 text-violet-300 transition hover:bg-violet-500/40"
+                                    title="Détails"
+                                  >
+                                    <List className="h-4 w-4" />
+                                  </button>
                                 </div>
                               </div>
                             </div>
