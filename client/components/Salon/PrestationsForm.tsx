@@ -94,7 +94,7 @@ export default function PrestationsForm() {
   const [newClientAccordionOpen, setNewClientAccordionOpen] = useState(false);
   const [newClientFirstName, setNewClientFirstName] = useState<string>("");
   const [newClientName, setNewClientName] = useState<string>("");
-
+  const [newClientEmail, setNewClientEmail] = useState<string>("");
   const [newClientPhone, setNewClientPhone] = useState<string>("");
   const [clientPickerOpen, setClientPickerOpen] = useState(false);
   const [clientSearch, setClientSearch] = useState("");
@@ -1797,6 +1797,16 @@ export default function PrestationsForm() {
                 placeholder="Téléphone (10 chiffres)"
                 className="h-12 rounded-xl border border-white/30 bg-white/10 text-white font-medium placeholder:text-white/50 focus:border-white/50 focus:ring-0 focus:bg-white/20 backdrop-blur-sm"
               />
+
+              <Input
+                type="email"
+                value={newClientEmail}
+                onChange={(e) => setNewClientEmail(e.target.value.trim())}
+                inputMode="email"
+                autoComplete="email"
+                placeholder="Email (optionnel)"
+                className="h-12 rounded-xl border border-white/30 bg-white/10 text-white font-medium placeholder:text-white/50 focus:border-white/50 focus:ring-0 focus:bg-white/20 backdrop-blur-sm"
+              />
               
               {usingNewClient && sanitizedNewClientPhoneDigits.length > 0 && sanitizedNewClientPhoneDigits.length !== PHONE_DIGITS_REQUIRED && (
                 <p className="text-xs font-medium text-rose-400">
@@ -1812,11 +1822,13 @@ export default function PrestationsForm() {
                     const created = await addClient.mutateAsync({
                       name: sanitizedNewClientName,
                       phone: sanitizedNewClientPhone || undefined,
+                      email: newClientEmail || undefined,
                     });
                     setClientId(created.client.id);
                     setNewClientAccordionOpen(false);
                     setNewClientFirstName("");
                     setNewClientName("");
+                    setNewClientEmail("");
                     setNewClientPhone("");
                     setClientAccordion("");
                   } catch (err) {
