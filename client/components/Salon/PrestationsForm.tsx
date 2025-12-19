@@ -96,6 +96,8 @@ export default function PrestationsForm() {
   const [newClientName, setNewClientName] = useState<string>("");
   const [newClientEmail, setNewClientEmail] = useState<string>("");
   const [newClientPhone, setNewClientPhone] = useState<string>("");
+  const [newClientCreatedName, setNewClientCreatedName] = useState<string>("");
+  const [showNewClientConfirmation, setShowNewClientConfirmation] = useState(false);
   const [clientPickerOpen, setClientPickerOpen] = useState(false);
   const [clientSearch, setClientSearch] = useState("");
   const [debouncedClientSearch, setDebouncedClientSearch] = useState("");
@@ -1819,8 +1821,9 @@ export default function PrestationsForm() {
                 disabled={!newClientFormComplete || addClient.isPending}
                 onClick={async () => {
                   try {
+                    const clientNameToCreate = sanitizedNewClientName;
                     const created = await addClient.mutateAsync({
-                      name: sanitizedNewClientName,
+                      name: clientNameToCreate,
                       phone: sanitizedNewClientPhone || undefined,
                       email: newClientEmail || undefined,
                     });
@@ -1831,6 +1834,9 @@ export default function PrestationsForm() {
                     setNewClientEmail("");
                     setNewClientPhone("");
                     setClientAccordion("");
+                    setNewClientCreatedName(clientNameToCreate);
+                    setShowNewClientConfirmation(true);
+                    setTimeout(() => setShowNewClientConfirmation(false), 3000);
                   } catch (err) {
                     console.error("Erreur lors de la création du client:", err);
                   }
@@ -1860,6 +1866,40 @@ export default function PrestationsForm() {
             </div>
           </DialogContent>
         </Dialog>
+
+        {/* Popup de confirmation création client */}
+        <AnimatePresence>
+          {showNewClientConfirmation && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.8, y: -20 }}
+              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+              className="fixed inset-0 z-[100] flex items-center justify-center pointer-events-none"
+            >
+              <motion.div
+                initial={{ boxShadow: "0 0 0 rgba(34,197,94,0)" }}
+                animate={{ boxShadow: "0 0 60px rgba(34,197,94,0.6), 0 0 100px rgba(34,197,94,0.3)" }}
+                className="bg-gradient-to-br from-emerald-900/95 via-emerald-800/90 to-slate-900/95 border-2 border-emerald-400/60 rounded-3xl px-8 py-6 backdrop-blur-xl shadow-2xl pointer-events-auto"
+              >
+                <div className="flex flex-col items-center gap-4">
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+                    className="h-16 w-16 rounded-full bg-emerald-500/30 border-2 border-emerald-400 flex items-center justify-center"
+                  >
+                    <Check className="h-8 w-8 text-emerald-300" />
+                  </motion.div>
+                  <div className="text-center">
+                    <h3 className="text-xl font-bold text-white mb-1">Client créé !</h3>
+                    <p className="text-emerald-200 text-lg font-medium">{newClientCreatedName}</p>
+                  </div>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </form>
     </Card>
   );
