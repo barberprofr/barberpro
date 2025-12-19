@@ -2716,10 +2716,14 @@ export default function Settings() {
                               <div className="mb-6">
                                 <label className="block text-sm font-medium text-white/80 mb-2">Montant (€)</label>
                                 <Input
-                                  type="number"
+                                  type="text"
+                                  inputMode="decimal"
                                   placeholder="0.00"
                                   value={depositAmount}
-                                  onChange={(e) => setDepositAmount(e.target.value)}
+                                  onChange={(e) => {
+                                    const val = e.target.value.replace(/[^0-9.,]/g, '');
+                                    setDepositAmount(val);
+                                  }}
                                   className="h-14 w-full rounded-xl border border-white/20 bg-slate-800/70 px-4 text-xl font-bold text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-emerald-400/50"
                                 />
                               </div>
