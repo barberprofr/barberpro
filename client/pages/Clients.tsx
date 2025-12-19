@@ -40,7 +40,21 @@ export default function Clients() {
   const filtered = searchTerm === "" ? [] : (clients ?? []).filter(c => 
     c.name.toLowerCase().includes(searchTerm) || 
     (c.phone && c.phone.replace(/\D/g, "").includes(searchTerm.replace(/\D/g, "")))
-  );
+  ).sort((a, b) => {
+    const aName = a.name.toLowerCase();
+    const bName = b.name.toLowerCase();
+    const aStartsWith = aName.startsWith(searchTerm);
+    const bStartsWith = bName.startsWith(searchTerm);
+    if (aStartsWith && !bStartsWith) return -1;
+    if (!aStartsWith && bStartsWith) return 1;
+    const aFirstName = aName.split(" ")[0] || "";
+    const bFirstName = bName.split(" ")[0] || "";
+    const aFirstStartsWith = aFirstName.startsWith(searchTerm);
+    const bFirstStartsWith = bFirstName.startsWith(searchTerm);
+    if (aFirstStartsWith && !bFirstStartsWith) return -1;
+    if (!aFirstStartsWith && bFirstStartsWith) return 1;
+    return aName.localeCompare(bName);
+  });
   const selectedClient = clients?.find(c => c.id === selected);
   const redeemStylist = stylists?.find(s => s.id === redeemStylistId) ?? null;
   const stylistsAvailable = (stylists?.length ?? 0) > 0;
