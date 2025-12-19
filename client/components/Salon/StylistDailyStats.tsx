@@ -590,15 +590,15 @@ export function StylistMonthly({ id, commissionPct, stylistName }: { id: string;
                     transition={{ type: "spring", stiffness: 400, damping: 15 }}
                     className="w-full flex items-center justify-between rounded-xl border border-fuchsia-500/40 bg-gradient-to-br from-fuchsia-900/40 via-slate-900/60 to-slate-900/80 backdrop-blur-xl px-3 py-2 shadow-[0_4px_16px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.1)] transition-all hover:border-fuchsia-400/60"
                 >
-                    <div className="flex items-center gap-2 min-w-0 flex-1">
-                        <span className="inline-flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full border border-fuchsia-400/40 bg-fuchsia-500/20">
-                            <List className="h-4 w-4 text-fuchsia-300" />
+                    <div className="flex items-center gap-3 min-w-0 flex-1">
+                        <span className="inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full border border-fuchsia-400/40 bg-fuchsia-500/20">
+                            <List className="h-5 w-5 text-fuchsia-300" />
                         </span>
                         <div className="text-left min-w-0">
-                            <div className="text-xs font-medium text-white/90">Encaissements du jour</div>
+                            <div className="text-lg font-bold uppercase tracking-wide text-white">Encaissements du jour</div>
                         </div>
                     </div>
-                    <ChevronDown className="h-4 w-4 text-fuchsia-300" />
+                    <ChevronDown className="h-5 w-5 text-fuchsia-300" />
                 </motion.button>
             )}
 
@@ -610,15 +610,15 @@ export function StylistMonthly({ id, commissionPct, stylistName }: { id: string;
                     transition={{ type: "spring", stiffness: 400, damping: 15 }}
                     className="w-full flex items-center justify-between rounded-xl border border-violet-500/40 bg-gradient-to-br from-violet-900/40 via-slate-900/60 to-slate-900/80 backdrop-blur-xl px-3 py-2 shadow-[0_4px_16px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.1)] transition-all hover:border-violet-400/60"
                 >
-                    <div className="flex items-center gap-2 min-w-0 flex-1">
-                        <span className="inline-flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full border border-violet-400/40 bg-violet-500/20">
-                            <List className="h-4 w-4 text-violet-300" />
+                    <div className="flex items-center gap-3 min-w-0 flex-1">
+                        <span className="inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full border border-violet-400/40 bg-violet-500/20">
+                            <List className="h-5 w-5 text-violet-300" />
                         </span>
                         <div className="text-left min-w-0">
-                            <div className="text-xs font-medium text-white/90">Encaissements de la période</div>
+                            <div className="text-lg font-bold uppercase tracking-wide text-white">Encaissements de la période</div>
                         </div>
                     </div>
-                    <ChevronDown className="h-4 w-4 text-violet-300" />
+                    <ChevronDown className="h-5 w-5 text-violet-300" />
                 </motion.button>
             )}
 
