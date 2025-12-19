@@ -16,7 +16,8 @@ import { useAdminUpdateCode, useAdminVerifyCode, useAddStylist, useConfig, useUp
 import { StylistMonthly } from "@/components/Salon/StylistDailyStats";
 import type { SummaryPayments, MethodKey, Stylist, PointsUsageGroup, DashboardSummary, Service } from "@/lib/api";
 import { cn } from "@/lib/utils";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { CreditCard, Coins, FileText, ChevronDown, CalendarDays, Sun, Scissors, UserRound, TrendingUp, Crown, Search, Check, List } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -1139,6 +1140,7 @@ function RevenueByMonth() {
 }
 
 export default function Settings() {
+  const queryClient = useQueryClient();
   const { data: config } = useConfig();
   const updateAdminCode = useAdminUpdateCode();
   const verifyAdminCode = useAdminVerifyCode();
@@ -1295,6 +1297,15 @@ export default function Settings() {
     setConfirmPopup({ open: true, title, description, variant });
     setTimeout(() => setConfirmPopup({ open: false, title: "", description: "", variant: "emerald" }), 2500);
   };
+
+  const closeCoiffeurPopupAndRefresh = useCallback(() => {
+    setCoiffeurPopupOpen(false);
+    setManageStylistId("");
+    setManageName("");
+    setManageSecretCode("");
+    queryClient.invalidateQueries({ queryKey: ["stylists"] });
+    queryClient.invalidateQueries({ queryKey: ["config"] });
+  }, [queryClient]);
 
   useEffect(() => {
     if (bestDaysAccordionValue === "") {
@@ -2253,7 +2264,7 @@ export default function Settings() {
                 onCloseParent={() => setAccordionValue("")}
                 onOpenCoiffeur={() => setCoiffeurPopupOpen(true)}
                 isCoiffeurOpen={coiffeurPopupOpen}
-                onCloseCoiffeur={() => setCoiffeurPopupOpen(false)}
+                onCloseCoiffeur={closeCoiffeurPopupAndRefresh}
               />
 
               {/* Popup Coiffeurs */}
@@ -2265,7 +2276,7 @@ export default function Settings() {
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.15 }}
                     className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
-                    onClick={() => setCoiffeurPopupOpen(false)}
+                    onClick={closeCoiffeurPopupAndRefresh}
                   >
                     <motion.div
                       initial={{ opacity: 0, scale: 0.9, y: 20 }}
@@ -2279,7 +2290,7 @@ export default function Settings() {
                         <h3 className="text-xl font-bold text-white">Gestion des coiffeurs</h3>
                         <button
                           type="button"
-                          onClick={() => setCoiffeurPopupOpen(false)}
+                          onClick={closeCoiffeurPopupAndRefresh}
                           className="flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition hover:bg-white/20"
                         >
                           ✕
