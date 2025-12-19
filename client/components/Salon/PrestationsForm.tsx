@@ -1634,6 +1634,9 @@ export default function PrestationsForm() {
                                 {c.phone && (
                                   <span className="text-sm font-medium text-white/60">{c.phone}</span>
                                 )}
+                                {c.email && (
+                                  <span className="text-sm font-medium text-white/50">{c.email}</span>
+                                )}
                               </div>
                             </div>
                             <div className="rounded-xl border border-cyan-400/50 bg-cyan-500/10 px-4 py-2">
