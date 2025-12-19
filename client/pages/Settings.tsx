@@ -2342,9 +2342,6 @@ export default function Settings() {
                 onOpenCoiffeur={() => setCoiffeurPopupOpen(true)}
                 isCoiffeurOpen={coiffeurPopupOpen}
                 onCloseCoiffeur={closeCoiffeurPopupAndRefresh}
-                onOpenAcompte={() => setAcomptePopupOpen(true)}
-                isAcompteOpen={acomptePopupOpen}
-                onCloseAcompte={closeAcomptePopupAndRefresh}
               />
 
               {/* Popup Coiffeurs */}
