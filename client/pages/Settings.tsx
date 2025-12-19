@@ -2728,15 +2728,11 @@ export default function Settings() {
                                 </button>
                               </div>
                               
-                              {/* Sélecteur de mois */}
-                              <div className="mb-4">
-                                <label className="block text-sm font-medium text-white/80 mb-2">Mois</label>
-                                <MonthYearPicker 
-                                  value={depositMonth} 
-                                  onChange={setDepositMonth} 
-                                  variant="emerald"
-                                  showYearNav={false}
-                                />
+                              {/* Affichage du mois en cours */}
+                              <div className="mb-4 text-center">
+                                <span className="text-lg font-bold text-emerald-400">
+                                  {new Date().toLocaleDateString("fr-FR", { month: "long", year: "numeric" }).replace(/^\w/, c => c.toUpperCase())}
+                                </span>
                               </div>
                               
                               {/* Champ montant */}
