@@ -1136,8 +1136,8 @@ export default function PrestationsForm() {
         {/* Grande carte Coiffeur centrée en haut */}
         <div className="flex justify-center mb-6">
           <div className="relative w-full max-w-[11rem]">
-            <Popover open={stylistPickerOpen} onOpenChange={setStylistPickerOpen}>
-              <PopoverTrigger asChild>
+            <Dialog open={stylistPickerOpen} onOpenChange={setStylistPickerOpen}>
+              <DialogTrigger asChild>
                 <motion.button
                   type="button"
                   data-stylist-card
@@ -1173,8 +1173,8 @@ export default function PrestationsForm() {
                     {selectedStylist ? selectedStylist.name : "Coiffeur"}
                   </span>
                 </motion.button>
-              </PopoverTrigger>
-              <PopoverContent side="bottom" align="center" className="w-[min(98vw,42rem)] overflow-visible rounded-3xl border border-white/20 bg-slate-900/50 p-0 text-slate-50 shadow-[0_25px_60px_rgba(0,0,0,0.3)] backdrop-blur-sm">
+              </DialogTrigger>
+              <DialogContent className="w-[min(98vw,42rem)] max-w-none overflow-visible rounded-3xl border border-white/20 bg-slate-900/90 p-0 text-slate-50 shadow-[0_25px_60px_rgba(0,0,0,0.5)] backdrop-blur-xl">
                 <div className="p-6 sm:p-10 overflow-visible">
                   <div className="max-h-[65vh] overflow-y-auto overflow-x-visible scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
                     {stylistsLoading ? (
@@ -1234,8 +1234,8 @@ export default function PrestationsForm() {
                     )}
                   </div>
                 </div>
-              </PopoverContent>
-            </Popover>
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
 
