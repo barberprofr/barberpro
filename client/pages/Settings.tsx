@@ -2767,7 +2767,8 @@ export default function Settings() {
                                       onSuccess: () => {
                                         showConfirmPopup("Acompte ajouté", `${amount.toFixed(2)} €`, "emerald");
                                         setDepositAmount("");
-                                        refetchDeposits();
+                                        setSelectedStylistForDeposit(null);
+                                        queryClient.invalidateQueries({ queryKey: ['all-deposits-month'] });
                                       },
                                       onError: () => {
                                         toast({ title: "Erreur", description: "Impossible d'ajouter l'acompte", variant: "destructive" });
