@@ -1293,6 +1293,7 @@ export default function Settings() {
   const [coiffeurPopupOpen, setCoiffeurPopupOpen] = useState(false);
   const [reglagesPopupOpen, setReglagesPopupOpen] = useState(false);
   const [statsPopupOpen, setStatsPopupOpen] = useState(false);
+  const [acomptePopupOpen, setAcomptePopupOpen] = useState(false);
   const [confirmPopup, setConfirmPopup] = useState<{ open: boolean; title: string; description: string; variant: "emerald" | "violet" }>({ open: false, title: "", description: "", variant: "emerald" });
 
   const showConfirmPopup = (title: string, description: string, variant: "emerald" | "violet" = "emerald") => {
@@ -1319,6 +1320,11 @@ export default function Settings() {
     queryClient.invalidateQueries({ queryKey: ["dashboard-summary"] });
   }, [queryClient]);
 
+  const closeAcomptePopupAndRefresh = useCallback(() => {
+    setAcomptePopupOpen(false);
+    queryClient.invalidateQueries({ queryKey: ["stylists"] });
+  }, [queryClient]);
+
   useEffect(() => {
     if (bestDaysAccordionValue === "") {
       setTimeout(() => {
@@ -1340,6 +1346,7 @@ export default function Settings() {
     setCoiffeurPopupOpen(false);
     setReglagesPopupOpen(false);
     setStatsPopupOpen(false);
+    setAcomptePopupOpen(false);
     setOpenDaily({});
     setOpenMonthly({});
     setIsDayUsageVisible(false);
@@ -2322,6 +2329,9 @@ export default function Settings() {
                 onOpenCoiffeur={() => setCoiffeurPopupOpen(true)}
                 isCoiffeurOpen={coiffeurPopupOpen}
                 onCloseCoiffeur={closeCoiffeurPopupAndRefresh}
+                onOpenAcompte={() => setAcomptePopupOpen(true)}
+                isAcompteOpen={acomptePopupOpen}
+                onCloseAcompte={closeAcomptePopupAndRefresh}
               />
 
               {/* Popup Coiffeurs */}
@@ -2500,6 +2510,68 @@ export default function Settings() {
                             )}
                           </div>
                         </div>
+                      </div>
+                    </motion.div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* Popup Acompte Coiffeur */}
+              <AnimatePresence>
+                {acomptePopupOpen && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.15 }}
+                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+                    onClick={closeAcomptePopupAndRefresh}
+                  >
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                      transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                      className="w-full max-w-lg max-h-[85vh] overflow-y-auto rounded-3xl border border-emerald-500/30 bg-gradient-to-br from-slate-900/98 via-emerald-900/40 to-slate-800/98 p-6 shadow-[0_25px_80px_rgba(0,0,0,0.6),0_0_40px_rgba(16,185,129,0.2)] backdrop-blur-xl"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <div className="flex items-center justify-between mb-6">
+                        <h3 className="text-xl font-bold text-white">Acompte coiffeur</h3>
+                        <button
+                          type="button"
+                          onClick={closeAcomptePopupAndRefresh}
+                          className="flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition hover:bg-white/20"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                      
+                      <div className="space-y-4">
+                        {stylists && stylists.length > 0 ? (
+                          stylists.map((s) => (
+                            <div
+                              key={s.id}
+                              className="rounded-2xl border border-emerald-400/30 bg-slate-800/50 p-4 transition-all hover:border-emerald-400/60 hover:bg-slate-700/50"
+                            >
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                  <div className="h-10 w-10 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center">
+                                    <span className="text-lg font-bold text-white">{s.name.charAt(0).toUpperCase()}</span>
+                                  </div>
+                                  <span className="text-lg font-semibold text-white">{s.name}</span>
+                                </div>
+                                <div className="text-right">
+                                  <div className="text-sm text-white/60">Commission</div>
+                                  <div className="text-lg font-bold text-emerald-400">{s.commissionPct}%</div>
+                                </div>
+                              </div>
+                            </div>
+                          ))
+                        ) : (
+                          <div className="text-center py-8 text-white/60">
+                            Aucun coiffeur disponible
+                          </div>
+                        )}
                       </div>
                     </motion.div>
                   </motion.div>
