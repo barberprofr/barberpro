@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useServices, useAddService, useDeleteService, useReorderServices, useProductTypes, useAddProductType, useDeleteProductType, useReorderProductTypes, Service } from "@/lib/api";
-import { Trash2, Plus, GripVertical, Check, Scissors, Package, UserRound } from "lucide-react";
+import { Trash2, Plus, GripVertical, Check, Scissors, Package, UserRound, Wallet } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 import { AnimatePresence, motion } from "framer-motion";
@@ -15,9 +15,12 @@ interface ServicesManagerProps {
   onOpenCoiffeur?: () => void;
   isCoiffeurOpen?: boolean;
   onCloseCoiffeur?: () => void;
+  onOpenAcompte?: () => void;
+  isAcompteOpen?: boolean;
+  onCloseAcompte?: () => void;
 }
 
-export default function ServicesManager({ accordionValue = "", onAccordionChange, onCloseParent, onOpenCoiffeur, isCoiffeurOpen, onCloseCoiffeur }: ServicesManagerProps) {
+export default function ServicesManager({ accordionValue = "", onAccordionChange, onCloseParent, onOpenCoiffeur, isCoiffeurOpen, onCloseCoiffeur, onOpenAcompte, isAcompteOpen, onCloseAcompte }: ServicesManagerProps) {
   const { data: services = [] } = useServices();
   const { data: productTypes = [] } = useProductTypes();
   const addService = useAddService();
@@ -333,13 +336,13 @@ export default function ServicesManager({ accordionValue = "", onAccordionChange
           }, 100);
         }
       }}>
-        <div className="grid grid-cols-3 gap-2 mb-4">
+        <div className="grid grid-cols-4 gap-2 mb-4">
           <AccordionItem value="services" className="border-0">
             <AccordionTrigger className="py-0 hover:no-underline [&>svg]:hidden w-full">
               <div className={cn(cardButtonClasses, "w-full min-h-[100px]")}>
-                <Scissors className="h-7 w-7 text-orange-400/80" />
-                <span className="text-sm font-bold text-orange-400">Prestations</span>
-                <span className="text-[10px] text-white/60">Enregistrer</span>
+                <Scissors className="h-6 w-6 text-orange-400/80" />
+                <span className="text-xs font-bold text-orange-400">Prestations</span>
+                <span className="text-[9px] text-white/60">Enregistrer</span>
               </div>
             </AccordionTrigger>
           </AccordionItem>
@@ -347,9 +350,9 @@ export default function ServicesManager({ accordionValue = "", onAccordionChange
           <AccordionItem value="products" className="border-0">
             <AccordionTrigger className="py-0 hover:no-underline [&>svg]:hidden w-full">
               <div className={cn(cardButtonClasses, "w-full min-h-[100px]")}>
-                <Package className="h-7 w-7 text-orange-400/80" />
-                <span className="text-sm font-bold text-orange-400">Produits</span>
-                <span className="text-[10px] text-white/60">Enregistrer</span>
+                <Package className="h-6 w-6 text-orange-400/80" />
+                <span className="text-xs font-bold text-orange-400">Produits</span>
+                <span className="text-[9px] text-white/60">Enregistrer</span>
               </div>
             </AccordionTrigger>
           </AccordionItem>
@@ -364,9 +367,24 @@ export default function ServicesManager({ accordionValue = "", onAccordionChange
               }
             }}
           >
-            <UserRound className="h-7 w-7 text-amber-400/70" />
-            <span className="text-sm font-bold text-amber-400">Coiffeur</span>
-            <span className="text-[10px] text-white/60">Ajouter</span>
+            <UserRound className="h-6 w-6 text-amber-400/70" />
+            <span className="text-xs font-bold text-amber-400">Coiffeur</span>
+            <span className="text-[9px] text-white/60">Ajouter</span>
+          </div>
+
+          <div 
+            className="group relative flex flex-col items-center justify-center gap-1 rounded-2xl border-2 border-emerald-400/60 bg-transparent px-2 py-3 min-h-[100px] cursor-pointer transition-all duration-300 hover:scale-[1.05] hover:border-emerald-300 hover:shadow-[0_0_25px_rgba(16,185,129,0.4)] active:scale-[1.08] active:border-emerald-200 active:bg-emerald-400/20 active:shadow-[0_0_40px_rgba(16,185,129,0.8)]"
+            onClick={() => {
+              if (isAcompteOpen) {
+                onCloseAcompte?.();
+              } else {
+                onOpenAcompte?.();
+              }
+            }}
+          >
+            <Wallet className="h-6 w-6 text-emerald-400/70" />
+            <span className="text-xs font-bold text-emerald-400 text-center leading-tight">Acompte coiffeur</span>
+            <span className="text-[9px] text-white/60">Gérer</span>
           </div>
         </div>
 

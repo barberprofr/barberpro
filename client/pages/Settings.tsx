@@ -2342,6 +2342,9 @@ export default function Settings() {
                 onOpenCoiffeur={() => setCoiffeurPopupOpen(true)}
                 isCoiffeurOpen={coiffeurPopupOpen}
                 onCloseCoiffeur={closeCoiffeurPopupAndRefresh}
+                onOpenAcompte={() => setAcomptePopupOpen(true)}
+                isAcompteOpen={acomptePopupOpen}
+                onCloseAcompte={closeAcomptePopupAndRefresh}
               />
 
               {/* Popup Coiffeurs */}
@@ -2656,7 +2659,7 @@ export default function Settings() {
                                   placeholder="0.00"
                                   value={depositAmount}
                                   onChange={(e) => setDepositAmount(e.target.value)}
-                                  className="h-14 w-full rounded-xl border border-white/20 bg-slate-800/70 px-4 text-xl font-bold text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-emerald-400/50 no-spinner"
+                                  className="h-14 w-full rounded-xl border border-white/20 bg-slate-800/70 px-4 text-xl font-bold text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-emerald-400/50"
                                 />
                               </div>
                               
