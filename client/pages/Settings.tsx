@@ -1292,6 +1292,7 @@ export default function Settings() {
   const [yearCaPopupOpen, setYearCaPopupOpen] = useState(false);
   const [coiffeurPopupOpen, setCoiffeurPopupOpen] = useState(false);
   const [reglagesPopupOpen, setReglagesPopupOpen] = useState(false);
+  const [statsPopupOpen, setStatsPopupOpen] = useState(false);
   const [confirmPopup, setConfirmPopup] = useState<{ open: boolean; title: string; description: string; variant: "emerald" | "violet" }>({ open: false, title: "", description: "", variant: "emerald" });
 
   const showConfirmPopup = (title: string, description: string, variant: "emerald" | "violet" = "emerald") => {
@@ -1310,8 +1311,12 @@ export default function Settings() {
 
   const closeReglagesPopupAndRefresh = useCallback(() => {
     setReglagesPopupOpen(false);
-    setBestDaysAccordionValue("");
     queryClient.invalidateQueries({ queryKey: ["config"] });
+  }, [queryClient]);
+
+  const closeStatsPopupAndRefresh = useCallback(() => {
+    setStatsPopupOpen(false);
+    queryClient.invalidateQueries({ queryKey: ["dashboard-summary"] });
   }, [queryClient]);
 
   useEffect(() => {
@@ -1334,6 +1339,7 @@ export default function Settings() {
     setYearCaPopupOpen(false);
     setCoiffeurPopupOpen(false);
     setReglagesPopupOpen(false);
+    setStatsPopupOpen(false);
     setOpenDaily({});
     setOpenMonthly({});
     setIsDayUsageVisible(false);
@@ -1843,24 +1849,62 @@ export default function Settings() {
                         </div>
                       </div>
 
-                      {/* Statistiques meilleurs jours */}
-                      <div className={cn(glassPanelClasses, "p-4 space-y-0 mt-4")}>
-                        <Accordion type="single" collapsible value={bestDaysAccordionValue} onValueChange={(val) => setBestDaysAccordionValue(val ?? "")}>
-                          <AccordionItem value="best-days-stats" className="border-0">
-                            <AccordionTrigger className="flex items-center gap-2 py-0 hover:no-underline">
-                              <span className="inline-flex items-center gap-2 rounded-full border-2 border-purple-300/30 bg-purple-500/10 backdrop-blur-sm px-4 py-2 text-sm font-bold uppercase tracking-[0.15em] text-purple-100 transition-all duration-200 hover:scale-[1.02] hover:shadow-[0_20px_50px_rgba(168,85,247,0.4)] active:scale-105 active:border-white/80 active:shadow-[0_0_20px_rgba(168,85,247,0.8),0_25px_60px_rgba(168,85,247,0.6)] active:brightness-125">
-                                <span className="h-2.5 w-2.5 rounded-full bg-purple-300 animate-pulse" />
-                                <TrendingUp className="h-5 w-5" />
-                                Statistiques meilleurs jours
-                              </span>
-                            </AccordionTrigger>
-                            <AccordionContent className="border-0 pb-0 pt-6">
-                              <BestDaysOfMonth />
-                            </AccordionContent>
-                          </AccordionItem>
-                        </Accordion>
                       </div>
+                  </motion.div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Bouton Statistiques meilleurs jours */}
+            <div className={cn(glassPanelClasses, "space-y-0 overflow-hidden p-2 sm:p-3")}>
+              <button
+                type="button"
+                onClick={() => setStatsPopupOpen(true)}
+                className="flex w-full items-center justify-between rounded-xl border-2 border-purple-400/30 bg-[linear-gradient(135deg,rgba(168,85,247,0.1)0%,rgba(79,70,229,0.08)100%)] backdrop-blur-sm px-4 py-4 text-left text-base font-bold text-purple-50 shadow-[0_16px_42px_rgba(168,85,247,0.2)] transition-all duration-200 hover:scale-[1.02] hover:border-purple-300/60 hover:shadow-[0_20px_50px_rgba(168,85,247,0.4)] active:scale-105 active:border-white/80 active:shadow-[0_0_20px_rgba(168,85,247,0.8),0_25px_60px_rgba(168,85,247,0.6)] active:brightness-125"
+              >
+                <span className="inline-flex items-center gap-2 rounded-full border-2 border-purple-300/30 bg-purple-500/10 backdrop-blur-sm px-4 py-2 text-sm font-bold uppercase tracking-[0.15em] text-purple-100">
+                  <span className="h-2 w-2 rounded-full bg-purple-300 animate-pulse" />
+                  <TrendingUp className="h-5 w-5" />
+                  Statistiques meilleurs jours
+                </span>
+                <ChevronRight className="h-5 w-5 text-purple-300" />
+              </button>
+            </div>
+
+            {/* Popup Statistiques meilleurs jours */}
+            <AnimatePresence>
+              {statsPopupOpen && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.15 }}
+                  className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+                  onClick={closeStatsPopupAndRefresh}
+                >
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                    transition={{ duration: 0.2 }}
+                    className="relative w-[95vw] max-w-2xl max-h-[85vh] overflow-y-auto rounded-2xl border-2 border-purple-400/30 bg-gradient-to-br from-slate-900/95 via-slate-800/95 to-purple-900/40 p-5 shadow-[0_25px_60px_rgba(168,85,247,0.3)]"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <div className="flex items-center justify-between mb-6">
+                      <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                        <TrendingUp className="h-6 w-6 text-purple-300" />
+                        Statistiques meilleurs jours du mois
+                      </h3>
+                      <button
+                        type="button"
+                        onClick={closeStatsPopupAndRefresh}
+                        className="flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition hover:bg-white/20"
+                      >
+                        ✕
+                      </button>
                     </div>
+
+                    <BestDaysOfMonth />
                   </motion.div>
                 </motion.div>
               )}
