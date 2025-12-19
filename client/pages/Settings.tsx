@@ -2736,19 +2736,22 @@ export default function Settings() {
                               
                               {/* Champ montant */}
                               <div className="mb-6">
-                                <label className="block text-base font-semibold text-white/90 mb-3">Montant (€)</label>
-                                <input
-                                  type="text"
-                                  inputMode="decimal"
-                                  placeholder="0.00"
-                                  value={depositAmount}
-                                  onChange={(e) => {
-                                    const val = e.target.value.replace(/[^0-9.,]/g, '');
-                                    setDepositAmount(val);
-                                  }}
-                                  style={{ fontSize: '3.5rem', lineHeight: '1' }}
-                                  className="h-28 w-full rounded-2xl border-2 border-emerald-400/40 bg-slate-800/80 px-6 font-black text-red-500 text-center placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-emerald-400/50 focus:border-emerald-400/60"
-                                />
+                                <label className="block text-base font-semibold text-white/90 mb-3">Montant</label>
+                                <div className="relative flex items-center">
+                                  <input
+                                    type="text"
+                                    inputMode="decimal"
+                                    placeholder="0.00"
+                                    value={depositAmount}
+                                    onChange={(e) => {
+                                      const val = e.target.value.replace(/[^0-9.,]/g, '');
+                                      setDepositAmount(val);
+                                    }}
+                                    style={{ fontSize: '3.5rem', lineHeight: '1' }}
+                                    className="h-28 w-full rounded-2xl border-2 border-emerald-400/40 bg-slate-800/80 pl-6 pr-20 font-black text-red-500 text-center placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-emerald-400/50 focus:border-emerald-400/60"
+                                  />
+                                  <span className="absolute right-6 text-4xl font-black text-red-500">€</span>
+                                </div>
                               </div>
                               
                               {/* Boutons */}
