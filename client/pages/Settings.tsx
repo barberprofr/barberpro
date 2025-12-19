@@ -2736,7 +2736,7 @@ export default function Settings() {
                               
                               {/* Champ montant */}
                               <div className="mb-6">
-                                <label className="block text-sm font-medium text-white/80 mb-2">Montant (€)</label>
+                                <label className="block text-base font-semibold text-white/90 mb-3">Montant (€)</label>
                                 <Input
                                   type="text"
                                   inputMode="decimal"
@@ -2746,7 +2746,7 @@ export default function Settings() {
                                     const val = e.target.value.replace(/[^0-9.,]/g, '');
                                     setDepositAmount(val);
                                   }}
-                                  className="h-14 w-full rounded-xl border border-white/20 bg-slate-800/70 px-4 text-xl font-bold text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-emerald-400/50"
+                                  className="h-20 w-full rounded-2xl border-2 border-emerald-400/40 bg-slate-800/80 px-6 text-3xl font-bold text-white text-center placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-emerald-400/50 focus:border-emerald-400/60"
                                 />
                               </div>
                               
