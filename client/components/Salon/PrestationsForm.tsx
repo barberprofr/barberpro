@@ -1174,15 +1174,15 @@ export default function PrestationsForm() {
                   </span>
                 </motion.button>
               </DialogTrigger>
-              <DialogContent className="w-[min(98vw,42rem)] max-w-none overflow-visible rounded-3xl border border-white/20 bg-slate-900/90 p-0 text-slate-50 shadow-[0_25px_60px_rgba(0,0,0,0.5)] backdrop-blur-xl">
-                <div className="p-6 sm:p-10 overflow-visible">
-                  <div className="max-h-[65vh] overflow-y-auto overflow-x-visible scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+              <DialogContent className="w-[min(98vw,48rem)] max-w-none overflow-visible rounded-3xl border border-white/20 bg-slate-900/90 p-0 text-slate-50 shadow-[0_25px_60px_rgba(0,0,0,0.5)] backdrop-blur-xl">
+                <div className="p-8 sm:p-12 overflow-visible">
+                  <div className="max-h-[70vh] overflow-y-auto overflow-x-visible scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
                     {stylistsLoading ? (
                       <div className="flex items-center justify-center py-12">
-                        <Loader2 className="h-10 w-10 animate-spin text-cyan-400" />
+                        <Loader2 className="h-12 w-12 animate-spin text-cyan-400" />
                       </div>
                     ) : stylists && stylists.length > 0 ? (
-                      <div className="grid gap-4 sm:gap-6 grid-cols-2 p-2 sm:p-4 overflow-visible">
+                      <div className="grid gap-5 sm:gap-7 grid-cols-2 p-3 sm:p-5 overflow-visible">
                         {stylists.map((s) => (
                           <motion.button
                             key={s.id}
@@ -1202,13 +1202,13 @@ export default function PrestationsForm() {
                             whileHover={{ scale: stylistId === s.id ? 1.32 : 1.08, y: stylistId === s.id ? -8 : -2 }}
                             whileTap={{ scale: 0.95 }}
                             className={cn(
-                              "flex items-center gap-3 sm:gap-5 rounded-2xl border-2 border-white/30 bg-slate-800/40 px-4 sm:px-8 py-5 sm:py-7 text-left transition-colors duration-200 shadow-[0_0_20px_rgba(148,163,184,0.2)] hover:border-fuchsia-400 hover:bg-slate-700/50 hover:shadow-[0_0_35px_rgba(232,121,249,0.7),0_0_50px_rgba(255,184,0,0.4)] focus:outline-none",
+                              "flex items-center gap-4 sm:gap-6 rounded-2xl border-2 border-white/30 bg-slate-800/40 px-5 sm:px-10 py-6 sm:py-8 text-left transition-colors duration-200 shadow-[0_0_20px_rgba(148,163,184,0.2)] hover:border-fuchsia-400 hover:bg-slate-700/50 hover:shadow-[0_0_35px_rgba(232,121,249,0.7),0_0_50px_rgba(255,184,0,0.4)] focus:outline-none",
                               stylistId === s.id && "border-fuchsia-400 bg-slate-700/50 shadow-[0_0_50px_rgba(232,121,249,0.8),0_0_70px_rgba(255,184,0,0.5)]"
                             )}
                           >
                             <motion.span
                               className={cn(
-                                "h-4 w-4 rounded-full flex-shrink-0",
+                                "h-5 w-5 rounded-full flex-shrink-0",
                                 stylistId === s.id ? "bg-gradient-to-r from-fuchsia-300 to-amber-300" : "bg-fuchsia-400/80"
                               )}
                               animate={stylistId === s.id ? {
@@ -1221,7 +1221,7 @@ export default function PrestationsForm() {
                               } : {}}
                               transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut" }}
                             />
-                            <span className="text-xl sm:text-3xl font-bold text-white break-words" style={{ WebkitTextStroke: '0.5px black' }}>
+                            <span className="text-2xl sm:text-4xl font-bold text-white break-words" style={{ WebkitTextStroke: '0.5px black' }}>
                               {s.name}
                             </span>
                           </motion.button>
