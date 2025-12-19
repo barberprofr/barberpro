@@ -2699,10 +2699,10 @@ export default function Settings() {
                             exit={{ opacity: 0 }}
                             transition={{ duration: 0.15 }}
                             className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm"
-                            onClick={(e) => {
-                              e.stopPropagation();
+                            onClick={() => {
                               setSelectedStylistForDeposit(null);
                               setDepositDetailsOpen(false);
+                              setAcomptePopupOpen(false);
                             }}
                           >
                             <motion.div
@@ -2725,7 +2725,11 @@ export default function Settings() {
                                 </div>
                                 <button
                                   type="button"
-                                  onClick={() => setSelectedStylistForDeposit(null)}
+                                  onClick={() => {
+                                    setSelectedStylistForDeposit(null);
+                                    setDepositDetailsOpen(false);
+                                    setAcomptePopupOpen(false);
+                                  }}
                                   className="flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition hover:bg-white/20"
                                 >
                                   ✕
@@ -2811,9 +2815,10 @@ export default function Settings() {
                             exit={{ opacity: 0 }}
                             transition={{ duration: 0.15 }}
                             className="fixed inset-0 z-[70] flex items-center justify-center bg-black/60 backdrop-blur-sm"
-                            onClick={(e) => {
-                              e.stopPropagation();
+                            onClick={() => {
                               setDepositDetailsOpen(false);
+                              setSelectedStylistForDeposit(null);
+                              setAcomptePopupOpen(false);
                             }}
                           >
                             <motion.div
@@ -2831,7 +2836,11 @@ export default function Settings() {
                                 </div>
                                 <button
                                   type="button"
-                                  onClick={() => setDepositDetailsOpen(false)}
+                                  onClick={() => {
+                                    setDepositDetailsOpen(false);
+                                    setSelectedStylistForDeposit(null);
+                                    setAcomptePopupOpen(false);
+                                  }}
                                   className="flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition hover:bg-white/20"
                                 >
                                   ✕
