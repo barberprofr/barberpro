@@ -484,8 +484,8 @@ export default function StatsCards() {
               whileTap={{ scale: 0.97 }}
               className="relative flex flex-col items-center justify-center w-[100px] h-[100px] rounded-2xl border-2 border-amber-400/60 bg-transparent backdrop-blur-sm shadow-[0_8px_32px_rgba(0,0,0,0.4)] overflow-hidden transition-all duration-300 hover:border-amber-300 hover:shadow-[0_0_25px_rgba(245,158,11,0.4)]"
             >
-              <div className="relative flex items-center justify-center w-14 h-14 rounded-full overflow-hidden">
-                <img src="/assets/barber-logo.jpg" alt="Coiffeurs" className="h-12 w-12 object-cover rounded-full" />
+              <div className="relative flex items-center justify-center w-14 h-14 rounded-full border-2 border-amber-400/60 bg-transparent">
+                <UserRound className="relative h-7 w-7 text-amber-400 drop-shadow-lg" />
               </div>
               <span className="mt-2 text-[10px] font-semibold text-amber-400 uppercase tracking-wider">Coiffeurs</span>
             </motion.button>
@@ -709,13 +709,8 @@ function StylistsList({ stylists, config, hasStylists }: { stylists: any[], conf
       >
         <div className="space-y-4">
           <div className="flex flex-col items-center justify-center border-b border-white/10 pb-4">
-            <div className="relative flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-amber-500/30 via-amber-600/20 to-yellow-500/30 ring-2 ring-amber-400/50 shadow-[0_8px_32px_rgba(251,191,36,0.4),inset_0_2px_8px_rgba(255,255,255,0.1)] backdrop-blur-sm mb-2 overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-t from-amber-900/40 to-transparent" />
-              <img 
-                src="/assets/coiffeur-avatar.jpg" 
-                alt="Coiffeur" 
-                className="h-12 w-12 object-cover rounded-full opacity-85 mix-blend-luminosity"
-              />
+            <div className="relative flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-amber-500/20 via-amber-600/15 to-yellow-500/20 ring-2 ring-amber-400/50 shadow-[0_8px_32px_rgba(251,191,36,0.4),inset_0_2px_8px_rgba(255,255,255,0.1)] backdrop-blur-sm mb-2">
+              <UserRound className="h-8 w-8 text-amber-400 drop-shadow-lg" />
             </div>
             <h3 className="text-3xl font-black text-white text-center">{selectedStylist.name}</h3>
           </div>
