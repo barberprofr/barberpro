@@ -53,7 +53,7 @@ function NumericKeypad({
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.9, y: 20 }}
         onClick={(e) => e.stopPropagation()}
-        className="w-[300px] max-h-[90vh] overflow-auto"
+        className="w-[320px] max-h-[90vh] overflow-auto"
       >
         {/* Écran d'affichage - bordure dorée semi-transparent */}
         <div 
@@ -84,12 +84,12 @@ function NumericKeypad({
           }}
         >
           {/* Grille des chiffres 1-9 */}
-          <div className="grid grid-cols-3 gap-2 mb-2">
+          <div className="grid grid-cols-3 gap-3 mb-3">
             {["1", "2", "3", "4", "5", "6", "7", "8", "9"].map((digit) => (
               <button
                 key={digit}
                 onClick={() => handleDigit(digit)}
-                className="relative flex h-14 w-14 mx-auto items-center justify-center rounded-full text-xl font-bold text-white transition-all active:scale-95 overflow-hidden backdrop-blur-md"
+                className="relative flex h-16 w-16 mx-auto items-center justify-center rounded-full text-2xl font-bold text-white transition-all active:scale-95 overflow-hidden backdrop-blur-md"
                 style={{
                   background: 'linear-gradient(180deg, rgba(103,232,249,0.6) 0%, rgba(34,211,238,0.5) 20%, rgba(6,182,212,0.5) 50%, rgba(8,145,178,0.6) 80%, rgba(14,116,144,0.7) 100%)',
                   boxShadow: '0 4px 8px rgba(0,0,0,0.4), 0 0 15px rgba(34,211,238,0.3), inset 0 -4px 8px rgba(0,0,0,0.3)',
@@ -108,11 +108,11 @@ function NumericKeypad({
             ))}
           </div>
           {/* Dernière ligne: 0 - C - Delete */}
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-3 gap-3">
             {/* Bouton 0 - bleu rond semi-transparent */}
             <button
               onClick={() => handleDigit("0")}
-              className="relative flex h-14 w-14 mx-auto items-center justify-center rounded-full text-xl font-bold text-white transition-all active:scale-95 overflow-hidden backdrop-blur-md"
+              className="relative flex h-16 w-16 mx-auto items-center justify-center rounded-full text-2xl font-bold text-white transition-all active:scale-95 overflow-hidden backdrop-blur-md"
               style={{
                 background: 'linear-gradient(180deg, rgba(103,232,249,0.6) 0%, rgba(34,211,238,0.5) 20%, rgba(6,182,212,0.5) 50%, rgba(8,145,178,0.6) 80%, rgba(14,116,144,0.7) 100%)',
                 boxShadow: '0 4px 8px rgba(0,0,0,0.4), 0 0 15px rgba(34,211,238,0.3), inset 0 -4px 8px rgba(0,0,0,0.3)',
@@ -131,7 +131,7 @@ function NumericKeypad({
             {/* Bouton C - rouge semi-transparent */}
             <button
               onClick={handleClear}
-              className="relative flex h-14 w-14 mx-auto items-center justify-center rounded-md text-lg font-bold text-white transition-all active:scale-95 overflow-hidden backdrop-blur-md"
+              className="relative flex h-16 w-16 mx-auto items-center justify-center rounded-md text-xl font-bold text-white transition-all active:scale-95 overflow-hidden backdrop-blur-md"
               style={{
                 background: 'linear-gradient(180deg, rgba(153,27,27,0.7) 0%, rgba(127,29,29,0.6) 50%, rgba(69,10,10,0.7) 100%)',
                 boxShadow: '0 4px 8px rgba(0,0,0,0.4), 0 0 10px rgba(239,68,68,0.2), inset 0 1px 2px rgba(255,255,255,0.15), inset 0 -3px 6px rgba(0,0,0,0.3)',
@@ -143,7 +143,7 @@ function NumericKeypad({
             {/* Bouton Delete - gris semi-transparent */}
             <button
               onClick={handleDelete}
-              className="relative flex h-14 w-14 mx-auto items-center justify-center rounded-md text-white transition-all active:scale-95 overflow-hidden backdrop-blur-md"
+              className="relative flex h-16 w-16 mx-auto items-center justify-center rounded-md text-white transition-all active:scale-95 overflow-hidden backdrop-blur-md"
               style={{
                 background: 'linear-gradient(180deg, rgba(75,85,99,0.6) 0%, rgba(55,65,81,0.5) 50%, rgba(31,41,55,0.6) 100%)',
                 boxShadow: '0 4px 8px rgba(0,0,0,0.4), inset 0 1px 2px rgba(255,255,255,0.1), inset 0 -3px 6px rgba(0,0,0,0.3)',
