@@ -52,28 +52,10 @@ function NumericKeypad({
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.9, y: 20 }}
         onClick={(e) => e.stopPropagation()}
-        className="w-[340px] rounded-2xl border-2 border-amber-500/50 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-5 shadow-2xl"
+        className="w-[300px] p-2"
       >
-        {/* Titre avec nom du coiffeur */}
-        <div className="mb-3 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Lock className="h-5 w-5 text-amber-400" />
-            <div>
-              <span className="text-base font-semibold text-white">Code secret</span>
-              {stylistName && (
-                <p className="text-xs text-white/50">{stylistName}</p>
-              )}
-            </div>
-          </div>
-          <button
-            onClick={onClose}
-            className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
-          >
-            ✕
-          </button>
-        </div>
-        
-        <div className="mb-4 flex h-14 items-center justify-center rounded-xl border-2 border-amber-500/50 bg-black/40 px-4">
+        {/* Écran d'affichage */}
+        <div className="mb-3 flex h-14 items-center justify-center rounded-xl border-2 border-amber-500/50 bg-slate-900/95 backdrop-blur-md px-4 shadow-lg">
           <span className="text-3xl font-bold tracking-[0.5em] text-amber-400">
             {value ? "•".repeat(value.length) : ""}
           </span>
@@ -81,7 +63,7 @@ function NumericKeypad({
 
         {/* Message d'erreur */}
         {error && (
-          <p className="mb-3 text-center text-sm text-red-400">{error}</p>
+          <p className="mb-2 text-center text-sm font-semibold text-red-400 bg-red-500/20 rounded-lg py-1">{error}</p>
         )}
 
         {/* Grille des chiffres */}
@@ -90,26 +72,26 @@ function NumericKeypad({
             <button
               key={digit}
               onClick={() => handleDigit(digit)}
-              className="flex h-14 items-center justify-center rounded-xl border border-white/20 bg-white/10 text-2xl font-bold text-white transition-all hover:bg-white/20 active:scale-95 active:bg-amber-500/30"
+              className="flex h-14 items-center justify-center rounded-xl border-2 border-slate-600 bg-slate-800/95 backdrop-blur-md text-2xl font-bold text-white shadow-lg transition-all hover:bg-slate-700 active:scale-95 active:bg-amber-500/30"
             >
               {digit}
             </button>
           ))}
           <button
             onClick={handleClear}
-            className="flex h-14 items-center justify-center rounded-xl border border-red-500/30 bg-red-500/10 text-lg font-bold text-red-400 transition-all hover:bg-red-500/20 active:scale-95"
+            className="flex h-14 items-center justify-center rounded-xl border-2 border-red-500/50 bg-slate-800/95 backdrop-blur-md text-lg font-bold text-red-400 shadow-lg transition-all hover:bg-red-500/20 active:scale-95"
           >
             C
           </button>
           <button
             onClick={() => handleDigit("0")}
-            className="flex h-14 items-center justify-center rounded-xl border border-white/20 bg-white/10 text-2xl font-bold text-white transition-all hover:bg-white/20 active:scale-95 active:bg-amber-500/30"
+            className="flex h-14 items-center justify-center rounded-xl border-2 border-slate-600 bg-slate-800/95 backdrop-blur-md text-2xl font-bold text-white shadow-lg transition-all hover:bg-slate-700 active:scale-95 active:bg-amber-500/30"
           >
             0
           </button>
           <button
             onClick={handleDelete}
-            className="flex h-14 items-center justify-center rounded-xl border border-white/20 bg-white/10 text-white transition-all hover:bg-white/20 active:scale-95"
+            className="flex h-14 items-center justify-center rounded-xl border-2 border-slate-600 bg-slate-800/95 backdrop-blur-md text-white shadow-lg transition-all hover:bg-slate-700 active:scale-95"
           >
             <Delete className="h-6 w-6" />
           </button>
@@ -119,7 +101,7 @@ function NumericKeypad({
         <button
           onClick={onValidate}
           disabled={!value.trim() || isLoading}
-          className="mt-4 flex h-12 w-full items-center justify-center rounded-xl bg-amber-500 text-lg font-bold text-black transition-all hover:bg-amber-400 active:scale-98 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="mt-3 flex h-12 w-full items-center justify-center rounded-xl bg-amber-500 text-lg font-bold text-black shadow-lg transition-all hover:bg-amber-400 active:scale-98 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isLoading ? "Vérification..." : "Valider"}
         </button>
