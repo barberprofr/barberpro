@@ -52,56 +52,55 @@ function NumericKeypad({
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.9, y: 20 }}
         onClick={(e) => e.stopPropagation()}
-        className="w-[280px]"
+        className="w-[300px]"
       >
-        {/* Écran d'affichage */}
-        <div className="mb-2 flex h-11 items-center justify-center rounded-xl border border-amber-400/60 bg-white/10 backdrop-blur-xl px-4 shadow-[0_4px_20px_rgba(251,191,36,0.2)]">
-          <span className="text-2xl font-bold tracking-[0.4em] text-amber-300 drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]">
+        {/* Écran d'affichage - bordure dorée arrondie */}
+        <div className="mb-3 flex h-12 items-center justify-center rounded-full border-2 border-amber-500 bg-gradient-to-b from-slate-900 to-slate-800 px-6 shadow-[0_0_15px_rgba(251,191,36,0.3),inset_0_2px_4px_rgba(0,0,0,0.5)]">
+          <span className="text-2xl font-bold tracking-[0.5em] text-amber-400 drop-shadow-[0_0_10px_rgba(251,191,36,0.6)]">
             {value ? "•".repeat(value.length) : ""}
           </span>
         </div>
 
         {/* Message d'erreur */}
         {error && (
-          <p className="mb-1 text-center text-xs font-semibold text-red-300 bg-red-500/20 backdrop-blur-sm rounded py-0.5">{error}</p>
+          <p className="mb-2 text-center text-xs font-semibold text-red-400 bg-red-500/30 rounded py-1">{error}</p>
         )}
 
-        {/* Grille des chiffres */}
-        <div className="grid grid-cols-3 gap-1.5">
-          {["1", "2", "3", "4", "5", "6", "7", "8", "9"].map((digit) => (
+        {/* Cadre métallique */}
+        <div className="rounded-xl border-2 border-amber-500/80 bg-gradient-to-b from-slate-500 via-slate-600 to-slate-700 p-3 shadow-[0_0_20px_rgba(251,191,36,0.2),inset_0_1px_0_rgba(255,255,255,0.2),inset_0_-2px_4px_rgba(0,0,0,0.3)]">
+          {/* Grille des chiffres */}
+          <div className="grid grid-cols-3 gap-2">
+            {["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"].map((digit) => (
+              <button
+                key={digit}
+                onClick={() => handleDigit(digit)}
+                className="flex h-14 w-14 mx-auto items-center justify-center rounded-full bg-gradient-to-b from-cyan-400 via-cyan-500 to-cyan-700 text-xl font-bold text-white shadow-[0_4px_8px_rgba(0,0,0,0.4),inset_0_2px_4px_rgba(255,255,255,0.4),inset_0_-2px_4px_rgba(0,0,0,0.2)] transition-all hover:from-cyan-300 hover:via-cyan-400 hover:to-cyan-600 active:scale-95 active:shadow-[0_2px_4px_rgba(0,0,0,0.4),inset_0_1px_2px_rgba(255,255,255,0.3)]"
+              >
+                {digit}
+              </button>
+            ))}
+            {/* Bouton C - rouge */}
             <button
-              key={digit}
-              onClick={() => handleDigit(digit)}
-              className="flex h-11 items-center justify-center rounded-xl border border-white/20 bg-white/10 backdrop-blur-xl text-xl font-bold text-white shadow-[0_4px_15px_rgba(0,0,0,0.2)] transition-all hover:bg-white/20 hover:border-amber-400/50 active:scale-95 active:bg-amber-400/30"
+              onClick={handleClear}
+              className="flex h-14 w-14 mx-auto items-center justify-center rounded-lg bg-gradient-to-b from-red-500 via-red-600 to-red-800 text-lg font-bold text-white shadow-[0_4px_8px_rgba(0,0,0,0.4),inset_0_2px_4px_rgba(255,255,255,0.3),inset_0_-2px_4px_rgba(0,0,0,0.2)] transition-all hover:from-red-400 hover:via-red-500 hover:to-red-700 active:scale-95"
             >
-              {digit}
+              C
             </button>
-          ))}
-          <button
-            onClick={handleClear}
-            className="flex h-11 items-center justify-center rounded-xl border border-red-400/40 bg-red-500/15 backdrop-blur-xl text-base font-bold text-red-300 shadow-[0_4px_15px_rgba(0,0,0,0.2)] transition-all hover:bg-red-500/30 active:scale-95"
-          >
-            C
-          </button>
-          <button
-            onClick={() => handleDigit("0")}
-            className="flex h-11 items-center justify-center rounded-xl border border-white/20 bg-white/10 backdrop-blur-xl text-xl font-bold text-white shadow-[0_4px_15px_rgba(0,0,0,0.2)] transition-all hover:bg-white/20 hover:border-amber-400/50 active:scale-95 active:bg-amber-400/30"
-          >
-            0
-          </button>
-          <button
-            onClick={handleDelete}
-            className="flex h-11 items-center justify-center rounded-xl border border-white/20 bg-white/10 backdrop-blur-xl text-white shadow-[0_4px_15px_rgba(0,0,0,0.2)] transition-all hover:bg-white/20 hover:border-amber-400/50 active:scale-95"
-          >
-            <Delete className="h-5 w-5" />
-          </button>
+            {/* Bouton Delete - gris */}
+            <button
+              onClick={handleDelete}
+              className="flex h-14 w-14 mx-auto items-center justify-center rounded-lg bg-gradient-to-b from-slate-500 via-slate-600 to-slate-800 text-white shadow-[0_4px_8px_rgba(0,0,0,0.4),inset_0_2px_4px_rgba(255,255,255,0.2),inset_0_-2px_4px_rgba(0,0,0,0.2)] transition-all hover:from-slate-400 hover:via-slate-500 hover:to-slate-700 active:scale-95"
+            >
+              <Delete className="h-5 w-5" />
+            </button>
+          </div>
         </div>
 
-        {/* Bouton Valider */}
+        {/* Bouton Valider - noir/gris sobre */}
         <button
           onClick={onValidate}
           disabled={!value.trim() || isLoading}
-          className="mt-2 flex h-10 w-full items-center justify-center rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 text-base font-bold text-black shadow-[0_4px_20px_rgba(251,191,36,0.4)] transition-all hover:from-amber-300 hover:to-amber-400 active:scale-98 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="mt-3 flex h-12 w-full items-center justify-center rounded-xl bg-gradient-to-b from-slate-700 via-slate-800 to-slate-900 border border-slate-600 text-lg font-bold text-white shadow-[0_4px_12px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] transition-all hover:from-slate-600 hover:via-slate-700 hover:to-slate-800 active:scale-98 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isLoading ? "Vérification..." : "Valider"}
         </button>
