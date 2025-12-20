@@ -450,7 +450,7 @@ export default function ServicesPicker({ onServiceSelect, onReset, externalOpen,
                         placeholder="0.00"
                         value={customAmount}
                         onChange={(e) => setCustomAmount(e.target.value)}
-                        className="w-full bg-transparent text-2xl font-bold text-white placeholder:text-white/30 focus:outline-none"
+                        className="w-full bg-transparent text-2xl font-bold text-white placeholder:text-white/30 focus:outline-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none [-moz-appearance:textfield]"
                       />
                       <span className="text-xs text-amber-400/70">Déduit du salaire (prestation)</span>
                     </div>
