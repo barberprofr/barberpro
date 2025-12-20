@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { ChevronDown, ChevronLeft, Euro, Scissors, Package, Users, UserRound } from "lucide-react";
+import { ChevronDown, ChevronLeft, Euro, Scissors, Package, Users, UserRound, Delete } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useDashboardSummary, useStylists, useStylistBreakdown, useConfig, apiPath, useProducts, useStylistHasSecretCode, useVerifyStylistSecretCode } from "@/lib/api";
@@ -8,6 +8,106 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Lock } from "lucide-react";
 import { StylistMonthly } from "@/components/Salon/StylistDailyStats";
+
+// Composant Clavier Numérique
+function NumericKeypad({ 
+  value, 
+  onChange, 
+  onClose,
+  onValidate 
+}: { 
+  value: string; 
+  onChange: (val: string) => void; 
+  onClose: () => void;
+  onValidate: () => void;
+}) {
+  const handleDigit = (digit: string) => {
+    onChange(value + digit);
+  };
+
+  const handleDelete = () => {
+    onChange(value.slice(0, -1));
+  };
+
+  const handleClear = () => {
+    onChange("");
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-[80] flex items-center justify-center bg-black/70 backdrop-blur-sm"
+      onClick={onClose}
+    >
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.9, y: 20 }}
+        onClick={(e) => e.stopPropagation()}
+        className="w-[320px] rounded-2xl border border-amber-500/30 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-4 shadow-2xl"
+      >
+        {/* Affichage du code */}
+        <div className="mb-4 flex items-center justify-between">
+          <span className="text-sm text-white/60">Code secret</span>
+          <button
+            onClick={onClose}
+            className="flex h-8 w-8 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
+          >
+            ✕
+          </button>
+        </div>
+        
+        <div className="mb-4 flex h-14 items-center justify-center rounded-xl border border-amber-500/40 bg-black/40 px-4">
+          <span className="text-3xl font-bold tracking-[0.5em] text-amber-400">
+            {value ? "•".repeat(value.length) : ""}
+          </span>
+        </div>
+
+        {/* Grille des chiffres */}
+        <div className="grid grid-cols-3 gap-2">
+          {["1", "2", "3", "4", "5", "6", "7", "8", "9"].map((digit) => (
+            <button
+              key={digit}
+              onClick={() => handleDigit(digit)}
+              className="flex h-14 items-center justify-center rounded-xl border border-white/20 bg-white/10 text-2xl font-bold text-white transition-all hover:bg-white/20 active:scale-95 active:bg-amber-500/30"
+            >
+              {digit}
+            </button>
+          ))}
+          <button
+            onClick={handleClear}
+            className="flex h-14 items-center justify-center rounded-xl border border-red-500/30 bg-red-500/10 text-sm font-bold text-red-400 transition-all hover:bg-red-500/20 active:scale-95"
+          >
+            C
+          </button>
+          <button
+            onClick={() => handleDigit("0")}
+            className="flex h-14 items-center justify-center rounded-xl border border-white/20 bg-white/10 text-2xl font-bold text-white transition-all hover:bg-white/20 active:scale-95 active:bg-amber-500/30"
+          >
+            0
+          </button>
+          <button
+            onClick={handleDelete}
+            className="flex h-14 items-center justify-center rounded-xl border border-white/20 bg-white/10 text-white transition-all hover:bg-white/20 active:scale-95"
+          >
+            <Delete className="h-6 w-6" />
+          </button>
+        </div>
+
+        {/* Bouton Valider */}
+        <button
+          onClick={onValidate}
+          disabled={!value.trim()}
+          className="mt-4 flex h-12 w-full items-center justify-center rounded-xl bg-amber-500 text-lg font-bold text-black transition-all hover:bg-amber-400 active:scale-98 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Valider
+        </button>
+      </motion.div>
+    </motion.div>
+  );
+}
 
 type SummaryHighlightCardProps = {
   label: string;
@@ -410,6 +510,7 @@ function StylistsList({ stylists, config, hasStylists }: { stylists: any[], conf
   const [secretCodeInput, setSecretCodeInput] = useState("");
   const [codeError, setCodeError] = useState("");
   const [showCodeDialog, setShowCodeDialog] = useState(false);
+  const [showKeypad, setShowKeypad] = useState(false);
   
   const selectedStylist = stylists.find(s => s.id === selectedId);
   const pendingStylist = stylists.find(s => s.id === pendingId);
@@ -508,19 +609,18 @@ function StylistsList({ stylists, config, hasStylists }: { stylists: any[], conf
             <p className="text-sm text-white/70">
               Entrez le code secret pour accéder aux statistiques de {pendingStylist?.name}
             </p>
-            <Input
-              type="password"
-              placeholder="Entrez le code secret"
-              value={secretCodeInput}
-              onChange={(e) => {
-                setSecretCodeInput(e.target.value);
-                setCodeError("");
-              }}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") handleVerifyCode();
-              }}
-              className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
-            />
+            <div
+              onClick={() => setShowKeypad(true)}
+              className="flex h-10 w-full items-center rounded-md border border-white/20 bg-white/10 px-3 cursor-pointer"
+            >
+              {secretCodeInput ? (
+                <span className="text-xl font-bold tracking-[0.3em] text-amber-400">
+                  {"•".repeat(secretCodeInput.length)}
+                </span>
+              ) : (
+                <span className="text-white/40">Entrez le code secret</span>
+              )}
+            </div>
             {codeError && (
               <p className="text-sm text-red-400">{codeError}</p>
             )}
@@ -548,6 +648,24 @@ function StylistsList({ stylists, config, hasStylists }: { stylists: any[], conf
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Clavier numérique popup */}
+      <AnimatePresence>
+        {showKeypad && (
+          <NumericKeypad
+            value={secretCodeInput}
+            onChange={(val) => {
+              setSecretCodeInput(val);
+              setCodeError("");
+            }}
+            onClose={() => setShowKeypad(false)}
+            onValidate={() => {
+              setShowKeypad(false);
+              handleVerifyCode();
+            }}
+          />
+        )}
+      </AnimatePresence>
       
       <motion.div
         initial={{ opacity: 0, x: -20 }}
