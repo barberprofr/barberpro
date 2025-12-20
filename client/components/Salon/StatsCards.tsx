@@ -222,7 +222,7 @@ function NumericKeypad({
         <motion.button
           onClick={onValidate}
           disabled={!value.trim() || isLoading}
-          className="mt-4 mb-2 flex h-12 w-full items-center justify-center rounded-xl text-lg font-semibold backdrop-blur-md disabled:opacity-50 disabled:cursor-not-allowed"
+          className="mt-4 mb-2 flex h-12 w-48 mx-auto items-center justify-center rounded-xl text-lg font-semibold backdrop-blur-md disabled:opacity-50 disabled:cursor-not-allowed"
           animate={value.trim() ? {
             background: 'linear-gradient(180deg, rgba(251,191,36,0.75) 0%, rgba(245,158,11,0.8) 50%, rgba(217,119,6,0.8) 100%)',
             boxShadow: '0 0 30px rgba(245,158,11,0.6), 0 0 50px rgba(251,191,36,0.4), 0 4px 20px rgba(245,158,11,0.5)',
