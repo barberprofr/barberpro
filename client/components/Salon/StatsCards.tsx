@@ -55,11 +55,11 @@ function NumericKeypad({
         onClick={(e) => e.stopPropagation()}
         className="w-[320px] max-h-[90vh] overflow-auto"
       >
-        {/* Écran d'affichage - style orange/pêche */}
+        {/* Écran d'affichage - style orange/pêche semi-transparent */}
         <div 
-          className="mb-4 flex h-10 items-center justify-center rounded-lg px-6"
+          className="mb-4 flex h-10 items-center justify-center rounded-lg px-6 backdrop-blur-md"
           style={{
-            background: 'linear-gradient(180deg, #f59e0b 0%, #d97706 100%)',
+            background: 'linear-gradient(180deg, rgba(245,158,11,0.85) 0%, rgba(217,119,6,0.9) 100%)',
             boxShadow: '0 0 15px rgba(245,158,11,0.5), inset 0 2px 4px rgba(255,255,255,0.3)'
           }}
         >
@@ -73,13 +73,13 @@ function NumericKeypad({
           <p className="mb-2 text-center text-xs font-semibold text-red-400 bg-red-500/20 backdrop-blur-sm rounded py-1">{error}</p>
         )}
 
-        {/* Cadre noir futuriste */}
+        {/* Cadre semi-transparent futuriste */}
         <div 
-          className="rounded-2xl p-4"
+          className="rounded-2xl p-4 backdrop-blur-xl"
           style={{
-            background: 'linear-gradient(180deg, #1a1a2e 0%, #0f0f1a 100%)',
-            border: '1px solid rgba(99,102,241,0.3)',
-            boxShadow: '0 0 30px rgba(99,102,241,0.15), inset 0 1px 0 rgba(255,255,255,0.05)'
+            background: 'linear-gradient(180deg, rgba(26,26,46,0.85) 0%, rgba(15,15,26,0.9) 100%)',
+            border: '1px solid rgba(99,102,241,0.4)',
+            boxShadow: '0 0 30px rgba(99,102,241,0.2), inset 0 1px 0 rgba(255,255,255,0.08)'
           }}
         >
           {/* Grille des chiffres 1-9 */}
@@ -218,13 +218,13 @@ function NumericKeypad({
           </div>
         </div>
 
-        {/* Bouton Valider - orange/pêche */}
+        {/* Bouton Valider - orange/pêche semi-transparent */}
         <motion.button
           onClick={onValidate}
           disabled={!value.trim() || isLoading}
-          className="mt-4 mb-2 flex h-12 w-full items-center justify-center rounded-xl text-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+          className="mt-4 mb-2 flex h-12 w-full items-center justify-center rounded-xl text-lg font-semibold backdrop-blur-md disabled:opacity-50 disabled:cursor-not-allowed"
           style={{
-            background: 'linear-gradient(180deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%)',
+            background: 'linear-gradient(180deg, rgba(251,191,36,0.9) 0%, rgba(245,158,11,0.9) 50%, rgba(217,119,6,0.9) 100%)',
             color: '#1a1a2e',
             boxShadow: '0 4px 20px rgba(245,158,11,0.4)'
           }}
