@@ -156,20 +156,32 @@ function NumericKeypad({
         </div>
 
         {/* Bouton Valider - vert émeraude semi-transparent avec effet violet au clic */}
-        <button
+        <motion.button
           onClick={onValidate}
           disabled={!value.trim() || isLoading}
-          className="group mt-3 mb-2 flex h-14 w-full items-center justify-center rounded-xl text-xl font-bold text-white transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-105 active:scale-110 backdrop-blur-md active:[box-shadow:0_4px_15px_rgba(16,185,129,0.4),0_0_30px_rgba(219,39,119,0.7),0_0_50px_rgba(168,85,247,0.5),inset_0_1px_2px_rgba(255,255,255,0.25)] active:border-pink-400"
+          className="mt-3 mb-2 flex h-14 w-full items-center justify-center rounded-xl text-xl font-bold text-white backdrop-blur-md disabled:opacity-50 disabled:cursor-not-allowed"
           style={{
             background: 'rgba(16,185,129,0.3)',
-            boxShadow: '0 4px 15px rgba(16,185,129,0.4), 0 0 20px rgba(16,185,129,0.35), inset 0 1px 2px rgba(255,255,255,0.25)',
             border: '2px solid rgba(52,211,153,0.6)'
           }}
+          whileHover={{ 
+            scale: 1.05,
+            boxShadow: '0 4px 20px rgba(16,185,129,0.5), 0 0 25px rgba(16,185,129,0.4)'
+          }}
+          whileTap={{ 
+            scale: 1.1,
+            boxShadow: '0 0 30px rgba(219,39,119,0.8), 0 0 50px rgba(168,85,247,0.6), 0 0 70px rgba(236,72,153,0.4)',
+            borderColor: 'rgba(236,72,153,0.8)',
+            background: 'rgba(168,85,247,0.4)'
+          }}
+          initial={{
+            boxShadow: '0 4px 15px rgba(16,185,129,0.4), 0 0 20px rgba(16,185,129,0.35)'
+          }}
         >
-          <span className="drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)] group-active:drop-shadow-[0_0_10px_rgba(219,39,119,0.8)]">
+          <span className="drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
             {isLoading ? "Vérification..." : "Valider"}
           </span>
-        </button>
+        </motion.button>
       </motion.div>
     </motion.div>,
     document.body
