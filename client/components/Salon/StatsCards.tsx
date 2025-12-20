@@ -44,7 +44,7 @@ function NumericKeypad({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+      className="fixed inset-0 z-[100] flex items-center justify-center p-6 pb-12 bg-black/70 backdrop-blur-sm"
       onClick={onClose}
     >
       <motion.div
@@ -158,7 +158,7 @@ function NumericKeypad({
         <button
           onClick={onValidate}
           disabled={!value.trim() || isLoading}
-          className="mt-3 flex h-12 w-full items-center justify-center rounded-xl text-lg font-bold text-white transition-all active:scale-98 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="mt-3 mb-2 flex h-12 w-full items-center justify-center rounded-xl text-lg font-bold text-white transition-all active:scale-98 disabled:opacity-50 disabled:cursor-not-allowed"
           style={{
             background: 'linear-gradient(180deg, #374151 0%, #1f2937 50%, #111827 100%)',
             boxShadow: '0 4px 12px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1)',
