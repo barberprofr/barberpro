@@ -55,12 +55,12 @@ function NumericKeypad({
         onClick={(e) => e.stopPropagation()}
         className="w-[320px] max-h-[90vh] overflow-auto"
       >
-        {/* Écran d'affichage - style orange/pêche très transparent */}
+        {/* Écran d'affichage - style orange/pêche ultra transparent */}
         <div 
           className="mb-4 flex h-10 items-center justify-center rounded-lg px-6 backdrop-blur-md"
           style={{
-            background: 'linear-gradient(180deg, rgba(245,158,11,0.5) 0%, rgba(217,119,6,0.55) 100%)',
-            boxShadow: '0 0 15px rgba(245,158,11,0.4), inset 0 2px 4px rgba(255,255,255,0.2)'
+            background: 'linear-gradient(180deg, rgba(245,158,11,0.25) 0%, rgba(217,119,6,0.3) 100%)',
+            boxShadow: '0 0 15px rgba(245,158,11,0.3), inset 0 2px 4px rgba(255,255,255,0.1)'
           }}
         >
           <span className="text-xl font-bold tracking-[0.4em] text-black drop-shadow-[0_1px_1px_rgba(255,255,255,0.3)]">
@@ -73,13 +73,13 @@ function NumericKeypad({
           <p className="mb-2 text-center text-xs font-semibold text-red-400 bg-red-500/20 backdrop-blur-sm rounded py-1">{error}</p>
         )}
 
-        {/* Cadre très transparent futuriste */}
+        {/* Cadre ultra transparent futuriste */}
         <div 
           className="rounded-2xl p-4 backdrop-blur-xl"
           style={{
-            background: 'linear-gradient(180deg, rgba(26,26,46,0.4) 0%, rgba(15,15,26,0.5) 100%)',
-            border: '1px solid rgba(99,102,241,0.3)',
-            boxShadow: '0 0 30px rgba(99,102,241,0.15), inset 0 1px 0 rgba(255,255,255,0.05)'
+            background: 'linear-gradient(180deg, rgba(26,26,46,0.15) 0%, rgba(15,15,26,0.2) 100%)',
+            border: '1px solid rgba(99,102,241,0.2)',
+            boxShadow: '0 0 30px rgba(99,102,241,0.1), inset 0 1px 0 rgba(255,255,255,0.03)'
           }}
         >
           {/* Grille des chiffres 1-9 */}
@@ -218,15 +218,15 @@ function NumericKeypad({
           </div>
         </div>
 
-        {/* Bouton Valider - orange/pêche très transparent */}
+        {/* Bouton Valider - orange/pêche ultra transparent */}
         <motion.button
           onClick={onValidate}
           disabled={!value.trim() || isLoading}
           className="mt-4 mb-2 flex h-12 w-full items-center justify-center rounded-xl text-lg font-semibold backdrop-blur-md disabled:opacity-50 disabled:cursor-not-allowed"
           style={{
-            background: 'linear-gradient(180deg, rgba(251,191,36,0.5) 0%, rgba(245,158,11,0.55) 50%, rgba(217,119,6,0.55) 100%)',
+            background: 'linear-gradient(180deg, rgba(251,191,36,0.25) 0%, rgba(245,158,11,0.3) 50%, rgba(217,119,6,0.3) 100%)',
             color: '#1a1a2e',
-            boxShadow: '0 4px 20px rgba(245,158,11,0.3)'
+            boxShadow: '0 4px 20px rgba(245,158,11,0.2)'
           }}
           whileHover={{ 
             scale: 1.03,
