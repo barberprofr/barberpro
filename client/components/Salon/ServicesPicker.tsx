@@ -545,24 +545,32 @@ export default function ServicesPicker({ onServiceSelect, onReset, externalOpen,
                   <motion.button
                     type="button"
                     onClick={handleValidate}
-                    whileHover={{ scale: 1.04, y: -4, boxShadow: "0 0 25px rgba(167,139,250,0.7), 0 0 50px rgba(139,92,246,0.5), -15px 0 30px rgba(167,139,250,0.6), 15px 0 30px rgba(167,139,250,0.6)" }}
+                    initial={{ scale: 1 }}
+                    animate={{ 
+                      scale: 1.08,
+                      boxShadow: "0 0 40px rgba(251,191,36,0.8), 0 0 80px rgba(245,158,11,0.6), 0 0 120px rgba(217,119,6,0.4), -20px 0 40px rgba(251,191,36,0.5), 20px 0 40px rgba(251,191,36,0.5)"
+                    }}
+                    whileHover={{ 
+                      scale: 1.12, 
+                      y: -6, 
+                      boxShadow: "0 0 60px rgba(251,191,36,0.9), 0 0 100px rgba(245,158,11,0.7), 0 0 140px rgba(217,119,6,0.5), -25px 0 50px rgba(251,191,36,0.6), 25px 0 50px rgba(251,191,36,0.6)" 
+                    }}
                     whileTap={{ 
-                      scale: 1.15, 
+                      scale: 1.2, 
                       y: -10,
-                      background: "linear-gradient(135deg, rgba(20,184,166,0.95) 0%, rgba(34,211,238,0.9) 50%, rgba(52,211,153,0.95) 100%)",
-                      boxShadow: "0 0 60px rgba(20,184,166,0.9), 0 0 100px rgba(20,184,166,0.6), -20px 0 50px rgba(6,182,212,0.7), 20px 0 50px rgba(6,182,212,0.7), 0 30px 60px rgba(16,185,129,0.5)"
+                      boxShadow: "0 0 80px rgba(251,191,36,1), 0 0 120px rgba(245,158,11,0.9), 0 0 160px rgba(217,119,6,0.7), -30px 0 60px rgba(251,191,36,0.8), 30px 0 60px rgba(251,191,36,0.8)"
                     }}
                     transition={{ type: "spring", stiffness: 400, damping: 12 }}
-                    className="relative w-full overflow-hidden rounded-2xl py-5 text-lg font-black text-white shadow-[0_8px_32px_rgba(20,184,166,0.4),inset_0_2px_4px_rgba(255,255,255,0.3),inset_0_-2px_4px_rgba(0,0,0,0.2)] transition-all"
+                    className="relative w-full overflow-hidden rounded-2xl py-6 text-2xl font-black text-white transition-all"
                     style={{
-                      background: "linear-gradient(135deg, rgba(5,90,80,0.4) 0%, rgba(3,60,70,0.35) 50%, rgba(2,75,55,0.4) 100%)",
-                      border: "2px solid rgba(94,234,212,0.4)",
+                      background: "linear-gradient(135deg, rgba(251,191,36,0.85) 0%, rgba(245,158,11,0.9) 50%, rgba(217,119,6,0.85) 100%)",
+                      border: "3px solid rgba(253,224,71,0.7)",
                       backdropFilter: "blur(6px)"
                     }}
                   >
                     {/* Reflet glass 3D */}
-                    <div className="absolute inset-x-2 top-1 h-[40%] rounded-t-xl bg-gradient-to-b from-white/40 to-transparent pointer-events-none" />
-                    <span className="relative z-10 drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]">
+                    <div className="absolute inset-x-2 top-1 h-[40%] rounded-t-xl bg-gradient-to-b from-white/50 to-transparent pointer-events-none" />
+                    <span className="relative z-10 drop-shadow-[0_2px_6px_rgba(0,0,0,0.4)]">
                       Valider ({selectedPrestations.size > 0 ? `${selectedPrestations.size} prest.` : ''}{selectedPrestations.size > 0 && (selectedProducts.size > 0 || customAmountValue > 0) ? ' + ' : ''}{selectedProducts.size > 0 ? `${selectedProducts.size} prod.` : ''}{selectedProducts.size > 0 && customAmountValue > 0 ? ' + ' : ''}{customAmountValue > 0 ? `${customAmountValue.toFixed(2)}€` : ''})
                     </span>
                   </motion.button>
