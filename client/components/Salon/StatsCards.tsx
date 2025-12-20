@@ -55,13 +55,13 @@ function NumericKeypad({
         onClick={(e) => e.stopPropagation()}
         className="w-[300px] max-h-[90vh] overflow-auto"
       >
-        {/* Écran d'affichage - bordure dorée arrondie */}
+        {/* Écran d'affichage - bordure dorée semi-transparent */}
         <div 
-          className="mb-3 flex h-12 items-center justify-center rounded-full px-6"
+          className="mb-3 flex h-12 items-center justify-center rounded-full px-6 backdrop-blur-xl"
           style={{
-            background: 'linear-gradient(180deg, #1a1a2e 0%, #0d0d1a 100%)',
-            border: '2px solid #d4a537',
-            boxShadow: '0 0 20px rgba(212,165,55,0.4), inset 0 2px 4px rgba(0,0,0,0.8), inset 0 -1px 2px rgba(255,255,255,0.1)'
+            background: 'linear-gradient(180deg, rgba(26,26,46,0.7) 0%, rgba(13,13,26,0.7) 100%)',
+            border: '2px solid rgba(212,165,55,0.8)',
+            boxShadow: '0 0 20px rgba(212,165,55,0.4), inset 0 2px 4px rgba(0,0,0,0.5)'
           }}
         >
           <span className="text-2xl font-bold tracking-[0.5em] text-amber-400 drop-shadow-[0_0_12px_rgba(251,191,36,0.8)]">
@@ -74,13 +74,13 @@ function NumericKeypad({
           <p className="mb-2 text-center text-xs font-semibold text-red-400 bg-red-500/20 backdrop-blur-sm rounded py-1">{error}</p>
         )}
 
-        {/* Cadre métallique semi-transparent */}
+        {/* Cadre semi-transparent */}
         <div 
-          className="rounded-xl p-3 backdrop-blur-md"
+          className="rounded-xl p-3 backdrop-blur-xl"
           style={{
-            background: 'linear-gradient(180deg, rgba(107,114,128,0.7) 0%, rgba(55,65,81,0.8) 50%, rgba(17,24,39,0.9) 100%)',
-            border: '2px solid #d4a537',
-            boxShadow: '0 0 25px rgba(212,165,55,0.3), inset 0 1px 0 rgba(255,255,255,0.2), inset 0 -2px 4px rgba(0,0,0,0.4)'
+            background: 'linear-gradient(180deg, rgba(107,114,128,0.4) 0%, rgba(55,65,81,0.5) 50%, rgba(17,24,39,0.6) 100%)',
+            border: '2px solid rgba(212,165,55,0.7)',
+            boxShadow: '0 0 25px rgba(212,165,55,0.3), inset 0 1px 0 rgba(255,255,255,0.15)'
           }}
         >
           {/* Grille des chiffres 1-9 */}
@@ -89,18 +89,18 @@ function NumericKeypad({
               <button
                 key={digit}
                 onClick={() => handleDigit(digit)}
-                className="relative flex h-14 w-14 mx-auto items-center justify-center rounded-full text-xl font-bold text-white transition-all active:scale-95 overflow-hidden"
+                className="relative flex h-14 w-14 mx-auto items-center justify-center rounded-full text-xl font-bold text-white transition-all active:scale-95 overflow-hidden backdrop-blur-md"
                 style={{
-                  background: 'linear-gradient(180deg, #67e8f9 0%, #22d3ee 20%, #06b6d4 50%, #0891b2 80%, #0e7490 100%)',
-                  boxShadow: '0 4px 8px rgba(0,0,0,0.5), 0 2px 4px rgba(0,0,0,0.3), inset 0 -4px 8px rgba(0,0,0,0.4)',
-                  border: '1px solid rgba(103,232,249,0.6)'
+                  background: 'linear-gradient(180deg, rgba(103,232,249,0.6) 0%, rgba(34,211,238,0.5) 20%, rgba(6,182,212,0.5) 50%, rgba(8,145,178,0.6) 80%, rgba(14,116,144,0.7) 100%)',
+                  boxShadow: '0 4px 8px rgba(0,0,0,0.4), 0 0 15px rgba(34,211,238,0.3), inset 0 -4px 8px rgba(0,0,0,0.3)',
+                  border: '1px solid rgba(103,232,249,0.5)'
                 }}
               >
                 {/* Reflet brillant */}
                 <div 
                   className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-4 rounded-full"
                   style={{
-                    background: 'radial-gradient(ellipse at center, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.4) 40%, transparent 70%)'
+                    background: 'radial-gradient(ellipse at center, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.3) 40%, transparent 70%)'
                   }}
                 />
                 <span className="relative z-10 drop-shadow-[0_2px_3px_rgba(0,0,0,0.7)]">{digit}</span>
@@ -109,45 +109,45 @@ function NumericKeypad({
           </div>
           {/* Dernière ligne: 0 - C - Delete */}
           <div className="grid grid-cols-3 gap-2">
-            {/* Bouton 0 - bleu rond avec reflet */}
+            {/* Bouton 0 - bleu rond semi-transparent */}
             <button
               onClick={() => handleDigit("0")}
-              className="relative flex h-14 w-14 mx-auto items-center justify-center rounded-full text-xl font-bold text-white transition-all active:scale-95 overflow-hidden"
+              className="relative flex h-14 w-14 mx-auto items-center justify-center rounded-full text-xl font-bold text-white transition-all active:scale-95 overflow-hidden backdrop-blur-md"
               style={{
-                background: 'linear-gradient(180deg, #67e8f9 0%, #22d3ee 20%, #06b6d4 50%, #0891b2 80%, #0e7490 100%)',
-                boxShadow: '0 4px 8px rgba(0,0,0,0.5), 0 2px 4px rgba(0,0,0,0.3), inset 0 -4px 8px rgba(0,0,0,0.4)',
-                border: '1px solid rgba(103,232,249,0.6)'
+                background: 'linear-gradient(180deg, rgba(103,232,249,0.6) 0%, rgba(34,211,238,0.5) 20%, rgba(6,182,212,0.5) 50%, rgba(8,145,178,0.6) 80%, rgba(14,116,144,0.7) 100%)',
+                boxShadow: '0 4px 8px rgba(0,0,0,0.4), 0 0 15px rgba(34,211,238,0.3), inset 0 -4px 8px rgba(0,0,0,0.3)',
+                border: '1px solid rgba(103,232,249,0.5)'
               }}
             >
               {/* Reflet brillant */}
               <div 
                 className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-4 rounded-full"
                 style={{
-                  background: 'radial-gradient(ellipse at center, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.4) 40%, transparent 70%)'
+                  background: 'radial-gradient(ellipse at center, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.3) 40%, transparent 70%)'
                 }}
               />
               <span className="relative z-10 drop-shadow-[0_2px_3px_rgba(0,0,0,0.7)]">0</span>
             </button>
-            {/* Bouton C - rouge carré */}
+            {/* Bouton C - rouge semi-transparent */}
             <button
               onClick={handleClear}
-              className="relative flex h-14 w-14 mx-auto items-center justify-center rounded-md text-lg font-bold text-white transition-all active:scale-95 overflow-hidden"
+              className="relative flex h-14 w-14 mx-auto items-center justify-center rounded-md text-lg font-bold text-white transition-all active:scale-95 overflow-hidden backdrop-blur-md"
               style={{
-                background: 'linear-gradient(180deg, #991b1b 0%, #7f1d1d 50%, #450a0a 100%)',
-                boxShadow: '0 4px 8px rgba(0,0,0,0.5), inset 0 1px 2px rgba(255,255,255,0.2), inset 0 -3px 6px rgba(0,0,0,0.4)',
-                border: '1px solid rgba(153,27,27,0.8)'
+                background: 'linear-gradient(180deg, rgba(153,27,27,0.7) 0%, rgba(127,29,29,0.6) 50%, rgba(69,10,10,0.7) 100%)',
+                boxShadow: '0 4px 8px rgba(0,0,0,0.4), 0 0 10px rgba(239,68,68,0.2), inset 0 1px 2px rgba(255,255,255,0.15), inset 0 -3px 6px rgba(0,0,0,0.3)',
+                border: '1px solid rgba(239,68,68,0.5)'
               }}
             >
               <span className="relative z-10 drop-shadow-[0_2px_3px_rgba(0,0,0,0.7)]">C</span>
             </button>
-            {/* Bouton Delete - gris carré */}
+            {/* Bouton Delete - gris semi-transparent */}
             <button
               onClick={handleDelete}
-              className="relative flex h-14 w-14 mx-auto items-center justify-center rounded-md text-white transition-all active:scale-95 overflow-hidden"
+              className="relative flex h-14 w-14 mx-auto items-center justify-center rounded-md text-white transition-all active:scale-95 overflow-hidden backdrop-blur-md"
               style={{
-                background: 'linear-gradient(180deg, #4b5563 0%, #374151 50%, #1f2937 100%)',
-                boxShadow: '0 4px 8px rgba(0,0,0,0.5), inset 0 1px 2px rgba(255,255,255,0.15), inset 0 -3px 6px rgba(0,0,0,0.4)',
-                border: '1px solid rgba(75,85,99,0.8)'
+                background: 'linear-gradient(180deg, rgba(75,85,99,0.6) 0%, rgba(55,65,81,0.5) 50%, rgba(31,41,55,0.6) 100%)',
+                boxShadow: '0 4px 8px rgba(0,0,0,0.4), inset 0 1px 2px rgba(255,255,255,0.1), inset 0 -3px 6px rgba(0,0,0,0.3)',
+                border: '1px solid rgba(107,114,128,0.5)'
               }}
             >
               <Delete className="h-5 w-5 relative z-10 drop-shadow-[0_2px_3px_rgba(0,0,0,0.7)]" />
@@ -155,14 +155,14 @@ function NumericKeypad({
           </div>
         </div>
 
-        {/* Bouton Valider - vert émeraude brillant */}
+        {/* Bouton Valider - vert émeraude semi-transparent brillant */}
         <button
           onClick={onValidate}
           disabled={!value.trim() || isLoading}
-          className="mt-3 mb-2 flex h-14 w-full items-center justify-center rounded-xl text-xl font-bold text-white transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-105 active:scale-110"
+          className="mt-3 mb-2 flex h-14 w-full items-center justify-center rounded-xl text-xl font-bold text-white transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-105 active:scale-110 backdrop-blur-md"
           style={{
-            background: 'linear-gradient(180deg, #10b981 0%, #059669 50%, #047857 100%)',
-            boxShadow: '0 4px 15px rgba(16,185,129,0.5), 0 0 20px rgba(16,185,129,0.3), inset 0 1px 0 rgba(255,255,255,0.3)',
+            background: 'linear-gradient(180deg, rgba(16,185,129,0.8) 0%, rgba(5,150,105,0.7) 50%, rgba(4,120,87,0.8) 100%)',
+            boxShadow: '0 4px 15px rgba(16,185,129,0.5), 0 0 25px rgba(16,185,129,0.4), inset 0 1px 0 rgba(255,255,255,0.3)',
             border: '2px solid rgba(52,211,153,0.6)'
           }}
         >
