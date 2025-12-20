@@ -155,18 +155,20 @@ function NumericKeypad({
           </div>
         </div>
 
-        {/* Bouton Valider - noir sobre */}
+        {/* Bouton Valider - vert émeraude brillant */}
         <button
           onClick={onValidate}
           disabled={!value.trim() || isLoading}
-          className="mt-3 mb-2 flex h-12 w-full items-center justify-center rounded-xl text-lg font-bold text-white transition-all active:scale-98 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="mt-3 mb-2 flex h-14 w-full items-center justify-center rounded-xl text-xl font-bold text-white transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-105 active:scale-110"
           style={{
-            background: 'linear-gradient(180deg, #374151 0%, #1f2937 50%, #111827 100%)',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1)',
-            border: '1px solid rgba(75,85,99,0.5)'
+            background: 'linear-gradient(180deg, #10b981 0%, #059669 50%, #047857 100%)',
+            boxShadow: '0 4px 15px rgba(16,185,129,0.5), 0 0 20px rgba(16,185,129,0.3), inset 0 1px 0 rgba(255,255,255,0.3)',
+            border: '2px solid rgba(52,211,153,0.6)'
           }}
         >
-          {isLoading ? "Vérification..." : "Valider"}
+          <span className="drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
+            {isLoading ? "Vérification..." : "Valider"}
+          </span>
         </button>
       </motion.div>
     </motion.div>,
