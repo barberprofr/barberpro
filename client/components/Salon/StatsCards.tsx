@@ -774,23 +774,30 @@ function StylistsList({ stylists, config, hasStylists }: { stylists: any[], conf
 }
 
 function StylistCard({ s, config, onClick }: { s: any, config: any, onClick: () => void }) {
+  const handleClick = (e: React.MouseEvent | React.TouchEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onClick();
+  };
+
   return (
-    <motion.button
+    <button
       type="button"
-      onPointerDownCapture={(e) => e.stopPropagation()}
-      onPointerUpCapture={() => onClick()}
-      onClick={() => onClick()}
-      whileHover={{ scale: 1.03 }}
-      whileTap={{ scale: 0.97 }}
-      transition={{ type: "spring", stiffness: 400, damping: 15 }}
-      className="flex flex-col items-center justify-center rounded-2xl border-2 border-amber-500/50 bg-black/25 backdrop-blur-xl p-4 shadow-[0_8px_32px_rgba(0,0,0,0.5)] aspect-square transition-colors hover:border-amber-400/70 hover:bg-black/35 hover:shadow-[0_0_20px_rgba(251,191,36,0.3)] active:border-amber-400 active:shadow-[0_0_30px_rgba(251,191,36,0.8)] cursor-pointer select-none"
+      onClick={handleClick}
+      onTouchStart={(e) => e.currentTarget.classList.add('scale-95')}
+      onTouchEnd={(e) => {
+        e.currentTarget.classList.remove('scale-95');
+        e.preventDefault();
+        onClick();
+      }}
+      className="flex flex-col items-center justify-center rounded-2xl border-2 border-amber-500/50 bg-black/25 backdrop-blur-xl p-4 shadow-[0_8px_32px_rgba(0,0,0,0.5)] aspect-square transition-all duration-150 hover:scale-[1.03] hover:border-amber-400/70 hover:bg-black/35 hover:shadow-[0_0_20px_rgba(251,191,36,0.3)] active:scale-95 active:border-amber-400 active:shadow-[0_0_30px_rgba(251,191,36,0.8)] cursor-pointer select-none"
       style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
     >
       <svg className="h-7 w-7 text-amber-400/80 mb-2 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
       </svg>
       <div className="text-xl font-bold text-white text-center truncate w-full pointer-events-none">{s.name}</div>
-    </motion.button>
+    </button>
   );
 }
 
