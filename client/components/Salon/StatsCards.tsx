@@ -590,7 +590,7 @@ function StylistsList({ stylists, config, hasStylists }: { stylists: any[], conf
 
   return (
     <>
-      <Dialog open={showCodeDialog} onOpenChange={(open) => {
+      <Dialog open={showCodeDialog && !showKeypad} onOpenChange={(open) => {
         if (!open) {
           setShowCodeDialog(false);
           setPendingId(null);
