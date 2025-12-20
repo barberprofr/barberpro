@@ -68,9 +68,9 @@ function NumericKeypad({
 
         {/* Cadre métallique */}
         <div className="rounded-xl border-2 border-amber-500/80 bg-gradient-to-b from-slate-500 via-slate-600 to-slate-700 p-3 shadow-[0_0_20px_rgba(251,191,36,0.2),inset_0_1px_0_rgba(255,255,255,0.2),inset_0_-2px_4px_rgba(0,0,0,0.3)]">
-          {/* Grille des chiffres */}
-          <div className="grid grid-cols-3 gap-2">
-            {["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"].map((digit) => (
+          {/* Grille des chiffres 1-9 */}
+          <div className="grid grid-cols-3 gap-2 mb-2">
+            {["1", "2", "3", "4", "5", "6", "7", "8", "9"].map((digit) => (
               <button
                 key={digit}
                 onClick={() => handleDigit(digit)}
@@ -79,14 +79,24 @@ function NumericKeypad({
                 {digit}
               </button>
             ))}
-            {/* Bouton C - rouge */}
+          </div>
+          {/* Dernière ligne: 0 - C - Delete */}
+          <div className="grid grid-cols-3 gap-2">
+            {/* Bouton 0 - bleu rond */}
+            <button
+              onClick={() => handleDigit("0")}
+              className="flex h-14 w-14 mx-auto items-center justify-center rounded-full bg-gradient-to-b from-cyan-400 via-cyan-500 to-cyan-700 text-xl font-bold text-white shadow-[0_4px_8px_rgba(0,0,0,0.4),inset_0_2px_4px_rgba(255,255,255,0.4),inset_0_-2px_4px_rgba(0,0,0,0.2)] transition-all hover:from-cyan-300 hover:via-cyan-400 hover:to-cyan-600 active:scale-95 active:shadow-[0_2px_4px_rgba(0,0,0,0.4),inset_0_1px_2px_rgba(255,255,255,0.3)]"
+            >
+              0
+            </button>
+            {/* Bouton C - rouge carré */}
             <button
               onClick={handleClear}
               className="flex h-14 w-14 mx-auto items-center justify-center rounded-lg bg-gradient-to-b from-red-500 via-red-600 to-red-800 text-lg font-bold text-white shadow-[0_4px_8px_rgba(0,0,0,0.4),inset_0_2px_4px_rgba(255,255,255,0.3),inset_0_-2px_4px_rgba(0,0,0,0.2)] transition-all hover:from-red-400 hover:via-red-500 hover:to-red-700 active:scale-95"
             >
               C
             </button>
-            {/* Bouton Delete - gris */}
+            {/* Bouton Delete - gris carré */}
             <button
               onClick={handleDelete}
               className="flex h-14 w-14 mx-auto items-center justify-center rounded-lg bg-gradient-to-b from-slate-500 via-slate-600 to-slate-800 text-white shadow-[0_4px_8px_rgba(0,0,0,0.4),inset_0_2px_4px_rgba(255,255,255,0.2),inset_0_-2px_4px_rgba(0,0,0,0.2)] transition-all hover:from-slate-400 hover:via-slate-500 hover:to-slate-700 active:scale-95"
