@@ -46,53 +46,53 @@ function NumericKeypad({
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.9, y: 20 }}
         onClick={(e) => e.stopPropagation()}
-        className="w-[280px] rounded-2xl border border-amber-500/30 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-3 shadow-2xl"
+        className="w-[340px] rounded-2xl border-2 border-amber-500/50 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-5 shadow-2xl"
       >
         {/* Affichage du code */}
-        <div className="mb-2 flex items-center justify-between">
-          <span className="text-xs text-white/60">Code secret</span>
+        <div className="mb-3 flex items-center justify-between">
+          <span className="text-base font-semibold text-white/70">Code secret</span>
           <button
             onClick={onClose}
-            className="flex h-7 w-7 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
+            className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
           >
             ✕
           </button>
         </div>
         
-        <div className="mb-3 flex h-12 items-center justify-center rounded-xl border border-amber-500/40 bg-black/40 px-4">
-          <span className="text-2xl font-bold tracking-[0.5em] text-amber-400">
+        <div className="mb-4 flex h-14 items-center justify-center rounded-xl border-2 border-amber-500/50 bg-black/40 px-4">
+          <span className="text-3xl font-bold tracking-[0.5em] text-amber-400">
             {value ? "•".repeat(value.length) : ""}
           </span>
         </div>
 
         {/* Grille des chiffres */}
-        <div className="grid grid-cols-3 gap-1.5">
+        <div className="grid grid-cols-3 gap-2">
           {["1", "2", "3", "4", "5", "6", "7", "8", "9"].map((digit) => (
             <button
               key={digit}
               onClick={() => handleDigit(digit)}
-              className="flex h-11 items-center justify-center rounded-lg border border-white/20 bg-white/10 text-xl font-bold text-white transition-all hover:bg-white/20 active:scale-95 active:bg-amber-500/30"
+              className="flex h-14 items-center justify-center rounded-xl border border-white/20 bg-white/10 text-2xl font-bold text-white transition-all hover:bg-white/20 active:scale-95 active:bg-amber-500/30"
             >
               {digit}
             </button>
           ))}
           <button
             onClick={handleClear}
-            className="flex h-11 items-center justify-center rounded-lg border border-red-500/30 bg-red-500/10 text-sm font-bold text-red-400 transition-all hover:bg-red-500/20 active:scale-95"
+            className="flex h-14 items-center justify-center rounded-xl border border-red-500/30 bg-red-500/10 text-lg font-bold text-red-400 transition-all hover:bg-red-500/20 active:scale-95"
           >
             C
           </button>
           <button
             onClick={() => handleDigit("0")}
-            className="flex h-11 items-center justify-center rounded-lg border border-white/20 bg-white/10 text-xl font-bold text-white transition-all hover:bg-white/20 active:scale-95 active:bg-amber-500/30"
+            className="flex h-14 items-center justify-center rounded-xl border border-white/20 bg-white/10 text-2xl font-bold text-white transition-all hover:bg-white/20 active:scale-95 active:bg-amber-500/30"
           >
             0
           </button>
           <button
             onClick={handleDelete}
-            className="flex h-11 items-center justify-center rounded-lg border border-white/20 bg-white/10 text-white transition-all hover:bg-white/20 active:scale-95"
+            className="flex h-14 items-center justify-center rounded-xl border border-white/20 bg-white/10 text-white transition-all hover:bg-white/20 active:scale-95"
           >
-            <Delete className="h-5 w-5" />
+            <Delete className="h-6 w-6" />
           </button>
         </div>
 
@@ -100,7 +100,7 @@ function NumericKeypad({
         <button
           onClick={onValidate}
           disabled={!value.trim()}
-          className="mt-3 flex h-10 w-full items-center justify-center rounded-lg bg-amber-500 text-base font-bold text-black transition-all hover:bg-amber-400 active:scale-98 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="mt-4 flex h-12 w-full items-center justify-center rounded-xl bg-amber-500 text-lg font-bold text-black transition-all hover:bg-amber-400 active:scale-98 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Valider
         </button>
