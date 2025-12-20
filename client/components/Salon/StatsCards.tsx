@@ -86,9 +86,9 @@ function NumericKeypad({
           <div className="grid grid-cols-3 gap-3 mb-3">
             {["1", "2", "3", "4", "5", "6", "7", "8", "9"].map((digit, index) => {
               const colors = [
-                { bg: 'rgba(6,182,212,0.15)', border: 'rgba(34,211,238,0.6)', glow: 'rgba(34,211,238,0.4)' },
-                { bg: 'rgba(168,85,247,0.15)', border: 'rgba(192,132,252,0.6)', glow: 'rgba(168,85,247,0.4)' },
-                { bg: 'rgba(236,72,153,0.15)', border: 'rgba(244,114,182,0.6)', glow: 'rgba(236,72,153,0.4)' },
+                { bg: 'rgba(6,182,212,0.08)', border: 'rgba(34,211,238,0.6)', glow: 'rgba(34,211,238,0.4)' },
+                { bg: 'rgba(168,85,247,0.08)', border: 'rgba(192,132,252,0.6)', glow: 'rgba(168,85,247,0.4)' },
+                { bg: 'rgba(236,72,153,0.08)', border: 'rgba(244,114,182,0.6)', glow: 'rgba(236,72,153,0.4)' },
               ];
               const color = colors[index % 3];
               return (
@@ -132,7 +132,7 @@ function NumericKeypad({
               onClick={() => handleDigit("0")}
               className="relative flex h-16 w-16 mx-auto items-center justify-center rounded-full text-2xl font-light overflow-hidden"
               style={{
-                background: 'rgba(6,182,212,0.15)',
+                background: 'rgba(6,182,212,0.08)',
                 border: '2px solid rgba(34,211,238,0.6)',
                 boxShadow: '0 0 20px rgba(34,211,238,0.4), inset 0 0 15px rgba(34,211,238,0.4)'
               }}
@@ -162,7 +162,7 @@ function NumericKeypad({
               onClick={handleClear}
               className="relative flex h-16 w-16 mx-auto items-center justify-center rounded-full text-xl font-light overflow-hidden"
               style={{
-                background: 'rgba(236,72,153,0.15)',
+                background: 'rgba(236,72,153,0.08)',
                 border: '2px solid rgba(244,114,182,0.6)',
                 boxShadow: '0 0 20px rgba(236,72,153,0.4), inset 0 0 15px rgba(236,72,153,0.4)'
               }}
@@ -192,7 +192,7 @@ function NumericKeypad({
               onClick={handleDelete}
               className="relative flex h-16 w-16 mx-auto items-center justify-center rounded-full overflow-hidden"
               style={{
-                background: 'rgba(168,85,247,0.15)',
+                background: 'rgba(168,85,247,0.08)',
                 border: '2px solid rgba(192,132,252,0.6)',
                 boxShadow: '0 0 20px rgba(168,85,247,0.4), inset 0 0 15px rgba(168,85,247,0.4)'
               }}
