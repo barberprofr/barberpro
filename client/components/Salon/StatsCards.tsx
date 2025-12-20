@@ -55,15 +55,15 @@ function NumericKeypad({
         className="w-[280px]"
       >
         {/* Écran d'affichage */}
-        <div className="mb-2 flex h-11 items-center justify-center rounded-lg border-2 border-amber-500/50 bg-slate-900/95 backdrop-blur-md px-4 shadow-lg">
-          <span className="text-2xl font-bold tracking-[0.4em] text-amber-400">
+        <div className="mb-2 flex h-11 items-center justify-center rounded-xl border border-amber-400/60 bg-white/10 backdrop-blur-xl px-4 shadow-[0_4px_20px_rgba(251,191,36,0.2)]">
+          <span className="text-2xl font-bold tracking-[0.4em] text-amber-300 drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]">
             {value ? "•".repeat(value.length) : ""}
           </span>
         </div>
 
         {/* Message d'erreur */}
         {error && (
-          <p className="mb-1 text-center text-xs font-semibold text-red-400 bg-red-500/20 rounded py-0.5">{error}</p>
+          <p className="mb-1 text-center text-xs font-semibold text-red-300 bg-red-500/20 backdrop-blur-sm rounded py-0.5">{error}</p>
         )}
 
         {/* Grille des chiffres */}
@@ -72,26 +72,26 @@ function NumericKeypad({
             <button
               key={digit}
               onClick={() => handleDigit(digit)}
-              className="flex h-11 items-center justify-center rounded-lg border-2 border-slate-600 bg-slate-800/95 backdrop-blur-md text-xl font-bold text-white shadow-lg transition-all hover:bg-slate-700 active:scale-95 active:bg-amber-500/30"
+              className="flex h-11 items-center justify-center rounded-xl border border-white/20 bg-white/10 backdrop-blur-xl text-xl font-bold text-white shadow-[0_4px_15px_rgba(0,0,0,0.2)] transition-all hover:bg-white/20 hover:border-amber-400/50 active:scale-95 active:bg-amber-400/30"
             >
               {digit}
             </button>
           ))}
           <button
             onClick={handleClear}
-            className="flex h-11 items-center justify-center rounded-lg border-2 border-red-500/50 bg-slate-800/95 backdrop-blur-md text-base font-bold text-red-400 shadow-lg transition-all hover:bg-red-500/20 active:scale-95"
+            className="flex h-11 items-center justify-center rounded-xl border border-red-400/40 bg-red-500/15 backdrop-blur-xl text-base font-bold text-red-300 shadow-[0_4px_15px_rgba(0,0,0,0.2)] transition-all hover:bg-red-500/30 active:scale-95"
           >
             C
           </button>
           <button
             onClick={() => handleDigit("0")}
-            className="flex h-11 items-center justify-center rounded-lg border-2 border-slate-600 bg-slate-800/95 backdrop-blur-md text-xl font-bold text-white shadow-lg transition-all hover:bg-slate-700 active:scale-95 active:bg-amber-500/30"
+            className="flex h-11 items-center justify-center rounded-xl border border-white/20 bg-white/10 backdrop-blur-xl text-xl font-bold text-white shadow-[0_4px_15px_rgba(0,0,0,0.2)] transition-all hover:bg-white/20 hover:border-amber-400/50 active:scale-95 active:bg-amber-400/30"
           >
             0
           </button>
           <button
             onClick={handleDelete}
-            className="flex h-11 items-center justify-center rounded-lg border-2 border-slate-600 bg-slate-800/95 backdrop-blur-md text-white shadow-lg transition-all hover:bg-slate-700 active:scale-95"
+            className="flex h-11 items-center justify-center rounded-xl border border-white/20 bg-white/10 backdrop-blur-xl text-white shadow-[0_4px_15px_rgba(0,0,0,0.2)] transition-all hover:bg-white/20 hover:border-amber-400/50 active:scale-95"
           >
             <Delete className="h-5 w-5" />
           </button>
@@ -101,7 +101,7 @@ function NumericKeypad({
         <button
           onClick={onValidate}
           disabled={!value.trim() || isLoading}
-          className="mt-2 flex h-10 w-full items-center justify-center rounded-lg bg-amber-500 text-base font-bold text-black shadow-lg transition-all hover:bg-amber-400 active:scale-98 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="mt-2 flex h-10 w-full items-center justify-center rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 text-base font-bold text-black shadow-[0_4px_20px_rgba(251,191,36,0.4)] transition-all hover:from-amber-300 hover:to-amber-400 active:scale-98 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isLoading ? "Vérification..." : "Valider"}
         </button>
