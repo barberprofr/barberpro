@@ -548,17 +548,17 @@ export default function ServicesPicker({ onServiceSelect, onReset, externalOpen,
                     initial={{ scale: 1 }}
                     animate={{ 
                       scale: 1.08,
-                      boxShadow: "0 0 40px rgba(251,191,36,0.8), 0 0 80px rgba(245,158,11,0.6), 0 0 120px rgba(217,119,6,0.4), -20px 0 40px rgba(251,191,36,0.5), 20px 0 40px rgba(251,191,36,0.5)"
+                      boxShadow: "0 0 20px rgba(251,191,36,0.4), 0 0 40px rgba(245,158,11,0.25)"
                     }}
                     whileHover={{ 
                       scale: 1.12, 
                       y: -6, 
-                      boxShadow: "0 0 60px rgba(251,191,36,0.9), 0 0 100px rgba(245,158,11,0.7), 0 0 140px rgba(217,119,6,0.5), -25px 0 50px rgba(251,191,36,0.6), 25px 0 50px rgba(251,191,36,0.6)" 
+                      boxShadow: "0 0 30px rgba(251,191,36,0.5), 0 0 50px rgba(245,158,11,0.35)" 
                     }}
                     whileTap={{ 
                       scale: 1.2, 
                       y: -10,
-                      boxShadow: "0 0 80px rgba(251,191,36,1), 0 0 120px rgba(245,158,11,0.9), 0 0 160px rgba(217,119,6,0.7), -30px 0 60px rgba(251,191,36,0.8), 30px 0 60px rgba(251,191,36,0.8)"
+                      boxShadow: "0 0 40px rgba(251,191,36,0.6), 0 0 70px rgba(245,158,11,0.45)"
                     }}
                     transition={{ type: "spring", stiffness: 400, damping: 12 }}
                     className="relative w-full overflow-hidden rounded-2xl py-6 text-2xl font-black text-white transition-all"
