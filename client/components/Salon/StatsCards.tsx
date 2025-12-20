@@ -237,12 +237,12 @@ function NumericKeypad({
             color: '#1a1a2e'
           }}
           whileHover={{ 
-            scale: 1.05,
-            boxShadow: '0 4px 25px rgba(245,158,11,0.6), 0 0 35px rgba(245,158,11,0.4)'
+            scale: 1.25,
+            boxShadow: '0 8px 40px rgba(245,158,11,0.7), 0 0 50px rgba(245,158,11,0.5), 0 0 70px rgba(251,191,36,0.3)'
           }}
           whileTap={{ 
-            scale: 1.1,
-            boxShadow: '0 0 40px rgba(245,158,11,0.8), 0 0 60px rgba(251,191,36,0.5)'
+            scale: 1.3,
+            boxShadow: '0 0 50px rgba(245,158,11,0.9), 0 0 80px rgba(251,191,36,0.6)'
           }}
         >
           <span className="drop-shadow-[0_1px_1px_rgba(255,255,255,0.3)]">
