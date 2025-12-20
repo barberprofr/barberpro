@@ -553,7 +553,7 @@ export default function ServicesPicker({ onServiceSelect, onReset, externalOpen,
                     whileHover={{ 
                       scale: 1.12, 
                       y: -6, 
-                      boxShadow: "0 0 30px rgba(251,191,36,0.5), 0 0 50px rgba(245,158,11,0.35)" 
+                      boxShadow: "0 0 50px rgba(251,191,36,0.8), 0 0 80px rgba(245,158,11,0.6), 0 0 100px rgba(217,119,6,0.4)" 
                     }}
                     whileTap={{ 
                       scale: 1.2, 
