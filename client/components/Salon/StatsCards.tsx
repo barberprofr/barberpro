@@ -14,12 +14,18 @@ function NumericKeypad({
   value, 
   onChange, 
   onClose,
-  onValidate 
+  onValidate,
+  stylistName,
+  error,
+  isLoading
 }: { 
   value: string; 
   onChange: (val: string) => void; 
   onClose: () => void;
   onValidate: () => void;
+  stylistName?: string;
+  error?: string;
+  isLoading?: boolean;
 }) {
   const handleDigit = (digit: string) => {
     onChange(value + digit);
@@ -48,9 +54,17 @@ function NumericKeypad({
         onClick={(e) => e.stopPropagation()}
         className="w-[340px] rounded-2xl border-2 border-amber-500/50 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-5 shadow-2xl"
       >
-        {/* Affichage du code */}
+        {/* Titre avec nom du coiffeur */}
         <div className="mb-3 flex items-center justify-between">
-          <span className="text-base font-semibold text-white/70">Code secret</span>
+          <div className="flex items-center gap-2">
+            <Lock className="h-5 w-5 text-amber-400" />
+            <div>
+              <span className="text-base font-semibold text-white">Code secret</span>
+              {stylistName && (
+                <p className="text-xs text-white/50">{stylistName}</p>
+              )}
+            </div>
+          </div>
           <button
             onClick={onClose}
             className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
@@ -64,6 +78,11 @@ function NumericKeypad({
             {value ? "•".repeat(value.length) : ""}
           </span>
         </div>
+
+        {/* Message d'erreur */}
+        {error && (
+          <p className="mb-3 text-center text-sm text-red-400">{error}</p>
+        )}
 
         {/* Grille des chiffres */}
         <div className="grid grid-cols-3 gap-2">
@@ -99,10 +118,10 @@ function NumericKeypad({
         {/* Bouton Valider */}
         <button
           onClick={onValidate}
-          disabled={!value.trim()}
+          disabled={!value.trim() || isLoading}
           className="mt-4 flex h-12 w-full items-center justify-center rounded-xl bg-amber-500 text-lg font-bold text-black transition-all hover:bg-amber-400 active:scale-98 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Valider
+          {isLoading ? "Vérification..." : "Valider"}
         </button>
       </motion.div>
     </motion.div>
@@ -510,7 +529,6 @@ function StylistsList({ stylists, config, hasStylists }: { stylists: any[], conf
   const [secretCodeInput, setSecretCodeInput] = useState("");
   const [codeError, setCodeError] = useState("");
   const [showCodeDialog, setShowCodeDialog] = useState(false);
-  const [showKeypad, setShowKeypad] = useState(false);
   
   const selectedStylist = stylists.find(s => s.id === selectedId);
   const pendingStylist = stylists.find(s => s.id === pendingId);
@@ -590,79 +608,25 @@ function StylistsList({ stylists, config, hasStylists }: { stylists: any[], conf
 
   return (
     <>
-      <Dialog open={showCodeDialog && !showKeypad} onOpenChange={(open) => {
-        if (!open) {
-          setShowCodeDialog(false);
-          setPendingId(null);
-          setSecretCodeInput("");
-          setCodeError("");
-        }
-      }}>
-        <DialogContent className="max-w-sm bg-slate-900/5 backdrop-blur-[2px] border border-amber-500/30">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-white">
-              <Lock className="h-5 w-5 text-amber-400" />
-              Code secret requis
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <p className="text-sm text-white/70">
-              Entrez le code secret pour accéder aux statistiques de {pendingStylist?.name}
-            </p>
-            <div
-              onClick={() => setShowKeypad(true)}
-              className="flex h-10 w-full items-center rounded-md border border-white/20 bg-white/10 px-3 cursor-pointer"
-            >
-              {secretCodeInput ? (
-                <span className="text-xl font-bold tracking-[0.3em] text-amber-400">
-                  {"•".repeat(secretCodeInput.length)}
-                </span>
-              ) : (
-                <span className="text-white/40">Entrez le code secret</span>
-              )}
-            </div>
-            {codeError && (
-              <p className="text-sm text-red-400">{codeError}</p>
-            )}
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setShowCodeDialog(false);
-                  setPendingId(null);
-                  setSecretCodeInput("");
-                  setCodeError("");
-                }}
-                className="flex-1 border-white/20 text-white hover:bg-white/10"
-              >
-                Annuler
-              </Button>
-              <Button
-                onClick={handleVerifyCode}
-                disabled={!secretCodeInput.trim() || verifyCode.isPending}
-                className="flex-1 bg-amber-500 hover:bg-amber-600 text-black"
-              >
-                {verifyCode.isPending ? "Vérification..." : "Valider"}
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Clavier numérique popup */}
+      {/* Clavier numérique popup direct */}
       <AnimatePresence>
-        {showKeypad && (
+        {showCodeDialog && (
           <NumericKeypad
             value={secretCodeInput}
             onChange={(val) => {
               setSecretCodeInput(val);
               setCodeError("");
             }}
-            onClose={() => setShowKeypad(false)}
-            onValidate={() => {
-              setShowKeypad(false);
-              handleVerifyCode();
+            onClose={() => {
+              setShowCodeDialog(false);
+              setPendingId(null);
+              setSecretCodeInput("");
+              setCodeError("");
             }}
+            onValidate={handleVerifyCode}
+            stylistName={pendingStylist?.name}
+            error={codeError}
+            isLoading={verifyCode.isPending}
           />
         )}
       </AnimatePresence>
