@@ -775,10 +775,11 @@ function StylistsList({ stylists, config, hasStylists }: { stylists: any[], conf
 
 function StylistCard({ s, config, onClick }: { s: any, config: any, onClick: () => void }) {
   return (
-    <motion.div
-      role="button"
-      tabIndex={0}
-      onTap={onClick}
+    <motion.button
+      type="button"
+      onPointerDownCapture={(e) => e.stopPropagation()}
+      onPointerUpCapture={() => onClick()}
+      onClick={() => onClick()}
       whileHover={{ scale: 1.03 }}
       whileTap={{ scale: 0.97 }}
       transition={{ type: "spring", stiffness: 400, damping: 15 }}
@@ -789,7 +790,7 @@ function StylistCard({ s, config, onClick }: { s: any, config: any, onClick: () 
         <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
       </svg>
       <div className="text-xl font-bold text-white text-center truncate w-full pointer-events-none">{s.name}</div>
-    </motion.div>
+    </motion.button>
   );
 }
 
