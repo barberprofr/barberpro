@@ -44,7 +44,7 @@ function NumericKeypad({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[100] flex items-center justify-center p-6 pb-12 bg-black/70 backdrop-blur-sm"
+      className="fixed inset-0 z-[100] flex items-center justify-center py-16 px-6 bg-black/70 backdrop-blur-sm overflow-auto"
       onClick={onClose}
     >
       <motion.div
