@@ -91,9 +91,9 @@ function NumericKeypad({
                 onClick={() => handleDigit(digit)}
                 className="relative flex h-16 w-16 mx-auto items-center justify-center rounded-full text-2xl font-bold text-white transition-all active:scale-95 overflow-hidden backdrop-blur-md"
                 style={{
-                  background: 'linear-gradient(180deg, rgba(103,232,249,0.6) 0%, rgba(34,211,238,0.5) 20%, rgba(6,182,212,0.5) 50%, rgba(8,145,178,0.6) 80%, rgba(14,116,144,0.7) 100%)',
-                  boxShadow: '0 4px 8px rgba(0,0,0,0.4), 0 0 15px rgba(34,211,238,0.3), inset 0 -4px 8px rgba(0,0,0,0.3)',
-                  border: '1px solid rgba(103,232,249,0.5)'
+                  background: 'linear-gradient(180deg, rgba(103,232,249,0.35) 0%, rgba(34,211,238,0.3) 20%, rgba(6,182,212,0.3) 50%, rgba(8,145,178,0.35) 80%, rgba(14,116,144,0.4) 100%)',
+                  boxShadow: '0 4px 8px rgba(0,0,0,0.3), 0 0 15px rgba(34,211,238,0.25), inset 0 -4px 8px rgba(0,0,0,0.2)',
+                  border: '1px solid rgba(103,232,249,0.4)'
                 }}
               >
                 {/* Reflet brillant */}
@@ -114,16 +114,16 @@ function NumericKeypad({
               onClick={() => handleDigit("0")}
               className="relative flex h-16 w-16 mx-auto items-center justify-center rounded-full text-2xl font-bold text-white transition-all active:scale-95 overflow-hidden backdrop-blur-md"
               style={{
-                background: 'linear-gradient(180deg, rgba(103,232,249,0.6) 0%, rgba(34,211,238,0.5) 20%, rgba(6,182,212,0.5) 50%, rgba(8,145,178,0.6) 80%, rgba(14,116,144,0.7) 100%)',
-                boxShadow: '0 4px 8px rgba(0,0,0,0.4), 0 0 15px rgba(34,211,238,0.3), inset 0 -4px 8px rgba(0,0,0,0.3)',
-                border: '1px solid rgba(103,232,249,0.5)'
+                background: 'linear-gradient(180deg, rgba(103,232,249,0.35) 0%, rgba(34,211,238,0.3) 20%, rgba(6,182,212,0.3) 50%, rgba(8,145,178,0.35) 80%, rgba(14,116,144,0.4) 100%)',
+                boxShadow: '0 4px 8px rgba(0,0,0,0.3), 0 0 15px rgba(34,211,238,0.25), inset 0 -4px 8px rgba(0,0,0,0.2)',
+                border: '1px solid rgba(103,232,249,0.4)'
               }}
             >
               {/* Reflet brillant */}
               <div 
                 className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-4 rounded-full"
                 style={{
-                  background: 'radial-gradient(ellipse at center, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.3) 40%, transparent 70%)'
+                  background: 'radial-gradient(ellipse at center, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0.25) 40%, transparent 70%)'
                 }}
               />
               <span className="relative z-10 drop-shadow-[0_2px_3px_rgba(0,0,0,0.7)]">0</span>
@@ -133,9 +133,9 @@ function NumericKeypad({
               onClick={handleClear}
               className="relative flex h-16 w-16 mx-auto items-center justify-center rounded-md text-xl font-bold text-white transition-all active:scale-95 overflow-hidden backdrop-blur-md"
               style={{
-                background: 'linear-gradient(180deg, rgba(153,27,27,0.7) 0%, rgba(127,29,29,0.6) 50%, rgba(69,10,10,0.7) 100%)',
-                boxShadow: '0 4px 8px rgba(0,0,0,0.4), 0 0 10px rgba(239,68,68,0.2), inset 0 1px 2px rgba(255,255,255,0.15), inset 0 -3px 6px rgba(0,0,0,0.3)',
-                border: '1px solid rgba(239,68,68,0.5)'
+                background: 'linear-gradient(180deg, rgba(153,27,27,0.4) 0%, rgba(127,29,29,0.35) 50%, rgba(69,10,10,0.4) 100%)',
+                boxShadow: '0 4px 8px rgba(0,0,0,0.3), 0 0 10px rgba(239,68,68,0.15), inset 0 1px 2px rgba(255,255,255,0.1), inset 0 -3px 6px rgba(0,0,0,0.2)',
+                border: '1px solid rgba(239,68,68,0.4)'
               }}
             >
               <span className="relative z-10 drop-shadow-[0_2px_3px_rgba(0,0,0,0.7)]">C</span>
@@ -145,9 +145,9 @@ function NumericKeypad({
               onClick={handleDelete}
               className="relative flex h-16 w-16 mx-auto items-center justify-center rounded-md text-white transition-all active:scale-95 overflow-hidden backdrop-blur-md"
               style={{
-                background: 'linear-gradient(180deg, rgba(75,85,99,0.6) 0%, rgba(55,65,81,0.5) 50%, rgba(31,41,55,0.6) 100%)',
-                boxShadow: '0 4px 8px rgba(0,0,0,0.4), inset 0 1px 2px rgba(255,255,255,0.1), inset 0 -3px 6px rgba(0,0,0,0.3)',
-                border: '1px solid rgba(107,114,128,0.5)'
+                background: 'linear-gradient(180deg, rgba(75,85,99,0.35) 0%, rgba(55,65,81,0.3) 50%, rgba(31,41,55,0.35) 100%)',
+                boxShadow: '0 4px 8px rgba(0,0,0,0.3), inset 0 1px 2px rgba(255,255,255,0.08), inset 0 -3px 6px rgba(0,0,0,0.2)',
+                border: '1px solid rgba(107,114,128,0.4)'
               }}
             >
               <Delete className="h-5 w-5 relative z-10 drop-shadow-[0_2px_3px_rgba(0,0,0,0.7)]" />
@@ -161,9 +161,9 @@ function NumericKeypad({
           disabled={!value.trim() || isLoading}
           className="mt-3 mb-2 flex h-14 w-full items-center justify-center rounded-xl text-xl font-bold text-white transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-105 active:scale-110 backdrop-blur-md"
           style={{
-            background: 'linear-gradient(180deg, rgba(16,185,129,0.8) 0%, rgba(5,150,105,0.7) 50%, rgba(4,120,87,0.8) 100%)',
-            boxShadow: '0 4px 15px rgba(16,185,129,0.5), 0 0 25px rgba(16,185,129,0.4), inset 0 1px 0 rgba(255,255,255,0.3)',
-            border: '2px solid rgba(52,211,153,0.6)'
+            background: 'linear-gradient(180deg, rgba(16,185,129,0.5) 0%, rgba(5,150,105,0.4) 50%, rgba(4,120,87,0.5) 100%)',
+            boxShadow: '0 4px 15px rgba(16,185,129,0.4), 0 0 25px rgba(16,185,129,0.3), inset 0 1px 0 rgba(255,255,255,0.2)',
+            border: '2px solid rgba(52,211,153,0.5)'
           }}
         >
           <span className="drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
