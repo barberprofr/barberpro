@@ -54,63 +54,83 @@ function NumericKeypad({
         onClick={(e) => e.stopPropagation()}
         className="w-[300px]"
       >
-        {/* Écran d'affichage - bordure dorée arrondie */}
-        <div className="mb-3 flex h-12 items-center justify-center rounded-full border-2 border-amber-500 bg-gradient-to-b from-slate-900 to-slate-800 px-6 shadow-[0_0_15px_rgba(251,191,36,0.3),inset_0_2px_4px_rgba(0,0,0,0.5)]">
-          <span className="text-2xl font-bold tracking-[0.5em] text-amber-400 drop-shadow-[0_0_10px_rgba(251,191,36,0.6)]">
+        {/* Écran d'affichage - bordure dorée arrondie semi-transparent */}
+        <div className="mb-3 flex h-12 items-center justify-center rounded-full border-2 border-amber-500/70 bg-black/40 backdrop-blur-xl px-6 shadow-[0_0_20px_rgba(251,191,36,0.3)]">
+          <span className="text-2xl font-bold tracking-[0.5em] text-amber-400 drop-shadow-[0_0_12px_rgba(251,191,36,0.8)]">
             {value ? "•".repeat(value.length) : ""}
           </span>
         </div>
 
         {/* Message d'erreur */}
         {error && (
-          <p className="mb-2 text-center text-xs font-semibold text-red-400 bg-red-500/30 rounded py-1">{error}</p>
+          <p className="mb-2 text-center text-xs font-semibold text-red-400 bg-red-500/20 backdrop-blur-sm rounded py-1">{error}</p>
         )}
 
-        {/* Cadre métallique */}
-        <div className="rounded-xl border-2 border-amber-500/80 bg-gradient-to-b from-slate-500 via-slate-600 to-slate-700 p-3 shadow-[0_0_20px_rgba(251,191,36,0.2),inset_0_1px_0_rgba(255,255,255,0.2),inset_0_-2px_4px_rgba(0,0,0,0.3)]">
+        {/* Cadre semi-transparent avec bordure dorée */}
+        <div className="rounded-xl border-2 border-amber-500/60 bg-white/10 backdrop-blur-xl p-3 shadow-[0_0_30px_rgba(251,191,36,0.15)]">
           {/* Grille des chiffres 1-9 */}
           <div className="grid grid-cols-3 gap-2 mb-2">
             {["1", "2", "3", "4", "5", "6", "7", "8", "9"].map((digit) => (
               <button
                 key={digit}
                 onClick={() => handleDigit(digit)}
-                className="flex h-14 w-14 mx-auto items-center justify-center rounded-full bg-gradient-to-b from-cyan-400 via-cyan-500 to-cyan-700 text-xl font-bold text-white shadow-[0_4px_8px_rgba(0,0,0,0.4),inset_0_2px_4px_rgba(255,255,255,0.4),inset_0_-2px_4px_rgba(0,0,0,0.2)] transition-all hover:from-cyan-300 hover:via-cyan-400 hover:to-cyan-600 active:scale-95 active:shadow-[0_2px_4px_rgba(0,0,0,0.4),inset_0_1px_2px_rgba(255,255,255,0.3)]"
+                className="relative flex h-14 w-14 mx-auto items-center justify-center rounded-full text-xl font-bold text-white transition-all active:scale-95"
+                style={{
+                  background: 'linear-gradient(145deg, rgba(34,211,238,0.6) 0%, rgba(6,182,212,0.5) 50%, rgba(8,145,178,0.6) 100%)',
+                  boxShadow: '0 6px 12px rgba(0,0,0,0.3), inset 0 2px 4px rgba(255,255,255,0.5), inset 0 -3px 6px rgba(0,0,0,0.3), 0 0 15px rgba(34,211,238,0.2)',
+                  border: '1px solid rgba(255,255,255,0.3)'
+                }}
               >
-                {digit}
+                <span className="drop-shadow-[0_2px_2px_rgba(0,0,0,0.5)]">{digit}</span>
               </button>
             ))}
           </div>
           {/* Dernière ligne: 0 - C - Delete */}
           <div className="grid grid-cols-3 gap-2">
-            {/* Bouton 0 - bleu rond */}
+            {/* Bouton 0 - bleu rond en relief */}
             <button
               onClick={() => handleDigit("0")}
-              className="flex h-14 w-14 mx-auto items-center justify-center rounded-full bg-gradient-to-b from-cyan-400 via-cyan-500 to-cyan-700 text-xl font-bold text-white shadow-[0_4px_8px_rgba(0,0,0,0.4),inset_0_2px_4px_rgba(255,255,255,0.4),inset_0_-2px_4px_rgba(0,0,0,0.2)] transition-all hover:from-cyan-300 hover:via-cyan-400 hover:to-cyan-600 active:scale-95 active:shadow-[0_2px_4px_rgba(0,0,0,0.4),inset_0_1px_2px_rgba(255,255,255,0.3)]"
+              className="relative flex h-14 w-14 mx-auto items-center justify-center rounded-full text-xl font-bold text-white transition-all active:scale-95"
+              style={{
+                background: 'linear-gradient(145deg, rgba(34,211,238,0.6) 0%, rgba(6,182,212,0.5) 50%, rgba(8,145,178,0.6) 100%)',
+                boxShadow: '0 6px 12px rgba(0,0,0,0.3), inset 0 2px 4px rgba(255,255,255,0.5), inset 0 -3px 6px rgba(0,0,0,0.3), 0 0 15px rgba(34,211,238,0.2)',
+                border: '1px solid rgba(255,255,255,0.3)'
+              }}
             >
-              0
+              <span className="drop-shadow-[0_2px_2px_rgba(0,0,0,0.5)]">0</span>
             </button>
-            {/* Bouton C - rouge carré */}
+            {/* Bouton C - rouge en relief */}
             <button
               onClick={handleClear}
-              className="flex h-14 w-14 mx-auto items-center justify-center rounded-lg bg-gradient-to-b from-red-500 via-red-600 to-red-800 text-lg font-bold text-white shadow-[0_4px_8px_rgba(0,0,0,0.4),inset_0_2px_4px_rgba(255,255,255,0.3),inset_0_-2px_4px_rgba(0,0,0,0.2)] transition-all hover:from-red-400 hover:via-red-500 hover:to-red-700 active:scale-95"
+              className="relative flex h-14 w-14 mx-auto items-center justify-center rounded-lg text-lg font-bold text-white transition-all active:scale-95"
+              style={{
+                background: 'linear-gradient(145deg, rgba(239,68,68,0.7) 0%, rgba(185,28,28,0.6) 100%)',
+                boxShadow: '0 6px 12px rgba(0,0,0,0.3), inset 0 2px 4px rgba(255,255,255,0.4), inset 0 -3px 6px rgba(0,0,0,0.3)',
+                border: '1px solid rgba(255,255,255,0.2)'
+              }}
             >
-              C
+              <span className="drop-shadow-[0_2px_2px_rgba(0,0,0,0.5)]">C</span>
             </button>
-            {/* Bouton Delete - gris carré */}
+            {/* Bouton Delete - gris en relief */}
             <button
               onClick={handleDelete}
-              className="flex h-14 w-14 mx-auto items-center justify-center rounded-lg bg-gradient-to-b from-slate-500 via-slate-600 to-slate-800 text-white shadow-[0_4px_8px_rgba(0,0,0,0.4),inset_0_2px_4px_rgba(255,255,255,0.2),inset_0_-2px_4px_rgba(0,0,0,0.2)] transition-all hover:from-slate-400 hover:via-slate-500 hover:to-slate-700 active:scale-95"
+              className="relative flex h-14 w-14 mx-auto items-center justify-center rounded-lg text-white transition-all active:scale-95"
+              style={{
+                background: 'linear-gradient(145deg, rgba(100,116,139,0.7) 0%, rgba(51,65,85,0.6) 100%)',
+                boxShadow: '0 6px 12px rgba(0,0,0,0.3), inset 0 2px 4px rgba(255,255,255,0.3), inset 0 -3px 6px rgba(0,0,0,0.3)',
+                border: '1px solid rgba(255,255,255,0.2)'
+              }}
             >
-              <Delete className="h-5 w-5" />
+              <Delete className="h-5 w-5 drop-shadow-[0_2px_2px_rgba(0,0,0,0.5)]" />
             </button>
           </div>
         </div>
 
-        {/* Bouton Valider - noir/gris sobre */}
+        {/* Bouton Valider - semi-transparent sobre */}
         <button
           onClick={onValidate}
           disabled={!value.trim() || isLoading}
-          className="mt-3 flex h-12 w-full items-center justify-center rounded-xl bg-gradient-to-b from-slate-700 via-slate-800 to-slate-900 border border-slate-600 text-lg font-bold text-white shadow-[0_4px_12px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] transition-all hover:from-slate-600 hover:via-slate-700 hover:to-slate-800 active:scale-98 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="mt-3 flex h-12 w-full items-center justify-center rounded-xl bg-black/50 backdrop-blur-xl border border-white/20 text-lg font-bold text-white shadow-[0_4px_15px_rgba(0,0,0,0.3)] transition-all hover:bg-black/60 active:scale-98 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isLoading ? "Vérification..." : "Valider"}
         </button>
