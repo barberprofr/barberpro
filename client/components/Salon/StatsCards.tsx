@@ -218,22 +218,30 @@ function NumericKeypad({
           </div>
         </div>
 
-        {/* Bouton Valider - orange/pêche semi-transparent */}
+        {/* Bouton Valider - orange/pêche semi-transparent avec illumination */}
         <motion.button
           onClick={onValidate}
           disabled={!value.trim() || isLoading}
           className="mt-4 mb-2 flex h-12 w-full items-center justify-center rounded-xl text-lg font-semibold backdrop-blur-md disabled:opacity-50 disabled:cursor-not-allowed"
+          animate={value.trim() ? {
+            background: 'linear-gradient(180deg, rgba(251,191,36,0.75) 0%, rgba(245,158,11,0.8) 50%, rgba(217,119,6,0.8) 100%)',
+            boxShadow: '0 0 30px rgba(245,158,11,0.6), 0 0 50px rgba(251,191,36,0.4), 0 4px 20px rgba(245,158,11,0.5)',
+            scale: 1.02
+          } : {
+            background: 'linear-gradient(180deg, rgba(251,191,36,0.3) 0%, rgba(245,158,11,0.35) 50%, rgba(217,119,6,0.35) 100%)',
+            boxShadow: '0 4px 15px rgba(245,158,11,0.2)',
+            scale: 1
+          }}
+          transition={{ duration: 0.3, ease: "easeOut" }}
           style={{
-            background: 'linear-gradient(180deg, rgba(251,191,36,0.5) 0%, rgba(245,158,11,0.55) 50%, rgba(217,119,6,0.55) 100%)',
-            color: '#1a1a2e',
-            boxShadow: '0 4px 20px rgba(245,158,11,0.3)'
+            color: '#1a1a2e'
           }}
           whileHover={{ 
-            scale: 1.03,
+            scale: 1.05,
             boxShadow: '0 4px 25px rgba(245,158,11,0.6), 0 0 35px rgba(245,158,11,0.4)'
           }}
           whileTap={{ 
-            scale: 1.08,
+            scale: 1.1,
             boxShadow: '0 0 40px rgba(245,158,11,0.8), 0 0 60px rgba(251,191,36,0.5)'
           }}
         >
