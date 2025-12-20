@@ -55,16 +55,15 @@ function NumericKeypad({
         onClick={(e) => e.stopPropagation()}
         className="w-[320px] max-h-[90vh] overflow-auto"
       >
-        {/* Écran d'affichage - bordure dorée semi-transparent */}
+        {/* Écran d'affichage - style orange/pêche */}
         <div 
-          className="mb-3 flex h-12 items-center justify-center rounded-full px-6 backdrop-blur-xl"
+          className="mb-4 flex h-10 items-center justify-center rounded-lg px-6"
           style={{
-            background: 'rgba(0,0,0,0.3)',
-            border: '2px solid rgba(212,165,55,0.7)',
-            boxShadow: '0 0 20px rgba(212,165,55,0.35)'
+            background: 'linear-gradient(180deg, #f59e0b 0%, #d97706 100%)',
+            boxShadow: '0 0 15px rgba(245,158,11,0.5), inset 0 2px 4px rgba(255,255,255,0.3)'
           }}
         >
-          <span className="text-2xl font-bold tracking-[0.5em] text-amber-400 drop-shadow-[0_0_12px_rgba(251,191,36,0.8)]">
+          <span className="text-xl font-bold tracking-[0.4em] text-black drop-shadow-[0_1px_1px_rgba(255,255,255,0.3)]">
             {value ? "•".repeat(value.length) : ""}
           </span>
         </div>
@@ -74,159 +73,171 @@ function NumericKeypad({
           <p className="mb-2 text-center text-xs font-semibold text-red-400 bg-red-500/20 backdrop-blur-sm rounded py-1">{error}</p>
         )}
 
-        {/* Cadre semi-transparent */}
+        {/* Cadre noir futuriste */}
         <div 
-          className="rounded-xl p-3 backdrop-blur-xl"
+          className="rounded-2xl p-4"
           style={{
-            background: 'rgba(255,255,255,0.08)',
-            border: '2px solid rgba(212,165,55,0.6)',
-            boxShadow: '0 0 25px rgba(212,165,55,0.25)'
+            background: 'linear-gradient(180deg, #1a1a2e 0%, #0f0f1a 100%)',
+            border: '1px solid rgba(99,102,241,0.3)',
+            boxShadow: '0 0 30px rgba(99,102,241,0.15), inset 0 1px 0 rgba(255,255,255,0.05)'
           }}
         >
           {/* Grille des chiffres 1-9 */}
           <div className="grid grid-cols-3 gap-3 mb-3">
-            {["1", "2", "3", "4", "5", "6", "7", "8", "9"].map((digit) => (
-              <motion.button
-                key={digit}
-                onClick={() => handleDigit(digit)}
-                className="relative flex h-16 w-16 mx-auto items-center justify-center rounded-full text-2xl font-bold text-white overflow-hidden backdrop-blur-md"
-                style={{
-                  background: 'rgba(34,211,238,0.2)',
-                  border: '1px solid rgba(103,232,249,0.5)'
-                }}
-                initial={{
-                  boxShadow: '0 4px 8px rgba(0,0,0,0.2), 0 0 12px rgba(34,211,238,0.3)'
-                }}
-                whileHover={{
-                  scale: 1.05,
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.3), 0 0 18px rgba(34,211,238,0.5)'
-                }}
-                whileTap={{
-                  scale: 1.1,
-                  boxShadow: '0 0 25px rgba(219,39,119,0.8), 0 0 40px rgba(168,85,247,0.6), 0 0 55px rgba(236,72,153,0.4)',
-                  borderColor: 'rgba(236,72,153,0.8)',
-                  background: 'rgba(168,85,247,0.35)'
-                }}
-              >
-                {/* Reflet brillant */}
-                <div 
-                  className="absolute top-1 left-1/2 -translate-x-1/2 w-6 h-3 rounded-full"
+            {["1", "2", "3", "4", "5", "6", "7", "8", "9"].map((digit, index) => {
+              const colors = [
+                { bg: 'rgba(6,182,212,0.15)', border: 'rgba(34,211,238,0.6)', glow: 'rgba(34,211,238,0.4)' },
+                { bg: 'rgba(168,85,247,0.15)', border: 'rgba(192,132,252,0.6)', glow: 'rgba(168,85,247,0.4)' },
+                { bg: 'rgba(236,72,153,0.15)', border: 'rgba(244,114,182,0.6)', glow: 'rgba(236,72,153,0.4)' },
+              ];
+              const color = colors[index % 3];
+              return (
+                <motion.button
+                  key={digit}
+                  onClick={() => handleDigit(digit)}
+                  className="relative flex h-16 w-16 mx-auto items-center justify-center rounded-full text-2xl font-light overflow-hidden"
                   style={{
-                    background: 'radial-gradient(ellipse at center, rgba(255,255,255,0.5) 0%, transparent 70%)'
+                    background: color.bg,
+                    border: `2px solid ${color.border}`,
+                    boxShadow: `0 0 20px ${color.glow}, inset 0 0 15px ${color.glow}`
                   }}
-                />
-                <span className="relative z-10 drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">{digit}</span>
-              </motion.button>
-            ))}
+                  whileHover={{
+                    scale: 1.08,
+                    boxShadow: `0 0 30px ${color.glow}, 0 0 45px ${color.glow}, inset 0 0 20px ${color.glow}`
+                  }}
+                  whileTap={{
+                    scale: 1.15,
+                    boxShadow: '0 0 35px rgba(236,72,153,0.9), 0 0 55px rgba(168,85,247,0.7)',
+                    borderColor: 'rgba(236,72,153,0.9)',
+                    background: 'rgba(168,85,247,0.3)'
+                  }}
+                >
+                  <span 
+                    className="relative z-10" 
+                    style={{ 
+                      color: color.border,
+                      textShadow: `0 0 10px ${color.glow}, 0 0 20px ${color.glow}`
+                    }}
+                  >
+                    {digit}
+                  </span>
+                </motion.button>
+              );
+            })}
           </div>
           {/* Dernière ligne: 0 - C - Delete */}
           <div className="grid grid-cols-3 gap-3">
-            {/* Bouton 0 - bleu rond semi-transparent */}
+            {/* Bouton 0 - cyan néon */}
             <motion.button
               onClick={() => handleDigit("0")}
-              className="relative flex h-16 w-16 mx-auto items-center justify-center rounded-full text-2xl font-bold text-white overflow-hidden backdrop-blur-md"
+              className="relative flex h-16 w-16 mx-auto items-center justify-center rounded-full text-2xl font-light overflow-hidden"
               style={{
-                background: 'rgba(34,211,238,0.2)',
-                border: '1px solid rgba(103,232,249,0.5)'
-              }}
-              initial={{
-                boxShadow: '0 4px 8px rgba(0,0,0,0.2), 0 0 12px rgba(34,211,238,0.3)'
+                background: 'rgba(6,182,212,0.15)',
+                border: '2px solid rgba(34,211,238,0.6)',
+                boxShadow: '0 0 20px rgba(34,211,238,0.4), inset 0 0 15px rgba(34,211,238,0.4)'
               }}
               whileHover={{
-                scale: 1.05,
-                boxShadow: '0 4px 12px rgba(0,0,0,0.3), 0 0 18px rgba(34,211,238,0.5)'
+                scale: 1.08,
+                boxShadow: '0 0 30px rgba(34,211,238,0.5), 0 0 45px rgba(34,211,238,0.3), inset 0 0 20px rgba(34,211,238,0.5)'
               }}
               whileTap={{
-                scale: 1.1,
-                boxShadow: '0 0 25px rgba(219,39,119,0.8), 0 0 40px rgba(168,85,247,0.6), 0 0 55px rgba(236,72,153,0.4)',
-                borderColor: 'rgba(236,72,153,0.8)',
-                background: 'rgba(168,85,247,0.35)'
+                scale: 1.15,
+                boxShadow: '0 0 35px rgba(236,72,153,0.9), 0 0 55px rgba(168,85,247,0.7)',
+                borderColor: 'rgba(236,72,153,0.9)',
+                background: 'rgba(168,85,247,0.3)'
               }}
             >
-              {/* Reflet brillant */}
-              <div 
-                className="absolute top-1 left-1/2 -translate-x-1/2 w-6 h-3 rounded-full"
-                style={{
-                  background: 'radial-gradient(ellipse at center, rgba(255,255,255,0.5) 0%, transparent 70%)'
+              <span 
+                className="relative z-10" 
+                style={{ 
+                  color: 'rgba(34,211,238,0.9)',
+                  textShadow: '0 0 10px rgba(34,211,238,0.5), 0 0 20px rgba(34,211,238,0.3)'
                 }}
-              />
-              <span className="relative z-10 drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">0</span>
+              >
+                0
+              </span>
             </motion.button>
-            {/* Bouton C - rouge semi-transparent */}
+            {/* Bouton C - rose/magenta néon */}
             <motion.button
               onClick={handleClear}
-              className="relative flex h-16 w-16 mx-auto items-center justify-center rounded-md text-xl font-bold text-white overflow-hidden backdrop-blur-md"
+              className="relative flex h-16 w-16 mx-auto items-center justify-center rounded-full text-xl font-light overflow-hidden"
               style={{
-                background: 'rgba(239,68,68,0.25)',
-                border: '1px solid rgba(239,68,68,0.5)'
-              }}
-              initial={{
-                boxShadow: '0 4px 8px rgba(0,0,0,0.2), 0 0 10px rgba(239,68,68,0.3)'
+                background: 'rgba(236,72,153,0.15)',
+                border: '2px solid rgba(244,114,182,0.6)',
+                boxShadow: '0 0 20px rgba(236,72,153,0.4), inset 0 0 15px rgba(236,72,153,0.4)'
               }}
               whileHover={{
-                scale: 1.05,
-                boxShadow: '0 4px 12px rgba(0,0,0,0.3), 0 0 15px rgba(239,68,68,0.5)'
+                scale: 1.08,
+                boxShadow: '0 0 30px rgba(236,72,153,0.5), 0 0 45px rgba(236,72,153,0.3), inset 0 0 20px rgba(236,72,153,0.5)'
               }}
               whileTap={{
-                scale: 1.1,
-                boxShadow: '0 0 25px rgba(219,39,119,0.8), 0 0 40px rgba(168,85,247,0.6), 0 0 55px rgba(236,72,153,0.4)',
-                borderColor: 'rgba(236,72,153,0.8)',
-                background: 'rgba(168,85,247,0.35)'
+                scale: 1.15,
+                boxShadow: '0 0 35px rgba(34,211,238,0.9), 0 0 55px rgba(6,182,212,0.7)',
+                borderColor: 'rgba(34,211,238,0.9)',
+                background: 'rgba(6,182,212,0.3)'
               }}
             >
-              <span className="relative z-10 drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">C</span>
+              <span 
+                className="relative z-10" 
+                style={{ 
+                  color: 'rgba(244,114,182,0.9)',
+                  textShadow: '0 0 10px rgba(236,72,153,0.5), 0 0 20px rgba(236,72,153,0.3)'
+                }}
+              >
+                C
+              </span>
             </motion.button>
-            {/* Bouton Delete - gris semi-transparent */}
+            {/* Bouton Delete - violet néon */}
             <motion.button
               onClick={handleDelete}
-              className="relative flex h-16 w-16 mx-auto items-center justify-center rounded-md text-white overflow-hidden backdrop-blur-md"
+              className="relative flex h-16 w-16 mx-auto items-center justify-center rounded-full overflow-hidden"
               style={{
-                background: 'rgba(107,114,128,0.2)',
-                border: '1px solid rgba(156,163,175,0.4)'
-              }}
-              initial={{
-                boxShadow: '0 4px 8px rgba(0,0,0,0.2)'
+                background: 'rgba(168,85,247,0.15)',
+                border: '2px solid rgba(192,132,252,0.6)',
+                boxShadow: '0 0 20px rgba(168,85,247,0.4), inset 0 0 15px rgba(168,85,247,0.4)'
               }}
               whileHover={{
-                scale: 1.05,
-                boxShadow: '0 4px 12px rgba(0,0,0,0.3), 0 0 12px rgba(156,163,175,0.4)'
+                scale: 1.08,
+                boxShadow: '0 0 30px rgba(168,85,247,0.5), 0 0 45px rgba(168,85,247,0.3), inset 0 0 20px rgba(168,85,247,0.5)'
               }}
               whileTap={{
-                scale: 1.1,
-                boxShadow: '0 0 25px rgba(219,39,119,0.8), 0 0 40px rgba(168,85,247,0.6), 0 0 55px rgba(236,72,153,0.4)',
-                borderColor: 'rgba(236,72,153,0.8)',
-                background: 'rgba(168,85,247,0.35)'
+                scale: 1.15,
+                boxShadow: '0 0 35px rgba(236,72,153,0.9), 0 0 55px rgba(168,85,247,0.7)',
+                borderColor: 'rgba(236,72,153,0.9)',
+                background: 'rgba(168,85,247,0.3)'
               }}
             >
-              <Delete className="h-5 w-5 relative z-10 drop-shadow-[0_2px_3px_rgba(0,0,0,0.7)]" />
+              <ChevronLeft 
+                className="h-6 w-6 relative z-10" 
+                style={{ 
+                  color: 'rgba(192,132,252,0.9)',
+                  filter: 'drop-shadow(0 0 8px rgba(168,85,247,0.5))'
+                }}
+              />
             </motion.button>
           </div>
         </div>
 
-        {/* Bouton Valider - vert émeraude semi-transparent avec effet violet au clic */}
+        {/* Bouton Valider - orange/pêche */}
         <motion.button
           onClick={onValidate}
           disabled={!value.trim() || isLoading}
-          className="mt-3 mb-2 flex h-14 w-full items-center justify-center rounded-xl text-xl font-bold text-white backdrop-blur-md disabled:opacity-50 disabled:cursor-not-allowed"
+          className="mt-4 mb-2 flex h-12 w-full items-center justify-center rounded-xl text-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
           style={{
-            background: 'rgba(16,185,129,0.3)',
-            border: '2px solid rgba(52,211,153,0.6)'
+            background: 'linear-gradient(180deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%)',
+            color: '#1a1a2e',
+            boxShadow: '0 4px 20px rgba(245,158,11,0.4)'
           }}
           whileHover={{ 
-            scale: 1.05,
-            boxShadow: '0 4px 20px rgba(16,185,129,0.5), 0 0 25px rgba(16,185,129,0.4)'
+            scale: 1.03,
+            boxShadow: '0 4px 25px rgba(245,158,11,0.6), 0 0 35px rgba(245,158,11,0.4)'
           }}
           whileTap={{ 
-            scale: 1.1,
-            boxShadow: '0 0 30px rgba(219,39,119,0.8), 0 0 50px rgba(168,85,247,0.6), 0 0 70px rgba(236,72,153,0.4)',
-            borderColor: 'rgba(236,72,153,0.8)',
-            background: 'rgba(168,85,247,0.4)'
-          }}
-          initial={{
-            boxShadow: '0 4px 15px rgba(16,185,129,0.4), 0 0 20px rgba(16,185,129,0.35)'
+            scale: 1.08,
+            boxShadow: '0 0 40px rgba(245,158,11,0.8), 0 0 60px rgba(251,191,36,0.5)'
           }}
         >
-          <span className="drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
+          <span className="drop-shadow-[0_1px_1px_rgba(255,255,255,0.3)]">
             {isLoading ? "Vérification..." : "Valider"}
           </span>
         </motion.button>
