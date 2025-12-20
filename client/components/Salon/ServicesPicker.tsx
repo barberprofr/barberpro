@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useServices, useProductTypes } from "@/lib/api";
-import { Check, X, Package } from "lucide-react";
+import { Check, X, Package, Euro } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState, useEffect, useCallback } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -61,12 +61,14 @@ export default function ServicesPicker({ onServiceSelect, onReset, externalOpen,
   const [calculatorProductId, setCalculatorProductId] = useState<string | null>(null);
   const [animatingQtyId, setAnimatingQtyId] = useState<string | null>(null);
   const [animatingProductQtyId, setAnimatingProductQtyId] = useState<string | null>(null);
+  const [customAmount, setCustomAmount] = useState<string>("");
 
   useEffect(() => {
     onReset?.(() => {
       setPopoverOpen(false);
       setSelectedPrestations(new Map());
       setSelectedProducts(new Map());
+      setCustomAmount("");
     });
   }, [onReset]);
 
@@ -121,10 +123,12 @@ export default function ServicesPicker({ onServiceSelect, onReset, externalOpen,
     setCalculatorProductId(null);
   }, []);
 
+  const customAmountValue = parseFloat(customAmount) || 0;
+
   const prestationsTotal = Array.from(selectedPrestations.values()).reduce(
     (sum, p) => sum + p.price * p.quantity,
     0
-  );
+  ) + customAmountValue;
 
   const productsTotal = Array.from(selectedProducts.values()).reduce(
     (sum, p) => sum + p.price * p.quantity,
@@ -134,11 +138,21 @@ export default function ServicesPicker({ onServiceSelect, onReset, externalOpen,
   const total = prestationsTotal + productsTotal;
 
   const handleValidate = useCallback(() => {
-    if (selectedPrestations.size > 0 || selectedProducts.size > 0) {
-      onServiceSelect?.(Array.from(selectedPrestations.values()), Array.from(selectedProducts.values()));
+    if (selectedPrestations.size > 0 || selectedProducts.size > 0 || customAmountValue > 0) {
+      const allPrestations = Array.from(selectedPrestations.values());
+      if (customAmountValue > 0) {
+        allPrestations.push({
+          id: `custom-${Date.now()}`,
+          name: "Montant libre",
+          price: customAmountValue,
+          quantity: 1
+        });
+      }
+      onServiceSelect?.(allPrestations, Array.from(selectedProducts.values()));
       setPopoverOpen(false);
+      setCustomAmount("");
     }
-  }, [selectedPrestations, selectedProducts, onServiceSelect]);
+  }, [selectedPrestations, selectedProducts, customAmountValue, onServiceSelect]);
 
   return (
     <Dialog open={popoverOpen} onOpenChange={setPopoverOpen}>
@@ -150,7 +164,7 @@ export default function ServicesPicker({ onServiceSelect, onReset, externalOpen,
           <div className="flex flex-col">
             {/* Total display at top */}
             <AnimatePresence>
-              {(selectedPrestations.size > 0 || selectedProducts.size > 0) && (
+              {(selectedPrestations.size > 0 || selectedProducts.size > 0 || customAmountValue > 0) && (
                 <motion.div
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: "auto" }}
@@ -415,6 +429,35 @@ export default function ServicesPicker({ onServiceSelect, onReset, externalOpen,
                   })}
                 </div>
               )}
+
+              {/* Champ montant libre - comptabilisé comme prestation */}
+              <div className="mt-4 pt-4 border-t border-white/10">
+                <div className="flex items-center gap-2 mb-3">
+                  <Euro className="h-4 w-4 text-amber-400" />
+                  <span className="text-lg font-light text-amber-400 uppercase tracking-wide">Montant libre</span>
+                </div>
+                <div className="relative w-full overflow-hidden rounded-2xl border border-amber-400/40 bg-slate-900/30 p-3 shadow-[0_10px_30px_rgba(15,23,42,0.15)] backdrop-blur-[2px]">
+                  <div className="flex items-center gap-3">
+                    <div className="relative flex h-12 w-12 items-center justify-center rounded-full flex-shrink-0 bg-gradient-to-br from-amber-500/30 via-amber-600/20 to-yellow-500/20 border-2 border-amber-400/50">
+                      <Euro className="h-5 w-5 text-amber-400" />
+                    </div>
+                    <div className="flex-1">
+                      <input
+                        type="number"
+                        inputMode="decimal"
+                        step="0.01"
+                        min="0"
+                        placeholder="0.00"
+                        value={customAmount}
+                        onChange={(e) => setCustomAmount(e.target.value)}
+                        className="w-full bg-transparent text-2xl font-bold text-white placeholder:text-white/30 focus:outline-none"
+                      />
+                      <span className="text-xs text-amber-400/70">Déduit du salaire (prestation)</span>
+                    </div>
+                    <span className="text-xl font-semibold text-white/80">€</span>
+                  </div>
+                </div>
+              </div>
             </motion.div>
 
             {/* Calculator Popup for Services */}
@@ -493,7 +536,7 @@ export default function ServicesPicker({ onServiceSelect, onReset, externalOpen,
 
             {/* Validate button at bottom */}
             <AnimatePresence>
-              {(selectedPrestations.size > 0 || selectedProducts.size > 0) && (
+              {(selectedPrestations.size > 0 || selectedProducts.size > 0 || customAmountValue > 0) && (
                 <motion.div
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: "auto" }}
@@ -521,7 +564,7 @@ export default function ServicesPicker({ onServiceSelect, onReset, externalOpen,
                     {/* Reflet glass 3D */}
                     <div className="absolute inset-x-2 top-1 h-[40%] rounded-t-xl bg-gradient-to-b from-white/40 to-transparent pointer-events-none" />
                     <span className="relative z-10 drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]">
-                      Valider ({selectedPrestations.size > 0 ? `${selectedPrestations.size} prest.` : ''}{selectedPrestations.size > 0 && selectedProducts.size > 0 ? ' + ' : ''}{selectedProducts.size > 0 ? `${selectedProducts.size} prod.` : ''})
+                      Valider ({selectedPrestations.size > 0 ? `${selectedPrestations.size} prest.` : ''}{selectedPrestations.size > 0 && (selectedProducts.size > 0 || customAmountValue > 0) ? ' + ' : ''}{selectedProducts.size > 0 ? `${selectedProducts.size} prod.` : ''}{selectedProducts.size > 0 && customAmountValue > 0 ? ' + ' : ''}{customAmountValue > 0 ? `${customAmountValue.toFixed(2)}€` : ''})
                     </span>
                   </motion.button>
                 </motion.div>
