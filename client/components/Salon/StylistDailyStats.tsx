@@ -787,7 +787,7 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
             </AnimatePresence>
 
             <Dialog open={maskDialogOpen} onOpenChange={setMaskDialogOpen}>
-                <DialogContent className="max-w-sm bg-slate-900/95 border-rose-500/30 backdrop-blur-xl p-5 relative">
+                <DialogContent className="max-w-sm bg-slate-900/95 border-rose-500/30 backdrop-blur-xl p-5 relative z-[100]">
                     <button
                         type="button"
                         onClick={() => setMaskDialogOpen(false)}
