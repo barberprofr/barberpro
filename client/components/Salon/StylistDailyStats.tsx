@@ -466,17 +466,27 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
 
     const handleAddHiddenRange = () => {
         if (!maskStartDate || !maskEndDate) return;
-        const start = new Date(maskStartDate);
-        const end = new Date(maskEndDate);
+        const [startY, startM] = maskStartDate.split("-").map(Number);
+        const [endY, endM] = maskEndDate.split("-").map(Number);
+        const startMonthInt = startY * 100 + startM;
+        const endMonthInt = endY * 100 + endM;
+        
         const monthsToAdd: number[] = [];
-        const current = new Date(start.getFullYear(), start.getMonth(), 1);
-        while (current <= end) {
-            const monthInt = current.getFullYear() * 100 + (current.getMonth() + 1);
+        let currentY = startY;
+        let currentM = startM;
+        
+        while (currentY * 100 + currentM <= endMonthInt) {
+            const monthInt = currentY * 100 + currentM;
             if (!hiddenMonths.includes(monthInt) && !monthsToAdd.includes(monthInt)) {
                 monthsToAdd.push(monthInt);
             }
-            current.setMonth(current.getMonth() + 1);
+            currentM++;
+            if (currentM > 12) {
+                currentM = 1;
+                currentY++;
+            }
         }
+        
         if (monthsToAdd.length > 0) {
             updateHiddenMonths.mutate({ stylistId: id, hiddenMonths: [...hiddenMonths, ...monthsToAdd] });
         }
