@@ -901,7 +901,26 @@ export function useUpdateStylistHiddenMonths() {
       if (!res.ok) await throwResponseError(res);
       return res.json() as Promise<{ stylist: Stylist }>;
     },
-    onSuccess: () => {
+    onMutate: async ({ stylistId, hiddenMonths }) => {
+      await qc.cancelQueries({ queryKey: ['stylists'] });
+      const previousStylists = qc.getQueryData(['stylists']);
+      qc.setQueryData(['stylists'], (old: any) => {
+        if (!old?.stylists) return old;
+        return {
+          ...old,
+          stylists: old.stylists.map((s: any) => 
+            s._id === stylistId ? { ...s, hiddenMonths } : s
+          )
+        };
+      });
+      return { previousStylists };
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.previousStylists) {
+        qc.setQueryData(['stylists'], context.previousStylists);
+      }
+    },
+    onSettled: () => {
       qc.invalidateQueries({ queryKey: ['stylists'] });
     }
   });
