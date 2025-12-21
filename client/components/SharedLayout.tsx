@@ -126,7 +126,8 @@ export default function SharedLayout({ children }: PropsWithChildren) {
                 onClick={() => {
                   if (window.confirm("Se déconnecter ?")) {
                     setAdminToken(null);
-                    qc.invalidateQueries({ queryKey: ["config"] });
+                    qc.clear();
+                    window.location.href = "/";
                   }
                 }}
               >
