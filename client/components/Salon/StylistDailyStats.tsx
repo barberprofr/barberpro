@@ -787,9 +787,17 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
             </AnimatePresence>
 
             <Dialog open={maskDialogOpen} onOpenChange={setMaskDialogOpen}>
-                <DialogContent className="max-w-sm bg-slate-900/95 border-rose-500/30 backdrop-blur-xl p-5">
+                <DialogContent className="max-w-sm bg-slate-900/95 border-rose-500/30 backdrop-blur-xl p-5 relative">
+                    <button
+                        type="button"
+                        onClick={() => setMaskDialogOpen(false)}
+                        className="absolute right-3 top-3 p-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white/70 hover:text-white transition-colors"
+                        aria-label="Fermer"
+                    >
+                        <X className="h-4 w-4" />
+                    </button>
                     <DialogHeader>
-                        <DialogTitle className="flex items-center gap-3 text-rose-300 text-lg">
+                        <DialogTitle className="flex items-center gap-3 text-rose-300 text-lg pr-8">
                             <EyeOff className="h-5 w-5" />
                             Masquer le CA - 2025
                         </DialogTitle>
