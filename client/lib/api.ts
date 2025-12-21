@@ -891,6 +891,7 @@ export function useStylistHasSecretCode(stylistId?: string) {
 
 export function useUpdateStylistHiddenMonths() {
   const qc = useQueryClient();
+  const salonId = getSelectedSalon();
   return useMutation({
     mutationFn: async ({ stylistId, hiddenMonths }: { stylistId: string; hiddenMonths: number[] }) => {
       const res = await apiFetch(`/api/admin/stylists/${stylistId}`, {
@@ -902,26 +903,24 @@ export function useUpdateStylistHiddenMonths() {
       return res.json() as Promise<{ stylist: Stylist }>;
     },
     onMutate: async ({ stylistId, hiddenMonths }) => {
-      await qc.cancelQueries({ queryKey: ['stylists'] });
-      const previousStylists = qc.getQueryData(['stylists']);
-      qc.setQueryData(['stylists'], (old: any) => {
-        if (!old?.stylists) return old;
-        return {
-          ...old,
-          stylists: old.stylists.map((s: any) => 
-            s._id === stylistId ? { ...s, hiddenMonths } : s
-          )
-        };
+      const queryKey = ['stylists', salonId];
+      await qc.cancelQueries({ queryKey });
+      const previousStylists = qc.getQueryData(queryKey);
+      qc.setQueryData(queryKey, (old: Stylist[] | undefined) => {
+        if (!old) return old;
+        return old.map((s) => 
+          s.id === stylistId ? { ...s, hiddenMonths } : s
+        );
       });
-      return { previousStylists };
+      return { previousStylists, queryKey };
     },
     onError: (_err, _vars, context) => {
-      if (context?.previousStylists) {
-        qc.setQueryData(['stylists'], context.previousStylists);
+      if (context?.previousStylists && context?.queryKey) {
+        qc.setQueryData(context.queryKey, context.previousStylists);
       }
     },
     onSettled: () => {
-      qc.invalidateQueries({ queryKey: ['stylists'] });
+      qc.invalidateQueries({ queryKey: ['stylists', salonId] });
     }
   });
 }
