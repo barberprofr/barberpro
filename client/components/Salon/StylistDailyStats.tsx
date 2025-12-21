@@ -795,44 +795,44 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
             </AnimatePresence>
 
             <Dialog open={maskDialogOpen} onOpenChange={setMaskDialogOpen}>
-                <DialogContent className="max-w-md bg-slate-900/95 border-rose-500/30 backdrop-blur-xl">
+                <DialogContent className="max-w-lg bg-slate-900/95 border-rose-500/30 backdrop-blur-xl p-6">
                     <DialogHeader>
-                        <DialogTitle className="flex items-center gap-2 text-rose-300">
-                            <EyeOff className="h-5 w-5" />
+                        <DialogTitle className="flex items-center gap-3 text-rose-300 text-xl">
+                            <EyeOff className="h-6 w-6" />
                             Masquer le CA
                         </DialogTitle>
                     </DialogHeader>
                     
-                    <div className="space-y-4">
-                        <div className="space-y-3">
+                    <div className="space-y-5 mt-2">
+                        <div className="space-y-4">
                             <div className="flex items-center gap-2">
-                                <Calendar className="h-4 w-4 text-rose-300" />
-                                <span className="text-sm text-white/80">Sélectionner le mois à masquer</span>
+                                <Calendar className="h-5 w-5 text-rose-300" />
+                                <span className="text-base text-white/80">Sélectionner le mois à masquer</span>
                             </div>
                             <input
                                 type="month"
                                 value={maskMonth}
                                 onChange={(e) => setMaskMonth(e.target.value)}
-                                className="w-full border rounded-lg px-3 py-2 bg-slate-800/80 border-slate-600 text-white outline-none focus:border-rose-400 transition-colors"
+                                className="w-full border rounded-xl px-4 py-3 bg-slate-800/80 border-slate-600 text-white text-lg outline-none focus:border-rose-400 transition-colors"
                             />
                             <button
                                 onClick={handleAddHiddenMonth}
                                 onTouchEnd={(e) => { e.preventDefault(); handleAddHiddenMonth(); }}
                                 disabled={updateHiddenMonths.isPending}
-                                className="w-full px-4 py-2.5 rounded-lg bg-rose-500/30 border border-rose-400/50 text-rose-200 font-medium hover:bg-rose-500/40 transition-all disabled:opacity-50"
+                                className="w-full px-5 py-3.5 rounded-xl bg-rose-500/30 border border-rose-400/50 text-rose-200 font-semibold text-lg hover:bg-rose-500/40 transition-all disabled:opacity-50"
                             >
                                 Masquer ce mois
                             </button>
                         </div>
 
                         {hiddenMonths.length > 0 && (
-                            <div className="space-y-2 pt-2 border-t border-white/10">
-                                <span className="text-sm text-white/60">Mois masqués :</span>
-                                <div className="flex flex-wrap gap-2">
+                            <div className="space-y-3 pt-4 border-t border-white/10">
+                                <span className="text-base text-white/60">Mois masqués :</span>
+                                <div className="flex flex-wrap gap-2.5">
                                     {hiddenMonths.slice().sort((a, b) => b - a).map((m) => (
                                         <div
                                             key={m}
-                                            className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-rose-500/20 border border-rose-400/30 text-rose-200 text-xs"
+                                            className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-rose-500/20 border border-rose-400/30 text-rose-200 text-sm"
                                         >
                                             <span className="capitalize">{formatMonthLabel(m)}</span>
                                             <button
@@ -840,7 +840,7 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
                                                 onTouchEnd={(e) => { e.preventDefault(); handleRemoveHiddenMonth(m); }}
                                                 className="hover:text-white transition-colors"
                                             >
-                                                <X className="h-3 w-3" />
+                                                <X className="h-4 w-4" />
                                             </button>
                                         </div>
                                     ))}
