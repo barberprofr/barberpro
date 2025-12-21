@@ -8,7 +8,7 @@ import { useAdminLogin, useAdminRecover, useAdminRecoverVerify, useAdminSetupAcc
 import { Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { normalizeSalonId, setSelectedSalon, addKnownSalon, getSelectedSalon } from "@/lib/salon";
-import { getAdminToken } from "@/lib/admin";
+import { getAdminToken, setAdminToken } from "@/lib/admin";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -316,20 +316,24 @@ function Login({ onSwitchSignup, onRecover }: { onSwitchSignup: () => void; onRe
             { email, password: pwd },
             {
               onSuccess: async (data: any) => {
+                // 1. Stocker le token AVANT toute autre opération
+                if (data?.token) {
+                  setAdminToken(data.token);
+                }
+                // 2. Mettre à jour le salonId dans le cache mémoire ET localStorage
                 const salonId = data?.salonId || getSelectedSalon();
-                // Utiliser les helpers pour mettre à jour le cache mémoire ET localStorage
                 if (data?.salonId) {
                   addKnownSalon(data.salonId);
                   setSelectedSalon(data.salonId);
                 }
-                // Supprimer l'ancienne config et précharger la nouvelle
+                // 3. Supprimer l'ancienne config et précharger la nouvelle avec le nouveau token
                 qc.removeQueries({ queryKey: ["config"] });
                 try {
                   await qc.fetchQuery({
                     queryKey: ["config", salonId],
                     queryFn: async () => {
                       const res = await fetch(`/api/salons/${salonId}/config`, {
-                        headers: { "x-admin-token": getAdminToken() || "" },
+                        headers: { "x-admin-token": data?.token || "" },
                         cache: "no-store"
                       });
                       if (!res.ok) throw new Error("Failed");

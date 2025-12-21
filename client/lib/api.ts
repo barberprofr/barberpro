@@ -519,16 +519,11 @@ export function useAdminVerifyCode() {
 }
 
 export function useAdminLogin() {
-  const qc = useQueryClient();
   return useMutation({
     mutationFn: async (input: { email: string; password: string }) => {
       const res = await apiFetch("/api/admin/login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(input) });
       if (!res.ok) await throwResponseError(res);
       return res.json() as Promise<{ token: string; salonId?: string }>;
-    },
-    onSuccess: (data) => {
-      setAdminToken(data.token);
-      qc.invalidateQueries({ queryKey: ["config"] });
     }
   });
 }
