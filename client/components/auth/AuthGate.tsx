@@ -324,17 +324,10 @@ function Login({ onSwitchSignup, onRecover }: { onSwitchSignup: () => void; onRe
                   localStorage.setItem("salons:list", data.salonId);
                   localStorage.setItem("selectedSalonId", data.salonId);
                 }
-                // Vérifier que les données sont bien écrites avant de rediriger
-                const checkAndRedirect = () => {
-                  const token = localStorage.getItem("adminToken");
-                  const salonId = localStorage.getItem("selectedSalonId");
-                  if (token && salonId) {
-                    window.location.replace("/app");
-                  } else {
-                    setTimeout(checkAndRedirect, 20);
-                  }
-                };
-                checkAndRedirect();
+                // Attendre que localStorage soit synchronisé puis rediriger
+                setTimeout(() => {
+                  window.location.replace("/app");
+                }, 100);
               },
               onError: async (err: any) => {
                 try {
