@@ -531,7 +531,7 @@ export default function Clients() {
                 <Button
                   size="default"
                   variant="ghost"
-                  className="w-full rounded-xl border-0 bg-gradient-to-r from-cyan-500 via-blue-500 to-cyan-600 text-white transition hover:from-cyan-600 hover:via-blue-600 hover:to-cyan-700 px-5 py-3 text-base font-semibold shadow-[0_4px_15px_rgba(6,182,212,0.4)]"
+                  className="w-full rounded-xl border-0 bg-gradient-to-r from-amber-500 via-orange-500 to-amber-500 text-white transition-all duration-300 px-6 py-5 text-xl font-bold shadow-[0_4px_20px_rgba(245,158,11,0.5)] hover:shadow-[0_0_30px_rgba(245,158,11,0.8),inset_0_0_20px_rgba(255,255,255,0.15)] hover:scale-[1.02] active:scale-[0.98]"
                   onClick={() => {
                     setSelected("");
                   }}
