@@ -142,7 +142,7 @@ export interface StylistStats {
   monthlyPointsUsed?: number;
 }
 
-export interface Stylist { id: string; name: string; stats?: StylistStats; commissionPct?: number; }
+export interface Stylist { id: string; name: string; stats?: StylistStats; commissionPct?: number; hiddenMonths?: number[]; }
 export interface Client { id: string; name: string; points: number; email: string | null; phone: string | null; lastVisitAt: number | null; photos: string[] }
 export interface Prestation { id: string; stylistId: string; clientId?: string; amount: number; paymentMethod: PaymentMethod; timestamp: number; pointsPercent: number; pointsAwarded: number }
 export interface Product { id: string; stylistId: string; clientId?: string; amount: number; paymentMethod: PaymentMethod; timestamp: number }
@@ -885,6 +885,24 @@ export function useStylistHasSecretCode(stylistId?: string) {
       const res = await apiFetch(`/api/stylists/${stylistId}/has-code`);
       if (!res.ok) throw new Error('Failed to check stylist code');
       return res.json() as Promise<{ hasCode: boolean }>;
+    }
+  });
+}
+
+export function useUpdateStylistHiddenMonths() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ stylistId, hiddenMonths }: { stylistId: string; hiddenMonths: number[] }) => {
+      const res = await apiFetch(`/api/admin/stylists/${stylistId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', 'x-admin-token': getAdminToken() || '' },
+        body: JSON.stringify({ hiddenMonths }),
+      });
+      if (!res.ok) await throwResponseError(res);
+      return res.json() as Promise<{ stylist: Stylist }>;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['stylists'] });
     }
   });
 }

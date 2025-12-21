@@ -718,7 +718,7 @@ function StylistsList({ stylists, config, hasStylists }: { stylists: any[], conf
             </div>
             <h3 className="text-3xl font-black text-white text-center">{selectedStylist.name}</h3>
           </div>
-          <StylistMonthly id={selectedStylist.id} commissionPct={((selectedStylist as any).commissionPct ?? config?.commissionDefault ?? 0)} stylistName={selectedStylist.name} />
+          <StylistMonthly id={selectedStylist.id} commissionPct={((selectedStylist as any).commissionPct ?? config?.commissionDefault ?? 0)} stylistName={selectedStylist.name} hiddenMonths={(selectedStylist as any).hiddenMonths || []} />
         </div>
       </motion.div>
     );

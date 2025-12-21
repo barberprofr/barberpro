@@ -9,6 +9,7 @@ export interface IStylist extends Document {
     commissionPct?: number;
     secretCode?: string;
     salonId: string;
+    hiddenMonths: number[];
     createdAt: Date;
     updatedAt: Date;
 }
@@ -143,7 +144,8 @@ const StylistSchema = new Schema({
     name: { type: String, required: true },
     commissionPct: { type: Number, min: 0, max: 100 },
     secretCode: { type: String, default: null },
-    salonId: { type: String, required: true, index: true }
+    salonId: { type: String, required: true, index: true },
+    hiddenMonths: { type: [Number], default: [] }
 }, {
     timestamps: true,
     id: false

@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { useStylistBreakdown, useUpdateTransactionPaymentMethod } from "@/lib/api";
+import { useStylistBreakdown, useUpdateTransactionPaymentMethod, useUpdateStylistHiddenMonths } from "@/lib/api";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, List } from "lucide-react";
+import { ChevronDown, List, EyeOff, Eye } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const eur = new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" });
@@ -421,7 +421,7 @@ export function StylistDailySection({ id, commissionPct, stylistName }: { id: st
     );
 }
 
-export function StylistMonthly({ id, commissionPct, stylistName }: { id: string; commissionPct: number; stylistName?: string }) {
+export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView = false, hiddenMonths = [] }: { id: string; commissionPct: number; stylistName?: string; isSettingsView?: boolean; hiddenMonths?: number[] }) {
     const now = new Date();
     const defMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
     const today = parisDateString();
@@ -432,6 +432,23 @@ export function StylistMonthly({ id, commissionPct, stylistName }: { id: string;
     const [rangeEncaissementsOpen, setRangeEncaissementsOpen] = useState(false);
     const [todayEncaissementsOpen, setTodayEncaissementsOpen] = useState(false);
     const updatePaymentMethod = useUpdateTransactionPaymentMethod();
+    const updateHiddenMonths = useUpdateStylistHiddenMonths();
+
+    const getCurrentMonthInt = () => {
+        const [y, m] = (mode === "today" ? today : month + "-01").split("-").map(Number);
+        return y * 100 + m;
+    };
+
+    const isCurrentMonthHidden = hiddenMonths.includes(getCurrentMonthInt());
+    const shouldHideData = !isSettingsView && isCurrentMonthHidden && mode !== "range";
+
+    const handleToggleHideMonth = () => {
+        const monthInt = getCurrentMonthInt();
+        const newHiddenMonths = isCurrentMonthHidden
+            ? hiddenMonths.filter(m => m !== monthInt)
+            : [...hiddenMonths, monthInt];
+        updateHiddenMonths.mutate({ stylistId: id, hiddenMonths: newHiddenMonths });
+    };
     
     const dateStr = mode === "today" ? today : `${month}-01`;
     // Si startDate est rempli mais pas endDate, on utilise startDate comme endDate aussi (pour afficher une seule journée)
@@ -514,6 +531,30 @@ export function StylistMonthly({ id, commissionPct, stylistName }: { id: string;
                 >
                     Période
                 </button>
+                {isSettingsView && mode !== "range" && (
+                    <button
+                        onClick={handleToggleHideMonth}
+                        disabled={updateHiddenMonths.isPending}
+                        className={cn(
+                            "ml-auto px-3 py-1.5 rounded-lg border font-medium transition-all text-xs flex items-center gap-1.5",
+                            isCurrentMonthHidden
+                                ? "bg-rose-500/20 border-rose-400/50 text-rose-300 hover:bg-rose-500/30"
+                                : "bg-slate-800/60 border-slate-600 text-white/70 hover:bg-slate-700/60 hover:text-white"
+                        )}
+                    >
+                        {isCurrentMonthHidden ? (
+                            <>
+                                <Eye className="h-3.5 w-3.5" />
+                                Afficher
+                            </>
+                        ) : (
+                            <>
+                                <EyeOff className="h-3.5 w-3.5" />
+                                Masquer
+                            </>
+                        )}
+                    </button>
+                )}
             </div>
             
             {mode === "today" ? null : mode === "month" ? (
@@ -551,26 +592,37 @@ export function StylistMonthly({ id, commissionPct, stylistName }: { id: string;
                 </div>
             )}
             
-            <div className="rounded-2xl border border-white/10 bg-slate-950/50 p-3 shadow-inner text-sm space-y-1">
-                <div className="flex items-baseline justify-between text-slate-100">
-                    <span className="text-sm font-light text-white leading-none">
-                        {useTodayData 
-                            ? "CA du jour"
-                            : useSingleDayRange
-                                ? `CA du jour (${formatDateDisplay(startDate)})`
-                                : useRangeData 
-                                    ? `CA du ${formatDateDisplay(startDate)} au ${formatDateDisplay(endDate)}`
-                                    : "CA du mois"
-                        }
-                    </span>
-                    <span className="text-2xl font-black leading-none">{eur.format(total?.amount || 0)}</span>
+            {shouldHideData ? (
+                <div className="rounded-2xl border border-rose-500/30 bg-rose-950/30 p-4 shadow-inner text-sm space-y-2 text-center">
+                    <div className="flex items-center justify-center gap-2 text-rose-300">
+                        <EyeOff className="h-5 w-5" />
+                        <span className="text-base font-medium">Données masquées</span>
+                    </div>
+                    <p className="text-xs text-rose-200/60">Le responsable a masqué le CA de ce mois</p>
                 </div>
-                <div className="flex items-center justify-between text-slate-100">
-                    <span className="text-xs font-light">Salaire ({commissionPct}%)</span>
-                    <span className="text-xs font-light text-white">{eur.format(salary)}</span>
+            ) : (
+                <div className="rounded-2xl border border-white/10 bg-slate-950/50 p-3 shadow-inner text-sm space-y-1">
+                    <div className="flex items-baseline justify-between text-slate-100">
+                        <span className="text-sm font-light text-white leading-none">
+                            {useTodayData 
+                                ? "CA du jour"
+                                : useSingleDayRange
+                                    ? `CA du jour (${formatDateDisplay(startDate)})`
+                                    : useRangeData 
+                                        ? `CA du ${formatDateDisplay(startDate)} au ${formatDateDisplay(endDate)}`
+                                        : "CA du mois"
+                            }
+                        </span>
+                        <span className="text-2xl font-black leading-none">{eur.format(total?.amount || 0)}</span>
+                    </div>
+                    <div className="flex items-center justify-between text-slate-100">
+                        <span className="text-xs font-light">Salaire ({commissionPct}%)</span>
+                        <span className="text-xs font-light text-white">{eur.format(salary)}</span>
+                    </div>
+                    <div className="text-xs text-slate-300">{prestationTotal?.count || 0} prestation{(prestationTotal?.count ?? 0) > 1 ? "s" : ""}{displayProductCount ? `, ${displayProductCount} produit${displayProductCount > 1 ? "s" : ""}` : ""}</div>
                 </div>
-                <div className="text-xs text-slate-300">{prestationTotal?.count || 0} prestation{(prestationTotal?.count ?? 0) > 1 ? "s" : ""}{displayProductCount ? `, ${displayProductCount} produit${displayProductCount > 1 ? "s" : ""}` : ""}</div>
-            </div>
+            )}
+            {!shouldHideData && (
             <div className="grid grid-cols-4 text-sm border rounded-md overflow-hidden">
                 <div className="bg-white/12 px-2 py-1"></div>
                 <div className="bg-white/12 px-2 py-1"><span className="inline-flex items-center px-1.5 py-0.5 rounded-full border-2 border-emerald-300 bg-emerald-100/30 text-emerald-100 text-[10px] font-semibold">Espèces</span></div>
@@ -581,8 +633,9 @@ export function StylistMonthly({ id, commissionPct, stylistName }: { id: string;
                 <div className="px-2 py-1 text-xs">{eur.format(displayData?.methods.check.amount || 0)}</div>
                 <div className="px-2 py-1 text-xs">{eur.format(displayData?.methods.card.amount || 0)}</div>
             </div>
+            )}
 
-            {(useTodayData || useSingleDayRange) && (
+            {!shouldHideData && (useTodayData || useSingleDayRange) && (
                 <motion.button
                     onClick={() => setTodayEncaissementsOpen(true)}
                     whileHover={{ scale: 1.03, y: -3, boxShadow: "0 0 25px rgba(236,72,153,0.5)" }}
