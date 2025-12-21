@@ -209,7 +209,7 @@ function StylistRangeEncaissements({ entries, onUpdate }: { entries: any[]; onUp
     return (
         <div className="text-sm border border-gray-700 rounded-md overflow-hidden bg-slate-900/70 w-full">
             <div className="overflow-x-auto">
-                <div className="min-w-[380px]">
+                <div className="min-w-0">
                     <div className="grid grid-cols-[70px_minmax(120px,1fr)_minmax(100px,1fr)] bg-slate-800/80 text-gray-100 px-3 py-2 font-medium text-xs sm:text-sm sm:px-4">
                         <div>Heure</div>
                         <div>Mode</div>
@@ -529,7 +529,7 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
     };
     
     return (
-        <div className="space-y-2 pb-4 min-w-[400px]">
+        <div className="space-y-2 pb-4 w-full">
             <div className="flex flex-wrap items-center gap-2 text-sm">
                 <button
                     onClick={() => setMode("today")}
