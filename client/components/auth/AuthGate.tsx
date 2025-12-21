@@ -315,15 +315,29 @@ function Login({ onSwitchSignup, onRecover }: { onSwitchSignup: () => void; onRe
           onClick={()=> can && login.mutate(
             { email, password: pwd },
             {
-              onSuccess: (data: any) => {
+              onSuccess: async (data: any) => {
+                const salonId = data?.salonId || getSelectedSalon();
                 if (data?.salonId) {
                   addKnownSalon(data.salonId);
                   setSelectedSalon(data.salonId);
                 }
-                // Petit délai pour s'assurer que localStorage est synchronisé
-                setTimeout(() => {
-                  window.location.href = "/app";
-                }, 50);
+                // Attendre que la config soit chargée avec le nouveau token
+                try {
+                  await qc.fetchQuery({
+                    queryKey: ["config", salonId],
+                    queryFn: async () => {
+                      const res = await fetch(`/api/salons/${salonId}/config`, {
+                        headers: { "x-admin-token": getAdminToken() || "" }
+                      });
+                      if (!res.ok) throw new Error("Config fetch failed");
+                      return res.json();
+                    },
+                    staleTime: 0
+                  });
+                } catch (e) {
+                  console.error("Config fetch error:", e);
+                }
+                navigate("/app", { replace: true });
               },
               onError: async (err: any) => {
                 try {
