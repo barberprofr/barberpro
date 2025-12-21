@@ -316,21 +316,23 @@ function Login({ onSwitchSignup, onRecover }: { onSwitchSignup: () => void; onRe
             { email, password: pwd },
             {
               onSuccess: async (data: any) => {
+                const salonId = data?.salonId || getSelectedSalon();
                 if (data?.salonId) {
                   addKnownSalon(data.salonId);
                   setSelectedSalon(data.salonId);
                 }
-                // Attendre que la config soit rechargée avec le bon salonId
-                qc.clear();
+                // Invalider l'ancienne config et forcer le rechargement
+                qc.removeQueries({ queryKey: ["config"] });
                 await qc.fetchQuery({
-                  queryKey: ["config", data?.salonId || getSelectedSalon()],
+                  queryKey: ["config", salonId],
                   queryFn: async () => {
-                    const res = await fetch(`/api/salons/${data?.salonId || getSelectedSalon()}/config`, { 
+                    const res = await fetch(`/api/salons/${salonId}/config`, { 
                       headers: { "x-admin-token": getAdminToken() || "" } 
                     });
                     if (!res.ok) throw new Error("Failed");
                     return res.json();
-                  }
+                  },
+                  staleTime: 0
                 });
                 navigate("/app");
               },
