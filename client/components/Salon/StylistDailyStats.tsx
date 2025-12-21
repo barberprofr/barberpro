@@ -561,7 +561,7 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
                         onTouchEnd={(e) => { e.preventDefault(); setMaskDialogOpen(true); }}
                         className="ml-auto px-3 py-1.5 rounded-lg border font-medium transition-all text-xs flex items-center gap-1.5 bg-rose-500/20 border-rose-400/50 text-rose-300 hover:bg-rose-500/30"
                     >
-                        <EyeOff className="h-3.5 w-3.5" />
+                        {hiddenMonths.length > 0 ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
                         Masquer
                     </button>
                 )}
