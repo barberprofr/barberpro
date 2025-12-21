@@ -316,34 +316,45 @@ function Login({ onSwitchSignup, onRecover }: { onSwitchSignup: () => void; onRe
             { email, password: pwd },
             {
               onSuccess: async (data: any) => {
+                console.log("🔐 Login success, data:", data);
                 // 1. Stocker le token AVANT toute autre opération
                 if (data?.token) {
                   setAdminToken(data.token);
+                  console.log("✅ Token saved");
                 }
                 // 2. Mettre à jour le salonId dans le cache mémoire ET localStorage
                 const salonId = data?.salonId || getSelectedSalon();
+                console.log("📍 SalonId:", salonId);
                 if (data?.salonId) {
                   addKnownSalon(data.salonId);
                   setSelectedSalon(data.salonId);
+                  console.log("✅ Salon updated");
                 }
                 // 3. Supprimer l'ancienne config et précharger la nouvelle avec le nouveau token
                 qc.removeQueries({ queryKey: ["config"] });
+                console.log("🗑️ Old config removed");
                 try {
-                  await qc.fetchQuery({
+                  const configData = await qc.fetchQuery({
                     queryKey: ["config", salonId],
                     queryFn: async () => {
+                      console.log("📡 Fetching config for salon:", salonId);
                       const res = await fetch(`/api/salons/${salonId}/config`, {
                         headers: { "x-admin-token": data?.token || "" },
                         cache: "no-store"
                       });
-                      if (!res.ok) throw new Error("Failed");
+                      if (!res.ok) {
+                        console.error("❌ Config fetch failed:", res.status);
+                        throw new Error("Failed");
+                      }
                       return res.json();
                     },
                     staleTime: 0
                   });
+                  console.log("✅ Config loaded:", configData);
                 } catch (e) {
-                  console.error("Config prefetch failed:", e);
+                  console.error("❌ Config prefetch failed:", e);
                 }
+                console.log("🚀 Navigating to /app");
                 navigate("/app", { replace: true });
               },
               onError: async (err: any) => {
