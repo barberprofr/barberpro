@@ -45,9 +45,6 @@ export function createServer() {
   app.post("/api/webhook", webhookMiddleware, webhookHandlerWrapper);
   app.post("/.netlify/functions/api/webhook", webhookMiddleware, webhookHandlerWrapper);
 
-  // Super Admin Routes
-  app.use("/api/admin", adminRouter);
-
   // mount other payment routes
   app.post("/api/create-checkout-session", createCheckoutSession);
   app.post("/api/create-portal-session", createPortalSession);
@@ -184,6 +181,9 @@ export function createServer() {
   // Et dans la section multi-salon :
   app.post("/api/salons/:salonId/admin/recover-code", recoverAdminCode);
   app.post("/api/salons/:salonId/admin/recover-code/verify", verifyAdminCodeRecovery);
+
+  // Super Admin Routes (mounted last to avoid conflicting with salon routes)
+  app.use("/api/superadmin", adminRouter);
 
   return app;
 }
