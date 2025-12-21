@@ -434,13 +434,39 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
     const updatePaymentMethod = useUpdateTransactionPaymentMethod();
     const updateHiddenMonths = useUpdateStylistHiddenMonths();
 
-    const getCurrentMonthInt = () => {
-        const [y, m] = (mode === "today" ? today : month + "-01").split("-").map(Number);
+    const getMonthIntFromDate = (dateStr: string) => {
+        const [y, m] = dateStr.split("-").map(Number);
         return y * 100 + m;
     };
 
-    const isCurrentMonthHidden = hiddenMonths.includes(getCurrentMonthInt());
-    const shouldHideData = !isSettingsView && isCurrentMonthHidden && mode !== "range";
+    const getActiveMonths = (): number[] => {
+        if (mode === "today") {
+            return [getMonthIntFromDate(today)];
+        } else if (mode === "month") {
+            return [getMonthIntFromDate(month + "-01")];
+        } else if (mode === "range" && startDate) {
+            const effectiveEnd = endDate || startDate;
+            const [startY, startM] = startDate.split("-").map(Number);
+            const [endY, endM] = effectiveEnd.split("-").map(Number);
+            const months: number[] = [];
+            let currentY = startY;
+            let currentM = startM;
+            const endMonthInt = endY * 100 + endM;
+            while (currentY * 100 + currentM <= endMonthInt) {
+                months.push(currentY * 100 + currentM);
+                currentM++;
+                if (currentM > 12) {
+                    currentM = 1;
+                    currentY++;
+                }
+            }
+            return months;
+        }
+        return [];
+    };
+
+    const activeMonths = getActiveMonths();
+    const shouldHideData = !isSettingsView && activeMonths.some(m => hiddenMonths.includes(m));
 
     const [maskDialogOpen, setMaskDialogOpen] = useState(false);
     const [maskMonth, setMaskMonth] = useState<string>(defMonth);
