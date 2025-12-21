@@ -806,10 +806,10 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
                             <button
                                 type="button"
                                 onClick={() => setMaskDialogOpen(false)}
-                                className="absolute right-3 top-3 p-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white/70 hover:text-white transition-colors"
+                                className="absolute right-3 top-3 flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-white/10 hover:bg-white/20 text-white transition-colors"
                                 aria-label="Fermer"
                             >
-                                <X className="h-4 w-4" />
+                                <X className="h-6 w-6" />
                             </button>
                             <div className="flex items-center gap-3 text-rose-300 text-lg pr-8 mb-3">
                                 <EyeOff className="h-5 w-5" />
