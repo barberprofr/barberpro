@@ -832,15 +832,17 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
                                     {hiddenMonths.slice().sort((a, b) => b - a).map((m) => (
                                         <div
                                             key={m}
-                                            className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-rose-500/20 border border-rose-400/30 text-rose-200 text-sm"
+                                            className="flex items-center gap-2 pl-3 pr-1 py-1 rounded-full bg-rose-500/20 border border-rose-400/30 text-rose-200 text-sm"
                                         >
                                             <span className="capitalize">{formatMonthLabel(m)}</span>
                                             <button
-                                                onClick={() => handleRemoveHiddenMonth(m)}
-                                                onTouchEnd={(e) => { e.preventDefault(); handleRemoveHiddenMonth(m); }}
-                                                className="hover:text-white transition-colors"
+                                                type="button"
+                                                onClick={(e) => { e.stopPropagation(); handleRemoveHiddenMonth(m); }}
+                                                onTouchStart={(e) => { e.stopPropagation(); }}
+                                                onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); handleRemoveHiddenMonth(m); }}
+                                                className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-rose-500/40 active:bg-rose-500/60 transition-colors touch-manipulation"
                                             >
-                                                <X className="h-4 w-4" />
+                                                <X className="h-5 w-5" />
                                             </button>
                                         </div>
                                     ))}
