@@ -814,29 +814,11 @@ export function useUploadClientPhoto() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({ clientId, file }: { clientId: string; file: File }) => {
-      const urlRes = await apiFetch('/api/uploads/request-url', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: file.name,
-          size: file.size,
-          contentType: file.type || 'application/octet-stream',
-        }),
-      });
-      if (!urlRes.ok) await throwResponseError(urlRes);
-      const { uploadURL, objectPath } = await urlRes.json();
-
-      const uploadRes = await fetch(uploadURL, {
-        method: 'PUT',
-        body: file,
-        headers: { 'Content-Type': file.type || 'application/octet-stream' },
-      });
-      if (!uploadRes.ok) throw new Error('Failed to upload file');
-
+      const formData = new FormData();
+      formData.append('photo', file);
       const res = await apiFetch(`/api/clients/${clientId}/photos`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ objectPath }),
+        body: formData,
       });
       if (!res.ok) await throwResponseError(res);
       return res.json() as Promise<{ client: Client }>;
