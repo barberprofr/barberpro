@@ -393,10 +393,10 @@ function createParisClock(): ParisClockState {
 
 
 
-function StylistTotals({ id, commissionPct, stylistName, hiddenMonths = [], onCloseParent }: { id: string; commissionPct: number; stylistName?: string; hiddenMonths?: number[]; onCloseParent?: () => void }) {
+function StylistTotals({ id, commissionPct, stylistName, hiddenMonths = [] }: { id: string; commissionPct: number; stylistName?: string; hiddenMonths?: number[] }) {
   return (
     <div className="text-sm">
-      <StylistMonthly id={id} commissionPct={commissionPct} stylistName={stylistName} isSettingsView={true} hiddenMonths={hiddenMonths} onCloseParent={onCloseParent} />
+      <StylistMonthly id={id} commissionPct={commissionPct} stylistName={stylistName} isSettingsView={true} hiddenMonths={hiddenMonths} />
     </div>
   );
 }
@@ -2334,7 +2334,7 @@ export default function Settings() {
                                 </button>
                               </PopoverTrigger>
                               <PopoverContent className="w-auto rounded-xl border border-white/14 bg-slate-900/95 backdrop-blur-xl p-3 space-y-2.5 shadow-[0_20px_50px_rgba(8,15,40,0.6)]" align="center" sideOffset={8}>
-                                <StylistTotals id={s.id} commissionPct={stylistCommissionPct} stylistName={s.name} hiddenMonths={(s as any).hiddenMonths || []} onCloseParent={() => setOpenStylistId(null)} />
+                                <StylistTotals id={s.id} commissionPct={stylistCommissionPct} stylistName={s.name} hiddenMonths={(s as any).hiddenMonths || []} />
                                 <div className="flex flex-wrap items-center gap-1.5 text-[11px]">
                                   <a className="inline-flex items-center gap-1.5 rounded-lg border border-white/20 bg-white/12 px-2 py-0.5 font-semibold uppercase tracking-[0.16em] text-white/80 transition hover:bg-white/18" href={"/api" + apiPath(`/reports/stylists/${s.id}.csv`)}>CSV</a>
                                   <a className="inline-flex items-center gap-1.5 rounded-lg border border-white/20 bg-white/12 px-2 py-0.5 font-semibold uppercase tracking-[0.16em] text-white/80 transition hover:bg-white/18" href={"/api" + apiPath(`/reports/stylists/${s.id}.pdf`)}>PDF</a>
