@@ -315,19 +315,32 @@ function Login({ onSwitchSignup, onRecover }: { onSwitchSignup: () => void; onRe
           onClick={()=> can && login.mutate(
             { email, password: pwd },
             {
-              onSuccess: (data: any) => {
-                // Stocker le token et salonId directement dans localStorage
-                if (data?.token) {
-                  localStorage.setItem("adminToken", data.token);
-                }
+              onSuccess: async (data: any) => {
+                const salonId = data?.salonId || getSelectedSalon();
+                // Utiliser les helpers pour mettre à jour le cache mémoire ET localStorage
                 if (data?.salonId) {
-                  localStorage.setItem("salons:list", data.salonId);
-                  localStorage.setItem("selectedSalonId", data.salonId);
+                  addKnownSalon(data.salonId);
+                  setSelectedSalon(data.salonId);
                 }
-                // Attendre que localStorage soit synchronisé puis rediriger
-                setTimeout(() => {
-                  window.location.replace("/app");
-                }, 100);
+                // Supprimer l'ancienne config et précharger la nouvelle
+                qc.removeQueries({ queryKey: ["config"] });
+                try {
+                  await qc.fetchQuery({
+                    queryKey: ["config", salonId],
+                    queryFn: async () => {
+                      const res = await fetch(`/api/salons/${salonId}/config`, {
+                        headers: { "x-admin-token": getAdminToken() || "" },
+                        cache: "no-store"
+                      });
+                      if (!res.ok) throw new Error("Failed");
+                      return res.json();
+                    },
+                    staleTime: 0
+                  });
+                } catch (e) {
+                  console.error("Config prefetch failed:", e);
+                }
+                navigate("/app", { replace: true });
               },
               onError: async (err: any) => {
                 try {
