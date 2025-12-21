@@ -319,10 +319,11 @@ function Login({ onSwitchSignup, onRecover }: { onSwitchSignup: () => void; onRe
                   addKnownSalon(data.salonId);
                   setSelectedSalon(data.salonId);
                 }
-                // Attendre que la query config soit refetchée et mise à jour avant de naviguer
-                // Cela évite le problème de double clic où config?.isAdmin n'est pas encore mis à jour
+                // Invalider toutes les queries config pour forcer un refetch avec le nouveau salonId
+                // Cela évite le problème où l'ancien salonId est utilisé
                 try {
-                  await qc.refetchQueries({ queryKey: ["config"], type: "active" });
+                  await qc.invalidateQueries({ queryKey: ["config"] });
+                  await qc.refetchQueries({ queryKey: ["config", data?.salonId], type: "all" });
                   navigate("/app");
                 } catch (error) {
                   // En cas d'erreur, naviguer quand même après un court délai
