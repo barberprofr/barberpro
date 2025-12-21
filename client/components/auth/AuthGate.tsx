@@ -316,15 +316,25 @@ function Login({ onSwitchSignup, onRecover }: { onSwitchSignup: () => void; onRe
             { email, password: pwd },
             {
               onSuccess: (data: any) => {
-                // Écrire directement dans localStorage pour garantir la synchronisation
-                if (data?.salonId) {
-                  try {
-                    localStorage.setItem("salons:list", data.salonId);
-                    localStorage.setItem("selectedSalonId", data.salonId);
-                  } catch {}
+                // Stocker le token et salonId directement dans localStorage
+                if (data?.token) {
+                  localStorage.setItem("adminToken", data.token);
                 }
-                // Forcer rechargement complet
-                window.location.replace("/app");
+                if (data?.salonId) {
+                  localStorage.setItem("salons:list", data.salonId);
+                  localStorage.setItem("selectedSalonId", data.salonId);
+                }
+                // Vérifier que les données sont bien écrites avant de rediriger
+                const checkAndRedirect = () => {
+                  const token = localStorage.getItem("adminToken");
+                  const salonId = localStorage.getItem("selectedSalonId");
+                  if (token && salonId) {
+                    window.location.replace("/app");
+                  } else {
+                    setTimeout(checkAndRedirect, 20);
+                  }
+                };
+                checkAndRedirect();
               },
               onError: async (err: any) => {
                 try {
