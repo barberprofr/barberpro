@@ -682,7 +682,7 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
                 </motion.button>
             )}
 
-            {useRangeData && (
+            {!shouldHideData && useRangeData && (
                 <motion.button
                     onClick={() => setRangeEncaissementsOpen(true)}
                     whileHover={{ scale: 1.03, y: -3, boxShadow: "0 0 25px rgba(139,92,246,0.5)" }}
