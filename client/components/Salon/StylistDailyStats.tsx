@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useStylistBreakdown, useUpdateTransactionPaymentMethod, useUpdateStylistHiddenMonths } from "@/lib/api";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -469,6 +469,16 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
     const shouldHideData = !isSettingsView && activeMonths.some(m => hiddenMonths.includes(m));
 
     const [maskDialogOpen, setMaskDialogOpen] = useState(false);
+
+    useEffect(() => {
+        setRangeEncaissementsOpen(false);
+        setTodayEncaissementsOpen(false);
+        setMaskDialogOpen(false);
+        setMode("today");
+        setMonth(defMonth);
+        setStartDate("");
+        setEndDate("");
+    }, [id]);
 
     const handleRemoveHiddenMonth = (monthInt: number) => {
         updateHiddenMonths.mutate({ stylistId: id, hiddenMonths: hiddenMonths.filter(m => m !== monthInt) });
