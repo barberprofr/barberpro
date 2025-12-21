@@ -319,10 +319,9 @@ function Login({ onSwitchSignup, onRecover }: { onSwitchSignup: () => void; onRe
                   addKnownSalon(data.salonId);
                   setSelectedSalon(data.salonId);
                 }
-                // Invalider les queries config en arrière-plan (sans bloquer)
-                // Naviguer immédiatement pour une UX plus rapide
-                qc.invalidateQueries({ queryKey: ["config"] });
-                navigate("/app");
+                // Vider le cache et recharger pour une connexion propre
+                qc.clear();
+                window.location.href = "/app";
               },
               onError: async (err: any) => {
                 try {
