@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { getSelectedSalon } from "./salon";
+import { getSelectedSalon, useSalonId } from "./salon";
 
 const envVars = import.meta.env as Record<string, string | undefined>;
 const envApiBaseUrl = envVars?.VITE_API_BASE_URL?.trim();
@@ -447,7 +447,7 @@ export function useRevenueByMonth(year?: number) {
 }
 
 export function useConfig() {
-  const salonId = getSelectedSalon();
+  const salonId = useSalonId();
   return useQuery({
     queryKey: ["config", salonId],
     queryFn: async () => {

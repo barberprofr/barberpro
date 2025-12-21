@@ -1,3 +1,5 @@
+import { useSyncExternalStore } from "react";
+
 export type SalonId = string;
 
 const KEY = "selectedSalonId";
@@ -20,6 +22,25 @@ export function setSelectedSalon(id: SalonId) {
   window.localStorage.setItem(KEY, norm);
   cachedSalonId = norm;
   salonChangeListeners.forEach(fn => fn());
+}
+
+function subscribe(callback: () => void): () => void {
+  salonChangeListeners.push(callback);
+  return () => {
+    salonChangeListeners = salonChangeListeners.filter(fn => fn !== callback);
+  };
+}
+
+function getSnapshot(): SalonId {
+  return getSelectedSalon();
+}
+
+function getServerSnapshot(): SalonId {
+  return DEFAULT_SALON;
+}
+
+export function useSalonId(): SalonId {
+  return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 }
 
 export function onSalonChange(listener: () => void): () => void {
