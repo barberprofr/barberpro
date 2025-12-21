@@ -603,12 +603,11 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
             )}
             
             {shouldHideData ? (
-                <div className="rounded-2xl border border-rose-500/30 bg-rose-950/30 p-4 shadow-inner text-sm space-y-2 text-center">
+                <div className="rounded-2xl border border-rose-500/30 bg-rose-950/30 p-4 shadow-inner text-sm text-center">
                     <div className="flex items-center justify-center gap-2 text-rose-300">
                         <EyeOff className="h-5 w-5" />
                         <span className="text-base font-medium">Données masquées</span>
                     </div>
-                    <p className="text-xs text-rose-200/60">Le responsable a masqué le CA de ce mois</p>
                 </div>
             ) : (
                 <div className="rounded-2xl border border-white/10 bg-slate-950/50 p-3 shadow-inner text-sm space-y-1">
