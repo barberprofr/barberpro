@@ -314,22 +314,15 @@ function Login({ onSwitchSignup, onRecover }: { onSwitchSignup: () => void; onRe
           onClick={()=> can && login.mutate(
             { email, password: pwd },
             {
-              onSuccess: async (data: any) => {
+              onSuccess: (data: any) => {
                 if (data?.salonId) {
                   addKnownSalon(data.salonId);
                   setSelectedSalon(data.salonId);
                 }
-                // Invalider toutes les queries config pour forcer un refetch avec le nouveau salonId
-                // Cela évite le problème où l'ancien salonId est utilisé
-                try {
-                  await qc.invalidateQueries({ queryKey: ["config"] });
-                  await qc.refetchQueries({ queryKey: ["config", data?.salonId], type: "all" });
-                  navigate("/app");
-                } catch (error) {
-                  // En cas d'erreur, naviguer quand même après un court délai
-                  console.error("Error refetching config:", error);
-                  setTimeout(() => navigate("/app"), 500);
-                }
+                // Invalider les queries config en arrière-plan (sans bloquer)
+                // Naviguer immédiatement pour une UX plus rapide
+                qc.invalidateQueries({ queryKey: ["config"] });
+                navigate("/app");
               },
               onError: async (err: any) => {
                 try {
