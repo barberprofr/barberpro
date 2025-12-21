@@ -4,7 +4,7 @@ import { useStylistBreakdown, useUpdateTransactionPaymentMethod, useUpdateStylis
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, List, EyeOff, Eye } from "lucide-react";
+import { ChevronDown, List, EyeOff, Eye, X, Trash2, Calendar } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const eur = new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" });
@@ -442,12 +442,51 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
     const isCurrentMonthHidden = hiddenMonths.includes(getCurrentMonthInt());
     const shouldHideData = !isSettingsView && isCurrentMonthHidden && mode !== "range";
 
-    const handleToggleHideMonth = () => {
-        const monthInt = getCurrentMonthInt();
-        const newHiddenMonths = isCurrentMonthHidden
-            ? hiddenMonths.filter(m => m !== monthInt)
-            : [...hiddenMonths, monthInt];
-        updateHiddenMonths.mutate({ stylistId: id, hiddenMonths: newHiddenMonths });
+    const [maskDialogOpen, setMaskDialogOpen] = useState(false);
+    const [maskTab, setMaskTab] = useState<"month" | "range">("month");
+    const [maskMonth, setMaskMonth] = useState<string>(defMonth);
+    const [maskStartDate, setMaskStartDate] = useState<string>("");
+    const [maskEndDate, setMaskEndDate] = useState<string>("");
+
+    const formatMonthLabel = (yyyymm: number) => {
+        const year = Math.floor(yyyymm / 100);
+        const month = yyyymm % 100;
+        const date = new Date(year, month - 1, 1);
+        return date.toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
+    };
+
+    const handleAddHiddenMonth = () => {
+        const [y, m] = maskMonth.split("-").map(Number);
+        const monthInt = y * 100 + m;
+        if (!hiddenMonths.includes(monthInt)) {
+            updateHiddenMonths.mutate({ stylistId: id, hiddenMonths: [...hiddenMonths, monthInt] });
+        }
+        setMaskDialogOpen(false);
+    };
+
+    const handleAddHiddenRange = () => {
+        if (!maskStartDate || !maskEndDate) return;
+        const start = new Date(maskStartDate);
+        const end = new Date(maskEndDate);
+        const monthsToAdd: number[] = [];
+        const current = new Date(start.getFullYear(), start.getMonth(), 1);
+        while (current <= end) {
+            const monthInt = current.getFullYear() * 100 + (current.getMonth() + 1);
+            if (!hiddenMonths.includes(monthInt) && !monthsToAdd.includes(monthInt)) {
+                monthsToAdd.push(monthInt);
+            }
+            current.setMonth(current.getMonth() + 1);
+        }
+        if (monthsToAdd.length > 0) {
+            updateHiddenMonths.mutate({ stylistId: id, hiddenMonths: [...hiddenMonths, ...monthsToAdd] });
+        }
+        setMaskDialogOpen(false);
+        setMaskStartDate("");
+        setMaskEndDate("");
+    };
+
+    const handleRemoveHiddenMonth = (monthInt: number) => {
+        updateHiddenMonths.mutate({ stylistId: id, hiddenMonths: hiddenMonths.filter(m => m !== monthInt) });
     };
     
     const dateStr = mode === "today" ? today : `${month}-01`;
@@ -531,28 +570,14 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
                 >
                     Période
                 </button>
-                {isSettingsView && mode !== "range" && (
+                {isSettingsView && (
                     <button
-                        onClick={handleToggleHideMonth}
-                        disabled={updateHiddenMonths.isPending}
-                        className={cn(
-                            "ml-auto px-3 py-1.5 rounded-lg border font-medium transition-all text-xs flex items-center gap-1.5",
-                            isCurrentMonthHidden
-                                ? "bg-rose-500/20 border-rose-400/50 text-rose-300 hover:bg-rose-500/30"
-                                : "bg-slate-800/60 border-slate-600 text-white/70 hover:bg-slate-700/60 hover:text-white"
-                        )}
+                        onClick={() => setMaskDialogOpen(true)}
+                        onTouchEnd={(e) => { e.preventDefault(); setMaskDialogOpen(true); }}
+                        className="ml-auto px-3 py-1.5 rounded-lg border font-medium transition-all text-xs flex items-center gap-1.5 bg-rose-500/20 border-rose-400/50 text-rose-300 hover:bg-rose-500/30"
                     >
-                        {isCurrentMonthHidden ? (
-                            <>
-                                <Eye className="h-3.5 w-3.5" />
-                                Afficher
-                            </>
-                        ) : (
-                            <>
-                                <EyeOff className="h-3.5 w-3.5" />
-                                Masquer
-                            </>
-                        )}
+                        <EyeOff className="h-3.5 w-3.5" />
+                        Masquer
                     </button>
                 )}
             </div>
@@ -766,6 +791,125 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
                     </motion.div>
                 )}
             </AnimatePresence>
+
+            <Dialog open={maskDialogOpen} onOpenChange={setMaskDialogOpen}>
+                <DialogContent className="max-w-md bg-slate-900/95 border-rose-500/30 backdrop-blur-xl">
+                    <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2 text-rose-300">
+                            <EyeOff className="h-5 w-5" />
+                            Masquer le CA
+                        </DialogTitle>
+                    </DialogHeader>
+                    
+                    <div className="space-y-4">
+                        <div className="flex gap-2">
+                            <button
+                                onClick={() => setMaskTab("month")}
+                                onTouchEnd={(e) => { e.preventDefault(); setMaskTab("month"); }}
+                                className={cn(
+                                    "flex-1 px-3 py-2 rounded-lg border font-medium transition-all text-sm",
+                                    maskTab === "month"
+                                        ? "bg-rose-500/20 border-rose-400/50 text-rose-300"
+                                        : "bg-slate-800/60 border-slate-600 text-white/70 hover:bg-slate-700/60"
+                                )}
+                            >
+                                Par mois
+                            </button>
+                            <button
+                                onClick={() => setMaskTab("range")}
+                                onTouchEnd={(e) => { e.preventDefault(); setMaskTab("range"); }}
+                                className={cn(
+                                    "flex-1 px-3 py-2 rounded-lg border font-medium transition-all text-sm",
+                                    maskTab === "range"
+                                        ? "bg-rose-500/20 border-rose-400/50 text-rose-300"
+                                        : "bg-slate-800/60 border-slate-600 text-white/70 hover:bg-slate-700/60"
+                                )}
+                            >
+                                Période
+                            </button>
+                        </div>
+
+                        {maskTab === "month" ? (
+                            <div className="space-y-3">
+                                <div className="flex items-center gap-2">
+                                    <Calendar className="h-4 w-4 text-rose-300" />
+                                    <span className="text-sm text-white/80">Sélectionner le mois</span>
+                                </div>
+                                <input
+                                    type="month"
+                                    value={maskMonth}
+                                    onChange={(e) => setMaskMonth(e.target.value)}
+                                    className="w-full border rounded-lg px-3 py-2 bg-slate-800/80 border-slate-600 text-white outline-none focus:border-rose-400 transition-colors"
+                                />
+                                <button
+                                    onClick={handleAddHiddenMonth}
+                                    onTouchEnd={(e) => { e.preventDefault(); handleAddHiddenMonth(); }}
+                                    disabled={updateHiddenMonths.isPending}
+                                    className="w-full px-4 py-2.5 rounded-lg bg-rose-500/30 border border-rose-400/50 text-rose-200 font-medium hover:bg-rose-500/40 transition-all disabled:opacity-50"
+                                >
+                                    Masquer ce mois
+                                </button>
+                            </div>
+                        ) : (
+                            <div className="space-y-3">
+                                <div className="flex items-center gap-2">
+                                    <Calendar className="h-4 w-4 text-rose-300" />
+                                    <span className="text-sm text-white/80">Sélectionner la période</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <span className="text-xs text-white/60">Du</span>
+                                    <input
+                                        type="date"
+                                        value={maskStartDate}
+                                        onChange={(e) => setMaskStartDate(e.target.value)}
+                                        className="flex-1 border rounded-lg px-2 py-2 bg-slate-800/80 border-slate-600 text-white outline-none focus:border-rose-400 transition-colors text-sm"
+                                    />
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <span className="text-xs text-white/60">Au</span>
+                                    <input
+                                        type="date"
+                                        value={maskEndDate}
+                                        onChange={(e) => setMaskEndDate(e.target.value)}
+                                        className="flex-1 border rounded-lg px-2 py-2 bg-slate-800/80 border-slate-600 text-white outline-none focus:border-rose-400 transition-colors text-sm"
+                                    />
+                                </div>
+                                <button
+                                    onClick={handleAddHiddenRange}
+                                    onTouchEnd={(e) => { e.preventDefault(); handleAddHiddenRange(); }}
+                                    disabled={updateHiddenMonths.isPending || !maskStartDate || !maskEndDate}
+                                    className="w-full px-4 py-2.5 rounded-lg bg-rose-500/30 border border-rose-400/50 text-rose-200 font-medium hover:bg-rose-500/40 transition-all disabled:opacity-50"
+                                >
+                                    Masquer cette période
+                                </button>
+                            </div>
+                        )}
+
+                        {hiddenMonths.length > 0 && (
+                            <div className="space-y-2 pt-2 border-t border-white/10">
+                                <span className="text-sm text-white/60">Périodes masquées :</span>
+                                <div className="flex flex-wrap gap-2">
+                                    {hiddenMonths.slice().sort((a, b) => b - a).map((m) => (
+                                        <div
+                                            key={m}
+                                            className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-rose-500/20 border border-rose-400/30 text-rose-200 text-xs"
+                                        >
+                                            <span className="capitalize">{formatMonthLabel(m)}</span>
+                                            <button
+                                                onClick={() => handleRemoveHiddenMonth(m)}
+                                                onTouchEnd={(e) => { e.preventDefault(); handleRemoveHiddenMonth(m); }}
+                                                className="hover:text-white transition-colors"
+                                            >
+                                                <X className="h-3 w-3" />
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }
