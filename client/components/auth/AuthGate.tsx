@@ -320,8 +320,10 @@ function Login({ onSwitchSignup, onRecover }: { onSwitchSignup: () => void; onRe
                   addKnownSalon(data.salonId);
                   setSelectedSalon(data.salonId);
                 }
-                // Rechargement complet pour garantir un état propre
-                window.location.href = "/app";
+                // Petit délai pour s'assurer que localStorage est synchronisé
+                setTimeout(() => {
+                  window.location.href = "/app";
+                }, 50);
               },
               onError: async (err: any) => {
                 try {
