@@ -493,8 +493,6 @@ export default function StatsCards() {
           <PopoverContent 
             side="bottom" 
             align="center" 
-            onInteractOutside={(e) => e.preventDefault()}
-            onPointerDownOutside={(e) => e.preventDefault()}
             className="w-[min(95vw,42rem)] max-h-[80vh] overflow-y-auto rounded-2xl border border-white/20 bg-white/5 p-4 shadow-[0_40px_95px_rgba(8,15,40,0.3)] backdrop-blur-sm [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']"
           >
             <StylistsList stylists={stylistsList} config={config} hasStylists={hasStylists} />
