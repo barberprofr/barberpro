@@ -1,7 +1,4 @@
 import { RequestHandler } from "express";
-import { v2 as cloudinary } from 'cloudinary';
-import { CloudinaryStorage } from 'multer-storage-cloudinary';
-import multer from 'multer';
 import { createHash, randomBytes } from "node:crypto";
 import { IncomingMessage } from "node:http";
 import { EmailService } from './emailService.ts';
@@ -3011,49 +3008,30 @@ export {
   connectDatabase
 };
 
-// Cloudinary Configuration
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
+export const uploadClientPhoto: RequestHandler = async (req, res) => {
+  try {
+    const salonId = getSalonId(req);
+    const { id } = req.params;
+    const { objectPath } = await parseRequestBody(req);
 
-const storage = new CloudinaryStorage({
-  cloudinary: cloudinary,
-  params: {
-    folder: 'barberpro-clients',
-    allowed_formats: ['jpg', 'png', 'jpeg', 'webp'],
-  } as any,
-});
-
-const upload = multer({ storage: storage });
-
-export const uploadClientPhoto = [
-  upload.single('photo'),
-  async (req: any, res: any) => {
-    try {
-      const salonId = getSalonId(req);
-      const { id } = req.params;
-
-      if (!req.file || !req.file.path) {
-        return res.status(400).json({ error: "No file uploaded" });
-      }
-
-      const client = await Client.findOne({ id, salonId });
-      if (!client) {
-        return res.status(404).json({ error: "Client not found" });
-      }
-
-      client.photos.push(req.file.path);
-      await client.save();
-
-      res.json({ client });
-    } catch (error) {
-      console.error('Error uploading client photo:', error);
-      res.status(500).json({ error: "Erreur serveur" });
+    if (!objectPath) {
+      return res.status(400).json({ error: "Object path is required" });
     }
+
+    const client = await Client.findOne({ id, salonId });
+    if (!client) {
+      return res.status(404).json({ error: "Client not found" });
+    }
+
+    client.photos.push(objectPath);
+    await client.save();
+
+    res.json({ client });
+  } catch (error) {
+    console.error('Error uploading client photo:', error);
+    res.status(500).json({ error: "Erreur serveur" });
   }
-];
+};
 
 export const deleteClientPhoto: RequestHandler = async (req, res) => {
   try {
@@ -3070,29 +3048,8 @@ export const deleteClientPhoto: RequestHandler = async (req, res) => {
       return res.status(404).json({ error: "Client not found" });
     }
 
-    // Remove from database
     client.photos = client.photos.filter(p => p !== photoUrl);
     await client.save();
-
-    // Delete from Cloudinary
-    // Extract public_id from URL: .../upload/v1234/folder/public_id.jpg
-    // or .../upload/folder/public_id.jpg
-    try {
-      const urlParts = photoUrl.split('/');
-      const filename = urlParts[urlParts.length - 1];
-      const publicIdWithExtension = filename.split('.')[0];
-      const folder = urlParts[urlParts.length - 2];
-
-      // Construct public_id (folder + / + filename without extension)
-      // This is a simple extraction, might need adjustment based on exact Cloudinary URL structure
-      // If folder is 'barberpro-clients', public_id is 'barberpro-clients/filename'
-      const publicId = `${folder}/${publicIdWithExtension}`;
-
-      await cloudinary.uploader.destroy(publicId);
-    } catch (cloudinaryError) {
-      console.error('Error deleting from Cloudinary:', cloudinaryError);
-      // We don't block the response if Cloudinary deletion fails, as the DB is already updated
-    }
 
     res.json({ client });
   } catch (error) {

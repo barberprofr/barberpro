@@ -4,6 +4,7 @@ import cors from "cors";
 import { handleDemo } from "./routes/demo";
 import { adminRouter } from "./routes/admin";
 import { connectDatabase } from './db';
+import { registerObjectStorageRoutes } from "./replit_integrations/object_storage";
 import { addClient, addStylist, adminLogin, createPrestation, createProduct, listProducts, exportSummaryCSV, exportSummaryPDF, getConfig, getStylistBreakdown, getGlobalBreakdown, listClients, listStylists, pointsUsageReport, redeemPoints, reportByDay, reportByMonth, setAdminPassword, setStylistCommission, summaryReport, updateConfig, deleteStylist, deleteClient, recoverAdminPassword, recoverAdminVerify, exportStylistCSV, exportStylistPDF, exportByDayCSV, exportByDayPDF, exportByMonthCSV, exportByMonthPDF, setupAdminAccount, verifyAdminCode, updateStylist, listServices, addService, deleteService, reorderServices, listProductTypes, addProductType, deleteProductType, reorderProductTypes, recoverAdminCode, verifyAdminCodeRecovery, addPoints, updateTransactionPaymentMethod, uploadClientPhoto, deleteClientPhoto, setStylistSecretCode, verifyStylistSecretCode, getStylistHasSecretCode, addStylistDeposit, listStylistDeposits, deleteStylistDeposit } from "./routes/salon";
 import { createCheckoutSession, createPortalSession, webhookHandler } from "./routes/payment";
 
@@ -58,6 +59,9 @@ export function createServer() {
 
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
+
+  // Object Storage routes (for file uploads)
+  registerObjectStorageRoutes(app);
 
   // Example API routes
   app.get("/api/ping", (_req, res) => {
