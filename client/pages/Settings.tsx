@@ -2310,6 +2310,7 @@ export default function Settings() {
                                     e.preventDefault();
                                     e.stopPropagation();
                                     setOpenStylistId(s.id);
+                                    setCoiffCaPopupOpen(false);
                                   }}
                                 >
                                   <div className="absolute inset-x-4 top-1 h-6 rounded-full opacity-70" style={{ background: "linear-gradient(180deg, rgba(255,255,255,0.55), rgba(255,255,255,0))" }} />
