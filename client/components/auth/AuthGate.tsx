@@ -7,7 +7,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useAdminLogin, useAdminRecover, useAdminRecoverVerify, useAdminSetupAccount } from "@/lib/api";
 import { Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { normalizeSalonId, setSelectedSalon, addKnownSalon } from "@/lib/salon";
+import { normalizeSalonId, setSelectedSalon, addKnownSalon, getSelectedSalon } from "@/lib/salon";
+import { getAdminToken } from "@/lib/admin";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -314,14 +315,24 @@ function Login({ onSwitchSignup, onRecover }: { onSwitchSignup: () => void; onRe
           onClick={()=> can && login.mutate(
             { email, password: pwd },
             {
-              onSuccess: (data: any) => {
+              onSuccess: async (data: any) => {
                 if (data?.salonId) {
                   addKnownSalon(data.salonId);
                   setSelectedSalon(data.salonId);
                 }
-                // Vider le cache et recharger pour une connexion propre
+                // Attendre que la config soit rechargée avec le bon salonId
                 qc.clear();
-                window.location.href = "/app";
+                await qc.fetchQuery({
+                  queryKey: ["config", data?.salonId || getSelectedSalon()],
+                  queryFn: async () => {
+                    const res = await fetch(`/api/salons/${data?.salonId || getSelectedSalon()}/config`, { 
+                      headers: { "x-admin-token": getAdminToken() || "" } 
+                    });
+                    if (!res.ok) throw new Error("Failed");
+                    return res.json();
+                  }
+                });
+                navigate("/app");
               },
               onError: async (err: any) => {
                 try {
