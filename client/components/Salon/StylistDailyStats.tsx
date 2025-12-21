@@ -656,7 +656,7 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
 
             {!shouldHideData && (useTodayData || useSingleDayRange) && (
                 <motion.button
-                    onClick={() => setTodayEncaissementsOpen(true)}
+                    onClick={(e) => { e.stopPropagation(); setTodayEncaissementsOpen(true); }}
                     whileHover={{ scale: 1.03, y: -3, boxShadow: "0 0 25px rgba(236,72,153,0.5)" }}
                     whileTap={{ scale: 1.12, y: -8, boxShadow: "0 0 50px rgba(236,72,153,0.9), 0 0 80px rgba(236,72,153,0.5), inset 0 0 20px rgba(255,255,255,0.1)" }}
                     transition={{ type: "spring", stiffness: 400, damping: 15 }}
@@ -676,7 +676,7 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
 
             {!shouldHideData && useRangeData && (
                 <motion.button
-                    onClick={() => setRangeEncaissementsOpen(true)}
+                    onClick={(e) => { e.stopPropagation(); setRangeEncaissementsOpen(true); }}
                     whileHover={{ scale: 1.03, y: -3, boxShadow: "0 0 25px rgba(139,92,246,0.5)" }}
                     whileTap={{ scale: 1.12, y: -8, boxShadow: "0 0 50px rgba(139,92,246,0.9), 0 0 80px rgba(139,92,246,0.5), inset 0 0 20px rgba(255,255,255,0.1)" }}
                     transition={{ type: "spring", stiffness: 400, damping: 15 }}
