@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useStylistBreakdown, useUpdateTransactionPaymentMethod, useUpdateStylistHiddenMonths } from "@/lib/api";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, List, EyeOff, Eye, X, Trash2, Calendar } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -786,81 +785,97 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
                 )}
             </AnimatePresence>
 
-            <Dialog open={maskDialogOpen} onOpenChange={setMaskDialogOpen}>
-                <DialogContent className="max-w-sm bg-slate-900/95 border-rose-500/30 backdrop-blur-xl p-5 relative z-[100]">
-                    <button
-                        type="button"
+            <AnimatePresence>
+                {maskDialogOpen && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.15 }}
+                        className="fixed inset-0 z-[200] flex items-center justify-center bg-black/50 backdrop-blur-sm"
                         onClick={() => setMaskDialogOpen(false)}
-                        className="absolute right-3 top-3 p-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white/70 hover:text-white transition-colors"
-                        aria-label="Fermer"
                     >
-                        <X className="h-4 w-4" />
-                    </button>
-                    <DialogHeader>
-                        <DialogTitle className="flex items-center gap-3 text-rose-300 text-lg pr-8">
-                            <EyeOff className="h-5 w-5" />
-                            Masquer le CA - 2025
-                        </DialogTitle>
-                    </DialogHeader>
-                    
-                    <div className="mt-3">
-                        <p className="text-sm text-white/60 mb-3">Cliquez sur un mois pour masquer/afficher son CA</p>
-                        <div className="grid grid-cols-4 gap-2">
-                            {[
-                                { label: 'Jan', value: 202501 },
-                                { label: 'Fév', value: 202502 },
-                                { label: 'Mar', value: 202503 },
-                                { label: 'Avr', value: 202504 },
-                                { label: 'Mai', value: 202505 },
-                                { label: 'Juin', value: 202506 },
-                                { label: 'Juil', value: 202507 },
-                                { label: 'Août', value: 202508 },
-                                { label: 'Sep', value: 202509 },
-                                { label: 'Oct', value: 202510 },
-                                { label: 'Nov', value: 202511 },
-                                { label: 'Déc', value: 202512 },
-                            ].map((month) => {
-                                const isHidden = hiddenMonths.includes(month.value);
-                                return (
-                                    <button
-                                        key={month.value}
-                                        type="button"
-                                        onClick={() => {
-                                            if (isHidden) {
-                                                handleRemoveHiddenMonth(month.value);
-                                            } else {
-                                                const newHiddenMonths = [...hiddenMonths, month.value];
-                                                updateHiddenMonths.mutate({ stylistId: id, hiddenMonths: newHiddenMonths });
-                                            }
-                                        }}
-                                        disabled={updateHiddenMonths.isPending}
-                                        className={`
-                                            relative flex flex-col items-center justify-center py-3 px-2 rounded-xl
-                                            font-medium text-sm transition-all touch-manipulation
-                                            disabled:opacity-50
-                                            ${isHidden 
-                                                ? 'bg-rose-500/30 border-2 border-rose-400/60 text-rose-200 shadow-[0_0_12px_rgba(244,63,94,0.3)]' 
-                                                : 'bg-slate-800/60 border border-slate-600/50 text-white/70 hover:bg-slate-700/60 hover:border-slate-500'
-                                            }
-                                        `}
-                                    >
-                                        <span>{month.label}</span>
-                                        {isHidden && (
-                                            <EyeOff className="h-3.5 w-3.5 mt-1 text-rose-300" />
-                                        )}
-                                    </button>
-                                );
-                            })}
-                        </div>
-                        <p className="text-xs text-white/40 mt-3 text-center">
-                            {hiddenMonths.length === 0 
-                                ? 'Aucun mois masqué' 
-                                : `${hiddenMonths.length} mois masqué${hiddenMonths.length > 1 ? 's' : ''}`
-                            }
-                        </p>
-                    </div>
-                </DialogContent>
-            </Dialog>
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                            transition={{ duration: 0.2 }}
+                            className="w-[calc(100%-2rem)] max-w-sm bg-slate-900/95 border border-rose-500/30 backdrop-blur-xl p-5 rounded-2xl shadow-[0_25px_80px_rgba(0,0,0,0.6)] relative"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <button
+                                type="button"
+                                onClick={() => setMaskDialogOpen(false)}
+                                className="absolute right-3 top-3 p-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white/70 hover:text-white transition-colors"
+                                aria-label="Fermer"
+                            >
+                                <X className="h-4 w-4" />
+                            </button>
+                            <div className="flex items-center gap-3 text-rose-300 text-lg pr-8 mb-3">
+                                <EyeOff className="h-5 w-5" />
+                                <span className="font-semibold">Masquer le CA - 2025</span>
+                            </div>
+                            
+                            <div>
+                                <p className="text-sm text-white/60 mb-3">Cliquez sur un mois pour masquer/afficher son CA</p>
+                                <div className="grid grid-cols-4 gap-2">
+                                    {[
+                                        { label: 'Jan', value: 202501 },
+                                        { label: 'Fév', value: 202502 },
+                                        { label: 'Mar', value: 202503 },
+                                        { label: 'Avr', value: 202504 },
+                                        { label: 'Mai', value: 202505 },
+                                        { label: 'Juin', value: 202506 },
+                                        { label: 'Juil', value: 202507 },
+                                        { label: 'Août', value: 202508 },
+                                        { label: 'Sep', value: 202509 },
+                                        { label: 'Oct', value: 202510 },
+                                        { label: 'Nov', value: 202511 },
+                                        { label: 'Déc', value: 202512 },
+                                    ].map((month) => {
+                                        const isHidden = hiddenMonths.includes(month.value);
+                                        return (
+                                            <button
+                                                key={month.value}
+                                                type="button"
+                                                onClick={() => {
+                                                    if (isHidden) {
+                                                        handleRemoveHiddenMonth(month.value);
+                                                    } else {
+                                                        const newHiddenMonths = [...hiddenMonths, month.value];
+                                                        updateHiddenMonths.mutate({ stylistId: id, hiddenMonths: newHiddenMonths });
+                                                    }
+                                                }}
+                                                disabled={updateHiddenMonths.isPending}
+                                                className={`
+                                                    relative flex flex-col items-center justify-center py-3 px-2 rounded-xl
+                                                    font-medium text-sm transition-all touch-manipulation
+                                                    disabled:opacity-50
+                                                    ${isHidden 
+                                                        ? 'bg-rose-500/30 border-2 border-rose-400/60 text-rose-200 shadow-[0_0_12px_rgba(244,63,94,0.3)]' 
+                                                        : 'bg-slate-800/60 border border-slate-600/50 text-white/70 hover:bg-slate-700/60 hover:border-slate-500'
+                                                    }
+                                                `}
+                                            >
+                                                <span>{month.label}</span>
+                                                {isHidden && (
+                                                    <EyeOff className="h-3.5 w-3.5 mt-1 text-rose-300" />
+                                                )}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                                <p className="text-xs text-white/40 mt-3 text-center">
+                                    {hiddenMonths.length === 0 
+                                        ? 'Aucun mois masqué' 
+                                        : `${hiddenMonths.length} mois masqué${hiddenMonths.length > 1 ? 's' : ''}`
+                                    }
+                                </p>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 }
