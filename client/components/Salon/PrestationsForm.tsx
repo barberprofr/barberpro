@@ -1274,8 +1274,8 @@ export default function PrestationsForm() {
               )}
             </div>
             <span className={cn(
-              "transition-all duration-300 max-w-[140px] truncate text-center",
-              clientId ? "text-2xl font-light text-fuchsia-400 drop-shadow-[0_0_8px_rgba(232,121,249,0.6)]" : "text-sm font-bold text-cyan-500"
+              "transition-all duration-300 max-w-[160px] truncate text-center",
+              clientId ? "text-3xl font-light text-fuchsia-400 drop-shadow-[0_0_8px_rgba(232,121,249,0.6)]" : "text-sm font-bold text-cyan-500"
             )}>
               {selectedClient ? selectedClient.name.split(' ')[0] : "Client"}
             </span>
