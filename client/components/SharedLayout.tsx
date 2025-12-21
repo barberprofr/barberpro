@@ -85,16 +85,18 @@ export default function SharedLayout({ children }: PropsWithChildren) {
   }, [location.search, location.pathname, navigate, refetch, qc]);
 
   useEffect(() => {
-    // Show subscription prompt when user is admin but subscription not active AND not trialing
-    // The popup must stay visible until payment is completed
-    // Show subscription prompt when user is admin but subscription not active AND not trialing
-    // The popup must stay visible until payment is completed
-    if (config?.isAdmin && config?.subscriptionStatus !== "active" && config?.subscriptionStatus !== "trialing" && config?.subscriptionStatus !== "paid") {
+    // Show subscription prompt when user is admin but subscription not active/trialing/paid
+    // Always ensure showSubPrompt is false when subscription is valid
+    const hasValidSubscription = config?.subscriptionStatus === "active" || config?.subscriptionStatus === "trialing" || config?.subscriptionStatus === "paid";
+    if (hasValidSubscription) {
+      setShowSubPrompt(false);
+    } else if (config?.isAdmin) {
       setShowSubPrompt(true);
-    } else if (hasActiveSubscription) {
+    } else {
+      // Not admin - no subscription prompt needed (show login instead)
       setShowSubPrompt(false);
     }
-  }, [config, hasActiveSubscription]);
+  }, [config]);
   return (
     <div 
       className="relative min-h-screen bg-gradient-to-br from-blue-950 via-sky-800 to-amber-700"
