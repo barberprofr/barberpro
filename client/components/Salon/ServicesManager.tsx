@@ -567,7 +567,19 @@ export default function ServicesManager({ accordionValue = "", onAccordionChange
                               size="sm"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                deleteService.mutate(service.id);
+                                deleteService.mutate(service.id, {
+                                  onSuccess: () => {
+                                    playSuccessSound();
+                                    setDeleteType("service");
+                                    setShowDeleteConfirmation(true);
+                                    if (deleteConfirmationTimeoutRef.current) {
+                                      window.clearTimeout(deleteConfirmationTimeoutRef.current);
+                                    }
+                                    deleteConfirmationTimeoutRef.current = window.setTimeout(() => {
+                                      setShowDeleteConfirmation(false);
+                                    }, 2000);
+                                  }
+                                });
                               }}
                               disabled={deleteService.isPending}
                               className="text-red-400 hover:text-red-300 flex-shrink-0"
