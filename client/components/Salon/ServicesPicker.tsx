@@ -1,9 +1,9 @@
 import { motion, AnimatePresence } from "framer-motion";
+import { createPortal } from "react-dom";
 import { useServices, useProductTypes } from "@/lib/api";
 import { Check, X, Package, Euro } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState, useEffect, useCallback } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 
@@ -154,12 +154,27 @@ export default function ServicesPicker({ onServiceSelect, onReset, externalOpen,
     }
   }, [selectedPrestations, selectedProducts, customAmountValue, onServiceSelect]);
 
-  return (
-    <Dialog open={popoverOpen} onOpenChange={setPopoverOpen}>
-      <DialogContent className="max-w-[min(90vw,42rem)] rounded-2xl border border-white/25 bg-black/15 shadow-[0_40px_95px_rgba(8,15,40,0.3)] backdrop-blur-[4px] p-0">
-        <DialogHeader className="px-4 pt-4 pb-2">
-          <DialogTitle className="text-xl font-light text-amber-400">PRESTATIONS & PRODUITS</DialogTitle>
-        </DialogHeader>
+  if (!popoverOpen) return null;
+
+  return createPortal(
+    <div 
+      className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200"
+      onClick={() => setPopoverOpen(false)}
+    >
+      <div 
+        className="w-full max-w-[min(90vw,42rem)] rounded-2xl border border-white/25 bg-slate-900/95 shadow-[0_40px_95px_rgba(8,15,40,0.8)] backdrop-blur-md p-0 animate-in zoom-in-95 duration-200"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="px-4 pt-4 pb-2 flex items-center justify-between">
+          <h2 className="text-xl font-light text-amber-400">PRESTATIONS & PRODUITS</h2>
+          <button
+            type="button"
+            onClick={() => setPopoverOpen(false)}
+            className="flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/5 text-slate-200 transition hover:bg-white/10"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
         {(hasServices || hasProducts) ? (
           <div className="flex flex-col">
             {/* Total display at top */}
@@ -583,7 +598,8 @@ export default function ServicesPicker({ onServiceSelect, onReset, externalOpen,
             Aucun service enregistré pour le moment. Allez dans les paramètres pour en ajouter.
           </div>
         )}
-      </DialogContent>
-    </Dialog>
+      </div>
+    </div>,
+    document.body
   );
 }
