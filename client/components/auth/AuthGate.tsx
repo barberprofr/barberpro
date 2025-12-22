@@ -315,7 +315,7 @@ function Login({ onSwitchSignup, onRecover }: { onSwitchSignup: () => void; onRe
           onClick={()=> can && login.mutate(
             { email, password: pwd },
             {
-              onSuccess: async (data: any) => {
+              onSuccess: (data: any) => {
                 console.log("🔐 Login success, data:", data);
                 // 1. Stocker le token AVANT toute autre opération
                 if (data?.token) {
@@ -323,39 +323,17 @@ function Login({ onSwitchSignup, onRecover }: { onSwitchSignup: () => void; onRe
                   console.log("✅ Token saved");
                 }
                 // 2. Mettre à jour le salonId dans le cache mémoire ET localStorage
-                const salonId = data?.salonId || getSelectedSalon();
-                console.log("📍 SalonId:", salonId);
                 if (data?.salonId) {
                   addKnownSalon(data.salonId);
                   setSelectedSalon(data.salonId);
-                  console.log("✅ Salon updated");
+                  console.log("✅ Salon updated:", data.salonId);
                 }
-                // 3. Supprimer l'ancienne config et précharger la nouvelle avec le nouveau token
-                qc.removeQueries({ queryKey: ["config"] });
-                console.log("🗑️ Old config removed");
-                try {
-                  const configData = await qc.fetchQuery({
-                    queryKey: ["config", salonId],
-                    queryFn: async () => {
-                      console.log("📡 Fetching config for salon:", salonId);
-                      const res = await fetch(`/api/salons/${salonId}/config`, {
-                        headers: { "x-admin-token": data?.token || "" },
-                        cache: "no-store"
-                      });
-                      if (!res.ok) {
-                        console.error("❌ Config fetch failed:", res.status);
-                        throw new Error("Failed");
-                      }
-                      return res.json();
-                    },
-                    staleTime: 0
-                  });
-                  console.log("✅ Config loaded:", configData);
-                } catch (e) {
-                  console.error("❌ Config prefetch failed:", e);
-                }
+                // 3. Invalider le cache config pour forcer un rechargement
+                qc.invalidateQueries({ queryKey: ["config"] });
+                console.log("🗑️ Config cache invalidated");
+                // 4. Naviguer vers /app - la config sera chargée automatiquement par useConfig
                 console.log("🚀 Navigating to /app");
-                navigate("/app", { replace: true });
+                window.location.href = "/app";
               },
               onError: async (err: any) => {
                 try {
