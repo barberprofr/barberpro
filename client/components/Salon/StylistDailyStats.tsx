@@ -599,6 +599,8 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
                         type="date" 
                         value={startDate} 
                         onChange={(e) => setStartDate(e.target.value)} 
+                        min={`${now.getFullYear()}-01-01`}
+                        max={`${now.getFullYear()}-12-31`}
                         className="border rounded-lg px-2 py-1.5 bg-slate-900/80 border-slate-600 text-white outline-none focus:border-violet-400 transition-colors text-sm" 
                     />
                     <span className="text-white/80 font-medium">au</span>
@@ -606,6 +608,8 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
                         type="date" 
                         value={endDate} 
                         onChange={(e) => setEndDate(e.target.value)} 
+                        min={`${now.getFullYear()}-01-01`}
+                        max={`${now.getFullYear()}-12-31`}
                         className="border rounded-lg px-2 py-1.5 bg-slate-900/80 border-slate-600 text-white outline-none focus:border-violet-400 transition-colors text-sm" 
                     />
                 </div>
