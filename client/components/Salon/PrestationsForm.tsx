@@ -23,8 +23,8 @@ const PHONE_DIGITS_REQUIRED = 10;
 const PAYMENT_OPTIONS: { value: "cash" | "check" | "card" | "mixed"; label: string; icon: LucideIcon; colors: { outer: string; inner: string; glow: string } }[] = [
   { value: "cash", label: "Espèces", icon: CircleDollarSign, colors: { outer: "conic-gradient(from 160deg, #CAFF58, #74FF9C, #16C772, #CAFF58)", inner: "linear-gradient(140deg, #D9FF96 0%, #7DFFAF 60%, #1FAA7C 100%)", glow: "0 8px 20px rgba(116,255,156,0.5)" } },
   { value: "card", label: "Carte", icon: CreditCard, colors: { outer: "conic-gradient(from 160deg, #9DF3FF, #52C7FF, #2B7FFF, #9DF3FF)", inner: "linear-gradient(140deg, #BFF6FF 0%, #63DAFF 60%, #318EFF 100%)", glow: "0 8px 20px rgba(82,199,255,0.5)" } },
-  { value: "mixed", label: "Carte + Espèces", icon: ArrowLeftRight, colors: { outer: "conic-gradient(from 160deg, #F472B6, #E879F9, #A855F7, #F472B6)", inner: "linear-gradient(140deg, #FBCFE8 0%, #F0ABFC 50%, #C084FC 100%)", glow: "0 8px 20px rgba(244,114,182,0.5)" } },
   { value: "check", label: "Planity/Treatwell", icon: Building2, colors: { outer: "conic-gradient(from 160deg, #FFD27A, #FF8A4C, #FF5A39, #FFD27A)", inner: "linear-gradient(140deg, #FFE0A1 0%, #FF9C5C 60%, #F1472A 100%)", glow: "0 8px 20px rgba(255,138,76,0.5)" } },
+  { value: "mixed", label: "Carte + Espèces", icon: ArrowLeftRight, colors: { outer: "conic-gradient(from 160deg, #F472B6, #E879F9, #A855F7, #F472B6)", inner: "linear-gradient(140deg, #FBCFE8 0%, #F0ABFC 50%, #C084FC 100%)", glow: "0 8px 20px rgba(244,114,182,0.5)" } },
 ];
 
 export default function PrestationsForm() {
