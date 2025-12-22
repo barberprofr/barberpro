@@ -1013,14 +1013,14 @@ function GlobalRevenueStats() {
         </motion.button>
       )}
 
-      <AnimatePresence>
-        {encaissementsOpen && (
+      {encaissementsOpen && createPortal(
+        <AnimatePresence>
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+            className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
             onClick={() => setEncaissementsOpen(false)}
           >
             <motion.div
@@ -1030,7 +1030,7 @@ function GlobalRevenueStats() {
               transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
               onClick={(e) => e.stopPropagation()}
               className={cn(
-                "relative w-[88%] max-w-md max-h-[85vh] overflow-hidden rounded-3xl border shadow-[0_25px_80px_rgba(0,0,0,0.6)] backdrop-blur-xl mx-auto my-auto",
+                "relative w-full max-w-md max-h-[calc(100vh-32px)] overflow-hidden rounded-3xl border shadow-[0_25px_80px_rgba(0,0,0,0.6)] backdrop-blur-xl",
                 useTodayData 
                   ? "bg-gradient-to-br from-slate-900/98 via-fuchsia-900/40 to-slate-800/98 border-fuchsia-500/30 shadow-[0_25px_80px_rgba(0,0,0,0.6),0_0_40px_rgba(236,72,153,0.2)]"
                   : "bg-gradient-to-br from-slate-900/98 via-violet-900/40 to-slate-800/98 border-violet-500/30 shadow-[0_25px_80px_rgba(0,0,0,0.6),0_0_40px_rgba(139,92,246,0.2)]"
@@ -1061,18 +1061,19 @@ function GlobalRevenueStats() {
                 <button
                   type="button"
                   onClick={() => setEncaissementsOpen(false)}
-                  className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-slate-400 transition hover:bg-white/10 hover:text-white"
+                  className="flex h-8 w-8 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition hover:bg-white/20"
                 >
-                  <ChevronDown className="h-6 w-6" />
+                  ✕
                 </button>
               </div>
-              <div className="p-2 sm:p-4 overflow-y-auto max-h-[calc(85vh-80px)]">
+              <div className="p-2 sm:p-4 overflow-y-auto max-h-[calc(100vh-120px)]">
                 <GlobalEncaissements entries={displayEntries} onUpdate={handleUpdatePayment} />
               </div>
             </motion.div>
           </motion.div>
-        )}
-      </AnimatePresence>
+        </AnimatePresence>,
+        document.body
+      )}
     </div>
   );
 }
@@ -1125,65 +1126,93 @@ function RevenueBySingleDay({ summary }: { summary?: DashboardSummary }) {
   return (
     <div>
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <Popover open={open} onOpenChange={setOpen}>
-          <PopoverTrigger asChild>
-            <button
-              className="group relative flex flex-col items-center justify-center gap-2 rounded-[20px] border border-amber-500/30 bg-gradient-to-br from-amber-900/40 via-slate-900/60 to-slate-900/80 backdrop-blur-xl px-6 py-5 shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] transition-all duration-200 hover:scale-[1.02] hover:border-amber-400/50 hover:shadow-[0_12px_40px_rgba(245,158,11,0.3)] active:scale-[0.98]"
+        <button
+          onClick={() => setOpen(true)}
+          className="group relative flex flex-col items-center justify-center gap-2 rounded-[20px] border border-amber-500/30 bg-gradient-to-br from-amber-900/40 via-slate-900/60 to-slate-900/80 backdrop-blur-xl px-6 py-5 shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.1)] transition-all duration-200 hover:scale-[1.02] hover:border-amber-400/50 hover:shadow-[0_12px_40px_rgba(245,158,11,0.3)] active:scale-[0.98]"
+        >
+          <div className="flex h-10 w-10 items-center justify-center rounded-full border border-amber-400/40 bg-amber-500/20">
+            <svg className="h-5 w-5 text-amber-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
+            </svg>
+          </div>
+          <span className="text-sm font-semibold text-white">Voir le détail</span>
+          <span className="text-xs text-white/50">{formattedDate}</span>
+        </button>
+        {open && createPortal(
+          <AnimatePresence>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
+              className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
+              onClick={() => setOpen(false)}
             >
-              <div className="flex h-10 w-10 items-center justify-center rounded-full border border-amber-400/40 bg-amber-500/20">
-                <svg className="h-5 w-5 text-amber-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
-                </svg>
-              </div>
-              <span className="text-sm font-semibold text-white">Voir le détail</span>
-              <span className="text-xs text-white/50">{formattedDate}</span>
-            </button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto max-w-2xl rounded-xl border border-white/14 bg-black/15 backdrop-blur-md p-3 space-y-2.5 shadow-[0_20px_50px_rgba(8,15,40,0.6)]" align="start" sideOffset={8}>
-            <div className="space-y-3">
-              <div className="rounded-2xl border-2 border-primary/40 bg-primary/10 px-4 py-3 text-center">
-                <div className="text-xs uppercase tracking-wide text-primary">Total journée</div>
-                <div className="text-4xl font-extrabold">{eur.format(amount)}</div>
-                <div className="text-xs text-muted-foreground">{count} prestation{count > 1 ? "s" : ""}{productCount ? `, ${productCount} produit${productCount > 1 ? "s" : ""}` : ""}</div>
-                <div className="mt-1 text-[11px] font-semibold text-emerald-300 whitespace-nowrap">
-                  Benefice net: {eur.format(netAfterSalary)}
-                </div>
-              </div>
-              {paymentSummary.length ? (
-                <PaymentSummaryGrid items={paymentSummary} />
-              ) : (
-                <p className="text-xs text-muted-foreground">Répartition par mode non disponible pour cette journée.</p>
-              )}
-              <div className="flex items-center justify-center gap-2 text-xs">
-                <a className="px-2 py-1 rounded border hover:bg-accent" href={"/api" + apiPath(`/reports/by-day.csv?year=${targetYear}&month=${targetMonth}`)}>Export CSV</a>
-                <a className="px-2 py-1 rounded border hover:bg-accent" href={"/api" + apiPath(`/reports/by-day.pdf?year=${targetYear}&month=${targetMonth}`)}>Export PDF</a>
-              </div>
-            </div>
-            <div className="grid grid-cols-3 bg-white/12 px-3 py-2 font-medium text-white/80 rounded">
-              <div>Date</div>
-              <div>Montant</div>
-              <div>Détails</div>
-            </div>
-            <div className="max-h-48 overflow-y-auto space-y-1">
-              {days.map((d) => {
-                const isSelected = d.date === selectedDate;
-                return (
-                  <div
-                    key={d.date}
-                    className={cn(
-                      "grid grid-cols-3 px-3 py-2 border-t transition-colors text-sm",
-                      isSelected ? "bg-white/20 text-white" : "bg-transparent"
-                    )}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ duration: 0.2 }}
+                className="w-full max-w-md max-h-[calc(100vh-32px)] overflow-y-auto rounded-2xl border border-amber-500/30 bg-gradient-to-br from-slate-900 via-amber-900/40 to-slate-800 p-4 shadow-[0_25px_80px_rgba(0,0,0,0.6),0_0_40px_rgba(245,158,11,0.2)]"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-lg font-bold text-white">Total journée</span>
+                  <button
+                    type="button"
+                    onClick={() => setOpen(false)}
+                    className="flex h-8 w-8 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition hover:bg-white/20"
                   >
-                    <div>{d.date}</div>
-                    <div>{eur.format(d.amount)}</div>
-                    <div>{d.count} prest.{(d as any).productCount ? `, ${(d as any).productCount} prod.` : ""}</div>
+                    ✕
+                  </button>
+                </div>
+                <div className="space-y-3">
+                  <div className="rounded-2xl border-2 border-amber-400/40 bg-amber-500/10 px-4 py-3 text-center">
+                    <div className="text-xs uppercase tracking-wide text-amber-300">Total journée</div>
+                    <div className="text-4xl font-extrabold text-white">{eur.format(amount)}</div>
+                    <div className="text-xs text-white/60">{count} prestation{count > 1 ? "s" : ""}{productCount ? `, ${productCount} produit${productCount > 1 ? "s" : ""}` : ""}</div>
+                    <div className="mt-1 text-[11px] font-semibold text-emerald-300 whitespace-nowrap">
+                      Benefice net: {eur.format(netAfterSalary)}
+                    </div>
                   </div>
-                );
-              })}
-            </div>
-          </PopoverContent>
-        </Popover>
+                  {paymentSummary.length ? (
+                    <PaymentSummaryGrid items={paymentSummary} />
+                  ) : (
+                    <p className="text-xs text-white/60">Répartition par mode non disponible pour cette journée.</p>
+                  )}
+                  <div className="flex items-center justify-center gap-2 text-xs">
+                    <a className="px-2 py-1 rounded border border-white/20 text-white hover:bg-white/10" href={"/api" + apiPath(`/reports/by-day.csv?year=${targetYear}&month=${targetMonth}`)}>Export CSV</a>
+                    <a className="px-2 py-1 rounded border border-white/20 text-white hover:bg-white/10" href={"/api" + apiPath(`/reports/by-day.pdf?year=${targetYear}&month=${targetMonth}`)}>Export PDF</a>
+                  </div>
+                </div>
+                <div className="mt-4 grid grid-cols-3 bg-white/12 px-3 py-2 font-medium text-white/80 rounded">
+                  <div>Date</div>
+                  <div>Montant</div>
+                  <div>Détails</div>
+                </div>
+                <div className="max-h-48 overflow-y-auto space-y-1">
+                  {days.map((d) => {
+                    const isSelected = d.date === selectedDate;
+                    return (
+                      <div
+                        key={d.date}
+                        className={cn(
+                          "grid grid-cols-3 px-3 py-2 border-t border-white/10 transition-colors text-sm",
+                          isSelected ? "bg-white/20 text-white" : "bg-transparent text-white/70"
+                        )}
+                      >
+                        <div>{d.date}</div>
+                        <div>{eur.format(d.amount)}</div>
+                        <div>{d.count} prest.{(d as any).productCount ? `, ${(d as any).productCount} prod.` : ""}</div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </motion.div>
+            </motion.div>
+          </AnimatePresence>,
+          document.body
+        )}
         <div className="flex items-center gap-2 text-sm">
           <span className="text-muted-foreground">Jour</span>
           <input
