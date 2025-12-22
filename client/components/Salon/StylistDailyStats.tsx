@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { Button } from "@/components/ui/button";
 import { useStylistBreakdown, useUpdateTransactionPaymentMethod, useUpdateStylistHiddenMonths } from "@/lib/api";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -530,10 +531,167 @@ function TransactionRow({ entry: e, fmt, onUpdate }: { entry: any, fmt: (ts: num
     );
 }
 
+function SingleDateCalendar({
+    selectedDate,
+    onValidate,
+    onClose,
+    formatDateDisplay
+}: {
+    selectedDate: string;
+    onValidate: (date: string) => void;
+    onClose: () => void;
+    formatDateDisplay: (d: string) => string;
+}) {
+    const now = new Date();
+    const [viewMonth, setViewMonth] = useState(selectedDate ? parseInt(selectedDate.split("-")[1]) - 1 : now.getMonth());
+    const [viewYear, setViewYear] = useState(selectedDate ? parseInt(selectedDate.split("-")[0]) : now.getFullYear());
+    const [tempDate, setTempDate] = useState(selectedDate);
+
+    const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+    const firstDayOfWeek = (new Date(viewYear, viewMonth, 1).getDay() + 6) % 7;
+
+    const handlePrevMonth = () => {
+        if (viewMonth === 0) {
+            setViewMonth(11);
+            setViewYear(viewYear - 1);
+        } else {
+            setViewMonth(viewMonth - 1);
+        }
+    };
+
+    const handleNextMonth = () => {
+        if (viewMonth === 11) {
+            setViewMonth(0);
+            setViewYear(viewYear + 1);
+        } else {
+            setViewMonth(viewMonth + 1);
+        }
+    };
+
+    const handleDayClick = (day: number) => {
+        const dateStr = `${viewYear}-${String(viewMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+        setTempDate(dateStr);
+    };
+
+    const isSelected = (day: number) => {
+        const dateStr = `${viewYear}-${String(viewMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+        return dateStr === tempDate;
+    };
+
+    const isToday = (day: number) => {
+        return day === now.getDate() && viewMonth === now.getMonth() && viewYear === now.getFullYear();
+    };
+
+    const cells = [];
+    for (let i = 0; i < firstDayOfWeek; i++) {
+        cells.push(<div key={`empty-start-${i}`} className="h-9 w-9" />);
+    }
+    for (let day = 1; day <= daysInMonth; day++) {
+        const selected = isSelected(day);
+        const todayDay = isToday(day);
+        
+        cells.push(
+            <button
+                key={day}
+                type="button"
+                onClick={() => handleDayClick(day)}
+                className={cn(
+                    "h-9 w-9 flex items-center justify-center rounded-lg text-sm font-semibold transition-all",
+                    selected
+                        ? "bg-gradient-to-br from-violet-500 to-fuchsia-500 text-white shadow-lg"
+                        : "text-white hover:bg-violet-500/30",
+                    todayDay && !selected && "ring-2 ring-fuchsia-400"
+                )}
+            >
+                {day}
+            </button>
+        );
+    }
+    
+    const totalCells = 42;
+    const currentCells = firstDayOfWeek + daysInMonth;
+    for (let i = currentCells; i < totalCells; i++) {
+        cells.push(<div key={`empty-end-${i}`} className="h-9 w-9" />);
+    }
+
+    return (
+        <div className="space-y-2 w-full">
+            <div className="flex justify-center">
+                <div className="text-center">
+                    <span className="text-violet-300 font-semibold text-xs block">Date sélectionnée</span>
+                    <div className="mt-0.5 px-3 py-1.5 rounded-lg bg-violet-500/20 border border-violet-400/40 text-white font-bold text-sm w-[140px] text-center">
+                        {tempDate ? formatDateDisplay(tempDate) : "— — —"}
+                    </div>
+                </div>
+            </div>
+
+            <div className="rounded-xl border border-violet-500/30 bg-slate-900/80 p-2 w-full">
+                <div className="flex items-center justify-between mb-1.5 h-8">
+                    <button
+                        type="button"
+                        onClick={handlePrevMonth}
+                        className="h-8 w-8 flex-shrink-0 flex items-center justify-center rounded-full bg-violet-500/30 border border-violet-400/50 text-white hover:bg-violet-500/50 transition-all"
+                    >
+                        <ChevronLeft className="h-4 w-4" />
+                    </button>
+                    <span className="text-sm font-bold text-white w-32 text-center">
+                        {MONTHS_FR[viewMonth]} {viewYear}
+                    </span>
+                    <button
+                        type="button"
+                        onClick={handleNextMonth}
+                        className="h-8 w-8 flex-shrink-0 flex items-center justify-center rounded-full bg-violet-500/30 border border-violet-400/50 text-white hover:bg-violet-500/50 transition-all"
+                    >
+                        <ChevronRight className="h-4 w-4" />
+                    </button>
+                </div>
+
+                <div className="grid grid-cols-7 w-full">
+                    {DAYS_FR.map((day) => (
+                        <div key={day} className="h-6 flex items-center justify-center text-[10px] font-bold text-violet-300">
+                            {day}
+                        </div>
+                    ))}
+                </div>
+
+                <div className="grid grid-cols-7 grid-rows-6 w-full">
+                    {cells}
+                </div>
+            </div>
+
+            <div className="flex gap-2">
+                <button
+                    type="button"
+                    onClick={() => {
+                        onValidate(parisDateString());
+                        onClose();
+                    }}
+                    className="flex-1 px-4 py-2 rounded-xl bg-slate-700/50 text-white font-semibold text-sm hover:bg-slate-600/50 transition-all"
+                >
+                    Aujourd'hui
+                </button>
+                <button
+                    type="button"
+                    onClick={() => {
+                        if (tempDate) {
+                            onValidate(tempDate);
+                        }
+                        onClose();
+                    }}
+                    className="flex-1 px-4 py-2 rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white font-semibold text-sm hover:from-violet-500 hover:to-fuchsia-500 transition-all shadow-lg"
+                >
+                    Valider
+                </button>
+            </div>
+        </div>
+    );
+}
+
 export function StylistDailySection({ id, commissionPct, stylistName }: { id: string; commissionPct: number; stylistName?: string }) {
     const today = parisDateString();
     const [date, setDate] = useState<string>(today);
     const [encaissementsOpen, setEncaissementsOpen] = useState(false);
+    const [datePickerOpen, setDatePickerOpen] = useState(false);
 
     const formatDateDisplay = (dateStr: string) => {
         const [year, month, day] = dateStr.split("-");
@@ -542,26 +700,51 @@ export function StylistDailySection({ id, commissionPct, stylistName }: { id: st
 
     return (
         <div className="space-y-3">
-            <div className="flex items-center gap-3 text-sm">
-                <span className="text-white/80 font-medium">Date</span>
-                <input
-                    type="date"
-                    value={date}
-                    onChange={(e) => setDate(e.target.value)}
-                    className="border rounded-lg px-3 py-1.5 bg-slate-900/80 border-slate-600 text-white outline-none focus:border-cyan-400 transition-colors"
-                />
-                <button
-                    onClick={() => setDate(today)}
-                    className={cn(
-                        "px-3 py-1.5 rounded-lg border font-medium transition-all",
-                        date === today
-                            ? "bg-cyan-500/20 border-cyan-400/50 text-cyan-300"
-                            : "bg-slate-800/60 border-slate-600 text-white/70 hover:bg-slate-700/60 hover:text-white"
-                    )}
-                >
-                    Aujourd'hui
-                </button>
-            </div>
+            <button
+                type="button"
+                onClick={() => setDatePickerOpen(true)}
+                className="flex items-center gap-3 text-sm px-3 py-2 rounded-xl border border-violet-500/40 bg-violet-900/20 hover:bg-violet-900/30 transition-all"
+            >
+                <span className="text-white/80 font-medium">Date :</span>
+                <span className="text-violet-300 font-semibold">{formatDateDisplay(date)}</span>
+            </button>
+            
+            {datePickerOpen && createPortal(
+                <AnimatePresence>
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.15 }}
+                        className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
+                        onClick={() => setDatePickerOpen(false)}
+                    >
+                        <div
+                            onClick={(e) => e.stopPropagation()}
+                            className="w-[320px] max-h-[calc(100vh-32px)] overflow-y-auto rounded-2xl border border-violet-500/30 bg-gradient-to-br from-slate-900 via-violet-900/40 to-slate-800 p-4 shadow-[0_25px_80px_rgba(0,0,0,0.6),0_0_40px_rgba(139,92,246,0.2)]"
+                        >
+                            <div className="flex items-center justify-between mb-2">
+                                <h3 className="text-base font-bold text-white">Sélection de la date</h3>
+                                <button
+                                    type="button"
+                                    onClick={() => setDatePickerOpen(false)}
+                                    className="flex h-7 w-7 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition hover:bg-white/20 text-sm"
+                                >
+                                    ✕
+                                </button>
+                            </div>
+                            
+                            <SingleDateCalendar
+                                selectedDate={date}
+                                onValidate={(d) => setDate(d)}
+                                onClose={() => setDatePickerOpen(false)}
+                                formatDateDisplay={formatDateDisplay}
+                            />
+                        </div>
+                    </motion.div>
+                </AnimatePresence>,
+                document.body
+            )}
             <StylistDaily id={id} date={date} commissionPct={commissionPct} />
             
             {/* Bouton pour ouvrir le popup des encaissements */}
