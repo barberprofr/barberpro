@@ -3154,14 +3154,14 @@ export default function Settings() {
                       </div>
                       
                       {/* Sous-popup saisie acompte */}
-                      <AnimatePresence>
-                        {selectedStylistForDeposit && (
+                      {selectedStylistForDeposit && createPortal(
+                        <AnimatePresence>
                           <motion.div
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             transition={{ duration: 0.15 }}
-                            className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm"
+                            className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm"
                             onClick={() => {
                               setSelectedStylistForDeposit(null);
                               setDepositDetailsOpen(false);
@@ -3267,18 +3267,19 @@ export default function Settings() {
                               </div>
                             </motion.div>
                           </motion.div>
-                        )}
-                      </AnimatePresence>
+                        </AnimatePresence>,
+                        document.body
+                      )}
                       
                       {/* Sous-popup détails acomptes */}
-                      <AnimatePresence>
-                        {depositDetailsOpen && selectedStylistForDeposit && (
+                      {depositDetailsOpen && selectedStylistForDeposit && createPortal(
+                        <AnimatePresence>
                           <motion.div
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             transition={{ duration: 0.15 }}
-                            className="fixed inset-0 z-[70] flex items-center justify-center bg-black/60 backdrop-blur-sm"
+                            className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm"
                             onClick={() => {
                               setDepositDetailsOpen(false);
                               setSelectedStylistForDeposit(null);
@@ -3366,8 +3367,9 @@ export default function Settings() {
                               </div>
                             </motion.div>
                           </motion.div>
-                        )}
-                      </AnimatePresence>
+                        </AnimatePresence>,
+                        document.body
+                      )}
                     </motion.div>
                   </motion.div>
                 </AnimatePresence>,
@@ -3379,13 +3381,13 @@ export default function Settings() {
       </div>
 
       {/* Popup de confirmation 3D centré */}
-      <AnimatePresence>
-        {confirmPopup.open && (
+      {confirmPopup.open && createPortal(
+        <AnimatePresence>
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center pointer-events-none"
+            className="fixed inset-0 z-[9999] flex items-center justify-center pointer-events-none"
           >
             <motion.div
               initial={{ scale: 0.5, opacity: 0, y: 50 }}
@@ -3472,8 +3474,9 @@ export default function Settings() {
               </motion.div>
             </motion.div>
           </motion.div>
-        )}
-      </AnimatePresence>
+        </AnimatePresence>,
+        document.body
+      )}
     </SharedLayout>
   );
 }
