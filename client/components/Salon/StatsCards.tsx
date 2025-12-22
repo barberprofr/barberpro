@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Lock } from "lucide-react";
 import { StylistMonthly } from "@/components/Salon/StylistDailyStats";
+import { playSuccessSound } from "@/lib/sounds";
 
 // Composant Clavier Numérique
 function NumericKeypad({ 
@@ -680,6 +681,7 @@ function StylistsList({ stylists, config, hasStylists }: { stylists: any[], conf
     try {
       const result = await verifyCode.mutateAsync({ stylistId: pendingId, code: secretCodeInput });
       if (result.valid) {
+        playSuccessSound();
         setSelectedId(pendingId);
         setPendingId(null);
         setShowCodeDialog(false);
