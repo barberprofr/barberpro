@@ -879,16 +879,12 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.15 }}
-                        className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm"
+                        className="fixed inset-0 z-[200] bg-black/60 backdrop-blur-sm"
                         onClick={() => setMonthPickerOpen(false)}
                     >
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                        <div
                             onClick={(e) => e.stopPropagation()}
-                            className="w-[90%] max-w-xs max-h-[90vh] overflow-y-auto rounded-2xl border border-cyan-500/30 bg-gradient-to-br from-slate-900/98 via-cyan-900/40 to-slate-800/98 p-3 shadow-[0_25px_80px_rgba(0,0,0,0.6),0_0_40px_rgba(6,182,212,0.2)] backdrop-blur-xl"
+                            className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[280px] rounded-2xl border border-cyan-500/30 bg-gradient-to-br from-slate-900/98 via-cyan-900/40 to-slate-800/98 p-3 shadow-[0_25px_80px_rgba(0,0,0,0.6),0_0_40px_rgba(6,182,212,0.2)] backdrop-blur-xl"
                         >
                             <div className="flex items-center justify-between mb-2">
                                 <h3 className="text-sm font-bold text-white">Sélection du mois</h3>
@@ -939,7 +935,7 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
                             >
                                 Fermer
                             </button>
-                        </motion.div>
+                        </div>
                     </motion.div>
                 )}
             </AnimatePresence>
