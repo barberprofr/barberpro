@@ -262,19 +262,19 @@ type PaymentSummaryItem = PaymentSummaryMeta & { amount: number; count: number }
 function PaymentSummaryGrid({ items }: { items: PaymentSummaryItem[] }) {
   if (!items.length) return null;
   return (
-    <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
+    <div className="mt-3 flex flex-col gap-2">
       {items.map((item) => (
         <div key={item.key} className="flex items-center justify-between rounded-xl border border-white/15 bg-white/8 backdrop-blur-sm px-4 py-3">
-          <div className="flex items-center gap-2.5">
-            <span className={`inline-flex h-8 w-8 items-center justify-center rounded-full ${item.badgeClasses}`}>
-              <item.icon className={`h-4 w-4 ${item.iconClasses}`} />
+          <div className="flex items-center gap-3">
+            <span className={`inline-flex h-10 w-10 items-center justify-center rounded-full ${item.badgeClasses}`}>
+              <item.icon className={`h-5 w-5 ${item.iconClasses}`} />
             </span>
             <div className="leading-tight">
-              <div className="text-xs font-semibold uppercase tracking-wide text-white/80">{item.label}</div>
-              <div className="text-[11px] text-white/50">{item.count} prest.</div>
+              <div className="text-sm font-semibold uppercase tracking-wide text-white/80">{item.label}</div>
+              <div className="text-xs text-white/50">{item.count} prest.</div>
             </div>
           </div>
-          <span className="text-sm font-bold text-white">{eur.format(item.amount)}</span>
+          <span className="text-lg font-bold text-white">{eur.format(item.amount)}</span>
         </div>
       ))}
     </div>
