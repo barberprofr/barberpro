@@ -58,6 +58,30 @@ function CustomCalendar({
 
     const handleDayClick = (day: number) => {
         const dateStr = `${viewYear}-${String(viewMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+        
+        // Si on clique sur la date de début actuelle → désélectionner tout
+        if (dateStr === startDate && !endDate) {
+            onSelectStart("");
+            onSelectEnd("");
+            setSelectingEnd(false);
+            return;
+        }
+        
+        // Si on clique sur la date de fin actuelle → désélectionner la fin
+        if (dateStr === endDate) {
+            onSelectEnd("");
+            setSelectingEnd(true);
+            return;
+        }
+        
+        // Si on clique sur la date de début quand il y a une fin → désélectionner tout et recommencer
+        if (dateStr === startDate && endDate) {
+            onSelectStart("");
+            onSelectEnd("");
+            setSelectingEnd(false);
+            return;
+        }
+        
         if (!startDate || (startDate && endDate) || selectingEnd === false) {
             onSelectStart(dateStr);
             onSelectEnd("");
