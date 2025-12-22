@@ -1436,8 +1436,13 @@ export default function Settings() {
     const handleClickOutside = () => {
       closeCoiffeurPopupAndRefresh();
     };
-    document.addEventListener("click", handleClickOutside);
-    return () => document.removeEventListener("click", handleClickOutside);
+    const timeout = setTimeout(() => {
+      document.addEventListener("click", handleClickOutside);
+    }, 100);
+    return () => {
+      clearTimeout(timeout);
+      document.removeEventListener("click", handleClickOutside);
+    };
   }, [coiffeurPopupOpen, closeCoiffeurPopupAndRefresh]);
 
   useEffect(() => {
@@ -1445,8 +1450,13 @@ export default function Settings() {
     const handleClickOutside = () => {
       closeAcomptePopupAndRefresh();
     };
-    document.addEventListener("click", handleClickOutside);
-    return () => document.removeEventListener("click", handleClickOutside);
+    const timeout = setTimeout(() => {
+      document.addEventListener("click", handleClickOutside);
+    }, 100);
+    return () => {
+      clearTimeout(timeout);
+      document.removeEventListener("click", handleClickOutside);
+    };
   }, [acomptePopupOpen, closeAcomptePopupAndRefresh]);
 
   useEffect(() => {
