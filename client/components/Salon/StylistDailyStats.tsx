@@ -14,21 +14,21 @@ const MONTHS_FR = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juill
 function CustomCalendar({
     startDate,
     endDate,
-    onSelectStart,
-    onSelectEnd,
+    onValidate,
     onClose,
     formatDateDisplay
 }: {
     startDate: string;
     endDate: string;
-    onSelectStart: (d: string) => void;
-    onSelectEnd: (d: string) => void;
+    onValidate: (start: string, end: string) => void;
     onClose: () => void;
     formatDateDisplay: (d: string) => string;
 }) {
     const now = new Date();
     const [viewMonth, setViewMonth] = useState(now.getMonth());
     const [viewYear, setViewYear] = useState(now.getFullYear());
+    const [tempStart, setTempStart] = useState(startDate);
+    const [tempEnd, setTempEnd] = useState(endDate);
 
     const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
     const firstDayOfWeek = (new Date(viewYear, viewMonth, 1).getDay() + 6) % 7;
@@ -59,55 +59,55 @@ function CustomCalendar({
         const dateStr = `${viewYear}-${String(viewMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
         
         // Si on clique sur la date de début et pas de fin → désélectionner
-        if (dateStr === startDate && !endDate) {
-            onSelectStart("");
+        if (dateStr === tempStart && !tempEnd) {
+            setTempStart("");
             return;
         }
         
         // Si on clique sur la date de fin → désélectionner la fin
-        if (dateStr === endDate && endDate) {
-            onSelectEnd("");
+        if (dateStr === tempEnd && tempEnd) {
+            setTempEnd("");
             return;
         }
         
         // Si on clique sur la date de début quand il y a une fin → désélectionner tout
-        if (dateStr === startDate && endDate) {
-            onSelectStart("");
-            onSelectEnd("");
+        if (dateStr === tempStart && tempEnd) {
+            setTempStart("");
+            setTempEnd("");
             return;
         }
         
         // Sinon, logique normale de sélection
-        if (!startDate || (startDate && endDate)) {
+        if (!tempStart || (tempStart && tempEnd)) {
             // Pas de début ou plage complète → nouvelle sélection de début
-            onSelectStart(dateStr);
-            onSelectEnd("");
+            setTempStart(dateStr);
+            setTempEnd("");
         } else {
             // On a un début, on sélectionne la fin
-            if (dateStr < startDate) {
+            if (dateStr < tempStart) {
                 // La fin est avant le début → inverser
-                onSelectStart(dateStr);
-                onSelectEnd(startDate);
+                setTempStart(dateStr);
+                setTempEnd(tempStart);
             } else {
-                onSelectEnd(dateStr);
+                setTempEnd(dateStr);
             }
         }
     };
 
     const isInRange = (day: number) => {
-        if (!startDate || !endDate) return false;
+        if (!tempStart || !tempEnd) return false;
         const dateStr = `${viewYear}-${String(viewMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-        return dateStr >= startDate && dateStr <= endDate;
+        return dateStr >= tempStart && dateStr <= tempEnd;
     };
 
     const isStart = (day: number) => {
         const dateStr = `${viewYear}-${String(viewMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-        return dateStr === startDate;
+        return dateStr === tempStart;
     };
 
     const isEnd = (day: number) => {
         const dateStr = `${viewYear}-${String(viewMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-        return dateStr === endDate;
+        return dateStr === tempEnd;
     };
 
     const isToday = (day: number) => {
@@ -160,13 +160,13 @@ function CustomCalendar({
                 <div className="text-center">
                     <span className="text-violet-300 font-semibold text-xs block">Début</span>
                     <div className="mt-0.5 px-3 py-1.5 rounded-lg bg-violet-500/20 border border-violet-400/40 text-white font-bold text-sm w-[110px] text-center">
-                        {startDate ? formatDateDisplay(startDate) : "— — —"}
+                        {tempStart ? formatDateDisplay(tempStart) : "— — —"}
                     </div>
                 </div>
                 <div className="text-center">
                     <span className="text-fuchsia-300 font-semibold text-xs block">Fin</span>
                     <div className="mt-0.5 px-3 py-1.5 rounded-lg bg-fuchsia-500/20 border border-fuchsia-400/40 text-white font-bold text-sm w-[110px] text-center">
-                        {endDate ? formatDateDisplay(endDate) : "— — —"}
+                        {tempEnd ? formatDateDisplay(tempEnd) : "— — —"}
                     </div>
                 </div>
             </div>
@@ -209,7 +209,10 @@ function CustomCalendar({
 
             <button
                 type="button"
-                onClick={onClose}
+                onClick={() => {
+                    onValidate(tempStart, tempEnd);
+                    onClose();
+                }}
                 className="w-full px-4 py-2 rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white font-semibold text-sm hover:from-violet-500 hover:to-fuchsia-500 transition-all shadow-lg"
             >
                 Valider
@@ -856,8 +859,10 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
                             <CustomCalendar
                                 startDate={startDate}
                                 endDate={endDate}
-                                onSelectStart={setStartDate}
-                                onSelectEnd={setEndDate}
+                                onValidate={(start, end) => {
+                                    setStartDate(start);
+                                    setEndDate(end);
+                                }}
                                 onClose={() => setDatePickerOpen(false)}
                                 formatDateDisplay={formatDateDisplay}
                             />
