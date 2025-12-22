@@ -2881,14 +2881,14 @@ export default function Settings() {
               />
 
               {/* Popup Coiffeurs */}
-              <AnimatePresence>
-                {coiffeurPopupOpen && (
+              {coiffeurPopupOpen && createPortal(
+                <AnimatePresence>
                   <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.15 }}
-                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+                    className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
                     onClick={closeCoiffeurPopupAndRefresh}
                   >
                     <motion.div
@@ -2896,7 +2896,7 @@ export default function Settings() {
                       animate={{ opacity: 1, scale: 1, y: 0 }}
                       exit={{ opacity: 0, scale: 0.95, y: 10 }}
                       transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-                      className="w-full max-w-lg max-h-[85vh] overflow-y-auto rounded-3xl border border-violet-500/30 bg-gradient-to-br from-slate-900/98 via-violet-900/40 to-slate-800/98 p-6 shadow-[0_25px_80px_rgba(0,0,0,0.6),0_0_40px_rgba(139,92,246,0.2)] backdrop-blur-xl"
+                      className="w-full max-w-lg max-h-[calc(100vh-32px)] overflow-y-auto rounded-3xl border border-violet-500/30 bg-gradient-to-br from-slate-900/98 via-violet-900/40 to-slate-800/98 p-6 shadow-[0_25px_80px_rgba(0,0,0,0.6),0_0_40px_rgba(139,92,246,0.2)] backdrop-blur-xl"
                       onClick={(e) => e.stopPropagation()}
                     >
                       <div className="flex items-center justify-between mb-6">
@@ -2904,7 +2904,7 @@ export default function Settings() {
                         <button
                           type="button"
                           onClick={closeCoiffeurPopupAndRefresh}
-                          className="flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition hover:bg-white/20"
+                          className="flex h-8 w-8 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition hover:bg-white/20"
                         >
                           ✕
                         </button>
@@ -3060,8 +3060,9 @@ export default function Settings() {
                       </div>
                     </motion.div>
                   </motion.div>
-                )}
-              </AnimatePresence>
+                </AnimatePresence>,
+                document.body
+              )}
 
               {/* Popup Acompte Coiffeur */}
               {acomptePopupOpen && createPortal(
