@@ -26,6 +26,202 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsive
 
 const eur = new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" });
 
+const DAYS_FR = ["Lu", "Ma", "Me", "Je", "Ve", "Sa", "Di"];
+const MONTHS_FR = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
+
+function CustomCalendarSettings({
+    startDate,
+    endDate,
+    onValidate,
+    onClose,
+    formatDateDisplay
+}: {
+    startDate: string;
+    endDate: string;
+    onValidate: (start: string, end: string) => void;
+    onClose: () => void;
+    formatDateDisplay: (d: string) => string;
+}) {
+    const now = new Date();
+    const [viewMonth, setViewMonth] = useState(now.getMonth());
+    const [viewYear, setViewYear] = useState(now.getFullYear());
+    const [tempStart, setTempStart] = useState(startDate);
+    const [tempEnd, setTempEnd] = useState(endDate);
+
+    const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+    const firstDayOfWeek = (new Date(viewYear, viewMonth, 1).getDay() + 6) % 7;
+
+    const handlePrevMonth = () => {
+        if (viewMonth === 0) {
+            setViewMonth(11);
+            setViewYear(viewYear - 1);
+        } else {
+            setViewMonth(viewMonth - 1);
+        }
+    };
+
+    const handleNextMonth = () => {
+        if (viewMonth === 11) {
+            setViewMonth(0);
+            setViewYear(viewYear + 1);
+        } else {
+            setViewMonth(viewMonth + 1);
+        }
+    };
+
+    const handleDayClick = (day: number) => {
+        const dateStr = `${viewYear}-${String(viewMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+        
+        if (dateStr === tempStart && !tempEnd) {
+            setTempStart("");
+            return;
+        }
+        
+        if (dateStr === tempEnd && tempEnd) {
+            setTempEnd("");
+            return;
+        }
+        
+        if (dateStr === tempStart && tempEnd) {
+            setTempStart("");
+            setTempEnd("");
+            return;
+        }
+        
+        if (!tempStart || (tempStart && tempEnd)) {
+            setTempStart(dateStr);
+            setTempEnd("");
+        } else {
+            if (dateStr < tempStart) {
+                setTempStart(dateStr);
+                setTempEnd(tempStart);
+            } else {
+                setTempEnd(dateStr);
+            }
+        }
+    };
+
+    const isInRange = (day: number) => {
+        if (!tempStart || !tempEnd) return false;
+        const dateStr = `${viewYear}-${String(viewMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+        return dateStr >= tempStart && dateStr <= tempEnd;
+    };
+
+    const isStart = (day: number) => {
+        const dateStr = `${viewYear}-${String(viewMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+        return dateStr === tempStart;
+    };
+
+    const isEnd = (day: number) => {
+        const dateStr = `${viewYear}-${String(viewMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+        return dateStr === tempEnd;
+    };
+
+    const isToday = (day: number) => {
+        return day === now.getDate() && viewMonth === now.getMonth() && viewYear === now.getFullYear();
+    };
+
+    const cells = [];
+    for (let i = 0; i < firstDayOfWeek; i++) {
+        cells.push(<div key={`empty-start-${i}`} className="h-9 w-9" />);
+    }
+    for (let day = 1; day <= daysInMonth; day++) {
+        const inRange = isInRange(day);
+        const start = isStart(day);
+        const end = isEnd(day);
+        const todayDay = isToday(day);
+        
+        cells.push(
+            <button
+                key={day}
+                type="button"
+                onClick={() => handleDayClick(day)}
+                className={cn(
+                    "h-9 w-9 flex items-center justify-center rounded-lg text-sm font-semibold transition-all",
+                    start || end
+                        ? "bg-gradient-to-br from-violet-500 to-fuchsia-500 text-white shadow-lg"
+                        : inRange
+                            ? "bg-violet-500/40 text-white"
+                            : "text-white hover:bg-violet-500/30",
+                    todayDay && !start && !end && "ring-2 ring-fuchsia-400"
+                )}
+            >
+                {day}
+            </button>
+        );
+    }
+    
+    const totalCells = 42;
+    const currentCells = firstDayOfWeek + daysInMonth;
+    for (let i = currentCells; i < totalCells; i++) {
+        cells.push(<div key={`empty-end-${i}`} className="h-9 w-9" />);
+    }
+
+    return (
+        <div className="space-y-2 w-full">
+            <div className="flex justify-center gap-4">
+                <div className="text-center">
+                    <span className="text-violet-300 font-semibold text-xs block">Début</span>
+                    <div className="mt-0.5 px-3 py-1.5 rounded-lg bg-violet-500/20 border border-violet-400/40 text-white font-bold text-sm w-[110px] text-center">
+                        {tempStart ? formatDateDisplay(tempStart) : "— — —"}
+                    </div>
+                </div>
+                <div className="text-center">
+                    <span className="text-fuchsia-300 font-semibold text-xs block">Fin</span>
+                    <div className="mt-0.5 px-3 py-1.5 rounded-lg bg-fuchsia-500/20 border border-fuchsia-400/40 text-white font-bold text-sm w-[110px] text-center">
+                        {tempEnd ? formatDateDisplay(tempEnd) : "— — —"}
+                    </div>
+                </div>
+            </div>
+
+            <div className="rounded-xl border border-violet-500/30 bg-slate-900/80 p-2 w-full">
+                <div className="flex items-center justify-between mb-1.5 h-8">
+                    <button
+                        type="button"
+                        onClick={handlePrevMonth}
+                        className="h-8 w-8 flex-shrink-0 flex items-center justify-center rounded-full bg-violet-500/30 border border-violet-400/50 text-white hover:bg-violet-500/50 transition-all"
+                    >
+                        <ChevronLeft className="h-4 w-4" />
+                    </button>
+                    <span className="text-sm font-bold text-white w-32 text-center">
+                        {MONTHS_FR[viewMonth]} {viewYear}
+                    </span>
+                    <button
+                        type="button"
+                        onClick={handleNextMonth}
+                        className="h-8 w-8 flex-shrink-0 flex items-center justify-center rounded-full bg-violet-500/30 border border-violet-400/50 text-white hover:bg-violet-500/50 transition-all"
+                    >
+                        <ChevronRight className="h-4 w-4" />
+                    </button>
+                </div>
+
+                <div className="grid grid-cols-7 w-full">
+                    {DAYS_FR.map((day) => (
+                        <div key={day} className="h-6 flex items-center justify-center text-[10px] font-bold text-violet-300">
+                            {day}
+                        </div>
+                    ))}
+                </div>
+
+                <div className="grid grid-cols-7 grid-rows-6 w-full">
+                    {cells}
+                </div>
+            </div>
+
+            <button
+                type="button"
+                onClick={() => {
+                    onValidate(tempStart, tempEnd);
+                    onClose();
+                }}
+                className="w-full px-4 py-2 rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white font-semibold text-sm hover:from-violet-500 hover:to-fuchsia-500 transition-all shadow-lg"
+            >
+                Valider
+            </button>
+        </div>
+    );
+}
+
 interface PaymentSummaryMeta {
   key: MethodKey;
   label: string;
@@ -84,7 +280,7 @@ function PaymentSummaryGrid({ items }: { items: PaymentSummaryItem[] }) {
   );
 }
 
-const MONTHS_FR = ["Jan", "Fév", "Mar", "Avr", "Mai", "Juin", "Juil", "Août", "Sep", "Oct", "Nov", "Déc"];
+const MONTHS_FR_SHORT = ["Jan", "Fév", "Mar", "Avr", "Mai", "Juin", "Juil", "Août", "Sep", "Oct", "Nov", "Déc"];
 
 function MonthYearPicker({ 
   value, 
@@ -137,7 +333,7 @@ function MonthYearPicker({
         </div>
       )}
       <div className="grid grid-cols-4 gap-2">
-        {MONTHS_FR.map((m, i) => {
+        {MONTHS_FR_SHORT.map((m, i) => {
           const monthNum = i + 1;
           const isSelected = month === monthNum;
           return (
@@ -516,6 +712,7 @@ function GlobalRevenueStats() {
   const [startDate, setStartDate] = useState<string>("");
   const [endDate, setEndDate] = useState<string>("");
   const [encaissementsOpen, setEncaissementsOpen] = useState(false);
+  const [datePickerOpen, setDatePickerOpen] = useState(false);
   const updatePaymentMethod = useUpdateTransactionPaymentMethod();
   
   const dateStr = mode === "today" ? today : `${month}-01`;
@@ -613,22 +810,58 @@ function GlobalRevenueStats() {
           </button>
         </div>
       ) : (
-        <div className="flex flex-wrap items-center gap-2 text-sm">
-          <span className="text-white/80 font-medium">Du</span>
-          <input 
-            type="date" 
-            value={startDate} 
-            onChange={(e) => setStartDate(e.target.value)} 
-            className="border rounded-lg px-2 py-1.5 bg-slate-900/80 border-slate-600 text-white outline-none focus:border-violet-400 transition-colors text-sm" 
-          />
-          <span className="text-white/80 font-medium">au</span>
-          <input 
-            type="date" 
-            value={endDate} 
-            onChange={(e) => setEndDate(e.target.value)} 
-            className="border rounded-lg px-2 py-1.5 bg-slate-900/80 border-slate-600 text-white outline-none focus:border-violet-400 transition-colors text-sm" 
-          />
-        </div>
+        <>
+          <button
+            type="button"
+            onClick={() => setDatePickerOpen(true)}
+            className="flex flex-wrap items-center gap-2 text-sm px-3 py-2 rounded-xl border border-violet-500/40 bg-violet-900/20 hover:bg-violet-900/30 transition-all"
+          >
+            <span className="text-white/80 font-medium">Du</span>
+            <span className="text-violet-300 font-semibold">{startDate ? formatDateDisplay(startDate) : "jj/mm/aaaa"}</span>
+            <span className="text-white/80 font-medium">au</span>
+            <span className="text-violet-300 font-semibold">{endDate ? formatDateDisplay(endDate) : "jj/mm/aaaa"}</span>
+          </button>
+          
+          <AnimatePresence>
+            {datePickerOpen && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.15 }}
+                className="fixed inset-0 z-[200] bg-black/60 backdrop-blur-sm"
+                onClick={() => setDatePickerOpen(false)}
+              >
+                <div
+                  onClick={(e) => e.stopPropagation()}
+                  className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[320px] h-[420px] rounded-2xl border border-violet-500/30 bg-gradient-to-br from-slate-900/98 via-violet-900/40 to-slate-800/98 p-4 shadow-[0_25px_80px_rgba(0,0,0,0.6),0_0_40px_rgba(139,92,246,0.2)] backdrop-blur-xl"
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="text-base font-bold text-white">Sélection des dates</h3>
+                    <button
+                      type="button"
+                      onClick={() => setDatePickerOpen(false)}
+                      className="flex h-7 w-7 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition hover:bg-white/20 text-sm"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                  
+                  <CustomCalendarSettings
+                    startDate={startDate}
+                    endDate={endDate}
+                    onValidate={(start, end) => {
+                      setStartDate(start);
+                      setEndDate(end);
+                    }}
+                    onClose={() => setDatePickerOpen(false)}
+                    formatDateDisplay={formatDateDisplay}
+                  />
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </>
       )}
       
       <div className="rounded-3xl border border-white/10 bg-slate-950/50 p-4 shadow-inner text-sm space-y-3">
