@@ -871,13 +871,14 @@ export function StylistDailySection({ id, commissionPct, stylistName }: { id: st
                                 animate={{ opacity: 1 }}
                                 exit={{ opacity: 0 }}
                                 transition={{ duration: 0.15 }}
-                                className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center"
+                                className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm overflow-y-auto"
                                 onClick={() => setDatePickerOpen(false)}
                             >
-                                <div
-                                    onClick={(e) => e.stopPropagation()}
-                                    className="w-full h-full sm:w-[400px] sm:h-auto sm:max-h-[90vh] overflow-y-auto sm:rounded-2xl border-0 sm:border border-violet-500/30 bg-gradient-to-br from-slate-900 via-violet-900/40 to-slate-800 p-6 shadow-[0_25px_80px_rgba(0,0,0,0.6),0_0_40px_rgba(139,92,246,0.2)]"
-                                >
+                                <div className="min-h-full flex items-center justify-center p-4">
+                                    <div
+                                        onClick={(e) => e.stopPropagation()}
+                                        className="w-full max-w-[400px] rounded-2xl border border-violet-500/30 bg-gradient-to-br from-slate-900 via-violet-900/40 to-slate-800 p-6 shadow-[0_25px_80px_rgba(0,0,0,0.6),0_0_40px_rgba(139,92,246,0.2)]"
+                                    >
                                     <div className="flex items-center justify-between mb-4">
                                         <h3 className="text-xl font-bold text-white">Sélection des dates</h3>
                                         <button
@@ -899,6 +900,7 @@ export function StylistDailySection({ id, commissionPct, stylistName }: { id: st
                                         onClose={() => setDatePickerOpen(false)}
                                         formatDateDisplay={formatDateDisplay}
                                     />
+                                    </div>
                                 </div>
                             </motion.div>
                         </AnimatePresence>,
