@@ -2669,14 +2669,14 @@ export default function Settings() {
                   <span className="text-[8px] sm:text-[10px] text-white/60 hidden sm:block">Cette année</span>
                 </button>
               </div>
-              <AnimatePresence>
-                {coiffCaPopupOpen && (
+              {coiffCaPopupOpen && createPortal(
+                <AnimatePresence>
                   <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.15 }}
-                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
+                    className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
                     onClick={() => setCoiffCaPopupOpen(false)}
                   >
                     <motion.div
@@ -2684,15 +2684,15 @@ export default function Settings() {
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.95 }}
                       transition={{ duration: 0.2 }}
-                      className="w-[calc(100%-2rem)] max-w-lg max-h-[80vh] overflow-y-auto rounded-2xl border border-white/20 bg-slate-900/50 backdrop-blur-md p-4 shadow-[0_25px_80px_rgba(0,0,0,0.6)]"
+                      className="w-full max-w-lg max-h-[calc(100vh-32px)] overflow-y-auto rounded-2xl border border-amber-500/30 bg-gradient-to-br from-slate-900/98 via-amber-900/40 to-slate-800/98 p-4 shadow-[0_25px_80px_rgba(0,0,0,0.6),0_0_40px_rgba(245,158,11,0.2)] backdrop-blur-xl"
                       onClick={(e) => e.stopPropagation()}
                     >
-                      <div className="flex items-center justify-center mb-4 relative">
-                        <span className="text-2xl font-black uppercase tracking-wide text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">Chiffre d'affaires coiffeur</span>
+                      <div className="flex items-center justify-between mb-4">
+                        <span className="text-xl font-bold text-white">Chiffre d'affaires coiffeur</span>
                         <button
                           type="button"
                           onClick={() => setCoiffCaPopupOpen(false)}
-                          className="absolute right-0 flex h-8 w-8 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition hover:bg-white/20"
+                          className="flex h-8 w-8 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition hover:bg-white/20"
                         >
                           ✕
                         </button>
@@ -2744,21 +2744,22 @@ export default function Settings() {
                       </div>
                     </motion.div>
                   </motion.div>
-                )}
-              </AnimatePresence>
+                </AnimatePresence>,
+                document.body
+              )}
 
-              <AnimatePresence>
-                {openStylistId && (() => {
-                  const selectedStylist = stylists?.find(s => s.id === openStylistId);
-                  if (!selectedStylist) return null;
-                  const stylistCommissionPct = typeof (selectedStylist as any).commissionPct === "number" ? (selectedStylist as any).commissionPct : (config?.commissionDefault ?? 0);
-                  return (
+              {openStylistId && (() => {
+                const selectedStylist = stylists?.find(s => s.id === openStylistId);
+                if (!selectedStylist) return null;
+                const stylistCommissionPct = typeof (selectedStylist as any).commissionPct === "number" ? (selectedStylist as any).commissionPct : (config?.commissionDefault ?? 0);
+                return createPortal(
+                  <AnimatePresence>
                     <motion.div
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
                       transition={{ duration: 0.15 }}
-                      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
+                      className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
                       onClick={() => setOpenStylistId(null)}
                     >
                       <motion.div
@@ -2766,7 +2767,7 @@ export default function Settings() {
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.95 }}
                         transition={{ duration: 0.2 }}
-                        className="w-[calc(100%-2rem)] max-w-md max-h-[85vh] overflow-y-auto rounded-2xl border border-white/20 bg-slate-900/95 backdrop-blur-xl p-4 shadow-[0_25px_80px_rgba(0,0,0,0.6)]"
+                        className="w-full max-w-md max-h-[calc(100vh-32px)] overflow-y-auto rounded-2xl border border-amber-500/30 bg-gradient-to-br from-slate-900/98 via-amber-900/40 to-slate-800/98 p-4 shadow-[0_25px_80px_rgba(0,0,0,0.6),0_0_40px_rgba(245,158,11,0.2)] backdrop-blur-xl"
                         onClick={(e) => e.stopPropagation()}
                       >
                         <div className="flex items-center justify-between mb-3">
@@ -2790,9 +2791,10 @@ export default function Settings() {
                         </div>
                       </motion.div>
                     </motion.div>
-                  );
-                })()}
-              </AnimatePresence>
+                  </AnimatePresence>,
+                  document.body
+                );
+              })()}
 
               
               <AnimatePresence>
