@@ -43,13 +43,19 @@ export default function ServicesManager({ accordionValue = "", onAccordionChange
   const [prestationsPopupOpen, setPrestationsPopupOpen] = useState(false);
   
   const [showAddConfirmation, setShowAddConfirmation] = useState(false);
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const [confirmationType, setConfirmationType] = useState<"service" | "product">("service");
+  const [deleteType, setDeleteType] = useState<"service" | "product">("product");
   const confirmationTimeoutRef = useRef<number | null>(null);
+  const deleteConfirmationTimeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
     return () => {
       if (confirmationTimeoutRef.current) {
         window.clearTimeout(confirmationTimeoutRef.current);
+      }
+      if (deleteConfirmationTimeoutRef.current) {
+        window.clearTimeout(deleteConfirmationTimeoutRef.current);
       }
     };
   }, []);
@@ -319,6 +325,66 @@ export default function ServicesManager({ accordionValue = "", onAccordionChange
                   <p className="text-xl font-bold text-white">Ajout pris en compte</p>
                   <p className="mt-1 text-sm text-white/60">
                     {confirmationType === "service" ? "Prestation ajoutée" : "Produit ajouté"}
+                  </p>
+                </div>
+              </motion.div>
+            </motion.div>
+          </motion.div>
+        </AnimatePresence>,
+        document.body
+      )}
+
+      {showDeleteConfirmation && createPortal(
+        <AnimatePresence>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 backdrop-blur-sm"
+            onClick={() => setShowDeleteConfirmation(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 10 }}
+              transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+              onClick={(e) => e.stopPropagation()}
+              className="relative"
+            >
+              <div
+                className="absolute -inset-1 rounded-2xl opacity-80"
+                style={{
+                  background: "conic-gradient(from 0deg, #ef4444, #f97316, #eab308, #ef4444)",
+                  animation: "spin 3s linear infinite",
+                }}
+              />
+              <motion.div
+                animate={{
+                  boxShadow: [
+                    "0 0 20px rgba(239, 68, 68, 0.6), 0 0 40px rgba(239, 68, 68, 0.4), 0 0 60px rgba(239, 68, 68, 0.2)",
+                    "0 0 30px rgba(249, 115, 22, 0.6), 0 0 50px rgba(249, 115, 22, 0.4), 0 0 70px rgba(249, 115, 22, 0.2)",
+                    "0 0 20px rgba(239, 68, 68, 0.6), 0 0 40px rgba(239, 68, 68, 0.4), 0 0 60px rgba(239, 68, 68, 0.2)",
+                  ],
+                }}
+                transition={{
+                  duration: 2,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }}
+                className="relative flex flex-col items-center justify-center gap-4 rounded-2xl border border-white/20 bg-slate-900/95 px-10 py-8 backdrop-blur-xl"
+              >
+                <motion.div
+                  animate={{ scale: [1, 1.1, 1] }}
+                  transition={{ duration: 0.6, repeat: Infinity, ease: "easeInOut" }}
+                  className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-red-500 to-orange-600"
+                >
+                  <Trash2 className="h-8 w-8 text-white" strokeWidth={2.5} />
+                </motion.div>
+                <div className="text-center">
+                  <p className="text-xl font-bold text-white">Suppression effectuée</p>
+                  <p className="mt-1 text-sm text-white/60">
+                    {deleteType === "service" ? "Prestation supprimée" : "Produit supprimé"}
                   </p>
                 </div>
               </motion.div>
@@ -621,7 +687,19 @@ export default function ServicesManager({ accordionValue = "", onAccordionChange
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => deleteProductType.mutate(productType.id)}
+                              onClick={() => deleteProductType.mutate(productType.id, {
+                                onSuccess: () => {
+                                  playSuccessSound();
+                                  setDeleteType("product");
+                                  setShowDeleteConfirmation(true);
+                                  if (deleteConfirmationTimeoutRef.current) {
+                                    window.clearTimeout(deleteConfirmationTimeoutRef.current);
+                                  }
+                                  deleteConfirmationTimeoutRef.current = window.setTimeout(() => {
+                                    setShowDeleteConfirmation(false);
+                                  }, 2000);
+                                }
+                              })}
                               disabled={deleteProductType.isPending}
                               className="text-red-400 hover:text-red-300"
                             >
