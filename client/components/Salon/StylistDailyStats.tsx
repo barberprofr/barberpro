@@ -5,10 +5,190 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, ChevronLeft, ChevronRight, List, EyeOff, Eye, X, Trash2, Calendar } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { DayPicker } from "react-day-picker";
-import { fr } from "date-fns/locale";
 
 const eur = new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" });
+
+const DAYS_FR = ["Lu", "Ma", "Me", "Je", "Ve", "Sa", "Di"];
+const MONTHS_FR = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
+
+function CustomCalendar({
+    startDate,
+    endDate,
+    onSelectStart,
+    onSelectEnd,
+    onClose,
+    formatDateDisplay
+}: {
+    startDate: string;
+    endDate: string;
+    onSelectStart: (d: string) => void;
+    onSelectEnd: (d: string) => void;
+    onClose: () => void;
+    formatDateDisplay: (d: string) => string;
+}) {
+    const now = new Date();
+    const [viewMonth, setViewMonth] = useState(now.getMonth());
+    const [viewYear, setViewYear] = useState(now.getFullYear());
+    const [selectingEnd, setSelectingEnd] = useState(false);
+
+    const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+    const firstDayOfWeek = (new Date(viewYear, viewMonth, 1).getDay() + 6) % 7;
+
+    const handlePrevMonth = () => {
+        if (viewMonth === 0) {
+            if (viewYear > now.getFullYear()) {
+                setViewMonth(11);
+                setViewYear(viewYear - 1);
+            }
+        } else {
+            setViewMonth(viewMonth - 1);
+        }
+    };
+
+    const handleNextMonth = () => {
+        if (viewMonth === 11) {
+            if (viewYear < now.getFullYear()) {
+                setViewMonth(0);
+                setViewYear(viewYear + 1);
+            }
+        } else {
+            setViewMonth(viewMonth + 1);
+        }
+    };
+
+    const handleDayClick = (day: number) => {
+        const dateStr = `${viewYear}-${String(viewMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+        if (!startDate || (startDate && endDate) || selectingEnd === false) {
+            onSelectStart(dateStr);
+            onSelectEnd("");
+            setSelectingEnd(true);
+        } else {
+            if (dateStr < startDate) {
+                onSelectStart(dateStr);
+                onSelectEnd(startDate);
+            } else {
+                onSelectEnd(dateStr);
+            }
+            setSelectingEnd(false);
+        }
+    };
+
+    const isInRange = (day: number) => {
+        if (!startDate || !endDate) return false;
+        const dateStr = `${viewYear}-${String(viewMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+        return dateStr >= startDate && dateStr <= endDate;
+    };
+
+    const isStart = (day: number) => {
+        const dateStr = `${viewYear}-${String(viewMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+        return dateStr === startDate;
+    };
+
+    const isEnd = (day: number) => {
+        const dateStr = `${viewYear}-${String(viewMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+        return dateStr === endDate;
+    };
+
+    const isToday = (day: number) => {
+        return day === now.getDate() && viewMonth === now.getMonth() && viewYear === now.getFullYear();
+    };
+
+    const canGoPrev = viewMonth > 0 || viewYear > now.getFullYear();
+    const canGoNext = viewMonth < 11 || viewYear < now.getFullYear();
+
+    const cells = [];
+    for (let i = 0; i < firstDayOfWeek; i++) {
+        cells.push(<div key={`empty-${i}`} className="h-11 w-11" />);
+    }
+    for (let day = 1; day <= daysInMonth; day++) {
+        const inRange = isInRange(day);
+        const start = isStart(day);
+        const end = isEnd(day);
+        const todayDay = isToday(day);
+        
+        cells.push(
+            <button
+                key={day}
+                type="button"
+                onClick={() => handleDayClick(day)}
+                className={cn(
+                    "h-11 w-11 flex items-center justify-center rounded-xl text-base font-semibold transition-all",
+                    start || end
+                        ? "bg-gradient-to-br from-violet-500 to-fuchsia-500 text-white shadow-lg"
+                        : inRange
+                            ? "bg-violet-500/40 text-white"
+                            : "text-white hover:bg-violet-500/30",
+                    todayDay && !start && !end && "ring-2 ring-fuchsia-400"
+                )}
+            >
+                {day}
+            </button>
+        );
+    }
+
+    return (
+        <div className="space-y-4">
+            <div className="flex gap-4 text-sm">
+                <div className="flex-1 text-center">
+                    <span className="text-violet-300 font-semibold">Début</span>
+                    <div className="mt-1 px-3 py-2 rounded-lg bg-violet-500/20 border border-violet-400/40 text-white font-bold text-lg">
+                        {startDate ? formatDateDisplay(startDate) : "—"}
+                    </div>
+                </div>
+                <div className="flex-1 text-center">
+                    <span className="text-fuchsia-300 font-semibold">Fin</span>
+                    <div className="mt-1 px-3 py-2 rounded-lg bg-fuchsia-500/20 border border-fuchsia-400/40 text-white font-bold text-lg">
+                        {endDate ? formatDateDisplay(endDate) : "—"}
+                    </div>
+                </div>
+            </div>
+
+            <div className="rounded-2xl border border-violet-500/30 bg-slate-900/80 p-4">
+                <div className="flex items-center justify-between mb-4">
+                    <button
+                        type="button"
+                        onClick={handlePrevMonth}
+                        disabled={!canGoPrev}
+                        className="h-10 w-10 flex items-center justify-center rounded-full bg-violet-500/30 border border-violet-400/50 text-white hover:bg-violet-500/50 transition-all disabled:opacity-30"
+                    >
+                        <ChevronLeft className="h-5 w-5" />
+                    </button>
+                    <span className="text-lg font-bold text-white">
+                        {MONTHS_FR[viewMonth]} {viewYear}
+                    </span>
+                    <button
+                        type="button"
+                        onClick={handleNextMonth}
+                        disabled={!canGoNext}
+                        className="h-10 w-10 flex items-center justify-center rounded-full bg-violet-500/30 border border-violet-400/50 text-white hover:bg-violet-500/50 transition-all disabled:opacity-30"
+                    >
+                        <ChevronRight className="h-5 w-5" />
+                    </button>
+                </div>
+
+                <div className="grid grid-cols-7 gap-1 mb-2">
+                    {DAYS_FR.map((day) => (
+                        <div key={day} className="h-8 flex items-center justify-center text-sm font-bold text-violet-300">
+                            {day}
+                        </div>
+                    ))}
+                </div>
+
+                <div className="grid grid-cols-7 gap-1">
+                    {cells}
+                </div>
+            </div>
+
+            <button
+                type="button"
+                onClick={onClose}
+                className="w-full px-4 py-3 rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white font-semibold text-lg hover:from-violet-500 hover:to-fuchsia-500 transition-all shadow-lg"
+            >
+                Valider
+            </button>
+        </div>
+    );
+}
 
 function parisDateString(at: Date = new Date()) {
     const parts = new Intl.DateTimeFormat("fr-FR", {
@@ -640,80 +820,14 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
                                 </button>
                             </div>
                             
-                            <div className="space-y-4">
-                                <div className="flex gap-4 text-sm">
-                                    <div className="flex-1 text-center">
-                                        <span className="text-violet-300 font-semibold">Début</span>
-                                        <div className="mt-1 px-3 py-2 rounded-lg bg-violet-500/20 border border-violet-400/40 text-white font-bold">
-                                            {startDate ? formatDateDisplay(startDate) : "—"}
-                                        </div>
-                                    </div>
-                                    <div className="flex-1 text-center">
-                                        <span className="text-fuchsia-300 font-semibold">Fin</span>
-                                        <div className="mt-1 px-3 py-2 rounded-lg bg-fuchsia-500/20 border border-fuchsia-400/40 text-white font-bold">
-                                            {endDate ? formatDateDisplay(endDate) : "—"}
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <DayPicker
-                                    mode="range"
-                                    locale={fr}
-                                    selected={{
-                                        from: startDate ? new Date(startDate) : undefined,
-                                        to: endDate ? new Date(endDate) : undefined
-                                    }}
-                                    onSelect={(range) => {
-                                        if (range?.from) {
-                                            const fromStr = `${range.from.getFullYear()}-${String(range.from.getMonth() + 1).padStart(2, "0")}-${String(range.from.getDate()).padStart(2, "0")}`;
-                                            setStartDate(fromStr);
-                                        } else {
-                                            setStartDate("");
-                                        }
-                                        if (range?.to) {
-                                            const toStr = `${range.to.getFullYear()}-${String(range.to.getMonth() + 1).padStart(2, "0")}-${String(range.to.getDate()).padStart(2, "0")}`;
-                                            setEndDate(toStr);
-                                        } else {
-                                            setEndDate("");
-                                        }
-                                    }}
-                                    fromDate={new Date(now.getFullYear(), 0, 1)}
-                                    toDate={new Date(now.getFullYear(), 11, 31)}
-                                    classNames={{
-                                        root: "w-full",
-                                        months: "flex justify-center",
-                                        month: "w-full",
-                                        caption: "flex justify-between items-center mb-4 px-2",
-                                        caption_label: "text-lg font-bold text-white capitalize",
-                                        nav: "flex gap-2",
-                                        nav_button: "h-10 w-10 flex items-center justify-center rounded-full bg-violet-500/30 border border-violet-400/50 text-white hover:bg-violet-500/50 transition-all",
-                                        table: "w-full border-collapse",
-                                        head_row: "grid grid-cols-7 gap-1 mb-2",
-                                        head_cell: "text-center text-sm font-bold text-violet-300 uppercase",
-                                        row: "grid grid-cols-7 gap-1 mb-1",
-                                        cell: "text-center",
-                                        day: "h-11 w-11 mx-auto flex items-center justify-center rounded-xl text-base font-semibold text-white hover:bg-violet-500/40 transition-all cursor-pointer",
-                                        day_selected: "!bg-gradient-to-br !from-violet-500 !to-fuchsia-500 !text-white shadow-lg shadow-violet-500/30",
-                                        day_range_start: "!bg-gradient-to-br !from-violet-500 !to-fuchsia-500 !text-white !rounded-l-xl shadow-lg",
-                                        day_range_end: "!bg-gradient-to-br !from-fuchsia-500 !to-violet-500 !text-white !rounded-r-xl shadow-lg",
-                                        day_range_middle: "!bg-violet-500/30 !text-white !rounded-none",
-                                        day_today: "ring-2 ring-fuchsia-400 ring-offset-2 ring-offset-slate-900",
-                                        day_outside: "text-white/30",
-                                        day_disabled: "text-white/20 cursor-not-allowed hover:bg-transparent",
-                                    }}
-                                    components={{
-                                        Chevron: ({ orientation }) => orientation === "left" ? <ChevronLeft className="h-5 w-5" /> : <ChevronRight className="h-5 w-5" />,
-                                    }}
-                                />
-                                
-                                <button
-                                    type="button"
-                                    onClick={() => setDatePickerOpen(false)}
-                                    className="w-full px-4 py-3 rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white font-semibold text-lg hover:from-violet-500 hover:to-fuchsia-500 transition-all shadow-lg"
-                                >
-                                    Valider
-                                </button>
-                            </div>
+                            <CustomCalendar
+                                startDate={startDate}
+                                endDate={endDate}
+                                onSelectStart={setStartDate}
+                                onSelectEnd={setEndDate}
+                                onClose={() => setDatePickerOpen(false)}
+                                formatDateDisplay={formatDateDisplay}
+                            />
                         </motion.div>
                     </motion.div>
                 )}
