@@ -2811,6 +2811,7 @@ export default function Settings() {
                                       month: depositMonth,
                                     }, {
                                       onSuccess: () => {
+                                        playSuccessSound();
                                         showConfirmPopup("Acompte ajouté", `${amount.toFixed(2)} €`, "emerald");
                                         setDepositAmount("");
                                         setSelectedStylistForDeposit(null);
