@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useAddStylist, useAdminLogin, useConfig, useSetStylistCommission, useStylists, useStylistBreakdown } from "@/lib/api";
 import { getAdminToken, setAdminToken } from "@/lib/admin";
+import { playSuccessSound } from "@/lib/sounds";
 
 const eur = new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" });
 
@@ -28,7 +29,7 @@ export default function CoiffeursManager() {
   function onAdd() {
     const n = name.trim();
     if (!n) return;
-    addStylist.mutate({ name: n, commissionPct: commission }, { onSuccess: () => setName("") });
+    addStylist.mutate({ name: n, commissionPct: commission }, { onSuccess: () => { playSuccessSound(); setName(""); } });
   }
 
   function RowDetail({ id }: { id: string }) {

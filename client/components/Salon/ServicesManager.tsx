@@ -7,6 +7,7 @@ import { Trash2, Plus, GripVertical, Check, Scissors, Package, UserRound, Wallet
 import { cn } from "@/lib/utils";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 import { AnimatePresence, motion } from "framer-motion";
+import { playSuccessSound } from "@/lib/sounds";
 
 interface ServicesManagerProps {
   accordionValue?: string;
@@ -203,6 +204,7 @@ export default function ServicesManager({ accordionValue = "", onAccordionChange
       },
       {
         onSuccess: () => {
+          playSuccessSound();
           setServiceName("");
           setServicePrice("");
           setServiceDescription("");
@@ -232,6 +234,7 @@ export default function ServicesManager({ accordionValue = "", onAccordionChange
       },
       {
         onSuccess: () => {
+          playSuccessSound();
           setProductName("");
           setProductPrice("");
           

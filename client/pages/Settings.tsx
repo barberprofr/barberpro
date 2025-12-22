@@ -16,6 +16,7 @@ import { useAdminUpdateCode, useAdminVerifyCode, useAddStylist, useConfig, useUp
 import { StylistMonthly } from "@/components/Salon/StylistDailyStats";
 import type { SummaryPayments, MethodKey, Stylist, PointsUsageGroup, DashboardSummary, Service } from "@/lib/api";
 import { cn } from "@/lib/utils";
+import { playSuccessSound } from "@/lib/sounds";
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { CreditCard, Coins, FileText, ChevronDown, ChevronRight, ChevronLeft, CalendarDays, Sun, Scissors, UserRound, TrendingUp, Crown, Search, Check, List } from "lucide-react";
@@ -1333,6 +1334,7 @@ export default function Settings() {
       { code },
       {
         onSuccess: () => {
+          playSuccessSound();
           setAdminUnlocked(true);
           setLoginCode("");
           setLoginError("");
@@ -1467,6 +1469,7 @@ export default function Settings() {
       { salonName: trimmed },
       {
         onSuccess: () => {
+          playSuccessSound();
           setSalonNameDraft(trimmed);
           toast({
             title: "Nom du salon enregistré",

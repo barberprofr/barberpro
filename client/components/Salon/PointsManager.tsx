@@ -8,6 +8,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Check, ChevronsUpDown, Loader2, Plus, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
+import { playSuccessSound } from "@/lib/sounds";
 
 export default function PointsManager() {
     const { data: clients, isLoading: clientsLoading } = useClients();
@@ -37,6 +38,7 @@ export default function PointsManager() {
 
         try {
             await addPoints.mutateAsync({ clientId: selectedClientId, points: pointsNum });
+            playSuccessSound();
             toast({
                 title: "Succès",
                 description: `${pointsNum} points ajoutés à ${selectedClient?.name}.`,
