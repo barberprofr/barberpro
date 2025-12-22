@@ -299,7 +299,37 @@ function makeScope() {
 
 
 
-async function aggregateByPayment(salonId: string, stylistId: string, refNowMs: number = Date.now(), startDateMs?: number, endDateMs?: number) {
+interface HiddenPeriod {
+  month: number;
+  startDay: number;
+  endDay: number;
+}
+
+function isTimestampInHiddenPeriod(timestamp: number, hiddenPeriods: HiddenPeriod[]): boolean {
+  if (!hiddenPeriods || hiddenPeriods.length === 0) return false;
+  
+  const date = new Date(timestamp);
+  const formatter = new Intl.DateTimeFormat('en-CA', { 
+    timeZone: 'Europe/Paris',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  });
+  const parts = formatter.formatToParts(date);
+  const year = parseInt(parts.find(p => p.type === 'year')?.value || '0', 10);
+  const month = parseInt(parts.find(p => p.type === 'month')?.value || '0', 10);
+  const day = parseInt(parts.find(p => p.type === 'day')?.value || '0', 10);
+  const monthInt = year * 100 + month;
+  
+  const period = hiddenPeriods.find(p => p.month === monthInt);
+  if (!period) return false;
+  
+  const start = Math.min(period.startDay, period.endDay);
+  const end = Math.max(period.startDay, period.endDay);
+  return day >= start && day <= end;
+}
+
+async function aggregateByPayment(salonId: string, stylistId: string, refNowMs: number = Date.now(), startDateMs?: number, endDateMs?: number, hiddenPeriods: HiddenPeriod[] = []) {
   const now = refNowMs;
   const todayStart = startOfDayParis(now);
   const useRange = typeof startDateMs === 'number' && typeof endDateMs === 'number';
@@ -320,6 +350,8 @@ async function aggregateByPayment(salonId: string, stylistId: string, refNowMs: 
   let rangeProductCount = 0;
 
   for (const p of prestations) {
+    const isHidden = isTimestampInHiddenPeriod(p.timestamp, hiddenPeriods);
+    
     const inc = (scope: ReturnType<typeof makeScope>) => {
       scope.total.amount += p.amount;
       scope.total.count += 1;
@@ -334,7 +366,7 @@ async function aggregateByPayment(salonId: string, stylistId: string, refNowMs: 
       }
     };
 
-    if (startOfDayParis(p.timestamp) === todayStart) {
+    if (startOfDayParis(p.timestamp) === todayStart && !isHidden) {
       inc(daily);
       inc(prestationDaily);
       dailyEntries.push({
@@ -348,11 +380,11 @@ async function aggregateByPayment(salonId: string, stylistId: string, refNowMs: 
         mixedCashAmount: (p as any).mixedCashAmount
       });
     }
-    if (isSameMonthParis(p.timestamp, now)) {
+    if (isSameMonthParis(p.timestamp, now) && !isHidden) {
       inc(monthly);
       inc(prestationMonthly);
     }
-    if (useRange && p.timestamp >= startDateMs! && p.timestamp <= endDateMs!) {
+    if (useRange && p.timestamp >= startDateMs! && p.timestamp <= endDateMs! && !isHidden) {
       inc(range);
       inc(prestationRange);
       rangeEntries.push({
@@ -369,6 +401,8 @@ async function aggregateByPayment(salonId: string, stylistId: string, refNowMs: 
   }
 
   for (const prod of products) {
+    const isHidden = isTimestampInHiddenPeriod(prod.timestamp, hiddenPeriods);
+    
     const incAmount = (scope: ReturnType<typeof makeScope>) => {
       scope.total.amount += prod.amount;
       const method = prod.paymentMethod as PaymentMethod;
@@ -380,7 +414,7 @@ async function aggregateByPayment(salonId: string, stylistId: string, refNowMs: 
       }
     };
 
-    if (startOfDayParis(prod.timestamp) === todayStart) {
+    if (startOfDayParis(prod.timestamp) === todayStart && !isHidden) {
       incAmount(daily);
       dailyEntries.push({
         id: prod.id,
@@ -393,8 +427,8 @@ async function aggregateByPayment(salonId: string, stylistId: string, refNowMs: 
         mixedCashAmount: (prod as any).mixedCashAmount
       });
     }
-    if (isSameMonthParis(prod.timestamp, now)) incAmount(monthly);
-    if (useRange && prod.timestamp >= startDateMs! && prod.timestamp <= endDateMs!) {
+    if (isSameMonthParis(prod.timestamp, now) && !isHidden) incAmount(monthly);
+    if (useRange && prod.timestamp >= startDateMs! && prod.timestamp <= endDateMs! && !isHidden) {
       incAmount(range);
       rangeProductCount++;
       rangeEntries.push({
@@ -417,10 +451,11 @@ async function aggregateByPayment(salonId: string, stylistId: string, refNowMs: 
   let monthlyProductCount = 0;
 
   for (const prod of products) {
-    if (startOfDayParis(prod.timestamp) === todayStart) {
+    const isHidden = isTimestampInHiddenPeriod(prod.timestamp, hiddenPeriods);
+    if (startOfDayParis(prod.timestamp) === todayStart && !isHidden) {
       dailyProductCount++;
     }
-    if (isSameMonthParis(prod.timestamp, now)) {
+    if (isSameMonthParis(prod.timestamp, now) && !isHidden) {
       monthlyProductCount++;
     }
   }
@@ -1997,7 +2032,8 @@ export const getStylistBreakdown: RequestHandler = async (req, res) => {
       endDateMs = startOfDayParis(parsed) + 24 * 60 * 60 * 1000 - 1;
     }
 
-    const data = await aggregateByPayment(salonId, id, ref, startDateMs, endDateMs);
+    const hiddenPeriods = (stylist as any).hiddenPeriods || [];
+    const data = await aggregateByPayment(salonId, id, ref, startDateMs, endDateMs, hiddenPeriods);
     res.json(data);
   } catch (error) {
     console.error('Error getting stylist breakdown:', error);

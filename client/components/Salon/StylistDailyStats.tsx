@@ -1030,54 +1030,7 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
 
     const activeMonths = getActiveMonths();
     
-    const isDateHidden = (year: number, monthNum: number, day: number): boolean => {
-        const monthInt = year * 100 + monthNum;
-        if (hiddenMonths.includes(monthInt)) return true;
-        const period = hiddenPeriods.find(p => p.month === monthInt);
-        if (!period) return false;
-        const start = Math.min(period.startDay, period.endDay);
-        const end = Math.max(period.startDay, period.endDay);
-        return day >= start && day <= end;
-    };
-    
-    const checkShouldHideData = (): boolean => {
-        if (isSettingsView) return false;
-        
-        if (mode === "today") {
-            const [y, m, d] = today.split("-").map(Number);
-            return isDateHidden(y, m, d);
-        } else if (mode === "month") {
-            const [y, m] = month.split("-").map(Number);
-            const monthInt = y * 100 + m;
-            if (hiddenMonths.includes(monthInt)) return true;
-            const period = hiddenPeriods.find(p => p.month === monthInt);
-            return !!period;
-        } else if (mode === "range" && startDate) {
-            const effectiveEnd = endDate || startDate;
-            const [startY, startM, startD] = startDate.split("-").map(Number);
-            const [endY, endM, endD] = effectiveEnd.split("-").map(Number);
-            
-            let currentY = startY, currentM = startM, currentD = startD;
-            const endNum = endY * 10000 + endM * 100 + endD;
-            
-            while (currentY * 10000 + currentM * 100 + currentD <= endNum) {
-                if (isDateHidden(currentY, currentM, currentD)) return true;
-                const daysInMonth = new Date(currentY, currentM, 0).getDate();
-                currentD++;
-                if (currentD > daysInMonth) {
-                    currentD = 1;
-                    currentM++;
-                    if (currentM > 12) {
-                        currentM = 1;
-                        currentY++;
-                    }
-                }
-            }
-        }
-        return false;
-    };
-    
-    const shouldHideData = checkShouldHideData();
+    const shouldHideData = false;
 
     const [maskDialogOpen, setMaskDialogOpen] = useState(false);
 
