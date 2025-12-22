@@ -2539,6 +2539,7 @@ export default function Settings() {
                                 const pctValue = Math.max(0, Math.min(60, Number(commissionPct) || 0));
                                 addStylist.mutate({ name: trimmed, commissionPct: pctValue }, {
                                   onSuccess: () => {
+                                    playSuccessSound();
                                     setStylistName("");
                                     setCommissionPct("");
                                     showConfirmPopup("Coiffeur ajouté", `${trimmed} (${pctValue}%)`, "violet");
