@@ -2068,31 +2068,41 @@ export default function Settings() {
             <div className={cn(adminShellClasses, "space-y-2.5")}>
               <button
                 type="button"
-                onClick={() => {
-                  setIsAdminSectionOpen((prev) => {
-                    const next = !prev;
-                    if (!next) {
-                      setRecoverOpen(false);
-                      setRecoverMsg("");
-                      setRecoverErr("");
-                      setRecoverEmail("");
-                    }
-                    return next;
-                  });
-                }}
-                aria-expanded={isAdminSectionOpen}
-                aria-controls="settings-admin-section"
-                className={cn(
-                  "group relative flex w-full items-center justify-between overflow-hidden rounded-xl border border-white/20 bg-gradient-to-r from-white/10 via-white/5 to-transparent backdrop-blur-xl px-4 py-3 text-sm font-semibold text-white shadow-[0_18px_54px_rgba(79,70,229,0.2)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_24px_68px_rgba(79,70,229,0.35)] hover:from-white/15 hover:via-white/8 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-300/80",
-                  isAdminSectionOpen && "border-emerald-300/50 shadow-[0_26px_70px_rgba(16,185,129,0.3)] from-emerald-500/10 via-emerald-400/5"
-                )}
+                onClick={() => setIsAdminSectionOpen(true)}
+                className="group relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-xl border-2 border-emerald-400/60 bg-transparent backdrop-blur-xl px-4 py-3 text-sm font-semibold text-white transition-all duration-300 hover:scale-[1.02] hover:border-emerald-300 hover:shadow-[0_0_25px_rgba(16,185,129,0.4)] active:scale-[1.05] active:border-emerald-200 active:bg-emerald-400/20 active:shadow-[0_0_40px_rgba(16,185,129,0.8)]"
               >
-                <span className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(129,140,248,0.42),transparent_58%)] opacity-80 transition-opacity duration-300 group-hover:opacity-100" />
-                <span className="relative z-10 text-sm font-bold tracking-wide">Création du code admin et récupérer le code admin</span>
-                <ChevronDown className={cn("relative z-10 h-4 w-4 transition-transform duration-200", isAdminSectionOpen ? "rotate-180" : "")} />
+                <span className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(16,185,129,0.25),transparent_58%)] opacity-80 transition-opacity duration-300 group-hover:opacity-100" />
+                <span className="relative z-10 text-sm font-bold tracking-wide text-emerald-400">Création du code admin et récupérer le code admin</span>
               </button>
-              {isAdminSectionOpen ? (
-                <div id="settings-admin-section" className="space-y-1.5">
+              {isAdminSectionOpen && createPortal(
+                <AnimatePresence>
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.15 }}
+                    className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
+                    onClick={() => { setIsAdminSectionOpen(false); setRecoverOpen(false); setRecoverMsg(""); setRecoverErr(""); setRecoverEmail(""); }}
+                  >
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                      transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                      onClick={(e) => e.stopPropagation()}
+                      className="w-full max-w-lg max-h-[calc(100vh-32px)] overflow-y-auto rounded-3xl border border-emerald-500/30 bg-gradient-to-br from-slate-900/98 via-emerald-900/40 to-slate-800/98 p-6 shadow-[0_25px_80px_rgba(0,0,0,0.6),0_0_40px_rgba(16,185,129,0.2)] backdrop-blur-xl"
+                    >
+                      <div className="flex items-center justify-between mb-6">
+                        <h3 className="text-xl font-bold text-white">Code admin & récupération</h3>
+                        <button
+                          type="button"
+                          onClick={() => { setIsAdminSectionOpen(false); setRecoverOpen(false); setRecoverMsg(""); setRecoverErr(""); setRecoverEmail(""); }}
+                          className="flex h-8 w-8 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition hover:bg-white/20"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                      <div className="space-y-4">
                   {(!config?.adminEmail) && (
                     <div className="relative overflow-hidden rounded-xl border border-amber-200/45 bg-[linear-gradient(135deg,rgba(253,230,138,0.25)0%,rgba(252,211,77,0.2)45%,rgba(167,139,250,0.25)100%)] px-3 py-2 text-xs font-semibold text-amber-100 shadow-[0_14px_34px_rgba(253,230,138,0.3)]">
                       <span className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(250,204,21,0.32),transparent_52%)] opacity-80" />
@@ -2177,8 +2187,12 @@ export default function Settings() {
                       {recoverErr && <span className="text-[11px] font-semibold text-rose-200">{recoverErr}</span>}
                     </div>
                   )}
-                </div>
-              ) : null}
+                      </div>
+                    </motion.div>
+                  </motion.div>
+                </AnimatePresence>,
+                document.body
+              )}
             </div>
 
             <div className={cn(glassPanelClasses, "space-y-2.5 text-xs")}>
