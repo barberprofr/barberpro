@@ -119,7 +119,7 @@ function CustomCalendar({
 
     const cells = [];
     for (let i = 0; i < firstDayOfWeek; i++) {
-        cells.push(<div key={`empty-${i}`} className="h-9 w-9" />);
+        cells.push(<div key={`empty-start-${i}`} className="h-9 w-9" />);
     }
     for (let day = 1; day <= daysInMonth; day++) {
         const inRange = isInRange(day);
@@ -145,6 +145,13 @@ function CustomCalendar({
                 {day}
             </button>
         );
+    }
+    
+    // Toujours 42 cellules (6 lignes) pour hauteur constante
+    const totalCells = 42;
+    const currentCells = firstDayOfWeek + daysInMonth;
+    for (let i = currentCells; i < totalCells; i++) {
+        cells.push(<div key={`empty-end-${i}`} className="h-9 w-9" />);
     }
 
     return (
@@ -195,7 +202,7 @@ function CustomCalendar({
                     ))}
                 </div>
 
-                <div className="grid grid-cols-7 w-full">
+                <div className="grid grid-cols-7 grid-rows-6 w-full">
                     {cells}
                 </div>
             </div>
