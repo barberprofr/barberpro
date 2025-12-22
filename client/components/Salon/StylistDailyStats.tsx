@@ -1511,8 +1511,8 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
                 document.body
             )}
 
-            <AnimatePresence>
-                {maskDialogOpen && createPortal(
+            {maskDialogOpen && createPortal(
+                <AnimatePresence>
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
@@ -1686,10 +1686,10 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
                                 </div>
                             )}
                         </motion.div>
-                    </motion.div>,
-                    document.body
-                )}
-            </AnimatePresence>
+                    </motion.div>
+                </AnimatePresence>,
+                document.body
+            )}
         </div>
     );
 }
