@@ -2,7 +2,7 @@
 // 🎯 Stratégie: Network Only (pas de cache agressif)
 // ✅ Permet l'installation PWA sans problèmes de versions persistantes
 
-const VERSION = 'v1.0.0'; // Pour tracking uniquement
+const VERSION = 'v1.0.1'; // Pour tracking uniquement - force update
 
 // Installation - Prend le contrôle immédiatement
 self.addEventListener('install', (event) => {
