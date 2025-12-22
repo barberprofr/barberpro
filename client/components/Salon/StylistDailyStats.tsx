@@ -1176,19 +1176,19 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
             )}
             
             {/* Popup sélection dates */}
-            <AnimatePresence>
-                {datePickerOpen && (
+            {datePickerOpen && createPortal(
+                <AnimatePresence>
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.15 }}
-                        className="fixed inset-0 z-[200] bg-black/60 backdrop-blur-sm"
+                        className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
                         onClick={() => setDatePickerOpen(false)}
                     >
                         <div
                             onClick={(e) => e.stopPropagation()}
-                            className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[320px] h-[420px] rounded-2xl border border-violet-500/30 bg-gradient-to-br from-slate-900/98 via-violet-900/40 to-slate-800/98 p-4 shadow-[0_25px_80px_rgba(0,0,0,0.6),0_0_40px_rgba(139,92,246,0.2)] backdrop-blur-xl"
+                            className="w-[320px] max-h-[calc(100vh-32px)] overflow-y-auto rounded-2xl border border-violet-500/30 bg-gradient-to-br from-slate-900 via-violet-900/40 to-slate-800 p-4 shadow-[0_25px_80px_rgba(0,0,0,0.6),0_0_40px_rgba(139,92,246,0.2)]"
                         >
                             <div className="flex items-center justify-between mb-2">
                                 <h3 className="text-base font-bold text-white">Sélection des dates</h3>
@@ -1213,8 +1213,9 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
                             />
                         </div>
                     </motion.div>
-                )}
-            </AnimatePresence>
+                </AnimatePresence>,
+                document.body
+            )}
             
             {/* Popup sélection mois */}
             <AnimatePresence>
