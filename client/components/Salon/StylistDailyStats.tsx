@@ -430,6 +430,7 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
     const [endDate, setEndDate] = useState<string>("");
     const [rangeEncaissementsOpen, setRangeEncaissementsOpen] = useState(false);
     const [todayEncaissementsOpen, setTodayEncaissementsOpen] = useState(false);
+    const [datePickerOpen, setDatePickerOpen] = useState(false);
     const updatePaymentMethod = useUpdateTransactionPaymentMethod();
     const updateHiddenMonths = useUpdateStylistHiddenMonths();
 
@@ -472,6 +473,7 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
     useEffect(() => {
         setRangeEncaissementsOpen(false);
         setTodayEncaissementsOpen(false);
+        setDatePickerOpen(false);
         setMaskDialogOpen(false);
         setMode("today");
         setMonth(defMonth);
@@ -593,27 +595,84 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
                     </button>
                 </div>
             ) : (
-                <div className="flex flex-wrap items-center gap-2 text-sm">
+                <button
+                    type="button"
+                    onClick={() => setDatePickerOpen(true)}
+                    onTouchEnd={(e) => { e.preventDefault(); setDatePickerOpen(true); }}
+                    className="flex flex-wrap items-center gap-2 text-sm px-3 py-2 rounded-xl border border-violet-500/40 bg-violet-900/20 hover:bg-violet-900/30 transition-all"
+                >
                     <span className="text-white/80 font-medium">Du</span>
-                    <input 
-                        type="date" 
-                        value={startDate} 
-                        onChange={(e) => setStartDate(e.target.value)} 
-                        min={`${now.getFullYear()}-01-01`}
-                        max={`${now.getFullYear()}-12-31`}
-                        className="border rounded-lg px-2 py-1.5 bg-slate-900/80 border-slate-600 text-white outline-none focus:border-violet-400 transition-colors text-sm" 
-                    />
+                    <span className="text-violet-300 font-semibold">{startDate ? formatDateDisplay(startDate) : "jj/mm/aaaa"}</span>
                     <span className="text-white/80 font-medium">au</span>
-                    <input 
-                        type="date" 
-                        value={endDate} 
-                        onChange={(e) => setEndDate(e.target.value)} 
-                        min={`${now.getFullYear()}-01-01`}
-                        max={`${now.getFullYear()}-12-31`}
-                        className="border rounded-lg px-2 py-1.5 bg-slate-900/80 border-slate-600 text-white outline-none focus:border-violet-400 transition-colors text-sm" 
-                    />
-                </div>
+                    <span className="text-violet-300 font-semibold">{endDate ? formatDateDisplay(endDate) : "jj/mm/aaaa"}</span>
+                </button>
             )}
+            
+            {/* Popup sélection dates */}
+            <AnimatePresence>
+                {datePickerOpen && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.15 }}
+                        className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm"
+                        onClick={() => setDatePickerOpen(false)}
+                    >
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                            onClick={(e) => e.stopPropagation()}
+                            className="w-[90%] max-w-sm rounded-3xl border border-violet-500/30 bg-gradient-to-br from-slate-900/98 via-violet-900/40 to-slate-800/98 p-6 shadow-[0_25px_80px_rgba(0,0,0,0.6),0_0_40px_rgba(139,92,246,0.2)] backdrop-blur-xl"
+                        >
+                            <div className="flex items-center justify-between mb-6">
+                                <h3 className="text-xl font-bold text-white">Sélection des dates</h3>
+                                <button
+                                    type="button"
+                                    onClick={() => setDatePickerOpen(false)}
+                                    className="flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition hover:bg-white/20"
+                                >
+                                    ✕
+                                </button>
+                            </div>
+                            
+                            <div className="space-y-4">
+                                <div className="space-y-2">
+                                    <label className="text-sm font-semibold text-violet-300">Date de début</label>
+                                    <input 
+                                        type="date" 
+                                        value={startDate} 
+                                        onChange={(e) => setStartDate(e.target.value)} 
+                                        min={`${now.getFullYear()}-01-01`}
+                                        max={`${now.getFullYear()}-12-31`}
+                                        className="w-full border rounded-xl px-4 py-3 bg-slate-900/80 border-slate-600 text-white text-lg outline-none focus:border-violet-400 transition-colors" 
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-sm font-semibold text-violet-300">Date de fin</label>
+                                    <input 
+                                        type="date" 
+                                        value={endDate} 
+                                        onChange={(e) => setEndDate(e.target.value)} 
+                                        min={`${now.getFullYear()}-01-01`}
+                                        max={`${now.getFullYear()}-12-31`}
+                                        className="w-full border rounded-xl px-4 py-3 bg-slate-900/80 border-slate-600 text-white text-lg outline-none focus:border-violet-400 transition-colors" 
+                                    />
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => setDatePickerOpen(false)}
+                                    className="w-full mt-4 px-4 py-3 rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white font-semibold text-lg hover:from-violet-500 hover:to-fuchsia-500 transition-all shadow-lg"
+                                >
+                                    Valider
+                                </button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
             
             {shouldHideData ? (
                 <div className="rounded-2xl border border-rose-500/30 bg-rose-950/30 p-4 shadow-inner text-sm text-center">
