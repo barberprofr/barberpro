@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { useConfig, createCheckoutSession } from "@/lib/api";
 import AuthGate from "./auth/AuthGate";
 import { setAdminToken } from "@/lib/admin";
+import { clearSalonCache } from "@/lib/salon";
 import { useQueryClient } from "@tanstack/react-query";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -126,6 +127,7 @@ export default function SharedLayout({ children }: PropsWithChildren) {
                 onClick={() => {
                   if (window.confirm("Se déconnecter ?")) {
                     setAdminToken(null);
+                    clearSalonCache();
                     qc.clear();
                     window.location.href = "/";
                   }

@@ -24,6 +24,10 @@ export function setSelectedSalon(id: SalonId) {
   salonChangeListeners.forEach(fn => fn());
 }
 
+export function clearSalonCache() {
+  cachedSalonId = null;
+}
+
 function subscribe(callback: () => void): () => void {
   salonChangeListeners.push(callback);
   return () => {
