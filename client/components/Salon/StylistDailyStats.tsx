@@ -835,12 +835,12 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.15 }}
-                        className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm"
+                        className="fixed inset-0 z-[200] bg-black/60 backdrop-blur-sm"
                         onClick={() => setDatePickerOpen(false)}
                     >
                         <div
                             onClick={(e) => e.stopPropagation()}
-                            className="w-[320px] rounded-2xl border border-violet-500/30 bg-gradient-to-br from-slate-900/98 via-violet-900/40 to-slate-800/98 p-4 shadow-[0_25px_80px_rgba(0,0,0,0.6),0_0_40px_rgba(139,92,246,0.2)] backdrop-blur-xl"
+                            className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[320px] h-[420px] rounded-2xl border border-violet-500/30 bg-gradient-to-br from-slate-900/98 via-violet-900/40 to-slate-800/98 p-4 shadow-[0_25px_80px_rgba(0,0,0,0.6),0_0_40px_rgba(139,92,246,0.2)] backdrop-blur-xl"
                         >
                             <div className="flex items-center justify-between mb-2">
                                 <h3 className="text-base font-bold text-white">Sélection des dates</h3>
