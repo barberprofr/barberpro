@@ -1432,6 +1432,24 @@ export default function Settings() {
   }, [queryClient]);
 
   useEffect(() => {
+    if (!coiffeurPopupOpen) return;
+    const handleClickOutside = () => {
+      closeCoiffeurPopupAndRefresh();
+    };
+    document.addEventListener("click", handleClickOutside);
+    return () => document.removeEventListener("click", handleClickOutside);
+  }, [coiffeurPopupOpen, closeCoiffeurPopupAndRefresh]);
+
+  useEffect(() => {
+    if (!acomptePopupOpen) return;
+    const handleClickOutside = () => {
+      closeAcomptePopupAndRefresh();
+    };
+    document.addEventListener("click", handleClickOutside);
+    return () => document.removeEventListener("click", handleClickOutside);
+  }, [acomptePopupOpen, closeAcomptePopupAndRefresh]);
+
+  useEffect(() => {
     if (bestDaysAccordionValue === "") {
       setTimeout(() => {
         setAccordionValue("");
