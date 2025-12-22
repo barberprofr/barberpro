@@ -29,7 +29,6 @@ function CustomCalendar({
     const now = new Date();
     const [viewMonth, setViewMonth] = useState(now.getMonth());
     const [viewYear, setViewYear] = useState(now.getFullYear());
-    const [selectingEnd, setSelectingEnd] = useState(false);
 
     const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
     const firstDayOfWeek = (new Date(viewYear, viewMonth, 1).getDay() + 6) % 7;
@@ -59,41 +58,39 @@ function CustomCalendar({
     const handleDayClick = (day: number) => {
         const dateStr = `${viewYear}-${String(viewMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
         
-        // Si on clique sur la date de début actuelle → désélectionner tout
+        // Si on clique sur la date de début et pas de fin → désélectionner
         if (dateStr === startDate && !endDate) {
             onSelectStart("");
-            onSelectEnd("");
-            setSelectingEnd(false);
             return;
         }
         
-        // Si on clique sur la date de fin actuelle → désélectionner la fin
-        if (dateStr === endDate) {
+        // Si on clique sur la date de fin → désélectionner la fin
+        if (dateStr === endDate && endDate) {
             onSelectEnd("");
-            setSelectingEnd(true);
             return;
         }
         
-        // Si on clique sur la date de début quand il y a une fin → désélectionner tout et recommencer
+        // Si on clique sur la date de début quand il y a une fin → désélectionner tout
         if (dateStr === startDate && endDate) {
             onSelectStart("");
             onSelectEnd("");
-            setSelectingEnd(false);
             return;
         }
         
-        if (!startDate || (startDate && endDate) || selectingEnd === false) {
+        // Sinon, logique normale de sélection
+        if (!startDate || (startDate && endDate)) {
+            // Pas de début ou plage complète → nouvelle sélection de début
             onSelectStart(dateStr);
             onSelectEnd("");
-            setSelectingEnd(true);
         } else {
+            // On a un début, on sélectionne la fin
             if (dateStr < startDate) {
+                // La fin est avant le début → inverser
                 onSelectStart(dateStr);
                 onSelectEnd(startDate);
             } else {
                 onSelectEnd(dateStr);
             }
-            setSelectingEnd(false);
         }
     };
 
@@ -155,14 +152,14 @@ function CustomCalendar({
             <div className="flex gap-3 text-sm">
                 <div className="flex-1 text-center">
                     <span className="text-violet-300 font-semibold text-xs">Début</span>
-                    <div className="mt-0.5 px-2 py-1 rounded-lg bg-violet-500/20 border border-violet-400/40 text-white font-bold text-sm">
-                        {startDate ? formatDateDisplay(startDate) : "—"}
+                    <div className="mt-0.5 px-2 py-1 rounded-lg bg-violet-500/20 border border-violet-400/40 text-white font-bold text-sm min-w-[90px] text-center">
+                        {startDate ? formatDateDisplay(startDate) : "——/——/————"}
                     </div>
                 </div>
                 <div className="flex-1 text-center">
                     <span className="text-fuchsia-300 font-semibold text-xs">Fin</span>
-                    <div className="mt-0.5 px-2 py-1 rounded-lg bg-fuchsia-500/20 border border-fuchsia-400/40 text-white font-bold text-sm">
-                        {endDate ? formatDateDisplay(endDate) : "—"}
+                    <div className="mt-0.5 px-2 py-1 rounded-lg bg-fuchsia-500/20 border border-fuchsia-400/40 text-white font-bold text-sm min-w-[90px] text-center">
+                        {endDate ? formatDateDisplay(endDate) : "——/——/————"}
                     </div>
                 </div>
             </div>
