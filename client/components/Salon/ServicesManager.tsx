@@ -260,14 +260,14 @@ export default function ServicesManager({ accordionValue = "", onAccordionChange
 
   return (
     <>
-      <AnimatePresence>
-        {showAddConfirmation && (
+      {showAddConfirmation && createPortal(
+        <AnimatePresence>
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm"
+            className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 backdrop-blur-sm"
             onClick={() => setShowAddConfirmation(false)}
           >
             <motion.div
@@ -324,8 +324,9 @@ export default function ServicesManager({ accordionValue = "", onAccordionChange
               </motion.div>
             </motion.div>
           </motion.div>
-        )}
-      </AnimatePresence>
+        </AnimatePresence>,
+        document.body
+      )}
 
       <style>{`
         @keyframes spin {
