@@ -120,7 +120,7 @@ function CustomCalendar({
 
     const cells = [];
     for (let i = 0; i < firstDayOfWeek; i++) {
-        cells.push(<div key={`empty-start-${i}`} className="h-9 w-9" />);
+        cells.push(<div key={`empty-start-${i}`} className="h-11 w-11 sm:h-12 sm:w-12" />);
     }
     for (let day = 1; day <= daysInMonth; day++) {
         const inRange = isInRange(day);
@@ -134,7 +134,7 @@ function CustomCalendar({
                 type="button"
                 onClick={() => handleDayClick(day)}
                 className={cn(
-                    "h-9 w-9 flex items-center justify-center rounded-lg text-sm font-semibold transition-all",
+                    "h-11 w-11 sm:h-12 sm:w-12 flex items-center justify-center rounded-xl text-base font-bold transition-all",
                     start || end
                         ? "bg-gradient-to-br from-violet-500 to-fuchsia-500 text-white shadow-lg"
                         : inRange
@@ -152,58 +152,58 @@ function CustomCalendar({
     const totalCells = 42;
     const currentCells = firstDayOfWeek + daysInMonth;
     for (let i = currentCells; i < totalCells; i++) {
-        cells.push(<div key={`empty-end-${i}`} className="h-9 w-9" />);
+        cells.push(<div key={`empty-end-${i}`} className="h-11 w-11 sm:h-12 sm:w-12" />);
     }
 
     return (
-        <div className="space-y-2 w-full">
-            <div className="flex justify-center gap-4">
+        <div className="space-y-4 w-full">
+            <div className="flex justify-center gap-6">
                 <div className="text-center">
-                    <span className="text-violet-300 font-semibold text-xs block">Début</span>
-                    <div className="mt-0.5 px-3 py-1.5 rounded-lg bg-violet-500/20 border border-violet-400/40 text-white font-bold text-sm w-[110px] text-center">
+                    <span className="text-violet-300 font-semibold text-sm block">Début</span>
+                    <div className="mt-1 px-4 py-2 rounded-xl bg-violet-500/20 border border-violet-400/40 text-white font-bold text-base w-[130px] text-center">
                         {tempStart ? formatDateDisplay(tempStart) : "— — —"}
                     </div>
                 </div>
                 <div className="text-center">
-                    <span className="text-fuchsia-300 font-semibold text-xs block">Fin</span>
-                    <div className="mt-0.5 px-3 py-1.5 rounded-lg bg-fuchsia-500/20 border border-fuchsia-400/40 text-white font-bold text-sm w-[110px] text-center">
+                    <span className="text-fuchsia-300 font-semibold text-sm block">Fin</span>
+                    <div className="mt-1 px-4 py-2 rounded-xl bg-fuchsia-500/20 border border-fuchsia-400/40 text-white font-bold text-base w-[130px] text-center">
                         {tempEnd ? formatDateDisplay(tempEnd) : "— — —"}
                     </div>
                 </div>
             </div>
 
-            <div className="rounded-xl border border-violet-500/30 bg-slate-900/80 p-2 w-full">
-                <div className="flex items-center justify-between mb-1.5 h-8">
+            <div className="rounded-2xl border border-violet-500/30 bg-slate-900/80 p-4 w-full">
+                <div className="flex items-center justify-between mb-3 h-10">
                     <button
                         type="button"
                         onClick={handlePrevMonth}
                         disabled={!canGoPrev}
-                        className="h-8 w-8 flex-shrink-0 flex items-center justify-center rounded-full bg-violet-500/30 border border-violet-400/50 text-white hover:bg-violet-500/50 transition-all disabled:opacity-30"
+                        className="h-10 w-10 flex-shrink-0 flex items-center justify-center rounded-full bg-violet-500/30 border border-violet-400/50 text-white hover:bg-violet-500/50 transition-all disabled:opacity-30"
                     >
-                        <ChevronLeft className="h-4 w-4" />
+                        <ChevronLeft className="h-5 w-5" />
                     </button>
-                    <span className="text-sm font-bold text-white w-32 text-center">
+                    <span className="text-lg font-bold text-white w-40 text-center">
                         {MONTHS_FR[viewMonth]} {viewYear}
                     </span>
                     <button
                         type="button"
                         onClick={handleNextMonth}
                         disabled={!canGoNext}
-                        className="h-8 w-8 flex-shrink-0 flex items-center justify-center rounded-full bg-violet-500/30 border border-violet-400/50 text-white hover:bg-violet-500/50 transition-all disabled:opacity-30"
+                        className="h-10 w-10 flex-shrink-0 flex items-center justify-center rounded-full bg-violet-500/30 border border-violet-400/50 text-white hover:bg-violet-500/50 transition-all disabled:opacity-30"
                     >
-                        <ChevronRight className="h-4 w-4" />
+                        <ChevronRight className="h-5 w-5" />
                     </button>
                 </div>
 
-                <div className="grid grid-cols-7 w-full">
+                <div className="grid grid-cols-7 w-full mb-2">
                     {DAYS_FR.map((day) => (
-                        <div key={day} className="h-6 flex items-center justify-center text-[10px] font-bold text-violet-300">
+                        <div key={day} className="h-8 flex items-center justify-center text-sm font-bold text-violet-300">
                             {day}
                         </div>
                     ))}
                 </div>
 
-                <div className="grid grid-cols-7 grid-rows-6 w-full">
+                <div className="grid grid-cols-7 grid-rows-6 gap-1 w-full place-items-center">
                     {cells}
                 </div>
             </div>
@@ -214,7 +214,7 @@ function CustomCalendar({
                     onValidate(tempStart, tempEnd);
                     onClose();
                 }}
-                className="w-full px-4 py-2 rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white font-semibold text-sm hover:from-violet-500 hover:to-fuchsia-500 transition-all shadow-lg"
+                className="w-full px-6 py-3 rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white font-bold text-lg hover:from-violet-500 hover:to-fuchsia-500 transition-all shadow-lg"
             >
                 Valider
             </button>
@@ -871,19 +871,19 @@ export function StylistDailySection({ id, commissionPct, stylistName }: { id: st
                                 animate={{ opacity: 1 }}
                                 exit={{ opacity: 0 }}
                                 transition={{ duration: 0.15 }}
-                                className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
+                                className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center"
                                 onClick={() => setDatePickerOpen(false)}
                             >
                                 <div
                                     onClick={(e) => e.stopPropagation()}
-                                    className="w-[320px] max-h-[calc(100vh-32px)] overflow-y-auto rounded-2xl border border-violet-500/30 bg-gradient-to-br from-slate-900 via-violet-900/40 to-slate-800 p-4 shadow-[0_25px_80px_rgba(0,0,0,0.6),0_0_40px_rgba(139,92,246,0.2)]"
+                                    className="w-full h-full sm:w-[400px] sm:h-auto sm:max-h-[90vh] overflow-y-auto sm:rounded-2xl border-0 sm:border border-violet-500/30 bg-gradient-to-br from-slate-900 via-violet-900/40 to-slate-800 p-6 shadow-[0_25px_80px_rgba(0,0,0,0.6),0_0_40px_rgba(139,92,246,0.2)]"
                                 >
-                                    <div className="flex items-center justify-between mb-2">
-                                        <h3 className="text-base font-bold text-white">Sélection des dates</h3>
+                                    <div className="flex items-center justify-between mb-4">
+                                        <h3 className="text-xl font-bold text-white">Sélection des dates</h3>
                                         <button
                                             type="button"
                                             onClick={() => setDatePickerOpen(false)}
-                                            className="flex h-7 w-7 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition hover:bg-white/20 text-sm"
+                                            className="flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition hover:bg-white/20 text-lg"
                                         >
                                             ✕
                                         </button>
