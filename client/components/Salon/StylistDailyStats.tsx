@@ -152,14 +152,14 @@ function CustomCalendar({
             <div className="flex gap-3 text-sm">
                 <div className="flex-1 text-center">
                     <span className="text-violet-300 font-semibold text-xs">Début</span>
-                    <div className="mt-0.5 px-2 py-1 rounded-lg bg-violet-500/20 border border-violet-400/40 text-white font-bold text-sm min-w-[90px] text-center">
-                        {startDate ? formatDateDisplay(startDate) : "——/——/————"}
+                    <div className="mt-0.5 px-2 py-1 rounded-lg bg-violet-500/20 border border-violet-400/40 text-white font-bold text-sm w-24 text-center font-mono">
+                        {startDate ? formatDateDisplay(startDate) : "—"}
                     </div>
                 </div>
                 <div className="flex-1 text-center">
                     <span className="text-fuchsia-300 font-semibold text-xs">Fin</span>
-                    <div className="mt-0.5 px-2 py-1 rounded-lg bg-fuchsia-500/20 border border-fuchsia-400/40 text-white font-bold text-sm min-w-[90px] text-center">
-                        {endDate ? formatDateDisplay(endDate) : "——/——/————"}
+                    <div className="mt-0.5 px-2 py-1 rounded-lg bg-fuchsia-500/20 border border-fuchsia-400/40 text-white font-bold text-sm w-24 text-center font-mono">
+                        {endDate ? formatDateDisplay(endDate) : "—"}
                     </div>
                 </div>
             </div>
