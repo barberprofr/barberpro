@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Loader2, Check, ChevronDown, CircleDollarSign, CreditCard, FileText, Sparkles, ArrowLeft, Scissors, Users, UserPlus, Euro, X, ClipboardList, Package, Building2, ArrowLeftRight, SprayCan, Wallet, Camera, Image as ImageIcon } from "lucide-react";
@@ -1525,17 +1526,41 @@ export default function PrestationsForm() {
           </div>
         ) : null}
         {/* Popup Client - design transparent avec effet glassmorphism */}
-        <Dialog open={clientAccordion === "client" && !newClientAccordionOpen} onOpenChange={(open) => {
-          if (open) {
-            setClientAccordion("client");
-            setNewClientAccordionOpen(false);
-          } else {
-            setClientAccordion("");
-            setClientSearch("");
-          }
-        }}>
-          <DialogContent className="w-[min(95vw,32rem)] max-h-[90vh] overflow-y-auto rounded-2xl border border-white/25 bg-black/10 p-0 shadow-[0_25px_60px_rgba(0,0,0,0.15),inset_0_1px_0_rgba(255,255,255,0.2)] backdrop-blur-[3px]">
-            <div className="p-5 space-y-5">
+        {clientAccordion === "client" && !newClientAccordionOpen && createPortal(
+          <AnimatePresence>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
+              className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
+              onClick={() => {
+                setClientAccordion("");
+                setClientSearch("");
+              }}
+            >
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                onClick={(e) => e.stopPropagation()}
+                className="w-full max-w-lg max-h-[calc(100vh-32px)] overflow-y-auto rounded-3xl border border-fuchsia-500/30 bg-gradient-to-br from-slate-900/98 via-fuchsia-900/40 to-slate-800/98 p-6 shadow-[0_25px_80px_rgba(0,0,0,0.6),0_0_40px_rgba(232,121,249,0.2)] backdrop-blur-xl"
+              >
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-xl font-bold text-white">Rechercher un client</h3>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setClientAccordion("");
+                      setClientSearch("");
+                    }}
+                    className="flex h-8 w-8 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition hover:bg-white/20"
+                  >
+                    ✕
+                  </button>
+                </div>
+                <div className="space-y-5">
               {/* Barre de recherche */}
               <motion.div 
                 className="relative rounded-xl p-[2px]"
@@ -1718,20 +1743,12 @@ export default function PrestationsForm() {
                 )}
               </div>
 
-              {/* Bouton fermer */}
-              <button
-                type="button"
-                onClick={() => {
-                  setClientAccordion("");
-                  setClientSearch("");
-                }}
-                className="w-full rounded-xl border border-white/30 bg-white/10 py-3 text-sm font-bold text-white transition hover:bg-white/20 backdrop-blur-sm"
-              >
-                Fermer
-              </button>
-            </div>
-          </DialogContent>
-        </Dialog>
+                </div>
+              </motion.div>
+            </motion.div>
+          </AnimatePresence>,
+          document.body
+        )}
 
         {/* Popup Nouveau Client - design transparent avec effet glassmorphism */}
         <Dialog open={newClientAccordionOpen} onOpenChange={(open) => {
