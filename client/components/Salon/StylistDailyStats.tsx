@@ -148,46 +148,46 @@ function CustomCalendar({
     }
 
     return (
-        <div className="space-y-2">
-            <div className="flex gap-3 text-sm">
-                <div className="flex-1 text-center">
-                    <span className="text-violet-300 font-semibold text-xs">Début</span>
-                    <div className="mt-0.5 px-2 py-1 rounded-lg bg-violet-500/20 border border-violet-400/40 text-white font-bold text-sm w-24 text-center font-mono">
-                        {startDate ? formatDateDisplay(startDate) : "—"}
+        <div className="space-y-2 w-full">
+            <div className="flex justify-center gap-4">
+                <div className="text-center">
+                    <span className="text-violet-300 font-semibold text-xs block">Début</span>
+                    <div className="mt-0.5 px-3 py-1.5 rounded-lg bg-violet-500/20 border border-violet-400/40 text-white font-bold text-sm w-[110px] text-center">
+                        {startDate ? formatDateDisplay(startDate) : "— — —"}
                     </div>
                 </div>
-                <div className="flex-1 text-center">
-                    <span className="text-fuchsia-300 font-semibold text-xs">Fin</span>
-                    <div className="mt-0.5 px-2 py-1 rounded-lg bg-fuchsia-500/20 border border-fuchsia-400/40 text-white font-bold text-sm w-24 text-center font-mono">
-                        {endDate ? formatDateDisplay(endDate) : "—"}
+                <div className="text-center">
+                    <span className="text-fuchsia-300 font-semibold text-xs block">Fin</span>
+                    <div className="mt-0.5 px-3 py-1.5 rounded-lg bg-fuchsia-500/20 border border-fuchsia-400/40 text-white font-bold text-sm w-[110px] text-center">
+                        {endDate ? formatDateDisplay(endDate) : "— — —"}
                     </div>
                 </div>
             </div>
 
-            <div className="rounded-xl border border-violet-500/30 bg-slate-900/80 p-2">
-                <div className="flex items-center justify-between mb-1.5">
+            <div className="rounded-xl border border-violet-500/30 bg-slate-900/80 p-2 w-full">
+                <div className="flex items-center justify-between mb-1.5 h-8">
                     <button
                         type="button"
                         onClick={handlePrevMonth}
                         disabled={!canGoPrev}
-                        className="h-8 w-8 flex items-center justify-center rounded-full bg-violet-500/30 border border-violet-400/50 text-white hover:bg-violet-500/50 transition-all disabled:opacity-30"
+                        className="h-8 w-8 flex-shrink-0 flex items-center justify-center rounded-full bg-violet-500/30 border border-violet-400/50 text-white hover:bg-violet-500/50 transition-all disabled:opacity-30"
                     >
                         <ChevronLeft className="h-4 w-4" />
                     </button>
-                    <span className="text-sm font-bold text-white">
+                    <span className="text-sm font-bold text-white w-32 text-center">
                         {MONTHS_FR[viewMonth]} {viewYear}
                     </span>
                     <button
                         type="button"
                         onClick={handleNextMonth}
                         disabled={!canGoNext}
-                        className="h-8 w-8 flex items-center justify-center rounded-full bg-violet-500/30 border border-violet-400/50 text-white hover:bg-violet-500/50 transition-all disabled:opacity-30"
+                        className="h-8 w-8 flex-shrink-0 flex items-center justify-center rounded-full bg-violet-500/30 border border-violet-400/50 text-white hover:bg-violet-500/50 transition-all disabled:opacity-30"
                     >
                         <ChevronRight className="h-4 w-4" />
                     </button>
                 </div>
 
-                <div className="grid grid-cols-7 gap-0">
+                <div className="grid grid-cols-7 w-full">
                     {DAYS_FR.map((day) => (
                         <div key={day} className="h-6 flex items-center justify-center text-[10px] font-bold text-violet-300">
                             {day}
@@ -195,7 +195,7 @@ function CustomCalendar({
                     ))}
                 </div>
 
-                <div className="grid grid-cols-7 gap-0">
+                <div className="grid grid-cols-7 w-full">
                     {cells}
                 </div>
             </div>
@@ -837,7 +837,7 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
                             exit={{ opacity: 0, scale: 0.95, y: 10 }}
                             transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
                             onClick={(e) => e.stopPropagation()}
-                            className="w-[92%] max-w-sm max-h-[90vh] overflow-y-auto rounded-2xl border border-violet-500/30 bg-gradient-to-br from-slate-900/98 via-violet-900/40 to-slate-800/98 p-4 shadow-[0_25px_80px_rgba(0,0,0,0.6),0_0_40px_rgba(139,92,246,0.2)] backdrop-blur-xl"
+                            className="w-[320px] rounded-2xl border border-violet-500/30 bg-gradient-to-br from-slate-900/98 via-violet-900/40 to-slate-800/98 p-4 shadow-[0_25px_80px_rgba(0,0,0,0.6),0_0_40px_rgba(139,92,246,0.2)] backdrop-blur-xl"
                         >
                             <div className="flex items-center justify-between mb-2">
                                 <h3 className="text-base font-bold text-white">Sélection des dates</h3>
