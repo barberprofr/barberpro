@@ -40,6 +40,7 @@ export default function ServicesManager({ accordionValue = "", onAccordionChange
   const [productPrice, setProductPrice] = useState("");
   
   const [produitsPopupOpen, setProduitsPopupOpen] = useState(false);
+  const [prestationsPopupOpen, setPrestationsPopupOpen] = useState(false);
   
   const [showAddConfirmation, setShowAddConfirmation] = useState(false);
   const [confirmationType, setConfirmationType] = useState<"service" | "product">("service");
@@ -343,15 +344,14 @@ export default function ServicesManager({ accordionValue = "", onAccordionChange
         }
       }}>
         <div className="grid grid-cols-4 gap-2 mb-4">
-          <AccordionItem value="services" className="border-0">
-            <AccordionTrigger className="py-0 hover:no-underline [&>svg]:hidden w-full">
-              <div className={cn(cardButtonClasses, "w-full min-h-[100px]")}>
-                <Scissors className="h-6 w-6 text-orange-400/80" />
-                <span className="text-xs font-bold text-orange-400">Prestations</span>
-                <span className="text-[9px] text-white/60">Enregistrer</span>
-              </div>
-            </AccordionTrigger>
-          </AccordionItem>
+          <div 
+            className={cn(cardButtonClasses, "w-full min-h-[100px] cursor-pointer")}
+            onClick={() => setPrestationsPopupOpen(true)}
+          >
+            <Scissors className="h-6 w-6 text-orange-400/80" />
+            <span className="text-xs font-bold text-orange-400">Prestations</span>
+            <span className="text-[9px] text-white/60">Enregistrer</span>
+          </div>
 
           <div 
             className={cn(cardButtonClasses, "w-full min-h-[100px] cursor-pointer")}
@@ -393,102 +393,132 @@ export default function ServicesManager({ accordionValue = "", onAccordionChange
           </div>
         </div>
 
-        <AccordionItem value="services" className="border-0">
-          <AccordionTrigger className="hidden" />
-          <AccordionContent className="border-0 pb-0 pt-6">
-            <div className="space-y-6">
-              <div className="space-y-4">
-                <div>
-                  <label className="text-base font-semibold text-gray-100">Description (optionnel)</label>
-                  <Input
-                    type="text"
-                    value={serviceDescription}
-                    onChange={(e) => setServiceDescription(e.target.value)}
-                    placeholder="ex: Coupe + lavage"
-                    className="mt-2 h-10 bg-slate-900/70 border-white/25 text-base text-gray-100 placeholder:text-gray-400"
-                  />
-                </div>
+      </Accordion>
 
-                <div>
-                  <label className="text-base font-semibold text-gray-100">Prix (€)</label>
-                  <Input
-                    type="number"
-                    value={servicePrice}
-                    onChange={(e) => setServicePrice(e.target.value)}
-                    placeholder="ex: 15.00"
-                    step="0.01"
-                    min="0"
-                    className="mt-2 h-10 bg-slate-900/70 border-white/25 text-base text-gray-100 placeholder:text-gray-400 no-spinner"
-                  />
-                </div>
-
-                <Button
-                  onClick={handleAddService}
-                  disabled={!servicePrice.trim() || addService.isPending}
-                  className="w-full mt-4 h-11 text-base font-semibold"
+      {/* Popup Prestations Enregistrer */}
+      {prestationsPopupOpen && createPortal(
+        <AnimatePresence>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
+            className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
+            onClick={() => setPrestationsPopupOpen(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+              onClick={(e) => e.stopPropagation()}
+              className="w-full max-w-lg max-h-[calc(100vh-32px)] overflow-y-auto rounded-3xl border border-orange-500/30 bg-gradient-to-br from-slate-900/98 via-orange-900/40 to-slate-800/98 p-6 shadow-[0_25px_80px_rgba(0,0,0,0.6),0_0_40px_rgba(249,115,22,0.2)] backdrop-blur-xl"
+            >
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-bold text-white">Prestations enregistrer</h3>
+                <button
+                  type="button"
+                  onClick={() => setPrestationsPopupOpen(false)}
+                  className="flex h-8 w-8 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition hover:bg-white/20"
                 >
-                  <Plus className="h-5 w-5 mr-2" />
-                  Ajouter
-                </Button>
+                  ✕
+                </button>
               </div>
-
-              {services.length > 0 && (
-                <div className="space-y-3">
-                  <div className="text-base font-bold text-gray-100">
-                    Services enregistrés:
-                    <span className="ml-2 text-sm font-normal text-gray-400">(glisser pour réorganiser)</span>
+              
+              <div className="space-y-6">
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-base font-semibold text-gray-100">Description (optionnel)</label>
+                    <Input
+                      type="text"
+                      value={serviceDescription}
+                      onChange={(e) => setServiceDescription(e.target.value)}
+                      placeholder="ex: Coupe + lavage"
+                      className="mt-2 h-10 bg-slate-900/70 border-white/25 text-base text-gray-100 placeholder:text-gray-400"
+                    />
                   </div>
-                  <div className="grid gap-3">
-                    {services.map((service) => (
-                      <Card 
-                        key={service.id} 
-                        draggable
-                        onDragStart={(e) => handleDragStart(e, service.id)}
-                        onDragEnd={handleDragEnd}
-                        onDragEnter={(e) => handleDragEnter(e, service.id)}
-                        onDragLeave={handleDragLeave}
-                        onDragOver={handleDragOver}
-                        onDrop={(e) => handleDrop(e, service.id)}
-                        className={cn(
-                          "border border-white/16 bg-white/8 cursor-grab active:cursor-grabbing transition-all duration-200",
-                          draggedServiceId === service.id && "opacity-50 scale-95",
-                          dragOverServiceId === service.id && draggedServiceId !== service.id && "border-purple-400/60 bg-purple-500/20 scale-[1.02] shadow-[0_0_20px_rgba(168,85,247,0.4)]"
-                        )}
-                      >
-                        <CardContent className="px-4 py-3 flex items-center justify-between gap-2">
-                          <div className="flex items-center gap-3 flex-1 min-w-0">
-                            <GripVertical className="h-5 w-5 text-gray-400 flex-shrink-0 cursor-grab" />
-                            <div className="flex-1 min-w-0">
-                              <div className="font-semibold text-base text-gray-100 truncate">{service.name}</div>
-                              <div className="text-sm text-gray-400 mt-1">
-                                {service.price.toFixed(2)}€
-                                {service.description && ` - ${service.description}`}
+
+                  <div>
+                    <label className="text-base font-semibold text-gray-100">Prix (€)</label>
+                    <Input
+                      type="number"
+                      value={servicePrice}
+                      onChange={(e) => setServicePrice(e.target.value)}
+                      placeholder="ex: 15.00"
+                      step="0.01"
+                      min="0"
+                      className="mt-2 h-10 bg-slate-900/70 border-white/25 text-base text-gray-100 placeholder:text-gray-400 no-spinner"
+                    />
+                  </div>
+
+                  <Button
+                    onClick={handleAddService}
+                    disabled={!servicePrice.trim() || addService.isPending}
+                    className="w-full mt-4 h-11 text-base font-semibold"
+                  >
+                    <Plus className="h-5 w-5 mr-2" />
+                    Ajouter
+                  </Button>
+                </div>
+
+                {services.length > 0 && (
+                  <div className="space-y-3">
+                    <div className="text-base font-bold text-gray-100">
+                      Services enregistrés:
+                      <span className="ml-2 text-sm font-normal text-gray-400">(glisser pour réorganiser)</span>
+                    </div>
+                    <div className="grid gap-3">
+                      {services.map((service) => (
+                        <Card 
+                          key={service.id} 
+                          draggable
+                          onDragStart={(e) => handleDragStart(e, service.id)}
+                          onDragEnd={handleDragEnd}
+                          onDragEnter={(e) => handleDragEnter(e, service.id)}
+                          onDragLeave={handleDragLeave}
+                          onDragOver={handleDragOver}
+                          onDrop={(e) => handleDrop(e, service.id)}
+                          className={cn(
+                            "border border-white/16 bg-white/8 cursor-grab active:cursor-grabbing transition-all duration-200",
+                            draggedServiceId === service.id && "opacity-50 scale-95",
+                            dragOverServiceId === service.id && draggedServiceId !== service.id && "border-purple-400/60 bg-purple-500/20 scale-[1.02] shadow-[0_0_20px_rgba(168,85,247,0.4)]"
+                          )}
+                        >
+                          <CardContent className="px-4 py-3 flex items-center justify-between gap-2">
+                            <div className="flex items-center gap-3 flex-1 min-w-0">
+                              <GripVertical className="h-5 w-5 text-gray-400 flex-shrink-0 cursor-grab" />
+                              <div className="flex-1 min-w-0">
+                                <div className="font-semibold text-base text-gray-100 truncate">{service.name}</div>
+                                <div className="text-sm text-gray-400 mt-1">
+                                  {service.price.toFixed(2)}€
+                                  {service.description && ` - ${service.description}`}
+                                </div>
                               </div>
                             </div>
-                          </div>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              deleteService.mutate(service.id);
-                            }}
-                            disabled={deleteService.isPending}
-                            className="text-red-400 hover:text-red-300 flex-shrink-0"
-                          >
-                            <Trash2 className="h-5 w-5" />
-                          </Button>
-                        </CardContent>
-                      </Card>
-                    ))}
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                deleteService.mutate(service.id);
+                              }}
+                              disabled={deleteService.isPending}
+                              className="text-red-400 hover:text-red-300 flex-shrink-0"
+                            >
+                              <Trash2 className="h-5 w-5" />
+                            </Button>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )}
-            </div>
-          </AccordionContent>
-        </AccordionItem>
-
-      </Accordion>
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        </AnimatePresence>,
+        document.body
+      )}
 
       {/* Popup Produits Enregistrer */}
       {produitsPopupOpen && createPortal(
