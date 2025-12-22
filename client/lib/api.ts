@@ -142,7 +142,8 @@ export interface StylistStats {
   monthlyPointsUsed?: number;
 }
 
-export interface Stylist { id: string; name: string; stats?: StylistStats; commissionPct?: number; hiddenMonths?: number[]; }
+export interface HiddenPeriod { month: number; startDay: number; endDay: number; }
+export interface Stylist { id: string; name: string; stats?: StylistStats; commissionPct?: number; hiddenMonths?: number[]; hiddenPeriods?: HiddenPeriod[]; }
 export interface Client { id: string; name: string; points: number; email: string | null; phone: string | null; lastVisitAt: number | null; photos: string[] }
 export interface Prestation { id: string; stylistId: string; clientId?: string; amount: number; paymentMethod: PaymentMethod; timestamp: number; pointsPercent: number; pointsAwarded: number }
 export interface Product { id: string; stylistId: string; clientId?: string; amount: number; paymentMethod: PaymentMethod; timestamp: number }
@@ -905,6 +906,42 @@ export function useUpdateStylistHiddenMonths() {
         if (!old) return old;
         return old.map((s) => 
           s.id === stylistId ? { ...s, hiddenMonths } : s
+        );
+      });
+      return { previousStylists, queryKey };
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.previousStylists && context?.queryKey) {
+        qc.setQueryData(context.queryKey, context.previousStylists);
+      }
+    },
+    onSettled: () => {
+      qc.invalidateQueries({ queryKey: ['stylists', salonId] });
+    }
+  });
+}
+
+export function useUpdateStylistHiddenPeriods() {
+  const qc = useQueryClient();
+  const salonId = getSelectedSalon();
+  return useMutation({
+    mutationFn: async ({ stylistId, hiddenPeriods }: { stylistId: string; hiddenPeriods: HiddenPeriod[] }) => {
+      const res = await apiFetch(`/api/admin/stylists/${stylistId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', 'x-admin-token': getAdminToken() || '' },
+        body: JSON.stringify({ hiddenPeriods }),
+      });
+      if (!res.ok) await throwResponseError(res);
+      return res.json() as Promise<{ stylist: Stylist }>;
+    },
+    onMutate: async ({ stylistId, hiddenPeriods }) => {
+      const queryKey = ['stylists', salonId];
+      await qc.cancelQueries({ queryKey });
+      const previousStylists = qc.getQueryData(queryKey);
+      qc.setQueryData(queryKey, (old: Stylist[] | undefined) => {
+        if (!old) return old;
+        return old.map((s) => 
+          s.id === stylistId ? { ...s, hiddenPeriods } : s
         );
       });
       return { previousStylists, queryKey };

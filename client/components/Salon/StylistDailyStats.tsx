@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { Button } from "@/components/ui/button";
-import { useStylistBreakdown, useUpdateTransactionPaymentMethod, useUpdateStylistHiddenMonths } from "@/lib/api";
+import { useStylistBreakdown, useUpdateTransactionPaymentMethod, useUpdateStylistHiddenMonths, useUpdateStylistHiddenPeriods, HiddenPeriod } from "@/lib/api";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, ChevronLeft, ChevronRight, List, EyeOff, Eye, X, Trash2, Calendar } from "lucide-react";
@@ -978,7 +978,7 @@ export function StylistDailySection({ id, commissionPct, stylistName }: { id: st
     );
 }
 
-export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView = false, hiddenMonths = [] }: { id: string; commissionPct: number; stylistName?: string; isSettingsView?: boolean; hiddenMonths?: number[] }) {
+export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView = false, hiddenMonths = [], hiddenPeriods = [] }: { id: string; commissionPct: number; stylistName?: string; isSettingsView?: boolean; hiddenMonths?: number[]; hiddenPeriods?: HiddenPeriod[] }) {
     const now = new Date();
     const defMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
     const today = parisDateString();
@@ -992,6 +992,10 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
     const [monthPickerOpen, setMonthPickerOpen] = useState(false);
     const updatePaymentMethod = useUpdateTransactionPaymentMethod();
     const updateHiddenMonths = useUpdateStylistHiddenMonths();
+    const updateHiddenPeriods = useUpdateStylistHiddenPeriods();
+    const [periodEditingMonth, setPeriodEditingMonth] = useState<number | null>(null);
+    const [periodStartDay, setPeriodStartDay] = useState<number>(1);
+    const [periodEndDay, setPeriodEndDay] = useState<number>(31);
 
     const getMonthIntFromDate = (dateStr: string) => {
         const [y, m] = dateStr.split("-").map(Number);
@@ -1025,7 +1029,55 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
     };
 
     const activeMonths = getActiveMonths();
-    const shouldHideData = !isSettingsView && activeMonths.some(m => hiddenMonths.includes(m));
+    
+    const isDateHidden = (year: number, monthNum: number, day: number): boolean => {
+        const monthInt = year * 100 + monthNum;
+        if (hiddenMonths.includes(monthInt)) return true;
+        const period = hiddenPeriods.find(p => p.month === monthInt);
+        if (!period) return false;
+        const start = Math.min(period.startDay, period.endDay);
+        const end = Math.max(period.startDay, period.endDay);
+        return day >= start && day <= end;
+    };
+    
+    const checkShouldHideData = (): boolean => {
+        if (isSettingsView) return false;
+        
+        if (mode === "today") {
+            const [y, m, d] = today.split("-").map(Number);
+            return isDateHidden(y, m, d);
+        } else if (mode === "month") {
+            const [y, m] = month.split("-").map(Number);
+            const monthInt = y * 100 + m;
+            if (hiddenMonths.includes(monthInt)) return true;
+            const period = hiddenPeriods.find(p => p.month === monthInt);
+            return !!period;
+        } else if (mode === "range" && startDate) {
+            const effectiveEnd = endDate || startDate;
+            const [startY, startM, startD] = startDate.split("-").map(Number);
+            const [endY, endM, endD] = effectiveEnd.split("-").map(Number);
+            
+            let currentY = startY, currentM = startM, currentD = startD;
+            const endNum = endY * 10000 + endM * 100 + endD;
+            
+            while (currentY * 10000 + currentM * 100 + currentD <= endNum) {
+                if (isDateHidden(currentY, currentM, currentD)) return true;
+                const daysInMonth = new Date(currentY, currentM, 0).getDate();
+                currentD++;
+                if (currentD > daysInMonth) {
+                    currentD = 1;
+                    currentM++;
+                    if (currentM > 12) {
+                        currentM = 1;
+                        currentY++;
+                    }
+                }
+            }
+        }
+        return false;
+    };
+    
+    const shouldHideData = checkShouldHideData();
 
     const [maskDialogOpen, setMaskDialogOpen] = useState(false);
 
@@ -1460,94 +1512,182 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
             )}
 
             <AnimatePresence>
-                {maskDialogOpen && (
+                {maskDialogOpen && createPortal(
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.15 }}
-                        className="fixed inset-0 z-[200] flex items-center justify-center bg-black/50 backdrop-blur-sm"
-                        onClick={() => setMaskDialogOpen(false)}
+                        className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+                        onClick={() => { setMaskDialogOpen(false); setPeriodEditingMonth(null); }}
                     >
                         <motion.div
                             initial={{ opacity: 0, scale: 0.95 }}
                             animate={{ opacity: 1, scale: 1 }}
                             exit={{ opacity: 0, scale: 0.95 }}
                             transition={{ duration: 0.2 }}
-                            className="w-[calc(100%-2rem)] max-w-sm bg-slate-900/95 border border-rose-500/30 backdrop-blur-xl p-5 rounded-2xl shadow-[0_25px_80px_rgba(0,0,0,0.6)] relative"
+                            className="w-full max-w-md max-h-[calc(100vh-32px)] overflow-y-auto bg-gradient-to-br from-slate-900/98 via-rose-900/30 to-slate-800/98 border border-rose-500/30 backdrop-blur-xl p-5 rounded-3xl shadow-[0_25px_80px_rgba(0,0,0,0.6),0_0_40px_rgba(244,63,94,0.15)] relative"
                             onClick={(e) => e.stopPropagation()}
                         >
-                            <button
-                                type="button"
-                                onClick={() => setMaskDialogOpen(false)}
-                                className="absolute right-3 top-3 flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-white/10 hover:bg-white/20 text-white transition-colors"
-                                aria-label="Fermer"
-                            >
-                                <X className="h-6 w-6" />
-                            </button>
-                            <div className="flex items-center gap-3 text-rose-300 text-lg pr-8 mb-3">
-                                <EyeOff className="h-5 w-5" />
-                                <span className="font-semibold">Masquer le CA - 2025</span>
+                            <div className="flex items-center justify-between mb-4">
+                                <div className="flex items-center gap-3 text-rose-300 text-lg">
+                                    <EyeOff className="h-5 w-5" />
+                                    <span className="font-semibold">Masquer le CA - 2025</span>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => { setMaskDialogOpen(false); setPeriodEditingMonth(null); }}
+                                    className="flex h-8 w-8 items-center justify-center rounded-full border border-white/20 bg-white/10 hover:bg-white/20 text-white transition-colors"
+                                    aria-label="Fermer"
+                                >
+                                    ✕
+                                </button>
                             </div>
                             
-                            <div>
-                                <p className="text-sm text-white/60 mb-3">Cliquez sur un mois pour masquer/afficher son CA</p>
-                                <div className="grid grid-cols-4 gap-2">
-                                    {[
-                                        { label: 'Jan', value: 202501 },
-                                        { label: 'Fév', value: 202502 },
-                                        { label: 'Mar', value: 202503 },
-                                        { label: 'Avr', value: 202504 },
-                                        { label: 'Mai', value: 202505 },
-                                        { label: 'Juin', value: 202506 },
-                                        { label: 'Juil', value: 202507 },
-                                        { label: 'Août', value: 202508 },
-                                        { label: 'Sep', value: 202509 },
-                                        { label: 'Oct', value: 202510 },
-                                        { label: 'Nov', value: 202511 },
-                                        { label: 'Déc', value: 202512 },
-                                    ].map((month) => {
-                                        const isHidden = hiddenMonths.includes(month.value);
-                                        return (
+                            {periodEditingMonth === null ? (
+                                <div>
+                                    <p className="text-sm text-white/60 mb-3">Cliquez sur un mois pour définir la période à masquer</p>
+                                    <div className="grid grid-cols-4 gap-2">
+                                        {[
+                                            { label: 'Jan', value: 202501, days: 31 },
+                                            { label: 'Fév', value: 202502, days: 28 },
+                                            { label: 'Mar', value: 202503, days: 31 },
+                                            { label: 'Avr', value: 202504, days: 30 },
+                                            { label: 'Mai', value: 202505, days: 31 },
+                                            { label: 'Juin', value: 202506, days: 30 },
+                                            { label: 'Juil', value: 202507, days: 31 },
+                                            { label: 'Août', value: 202508, days: 31 },
+                                            { label: 'Sep', value: 202509, days: 30 },
+                                            { label: 'Oct', value: 202510, days: 31 },
+                                            { label: 'Nov', value: 202511, days: 30 },
+                                            { label: 'Déc', value: 202512, days: 31 },
+                                        ].map((monthData) => {
+                                            const period = hiddenPeriods.find(p => p.month === monthData.value);
+                                            const hasPeriod = !!period;
+                                            return (
+                                                <button
+                                                    key={monthData.value}
+                                                    type="button"
+                                                    onClick={() => {
+                                                        setPeriodEditingMonth(monthData.value);
+                                                        if (period) {
+                                                            setPeriodStartDay(period.startDay);
+                                                            setPeriodEndDay(period.endDay);
+                                                        } else {
+                                                            setPeriodStartDay(1);
+                                                            setPeriodEndDay(monthData.days);
+                                                        }
+                                                    }}
+                                                    className={`
+                                                        relative flex flex-col items-center justify-center py-3 px-2 rounded-xl
+                                                        font-medium text-sm transition-all touch-manipulation
+                                                        ${hasPeriod 
+                                                            ? 'bg-rose-500/30 border-2 border-rose-400/60 text-rose-200 shadow-[0_0_12px_rgba(244,63,94,0.3)]' 
+                                                            : 'bg-slate-800/60 border border-slate-600/50 text-white/70 hover:bg-slate-700/60 hover:border-slate-500'
+                                                        }
+                                                    `}
+                                                >
+                                                    <span>{monthData.label}</span>
+                                                    {hasPeriod && (
+                                                        <span className="text-[10px] mt-0.5 text-rose-300">{period.startDay}-{period.endDay}</span>
+                                                    )}
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                    <p className="text-xs text-white/40 mt-3 text-center">
+                                        {hiddenPeriods.length === 0 
+                                            ? 'Aucune période masquée' 
+                                            : `${hiddenPeriods.length} période${hiddenPeriods.length > 1 ? 's' : ''} masquée${hiddenPeriods.length > 1 ? 's' : ''}`
+                                        }
+                                    </p>
+                                </div>
+                            ) : (
+                                <div className="space-y-4">
+                                    <button
+                                        type="button"
+                                        onClick={() => setPeriodEditingMonth(null)}
+                                        className="flex items-center gap-2 text-sm text-white/60 hover:text-white transition"
+                                    >
+                                        <ChevronLeft className="h-4 w-4" />
+                                        Retour aux mois
+                                    </button>
+                                    
+                                    <div className="text-center">
+                                        <h4 className="text-lg font-semibold text-white mb-1">
+                                            {MONTHS_FR[(periodEditingMonth % 100) - 1]} {Math.floor(periodEditingMonth / 100)}
+                                        </h4>
+                                        <p className="text-sm text-white/60">Définir la période à masquer</p>
+                                    </div>
+                                    
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-xs text-white/60 mb-1">Du jour</label>
+                                            <select
+                                                value={periodStartDay}
+                                                onChange={(e) => setPeriodStartDay(Number(e.target.value))}
+                                                className="w-full px-3 py-2 rounded-xl bg-slate-800/80 border border-white/20 text-white text-center"
+                                            >
+                                                {Array.from({ length: 31 }, (_, i) => i + 1).map(d => (
+                                                    <option key={d} value={d}>{String(d).padStart(2, '0')}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs text-white/60 mb-1">Au jour</label>
+                                            <select
+                                                value={periodEndDay}
+                                                onChange={(e) => setPeriodEndDay(Number(e.target.value))}
+                                                className="w-full px-3 py-2 rounded-xl bg-slate-800/80 border border-white/20 text-white text-center"
+                                            >
+                                                {Array.from({ length: 31 }, (_, i) => i + 1).map(d => (
+                                                    <option key={d} value={d}>{String(d).padStart(2, '0')}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="text-center py-2">
+                                        <span className="text-sm text-rose-300">
+                                            Du {String(periodStartDay).padStart(2, '0')}/{String(periodEditingMonth % 100).padStart(2, '0')} au {String(periodEndDay).padStart(2, '0')}/{String(periodEditingMonth % 100).padStart(2, '0')}
+                                        </span>
+                                    </div>
+                                    
+                                    <div className="flex gap-2">
+                                        {hiddenPeriods.find(p => p.month === periodEditingMonth) && (
                                             <button
-                                                key={month.value}
                                                 type="button"
                                                 onClick={() => {
-                                                    if (isHidden) {
-                                                        handleRemoveHiddenMonth(month.value);
-                                                    } else {
-                                                        const newHiddenMonths = [...hiddenMonths, month.value];
-                                                        updateHiddenMonths.mutate({ stylistId: id, hiddenMonths: newHiddenMonths });
-                                                    }
+                                                    const newPeriods = hiddenPeriods.filter(p => p.month !== periodEditingMonth);
+                                                    updateHiddenPeriods.mutate({ stylistId: id, hiddenPeriods: newPeriods });
+                                                    setPeriodEditingMonth(null);
                                                 }}
-                                                disabled={updateHiddenMonths.isPending}
-                                                className={`
-                                                    relative flex flex-col items-center justify-center py-3 px-2 rounded-xl
-                                                    font-medium text-sm transition-all touch-manipulation
-                                                    disabled:opacity-50
-                                                    ${isHidden 
-                                                        ? 'bg-rose-500/30 border-2 border-rose-400/60 text-rose-200 shadow-[0_0_12px_rgba(244,63,94,0.3)]' 
-                                                        : 'bg-slate-800/60 border border-slate-600/50 text-white/70 hover:bg-slate-700/60 hover:border-slate-500'
-                                                    }
-                                                `}
+                                                disabled={updateHiddenPeriods.isPending}
+                                                className="flex-1 py-3 rounded-xl border border-red-500/50 bg-red-500/20 text-red-300 font-medium transition hover:bg-red-500/30 disabled:opacity-50"
                                             >
-                                                <span>{month.label}</span>
-                                                {isHidden && (
-                                                    <EyeOff className="h-3.5 w-3.5 mt-1 text-rose-300" />
-                                                )}
+                                                Supprimer
                                             </button>
-                                        );
-                                    })}
+                                        )}
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                const newPeriod = { month: periodEditingMonth, startDay: periodStartDay, endDay: periodEndDay };
+                                                const otherPeriods = hiddenPeriods.filter(p => p.month !== periodEditingMonth);
+                                                const newPeriods = [...otherPeriods, newPeriod];
+                                                updateHiddenPeriods.mutate({ stylistId: id, hiddenPeriods: newPeriods });
+                                                setPeriodEditingMonth(null);
+                                            }}
+                                            disabled={updateHiddenPeriods.isPending || periodStartDay > periodEndDay}
+                                            className="flex-1 py-3 rounded-xl border-0 bg-gradient-to-r from-rose-500 to-pink-500 text-white font-semibold transition hover:from-rose-600 hover:to-pink-600 disabled:opacity-50 shadow-[0_4px_15px_rgba(244,63,94,0.4)]"
+                                        >
+                                            Valider
+                                        </button>
+                                    </div>
                                 </div>
-                                <p className="text-xs text-white/40 mt-3 text-center">
-                                    {hiddenMonths.length === 0 
-                                        ? 'Aucun mois masqué' 
-                                        : `${hiddenMonths.length} mois masqué${hiddenMonths.length > 1 ? 's' : ''}`
-                                    }
-                                </p>
-                            </div>
+                            )}
                         </motion.div>
-                    </motion.div>
+                    </motion.div>,
+                    document.body
                 )}
             </AnimatePresence>
         </div>

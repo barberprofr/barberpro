@@ -3,6 +3,12 @@ import mongoose, { Schema, Document } from 'mongoose';
 export type PaymentMethod = "cash" | "check" | "card" | "mixed";
 
 // Interfaces étendues pour Mongoose
+export interface IHiddenPeriod {
+    month: number;
+    startDay: number;
+    endDay: number;
+}
+
 export interface IStylist extends Document {
     id: string;
     name: string;
@@ -10,6 +16,7 @@ export interface IStylist extends Document {
     secretCode?: string;
     salonId: string;
     hiddenMonths: number[];
+    hiddenPeriods: IHiddenPeriod[];
     createdAt: Date;
     updatedAt: Date;
 }
@@ -139,13 +146,20 @@ export interface ISettings extends Document {
 }
 
 // Schémas Mongoose
+const HiddenPeriodSchema = new Schema({
+    month: { type: Number, required: true },
+    startDay: { type: Number, required: true, min: 1, max: 31 },
+    endDay: { type: Number, required: true, min: 1, max: 31 }
+}, { _id: false });
+
 const StylistSchema = new Schema({
     id: { type: String, required: true, unique: true },
     name: { type: String, required: true },
     commissionPct: { type: Number, min: 0, max: 100 },
     secretCode: { type: String, default: null },
     salonId: { type: String, required: true, index: true },
-    hiddenMonths: { type: [Number], default: [] }
+    hiddenMonths: { type: [Number], default: [] },
+    hiddenPeriods: { type: [HiddenPeriodSchema], default: [] }
 }, {
     timestamps: true,
     id: false

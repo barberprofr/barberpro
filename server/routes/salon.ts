@@ -2035,11 +2035,16 @@ export const updateStylist: RequestHandler = async (req, res) => {
     const body = await parseRequestBody(req);
     const salonId = getSalonId(req);
     const { id } = req.params as { id: string };
-    const { name, commissionPct, hiddenMonths } = body as { name?: string; commissionPct?: number; hiddenMonths?: number[] };
+    const { name, commissionPct, hiddenMonths, hiddenPeriods } = body as { 
+      name?: string; 
+      commissionPct?: number; 
+      hiddenMonths?: number[];
+      hiddenPeriods?: { month: number; startDay: number; endDay: number }[];
+    };
 
     const stylist = await Stylist.findOne({ id, salonId });
     if (!stylist) return res.status(404).json({ error: "stylist not found" });
-    if (name === undefined && commissionPct === undefined && hiddenMonths === undefined) {
+    if (name === undefined && commissionPct === undefined && hiddenMonths === undefined && hiddenPeriods === undefined) {
       return res.status(400).json({ error: "no updates provided" });
     }
 
@@ -2054,6 +2059,14 @@ export const updateStylist: RequestHandler = async (req, res) => {
     }
     if (Array.isArray(hiddenMonths)) {
       updates.hiddenMonths = hiddenMonths.filter(m => typeof m === "number");
+    }
+    if (Array.isArray(hiddenPeriods)) {
+      updates.hiddenPeriods = hiddenPeriods.filter(p => 
+        typeof p === "object" && p !== null &&
+        typeof p.month === "number" &&
+        typeof p.startDay === "number" && p.startDay >= 1 && p.startDay <= 31 &&
+        typeof p.endDay === "number" && p.endDay >= 1 && p.endDay <= 31
+      );
     }
 
     await Stylist.findOneAndUpdate({ id, salonId }, { $set: updates });
