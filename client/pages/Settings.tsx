@@ -2797,14 +2797,14 @@ export default function Settings() {
               })()}
 
               
-              <AnimatePresence>
-                {dailyCaPopupOpen && (
+              {dailyCaPopupOpen && createPortal(
+                <AnimatePresence>
                   <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.15 }}
-                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
+                    className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
                     onClick={() => setDailyCaPopupOpen(false)}
                   >
                     <motion.div
@@ -2812,7 +2812,7 @@ export default function Settings() {
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.95 }}
                       transition={{ duration: 0.2 }}
-                      className="w-[calc(100%-2rem)] max-w-lg max-h-[80vh] overflow-y-auto rounded-2xl border border-white/20 bg-slate-900/50 backdrop-blur-md p-4 shadow-[0_25px_80px_rgba(0,0,0,0.6)]"
+                      className="w-full max-w-lg max-h-[calc(100vh-32px)] overflow-y-auto rounded-2xl border border-amber-500/30 bg-gradient-to-br from-slate-900/98 via-amber-900/40 to-slate-800/98 p-4 shadow-[0_25px_80px_rgba(0,0,0,0.6),0_0_40px_rgba(245,158,11,0.2)] backdrop-blur-xl"
                       onClick={(e) => e.stopPropagation()}
                     >
                       <div className="flex items-center justify-between mb-4">
@@ -2830,8 +2830,9 @@ export default function Settings() {
                       </div>
                     </motion.div>
                   </motion.div>
-                )}
-              </AnimatePresence>
+                </AnimatePresence>,
+                document.body
+              )}
 
               {yearCaPopupOpen && createPortal(
                 <AnimatePresence>
