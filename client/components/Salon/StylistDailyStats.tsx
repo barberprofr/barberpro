@@ -687,65 +687,227 @@ function SingleDateCalendar({
     );
 }
 
+const MONTHS_FR_SHORT = ["Jan", "Fév", "Mar", "Avr", "Mai", "Juin", "Juil", "Août", "Sep", "Oct", "Nov", "Déc"];
+
 export function StylistDailySection({ id, commissionPct, stylistName }: { id: string; commissionPct: number; stylistName?: string }) {
     const today = parisDateString();
+    const now = new Date();
+    const defMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+    
+    const [mode, setMode] = useState<"today" | "month" | "range">("today");
     const [date, setDate] = useState<string>(today);
+    const [month, setMonth] = useState<string>(defMonth);
+    const [startDate, setStartDate] = useState<string>("");
+    const [endDate, setEndDate] = useState<string>("");
     const [encaissementsOpen, setEncaissementsOpen] = useState(false);
     const [datePickerOpen, setDatePickerOpen] = useState(false);
+    const [monthPickerOpen, setMonthPickerOpen] = useState(false);
 
     const formatDateDisplay = (dateStr: string) => {
         const [year, month, day] = dateStr.split("-");
         return `${day}/${month}/${year}`;
     };
 
+    const effectiveDate = mode === "today" ? today : (mode === "range" && startDate ? startDate : `${month}-01`);
+
     return (
         <div className="space-y-3">
-            <button
-                type="button"
-                onClick={() => setDatePickerOpen(true)}
-                className="flex items-center gap-3 text-sm px-3 py-2 rounded-xl border border-violet-500/40 bg-violet-900/20 hover:bg-violet-900/30 transition-all"
-            >
-                <span className="text-white/80 font-medium">Date :</span>
-                <span className="text-violet-300 font-semibold">{formatDateDisplay(date)}</span>
-            </button>
+            <div className="flex flex-wrap items-center gap-2 text-sm">
+                <button
+                    onClick={() => setMode("today")}
+                    className={cn(
+                        "px-3 py-1.5 rounded-lg border font-medium transition-all text-xs",
+                        mode === "today"
+                            ? "bg-fuchsia-500/20 border-fuchsia-400/50 text-fuchsia-300"
+                            : "bg-slate-800/60 border-slate-600 text-white/70 hover:bg-slate-700/60 hover:text-white"
+                    )}
+                >
+                    Aujourd'hui
+                </button>
+                <button
+                    onClick={() => setMode("month")}
+                    className={cn(
+                        "px-3 py-1.5 rounded-lg border font-medium transition-all text-xs",
+                        mode === "month"
+                            ? "bg-cyan-500/20 border-cyan-400/50 text-cyan-300"
+                            : "bg-slate-800/60 border-slate-600 text-white/70 hover:bg-slate-700/60 hover:text-white"
+                    )}
+                >
+                    Par mois
+                </button>
+                <button
+                    onClick={() => setMode("range")}
+                    className={cn(
+                        "px-3 py-1.5 rounded-lg border font-medium transition-all text-xs",
+                        mode === "range"
+                            ? "bg-violet-500/20 border-violet-400/50 text-violet-300"
+                            : "bg-slate-800/60 border-slate-600 text-white/70 hover:bg-slate-700/60 hover:text-white"
+                    )}
+                >
+                    Période
+                </button>
+            </div>
             
-            {datePickerOpen && createPortal(
-                <AnimatePresence>
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.15 }}
-                        className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
-                        onClick={() => setDatePickerOpen(false)}
+            {mode === "today" ? null : mode === "month" ? (
+                <>
+                    <button
+                        type="button"
+                        onClick={() => setMonthPickerOpen(true)}
+                        className="flex flex-wrap items-center gap-2 text-sm px-3 py-2 rounded-xl border border-cyan-500/40 bg-cyan-900/20 hover:bg-cyan-900/30 transition-all"
                     >
-                        <div
-                            onClick={(e) => e.stopPropagation()}
-                            className="w-[320px] max-h-[calc(100vh-32px)] overflow-y-auto rounded-2xl border border-violet-500/30 bg-gradient-to-br from-slate-900 via-violet-900/40 to-slate-800 p-4 shadow-[0_25px_80px_rgba(0,0,0,0.6),0_0_40px_rgba(139,92,246,0.2)]"
-                        >
-                            <div className="flex items-center justify-between mb-2">
-                                <h3 className="text-base font-bold text-white">Sélection de la date</h3>
-                                <button
-                                    type="button"
-                                    onClick={() => setDatePickerOpen(false)}
-                                    className="flex h-7 w-7 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition hover:bg-white/20 text-sm"
+                        <span className="text-white/80 font-medium">Mois :</span>
+                        <span className="text-cyan-300 font-semibold">{MONTHS_FR[parseInt(month.split("-")[1]) - 1]} {month.split("-")[0]}</span>
+                    </button>
+                    
+                    {monthPickerOpen && createPortal(
+                        <AnimatePresence>
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                transition={{ duration: 0.15 }}
+                                className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
+                                onClick={() => setMonthPickerOpen(false)}
+                            >
+                                <div
+                                    onClick={(e) => e.stopPropagation()}
+                                    className="w-[320px] max-h-[calc(100vh-32px)] overflow-y-auto rounded-2xl border border-cyan-500/30 bg-gradient-to-br from-slate-900 via-cyan-900/30 to-slate-800 p-4 shadow-[0_25px_80px_rgba(0,0,0,0.6),0_0_40px_rgba(6,182,212,0.2)]"
                                 >
-                                    ✕
-                                </button>
-                            </div>
-                            
-                            <SingleDateCalendar
-                                selectedDate={date}
-                                onValidate={(d) => setDate(d)}
-                                onClose={() => setDatePickerOpen(false)}
-                                formatDateDisplay={formatDateDisplay}
-                            />
-                        </div>
-                    </motion.div>
-                </AnimatePresence>,
-                document.body
+                                    <div className="flex items-center justify-between mb-3">
+                                        <h3 className="text-base font-bold text-white">Sélection du mois</h3>
+                                        <button
+                                            type="button"
+                                            onClick={() => setMonthPickerOpen(false)}
+                                            className="flex h-7 w-7 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition hover:bg-white/20 text-sm"
+                                        >
+                                            ✕
+                                        </button>
+                                    </div>
+                                    
+                                    <div className="space-y-3">
+                                        <div className="flex items-center justify-between">
+                                            <button
+                                                type="button"
+                                                onClick={() => setMonth(`${parseInt(month.split("-")[0]) - 1}-${month.split("-")[1]}`)}
+                                                className="h-8 w-8 flex items-center justify-center rounded-full bg-cyan-500/30 border border-cyan-400/50 text-white hover:bg-cyan-500/50 transition-all"
+                                            >
+                                                <ChevronLeft className="h-4 w-4" />
+                                            </button>
+                                            <span className="text-lg font-bold text-white">{month.split("-")[0]}</span>
+                                            <button
+                                                type="button"
+                                                onClick={() => setMonth(`${parseInt(month.split("-")[0]) + 1}-${month.split("-")[1]}`)}
+                                                className="h-8 w-8 flex items-center justify-center rounded-full bg-cyan-500/30 border border-cyan-400/50 text-white hover:bg-cyan-500/50 transition-all"
+                                            >
+                                                <ChevronRight className="h-4 w-4" />
+                                            </button>
+                                        </div>
+                                        
+                                        <div className="grid grid-cols-4 gap-2">
+                                            {MONTHS_FR_SHORT.map((m, i) => {
+                                                const monthNum = String(i + 1).padStart(2, "0");
+                                                const isSelected = month.split("-")[1] === monthNum;
+                                                return (
+                                                    <button
+                                                        key={m}
+                                                        type="button"
+                                                        onClick={() => setMonth(`${month.split("-")[0]}-${monthNum}`)}
+                                                        className={cn(
+                                                            "h-10 rounded-xl text-sm font-semibold transition-all",
+                                                            isSelected 
+                                                                ? "bg-gradient-to-r from-cyan-500 to-teal-500 text-white shadow-lg" 
+                                                                : "bg-slate-700/50 text-white/70 hover:bg-cyan-500/20"
+                                                        )}
+                                                    >
+                                                        {m}
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
+                                        
+                                        <div className="flex gap-2">
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    setMonth(defMonth);
+                                                    setMonthPickerOpen(false);
+                                                }}
+                                                className="flex-1 px-4 py-2 rounded-xl bg-slate-700/50 text-white font-semibold text-sm hover:bg-slate-600/50 transition-all"
+                                            >
+                                                Ce mois
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => setMonthPickerOpen(false)}
+                                                className="flex-1 px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-600 to-teal-600 text-white font-semibold text-sm hover:from-cyan-500 hover:to-teal-500 transition-all shadow-lg"
+                                            >
+                                                Valider
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        </AnimatePresence>,
+                        document.body
+                    )}
+                </>
+            ) : (
+                <>
+                    <button
+                        type="button"
+                        onClick={() => setDatePickerOpen(true)}
+                        className="flex flex-wrap items-center gap-2 text-sm px-3 py-2 rounded-xl border border-violet-500/40 bg-violet-900/20 hover:bg-violet-900/30 transition-all"
+                    >
+                        <span className="text-white/80 font-medium">Du</span>
+                        <span className="text-violet-300 font-semibold">{startDate ? formatDateDisplay(startDate) : "jj/mm/aaaa"}</span>
+                        <span className="text-white/80 font-medium">au</span>
+                        <span className="text-violet-300 font-semibold">{endDate ? formatDateDisplay(endDate) : "jj/mm/aaaa"}</span>
+                    </button>
+                    
+                    {datePickerOpen && createPortal(
+                        <AnimatePresence>
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                transition={{ duration: 0.15 }}
+                                className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
+                                onClick={() => setDatePickerOpen(false)}
+                            >
+                                <div
+                                    onClick={(e) => e.stopPropagation()}
+                                    className="w-[320px] max-h-[calc(100vh-32px)] overflow-y-auto rounded-2xl border border-violet-500/30 bg-gradient-to-br from-slate-900 via-violet-900/40 to-slate-800 p-4 shadow-[0_25px_80px_rgba(0,0,0,0.6),0_0_40px_rgba(139,92,246,0.2)]"
+                                >
+                                    <div className="flex items-center justify-between mb-2">
+                                        <h3 className="text-base font-bold text-white">Sélection des dates</h3>
+                                        <button
+                                            type="button"
+                                            onClick={() => setDatePickerOpen(false)}
+                                            className="flex h-7 w-7 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition hover:bg-white/20 text-sm"
+                                        >
+                                            ✕
+                                        </button>
+                                    </div>
+                                    
+                                    <CustomCalendar
+                                        startDate={startDate}
+                                        endDate={endDate}
+                                        onValidate={(start, end) => {
+                                            setStartDate(start);
+                                            setEndDate(end);
+                                        }}
+                                        onClose={() => setDatePickerOpen(false)}
+                                        formatDateDisplay={formatDateDisplay}
+                                    />
+                                </div>
+                            </motion.div>
+                        </AnimatePresence>,
+                        document.body
+                    )}
+                </>
             )}
-            <StylistDaily id={id} date={date} commissionPct={commissionPct} />
+            
+            <StylistDaily id={id} date={mode === "today" ? today : (mode === "range" && startDate ? startDate : `${month}-01`)} commissionPct={commissionPct} />
             
             {/* Bouton pour ouvrir le popup des encaissements */}
             <motion.button
