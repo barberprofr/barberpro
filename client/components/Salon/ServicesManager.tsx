@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -37,6 +38,8 @@ export default function ServicesManager({ accordionValue = "", onAccordionChange
 
   const [productName, setProductName] = useState("");
   const [productPrice, setProductPrice] = useState("");
+  
+  const [produitsPopupOpen, setProduitsPopupOpen] = useState(false);
   
   const [showAddConfirmation, setShowAddConfirmation] = useState(false);
   const [confirmationType, setConfirmationType] = useState<"service" | "product">("service");
@@ -350,15 +353,14 @@ export default function ServicesManager({ accordionValue = "", onAccordionChange
             </AccordionTrigger>
           </AccordionItem>
 
-          <AccordionItem value="products" className="border-0">
-            <AccordionTrigger className="py-0 hover:no-underline [&>svg]:hidden w-full">
-              <div className={cn(cardButtonClasses, "w-full min-h-[100px]")}>
-                <Package className="h-6 w-6 text-orange-400/80" />
-                <span className="text-xs font-bold text-orange-400">Produits</span>
-                <span className="text-[9px] text-white/60">Enregistrer</span>
-              </div>
-            </AccordionTrigger>
-          </AccordionItem>
+          <div 
+            className={cn(cardButtonClasses, "w-full min-h-[100px] cursor-pointer")}
+            onClick={() => setProduitsPopupOpen(true)}
+          >
+            <Package className="h-6 w-6 text-orange-400/80" />
+            <span className="text-xs font-bold text-orange-400">Produits</span>
+            <span className="text-[9px] text-white/60">Enregistrer</span>
+          </div>
 
           <div 
             className="group relative flex flex-col items-center justify-center gap-1 rounded-2xl border-2 border-amber-400/60 bg-transparent px-2 py-3 min-h-[100px] cursor-pointer transition-all duration-300 hover:scale-[1.05] hover:border-amber-300 hover:shadow-[0_0_25px_rgba(245,158,11,0.4)] active:scale-[1.08] active:border-yellow-200 active:bg-amber-400/20 active:shadow-[0_0_40px_rgba(255,200,50,0.8)]"
@@ -486,95 +488,126 @@ export default function ServicesManager({ accordionValue = "", onAccordionChange
           </AccordionContent>
         </AccordionItem>
 
-        <AccordionItem value="products" className="border-0">
-          <AccordionTrigger className="hidden" />
-          <AccordionContent className="border-0 pb-0 pt-6">
-            <div className="space-y-6">
-              <div className="space-y-4">
-                <div>
-                  <label className="text-base font-semibold text-gray-100">Nom du produit</label>
-                  <Input
-                    type="text"
-                    value={productName}
-                    onChange={(e) => setProductName(e.target.value)}
-                    placeholder="ex: Shampoing"
-                    className="mt-2 h-10 bg-slate-900/70 border-white/25 text-base text-gray-100 placeholder:text-gray-400"
-                  />
-                </div>
+      </Accordion>
 
-                <div>
-                  <label className="text-base font-semibold text-gray-100">Prix (€)</label>
-                  <Input
-                    type="number"
-                    value={productPrice}
-                    onChange={(e) => setProductPrice(e.target.value)}
-                    placeholder="ex: 12.00"
-                    step="0.01"
-                    min="0"
-                    className="mt-2 h-10 bg-slate-900/70 border-white/25 text-base text-gray-100 placeholder:text-gray-400 no-spinner"
-                  />
-                </div>
-
-                <Button
-                  onClick={handleAddProduct}
-                  disabled={!productName.trim() || !productPrice.trim() || addProductType.isPending}
-                  className="w-full mt-4 h-11 text-base font-semibold"
+      {/* Popup Produits Enregistrer */}
+      {produitsPopupOpen && createPortal(
+        <AnimatePresence>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
+            className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
+            onClick={() => setProduitsPopupOpen(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+              onClick={(e) => e.stopPropagation()}
+              className="w-full max-w-lg max-h-[calc(100vh-32px)] overflow-y-auto rounded-3xl border border-orange-500/30 bg-gradient-to-br from-slate-900/98 via-orange-900/40 to-slate-800/98 p-6 shadow-[0_25px_80px_rgba(0,0,0,0.6),0_0_40px_rgba(249,115,22,0.2)] backdrop-blur-xl"
+            >
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-bold text-white">Produits enregistrer</h3>
+                <button
+                  type="button"
+                  onClick={() => setProduitsPopupOpen(false)}
+                  className="flex h-8 w-8 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition hover:bg-white/20"
                 >
-                  <Plus className="h-5 w-5 mr-2" />
-                  Ajouter
-                </Button>
+                  ✕
+                </button>
               </div>
+              
+              <div className="space-y-6">
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-base font-semibold text-gray-100">Nom du produit</label>
+                    <Input
+                      type="text"
+                      value={productName}
+                      onChange={(e) => setProductName(e.target.value)}
+                      placeholder="ex: Shampoing"
+                      className="mt-2 h-10 bg-slate-900/70 border-white/25 text-base text-gray-100 placeholder:text-gray-400"
+                    />
+                  </div>
 
-              {productTypes.length > 0 && (
-                <div className="space-y-3">
-                  <div className="text-base font-bold text-gray-100">Produits enregistrés:</div>
-                  <div className="grid gap-3">
-                    {productTypes.map((productType) => (
-                      <Card 
-                        key={productType.id} 
-                        className={cn(
-                          "border border-white/16 bg-white/8 cursor-grab active:cursor-grabbing transition-all duration-200",
-                          draggedProductId === productType.id && "opacity-50 scale-[0.98]",
-                          dragOverProductId === productType.id && draggedProductId !== productType.id && "border-primary/50 bg-primary/10"
-                        )}
-                        draggable
-                        onDragStart={(e) => handleProductDragStart(e, productType.id)}
-                        onDragEnd={handleProductDragEnd}
-                        onDragEnter={(e) => handleProductDragEnter(e, productType.id)}
-                        onDragLeave={handleProductDragLeave}
-                        onDragOver={handleDragOver}
-                        onDrop={(e) => handleProductDrop(e, productType.id)}
-                      >
-                        <CardContent className="px-4 py-3 flex items-center justify-between">
-                          <div className="flex items-center gap-3 flex-1">
-                            <GripVertical className="h-5 w-5 text-gray-500 flex-shrink-0" />
-                            <div className="flex-1">
-                              <div className="font-semibold text-base text-gray-100">{productType.name}</div>
-                              <div className="text-sm text-gray-400 mt-1">
-                                {productType.price.toFixed(2)}€
-                                {productType.description && ` - ${productType.description}`}
+                  <div>
+                    <label className="text-base font-semibold text-gray-100">Prix (€)</label>
+                    <Input
+                      type="number"
+                      value={productPrice}
+                      onChange={(e) => setProductPrice(e.target.value)}
+                      placeholder="ex: 12.00"
+                      step="0.01"
+                      min="0"
+                      className="mt-2 h-10 bg-slate-900/70 border-white/25 text-base text-gray-100 placeholder:text-gray-400 no-spinner"
+                    />
+                  </div>
+
+                  <Button
+                    onClick={handleAddProduct}
+                    disabled={!productName.trim() || !productPrice.trim() || addProductType.isPending}
+                    className="w-full mt-4 h-11 text-base font-semibold"
+                  >
+                    <Plus className="h-5 w-5 mr-2" />
+                    Ajouter
+                  </Button>
+                </div>
+
+                {productTypes.length > 0 && (
+                  <div className="space-y-3">
+                    <div className="text-base font-bold text-gray-100">Produits enregistrés:</div>
+                    <div className="grid gap-3">
+                      {productTypes.map((productType) => (
+                        <Card 
+                          key={productType.id} 
+                          className={cn(
+                            "border border-white/16 bg-white/8 cursor-grab active:cursor-grabbing transition-all duration-200",
+                            draggedProductId === productType.id && "opacity-50 scale-[0.98]",
+                            dragOverProductId === productType.id && draggedProductId !== productType.id && "border-primary/50 bg-primary/10"
+                          )}
+                          draggable
+                          onDragStart={(e) => handleProductDragStart(e, productType.id)}
+                          onDragEnd={handleProductDragEnd}
+                          onDragEnter={(e) => handleProductDragEnter(e, productType.id)}
+                          onDragLeave={handleProductDragLeave}
+                          onDragOver={handleDragOver}
+                          onDrop={(e) => handleProductDrop(e, productType.id)}
+                        >
+                          <CardContent className="px-4 py-3 flex items-center justify-between">
+                            <div className="flex items-center gap-3 flex-1">
+                              <GripVertical className="h-5 w-5 text-gray-500 flex-shrink-0" />
+                              <div className="flex-1">
+                                <div className="font-semibold text-base text-gray-100">{productType.name}</div>
+                                <div className="text-sm text-gray-400 mt-1">
+                                  {productType.price.toFixed(2)}€
+                                  {productType.description && ` - ${productType.description}`}
+                                </div>
                               </div>
                             </div>
-                          </div>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => deleteProductType.mutate(productType.id)}
-                            disabled={deleteProductType.isPending}
-                            className="text-red-400 hover:text-red-300"
-                          >
-                            <Trash2 className="h-5 w-5" />
-                          </Button>
-                        </CardContent>
-                      </Card>
-                    ))}
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => deleteProductType.mutate(productType.id)}
+                              disabled={deleteProductType.isPending}
+                              className="text-red-400 hover:text-red-300"
+                            >
+                              <Trash2 className="h-5 w-5" />
+                            </Button>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )}
-            </div>
-          </AccordionContent>
-        </AccordionItem>
-      </Accordion>
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        </AnimatePresence>,
+        document.body
+      )}
     </div>
     </>
   );
