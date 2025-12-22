@@ -2774,14 +2774,14 @@ export default function Settings() {
                 )}
               </AnimatePresence>
 
-              <AnimatePresence>
-                {yearCaPopupOpen && (
+              {yearCaPopupOpen && createPortal(
+                <AnimatePresence>
                   <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.15 }}
-                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
+                    className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
                     onClick={() => setYearCaPopupOpen(false)}
                   >
                     <motion.div
@@ -2789,7 +2789,7 @@ export default function Settings() {
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.95 }}
                       transition={{ duration: 0.2 }}
-                      className="w-full max-w-2xl max-h-[80vh] overflow-y-auto rounded-2xl border border-white/20 bg-slate-900/50 backdrop-blur-md p-4 shadow-[0_25px_80px_rgba(0,0,0,0.6)]"
+                      className="w-full max-w-2xl max-h-[calc(100vh-32px)] overflow-y-auto rounded-2xl border border-white/20 bg-slate-900/95 backdrop-blur-md p-4 shadow-[0_25px_80px_rgba(0,0,0,0.6)]"
                       onClick={(e) => e.stopPropagation()}
                     >
                       <div className="flex items-center justify-between mb-4">
@@ -2807,8 +2807,9 @@ export default function Settings() {
                       </div>
                     </motion.div>
                   </motion.div>
-                )}
-              </AnimatePresence>
+                </AnimatePresence>,
+                document.body
+              )}
 
               <ServicesManager
                 accordionValue={servicesAccordionValue}
