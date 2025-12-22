@@ -98,7 +98,7 @@ function CustomCalendar({
 
     const cells = [];
     for (let i = 0; i < firstDayOfWeek; i++) {
-        cells.push(<div key={`empty-${i}`} className="h-9 w-9" />);
+        cells.push(<div key={`empty-${i}`} className="h-8 w-8" />);
     }
     for (let day = 1; day <= daysInMonth; day++) {
         const inRange = isInRange(day);
@@ -112,7 +112,7 @@ function CustomCalendar({
                 type="button"
                 onClick={() => handleDayClick(day)}
                 className={cn(
-                    "h-9 w-9 flex items-center justify-center rounded-lg text-sm font-semibold transition-all",
+                    "h-8 w-8 flex items-center justify-center rounded-md text-xs font-semibold transition-all",
                     start || end
                         ? "bg-gradient-to-br from-violet-500 to-fuchsia-500 text-white shadow-lg"
                         : inRange
@@ -127,48 +127,48 @@ function CustomCalendar({
     }
 
     return (
-        <div className="space-y-2">
-            <div className="flex gap-2 text-sm">
+        <div className="space-y-1.5">
+            <div className="flex gap-2 text-xs">
                 <div className="flex-1 text-center">
-                    <span className="text-violet-300 font-semibold text-xs">Début</span>
-                    <div className="mt-0.5 px-2 py-1 rounded-lg bg-violet-500/20 border border-violet-400/40 text-white font-bold text-sm">
+                    <span className="text-violet-300 font-semibold text-[10px]">Début</span>
+                    <div className="px-1.5 py-0.5 rounded bg-violet-500/20 border border-violet-400/40 text-white font-bold text-xs">
                         {startDate ? formatDateDisplay(startDate) : "—"}
                     </div>
                 </div>
                 <div className="flex-1 text-center">
-                    <span className="text-fuchsia-300 font-semibold text-xs">Fin</span>
-                    <div className="mt-0.5 px-2 py-1 rounded-lg bg-fuchsia-500/20 border border-fuchsia-400/40 text-white font-bold text-sm">
+                    <span className="text-fuchsia-300 font-semibold text-[10px]">Fin</span>
+                    <div className="px-1.5 py-0.5 rounded bg-fuchsia-500/20 border border-fuchsia-400/40 text-white font-bold text-xs">
                         {endDate ? formatDateDisplay(endDate) : "—"}
                     </div>
                 </div>
             </div>
 
-            <div className="rounded-xl border border-violet-500/30 bg-slate-900/80 p-2">
-                <div className="flex items-center justify-between mb-2">
+            <div className="rounded-lg border border-violet-500/30 bg-slate-900/80 p-1.5">
+                <div className="flex items-center justify-between mb-1">
                     <button
                         type="button"
                         onClick={handlePrevMonth}
                         disabled={!canGoPrev}
-                        className="h-8 w-8 flex items-center justify-center rounded-full bg-violet-500/30 border border-violet-400/50 text-white hover:bg-violet-500/50 transition-all disabled:opacity-30"
+                        className="h-7 w-7 flex items-center justify-center rounded-full bg-violet-500/30 border border-violet-400/50 text-white hover:bg-violet-500/50 transition-all disabled:opacity-30"
                     >
-                        <ChevronLeft className="h-4 w-4" />
+                        <ChevronLeft className="h-3.5 w-3.5" />
                     </button>
-                    <span className="text-sm font-bold text-white">
+                    <span className="text-xs font-bold text-white">
                         {MONTHS_FR[viewMonth]} {viewYear}
                     </span>
                     <button
                         type="button"
                         onClick={handleNextMonth}
                         disabled={!canGoNext}
-                        className="h-8 w-8 flex items-center justify-center rounded-full bg-violet-500/30 border border-violet-400/50 text-white hover:bg-violet-500/50 transition-all disabled:opacity-30"
+                        className="h-7 w-7 flex items-center justify-center rounded-full bg-violet-500/30 border border-violet-400/50 text-white hover:bg-violet-500/50 transition-all disabled:opacity-30"
                     >
-                        <ChevronRight className="h-4 w-4" />
+                        <ChevronRight className="h-3.5 w-3.5" />
                     </button>
                 </div>
 
-                <div className="grid grid-cols-7 gap-0 mb-0.5">
+                <div className="grid grid-cols-7 gap-0">
                     {DAYS_FR.map((day) => (
-                        <div key={day} className="h-6 flex items-center justify-center text-[10px] font-bold text-violet-300">
+                        <div key={day} className="h-5 flex items-center justify-center text-[9px] font-bold text-violet-300">
                             {day}
                         </div>
                     ))}
@@ -182,7 +182,7 @@ function CustomCalendar({
             <button
                 type="button"
                 onClick={onClose}
-                className="w-full px-4 py-2 rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white font-semibold text-sm hover:from-violet-500 hover:to-fuchsia-500 transition-all shadow-lg"
+                className="w-full px-3 py-1.5 rounded-lg bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white font-semibold text-xs hover:from-violet-500 hover:to-fuchsia-500 transition-all shadow-lg"
             >
                 Valider
             </button>
@@ -816,14 +816,14 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
                             exit={{ opacity: 0, scale: 0.95, y: 10 }}
                             transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
                             onClick={(e) => e.stopPropagation()}
-                            className="w-[90%] max-w-sm max-h-[90vh] overflow-y-auto rounded-2xl border border-violet-500/30 bg-gradient-to-br from-slate-900/98 via-violet-900/40 to-slate-800/98 p-4 shadow-[0_25px_80px_rgba(0,0,0,0.6),0_0_40px_rgba(139,92,246,0.2)] backdrop-blur-xl"
+                            className="w-[90%] max-w-xs max-h-[90vh] overflow-y-auto rounded-xl border border-violet-500/30 bg-gradient-to-br from-slate-900/98 via-violet-900/40 to-slate-800/98 p-3 shadow-[0_25px_80px_rgba(0,0,0,0.6),0_0_40px_rgba(139,92,246,0.2)] backdrop-blur-xl"
                         >
-                            <div className="flex items-center justify-between mb-2">
-                                <h3 className="text-base font-bold text-white">Sélection des dates</h3>
+                            <div className="flex items-center justify-between mb-1.5">
+                                <h3 className="text-sm font-bold text-white">Sélection des dates</h3>
                                 <button
                                     type="button"
                                     onClick={() => setDatePickerOpen(false)}
-                                    className="flex h-8 w-8 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition hover:bg-white/20 text-sm"
+                                    className="flex h-6 w-6 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition hover:bg-white/20 text-xs"
                                 >
                                     ✕
                                 </button>
