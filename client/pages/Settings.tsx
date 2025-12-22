@@ -3347,6 +3347,7 @@ export default function Settings() {
                                             if (!confirm("Supprimer cet acompte ?")) return;
                                             deleteStylistDeposit.mutate(deposit.id, {
                                               onSuccess: () => {
+                                                playSuccessSound();
                                                 refetchDeposits();
                                                 showConfirmPopup("Acompte supprimé", "", "violet");
                                               }
