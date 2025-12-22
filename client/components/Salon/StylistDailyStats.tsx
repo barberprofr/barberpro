@@ -838,11 +838,7 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
                         className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm"
                         onClick={() => setDatePickerOpen(false)}
                     >
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                        <div
                             onClick={(e) => e.stopPropagation()}
                             className="w-[320px] rounded-2xl border border-violet-500/30 bg-gradient-to-br from-slate-900/98 via-violet-900/40 to-slate-800/98 p-4 shadow-[0_25px_80px_rgba(0,0,0,0.6),0_0_40px_rgba(139,92,246,0.2)] backdrop-blur-xl"
                         >
@@ -865,7 +861,7 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
                                 onClose={() => setDatePickerOpen(false)}
                                 formatDateDisplay={formatDateDisplay}
                             />
-                        </motion.div>
+                        </div>
                     </motion.div>
                 )}
             </AnimatePresence>
