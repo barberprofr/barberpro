@@ -859,24 +859,24 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
                             exit={{ opacity: 0, scale: 0.95, y: 10 }}
                             transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
                             onClick={(e) => e.stopPropagation()}
-                            className="w-[90%] max-w-sm rounded-2xl border border-cyan-500/30 bg-gradient-to-br from-slate-900/98 via-cyan-900/40 to-slate-800/98 p-4 shadow-[0_25px_80px_rgba(0,0,0,0.6),0_0_40px_rgba(6,182,212,0.2)] backdrop-blur-xl"
+                            className="w-[90%] max-w-xs max-h-[90vh] overflow-y-auto rounded-2xl border border-cyan-500/30 bg-gradient-to-br from-slate-900/98 via-cyan-900/40 to-slate-800/98 p-3 shadow-[0_25px_80px_rgba(0,0,0,0.6),0_0_40px_rgba(6,182,212,0.2)] backdrop-blur-xl"
                         >
-                            <div className="flex items-center justify-between mb-3">
-                                <h3 className="text-base font-bold text-white">Sélection du mois</h3>
+                            <div className="flex items-center justify-between mb-2">
+                                <h3 className="text-sm font-bold text-white">Sélection du mois</h3>
                                 <button
                                     type="button"
                                     onClick={() => setMonthPickerOpen(false)}
-                                    className="flex h-8 w-8 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition hover:bg-white/20 text-sm"
+                                    className="flex h-7 w-7 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition hover:bg-white/20 text-xs"
                                 >
                                     ✕
                                 </button>
                             </div>
                             
-                            <div className="text-center mb-3">
-                                <span className="text-lg font-bold text-cyan-300">{now.getFullYear()}</span>
+                            <div className="text-center mb-2">
+                                <span className="text-base font-bold text-cyan-300">{now.getFullYear()}</span>
                             </div>
                             
-                            <div className="grid grid-cols-3 gap-2 mb-3">
+                            <div className="grid grid-cols-3 gap-1.5 mb-2">
                                 {MONTHS_FR.map((m, idx) => {
                                     const monthValue = `${now.getFullYear()}-${String(idx + 1).padStart(2, "0")}`;
                                     const isSelected = month === monthValue;
@@ -890,7 +890,7 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
                                                 setMonthPickerOpen(false);
                                             }}
                                             className={cn(
-                                                "py-3 px-2 rounded-xl text-sm font-semibold transition-all",
+                                                "py-2.5 px-1.5 rounded-lg text-xs font-semibold transition-all",
                                                 isSelected
                                                     ? "bg-gradient-to-br from-cyan-500 to-teal-500 text-white shadow-lg"
                                                     : "text-white hover:bg-cyan-500/30",
@@ -906,7 +906,7 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
                             <button
                                 type="button"
                                 onClick={() => setMonthPickerOpen(false)}
-                                className="w-full px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-600 to-teal-600 text-white font-semibold text-sm hover:from-cyan-500 hover:to-teal-500 transition-all shadow-lg"
+                                className="w-full px-3 py-2 rounded-xl bg-gradient-to-r from-cyan-600 to-teal-600 text-white font-semibold text-xs hover:from-cyan-500 hover:to-teal-500 transition-all shadow-lg"
                             >
                                 Fermer
                             </button>
