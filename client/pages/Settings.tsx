@@ -714,6 +714,7 @@ function GlobalRevenueStats() {
   const [endDate, setEndDate] = useState<string>("");
   const [encaissementsOpen, setEncaissementsOpen] = useState(false);
   const [datePickerOpen, setDatePickerOpen] = useState(false);
+  const [monthPickerOpen, setMonthPickerOpen] = useState(false);
   const updatePaymentMethod = useUpdateTransactionPaymentMethod();
   
   const dateStr = mode === "today" ? today : `${month}-01`;
@@ -795,21 +796,108 @@ function GlobalRevenueStats() {
       </div>
       
       {mode === "today" ? null : mode === "month" ? (
-        <div className="flex flex-wrap items-center gap-2 text-sm">
-          <span className="text-white/80 font-medium">Mois</span>
-          <input type="month" value={month} onChange={(e) => setMonth(e.target.value)} className="border rounded-lg px-3 py-1.5 bg-slate-900/80 border-slate-600 text-white outline-none focus:border-cyan-400 transition-colors text-sm" />
+        <>
           <button
-            onClick={() => setMonth(defMonth)}
-            className={cn(
-              "px-3 py-1.5 rounded-lg border font-medium transition-all text-xs",
-              month === defMonth
-                ? "bg-cyan-500/20 border-cyan-400/50 text-cyan-300"
-                : "bg-slate-800/60 border-slate-600 text-white/70 hover:bg-slate-700/60 hover:text-white"
-            )}
+            type="button"
+            onClick={() => setMonthPickerOpen(true)}
+            className="flex flex-wrap items-center gap-2 text-sm px-3 py-2 rounded-xl border border-cyan-500/40 bg-cyan-900/20 hover:bg-cyan-900/30 transition-all"
           >
-            Ce mois
+            <span className="text-white/80 font-medium">Mois :</span>
+            <span className="text-cyan-300 font-semibold">{MONTHS_FR[parseInt(month.split("-")[1]) - 1]} {month.split("-")[0]}</span>
           </button>
-        </div>
+          
+          {monthPickerOpen && createPortal(
+            <AnimatePresence>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.15 }}
+                className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
+                onClick={() => setMonthPickerOpen(false)}
+              >
+                <div
+                  onClick={(e) => e.stopPropagation()}
+                  className="w-[320px] max-h-[calc(100vh-32px)] overflow-y-auto rounded-2xl border border-cyan-500/30 bg-gradient-to-br from-slate-900 via-cyan-900/30 to-slate-800 p-4 shadow-[0_25px_80px_rgba(0,0,0,0.6),0_0_40px_rgba(6,182,212,0.2)]"
+                >
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-base font-bold text-white">Sélection du mois</h3>
+                    <button
+                      type="button"
+                      onClick={() => setMonthPickerOpen(false)}
+                      className="flex h-7 w-7 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition hover:bg-white/20 text-sm"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <button
+                        type="button"
+                        onClick={() => setMonth(`${parseInt(month.split("-")[0]) - 1}-${month.split("-")[1]}`)}
+                        className="h-8 w-8 flex items-center justify-center rounded-full bg-cyan-500/30 border border-cyan-400/50 text-white hover:bg-cyan-500/50 transition-all"
+                      >
+                        <ChevronLeft className="h-4 w-4" />
+                      </button>
+                      <span className="text-lg font-bold text-white">{month.split("-")[0]}</span>
+                      <button
+                        type="button"
+                        onClick={() => setMonth(`${parseInt(month.split("-")[0]) + 1}-${month.split("-")[1]}`)}
+                        className="h-8 w-8 flex items-center justify-center rounded-full bg-cyan-500/30 border border-cyan-400/50 text-white hover:bg-cyan-500/50 transition-all"
+                      >
+                        <ChevronRight className="h-4 w-4" />
+                      </button>
+                    </div>
+                    
+                    <div className="grid grid-cols-4 gap-2">
+                      {MONTHS_FR_SHORT.map((m, i) => {
+                        const monthNum = String(i + 1).padStart(2, "0");
+                        const isSelected = month.split("-")[1] === monthNum;
+                        return (
+                          <button
+                            key={m}
+                            type="button"
+                            onClick={() => setMonth(`${month.split("-")[0]}-${monthNum}`)}
+                            className={cn(
+                              "h-10 rounded-xl text-sm font-semibold transition-all",
+                              isSelected 
+                                ? "bg-gradient-to-r from-cyan-500 to-teal-500 text-white shadow-lg" 
+                                : "bg-slate-700/50 text-white/70 hover:bg-cyan-500/20"
+                            )}
+                          >
+                            {m}
+                          </button>
+                        );
+                      })}
+                    </div>
+                    
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setMonth(defMonth);
+                          setMonthPickerOpen(false);
+                        }}
+                        className="flex-1 px-4 py-2 rounded-xl bg-slate-700/50 text-white font-semibold text-sm hover:bg-slate-600/50 transition-all"
+                      >
+                        Ce mois
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setMonthPickerOpen(false)}
+                        className="flex-1 px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-600 to-teal-600 text-white font-semibold text-sm hover:from-cyan-500 hover:to-teal-500 transition-all shadow-lg"
+                      >
+                        Valider
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            </AnimatePresence>,
+            document.body
+          )}
+        </>
       ) : (
         <>
           <button
