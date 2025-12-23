@@ -26,6 +26,10 @@ export function setSelectedSalon(id: SalonId) {
 
 export function clearSalonCache() {
   cachedSalonId = null;
+  if (typeof window !== "undefined") {
+    window.localStorage.removeItem(KEY);
+    window.localStorage.removeItem("salons:list");
+  }
 }
 
 function subscribe(callback: () => void): () => void {
