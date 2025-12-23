@@ -839,8 +839,12 @@ export const adminLogin: RequestHandler = async (req, res) => {
       return res.status(401).json({ error: "invalid email or password" });
     }
 
-    foundSettings.adminToken = makeToken();
-    await foundSettings.save();
+    // Réutiliser le token existant pour permettre les connexions simultanées
+    // Ne générer un nouveau token que s'il n'existe pas
+    if (!foundSettings.adminToken) {
+      foundSettings.adminToken = makeToken();
+      await foundSettings.save();
+    }
     emailToSalonId.set(e, foundSalonId);
 
     return res.json({ token: foundSettings.adminToken, salonId: foundSalonId });
@@ -860,8 +864,11 @@ export const verifyAdminCode: RequestHandler = async (req, res) => {
     if (!settings.adminCodeHash) return res.status(400).json({ error: "code admin non configuré" });
     if (!value) return res.status(400).json({ error: "code requis" });
     if (sha256(value) !== settings.adminCodeHash) return res.status(401).json({ error: "code invalide" });
-    settings.adminToken = makeToken();
-    await settings.save();
+    // Réutiliser le token existant pour permettre les connexions simultanées
+    if (!settings.adminToken) {
+      settings.adminToken = makeToken();
+      await settings.save();
+    }
     return res.json({ token: settings.adminToken, salonId });
   } catch (error) {
     console.error('Error verifying admin code:', error);
