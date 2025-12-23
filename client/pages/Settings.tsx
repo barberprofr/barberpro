@@ -772,7 +772,10 @@ function GlobalRevenueStats() {
           Aujourd'hui
         </button>
         <button
-          onClick={() => setMode("month")}
+          onClick={() => {
+            setMode("month");
+            setMonthPickerOpen(true);
+          }}
           className={cn(
             "px-3 py-1.5 rounded-lg border font-medium transition-all text-xs",
             mode === "month"
@@ -783,7 +786,10 @@ function GlobalRevenueStats() {
           Par mois
         </button>
         <button
-          onClick={() => setMode("range")}
+          onClick={() => {
+            setMode("range");
+            setDatePickerOpen(true);
+          }}
           className={cn(
             "px-3 py-1.5 rounded-lg border font-medium transition-all text-xs",
             mode === "range"
