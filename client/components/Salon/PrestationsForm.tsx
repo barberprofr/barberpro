@@ -1119,45 +1119,64 @@ export default function PrestationsForm() {
         {/* Grande carte Coiffeur centrée en haut */}
         <div className="flex justify-center mb-6">
           <div className="relative w-full max-w-[11rem]">
-            <Dialog open={stylistPickerOpen} onOpenChange={setStylistPickerOpen}>
-              <DialogTrigger asChild>
-                <motion.button
-                  type="button"
-                  data-stylist-card
-                  whileHover={{ scale: 1.12, boxShadow: "0 0 50px rgba(34,211,238,0.7), 0 0 80px rgba(34,211,238,0.5), 0 0 120px rgba(34,211,238,0.3)" }}
-                  whileTap={{ scale: 1.15, boxShadow: "0 0 60px rgba(34,211,238,0.8), 0 0 100px rgba(34,211,238,0.6), 0 0 140px rgba(34,211,238,0.4)" }}
-                  transition={{ duration: 0.1 }}
-                  className={cn(
-                    "group relative flex flex-col items-center justify-center gap-2 w-full rounded-[2.5rem] border-2 bg-slate-950/75 px-4 py-4 focus:outline-none backdrop-blur-sm",
-                    stylistId 
-                      ? "border-cyan-400 shadow-[0_0_35px_rgba(34,211,238,0.5),0_0_60px_rgba(34,211,238,0.3),inset_0_0_20px_rgba(34,211,238,0.1)]" 
-                      : "border-slate-700/70 shadow-[0_0_20px_rgba(0,0,0,0.4)] hover:border-cyan-400 hover:shadow-[0_0_50px_rgba(34,211,238,0.7),0_0_80px_rgba(34,211,238,0.5),0_0_120px_rgba(34,211,238,0.3)]"
-                  )}
-                >
-                  <motion.div
-                    animate={{ 
-                      filter: stylistId 
-                        ? ["drop-shadow(0 0 12px rgba(34,211,238,0.8))", "drop-shadow(0 0 25px rgba(34,211,238,1))", "drop-shadow(0 0 12px rgba(34,211,238,0.8))"]
-                        : ["drop-shadow(0 0 8px rgba(34,211,238,0.5))", "drop-shadow(0 0 15px rgba(34,211,238,0.7))", "drop-shadow(0 0 8px rgba(34,211,238,0.5))"]
-                    }}
-                    transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                    className="rounded-full overflow-hidden"
-                  >
-                    <div className="h-36 w-36 flex items-center justify-center rounded-full bg-gradient-to-br from-slate-700/20 to-slate-900/20 backdrop-blur-sm">
-                      <svg className="h-20 w-20 text-cyan-400" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                      </svg>
-                    </div>
-                  </motion.div>
-                  <span className={cn(
-                    "text-lg font-light transition-all duration-300",
-                    stylistId ? "text-white" : "text-slate-300"
-                  )}>
-                    {selectedStylist ? selectedStylist.name : "Coiffeur"}
-                  </span>
-                </motion.button>
-              </DialogTrigger>
-              <DialogContent className="w-[min(98vw,48rem)] max-w-none overflow-visible rounded-3xl border border-white/20 bg-slate-900/90 p-0 text-slate-50 shadow-[0_25px_60px_rgba(0,0,0,0.5)] backdrop-blur-xl">
+            <motion.button
+              type="button"
+              data-stylist-card
+              onClick={() => setStylistPickerOpen(true)}
+              whileHover={{ scale: 1.12, boxShadow: "0 0 50px rgba(34,211,238,0.7), 0 0 80px rgba(34,211,238,0.5), 0 0 120px rgba(34,211,238,0.3)" }}
+              whileTap={{ scale: 1.15, boxShadow: "0 0 60px rgba(34,211,238,0.8), 0 0 100px rgba(34,211,238,0.6), 0 0 140px rgba(34,211,238,0.4)" }}
+              transition={{ duration: 0.1 }}
+              className={cn(
+                "group relative flex flex-col items-center justify-center gap-2 w-full rounded-[2.5rem] border-2 bg-slate-950/75 px-4 py-4 focus:outline-none backdrop-blur-sm",
+                stylistId 
+                  ? "border-cyan-400 shadow-[0_0_35px_rgba(34,211,238,0.5),0_0_60px_rgba(34,211,238,0.3),inset_0_0_20px_rgba(34,211,238,0.1)]" 
+                  : "border-slate-700/70 shadow-[0_0_20px_rgba(0,0,0,0.4)] hover:border-cyan-400 hover:shadow-[0_0_50px_rgba(34,211,238,0.7),0_0_80px_rgba(34,211,238,0.5),0_0_120px_rgba(34,211,238,0.3)]"
+              )}
+            >
+              <motion.div
+                animate={{ 
+                  filter: stylistId 
+                    ? ["drop-shadow(0 0 12px rgba(34,211,238,0.8))", "drop-shadow(0 0 25px rgba(34,211,238,1))", "drop-shadow(0 0 12px rgba(34,211,238,0.8))"]
+                    : ["drop-shadow(0 0 8px rgba(34,211,238,0.5))", "drop-shadow(0 0 15px rgba(34,211,238,0.7))", "drop-shadow(0 0 8px rgba(34,211,238,0.5))"]
+                }}
+                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                className="rounded-full overflow-hidden"
+              >
+                <div className="h-36 w-36 flex items-center justify-center rounded-full bg-gradient-to-br from-slate-700/20 to-slate-900/20 backdrop-blur-sm">
+                  <svg className="h-20 w-20 text-cyan-400" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                  </svg>
+                </div>
+              </motion.div>
+              <span className={cn(
+                "text-lg font-light transition-all duration-300",
+                stylistId ? "text-white" : "text-slate-300"
+              )}>
+                {selectedStylist ? selectedStylist.name : "Coiffeur"}
+              </span>
+            </motion.button>
+          </div>
+        </div>
+
+        {/* Popup Coiffeur avec createPortal */}
+        {stylistPickerOpen && createPortal(
+          <AnimatePresence>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
+              className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
+              onClick={() => setStylistPickerOpen(false)}
+            >
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                className="w-[min(98vw,48rem)] max-w-none overflow-visible rounded-3xl border border-white/20 bg-slate-900/95 p-0 text-slate-50 shadow-[0_25px_60px_rgba(0,0,0,0.5)] backdrop-blur-xl"
+                onClick={(e) => e.stopPropagation()}
+              >
                 <div className="p-8 sm:p-12 overflow-visible">
                   <div className="max-h-[70vh] overflow-y-auto overflow-x-visible scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
                     {stylistsLoading ? (
@@ -1217,10 +1236,11 @@ export default function PrestationsForm() {
                     )}
                   </div>
                 </div>
-              </DialogContent>
-            </Dialog>
-          </div>
-        </div>
+              </motion.div>
+            </motion.div>
+          </AnimatePresence>,
+          document.body
+        )}
 
         {/* Rangée du milieu: Client et Nouveau Client */}
         <div className="flex justify-between items-center mt-6 px-8">
