@@ -725,7 +725,10 @@ export function StylistDailySection({ id, commissionPct, stylistName }: { id: st
                     Aujourd'hui
                 </button>
                 <button
-                    onClick={() => setMode("month")}
+                    onClick={() => {
+                        setMode("month");
+                        setMonthPickerOpen(true);
+                    }}
                     className={cn(
                         "px-3 py-1.5 rounded-lg border font-medium transition-all text-xs",
                         mode === "month"
@@ -736,7 +739,10 @@ export function StylistDailySection({ id, commissionPct, stylistName }: { id: st
                     Par mois
                 </button>
                 <button
-                    onClick={() => setMode("range")}
+                    onClick={() => {
+                        setMode("range");
+                        setDatePickerOpen(true);
+                    }}
                     className={cn(
                         "px-3 py-1.5 rounded-lg border font-medium transition-all text-xs",
                         mode === "range"
@@ -1110,7 +1116,10 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
                     Aujourd'hui
                 </button>
                 <button
-                    onClick={() => setMode("month")}
+                    onClick={() => {
+                        setMode("month");
+                        setMonthPickerOpen(true);
+                    }}
                     className={cn(
                         "px-3 py-1.5 rounded-lg border font-medium transition-all text-xs",
                         mode === "month"
@@ -1121,7 +1130,10 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
                     Par mois
                 </button>
                 <button
-                    onClick={() => setMode("range")}
+                    onClick={() => {
+                        setMode("range");
+                        setDatePickerOpen(true);
+                    }}
                     className={cn(
                         "px-3 py-1.5 rounded-lg border font-medium transition-all text-xs",
                         mode === "range"
