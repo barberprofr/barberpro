@@ -154,33 +154,28 @@ router.get("/me", requireSuperAdmin, async (req: any, res) => {
     res.json({ email: req.adminUser.email });
 });
 
+const SUBSCRIPTION_PRICE = 29;
+
 // 4. Dashboard Stats
 router.get("/stats", requireSuperAdmin, async (req, res) => {
     try {
         const [
             totalSalons,
-            totalStylists,
-            totalClients,
-            totalPrestations,
-            totalRevenueRaw
+            paidSalons,
+            trialSalons,
         ] = await Promise.all([
             Settings.countDocuments(),
-            Stylist.countDocuments(),
-            Client.countDocuments(),
-            Prestation.countDocuments(),
-            Prestation.aggregate([
-                { $group: { _id: null, total: { $sum: "$amount" } } }
-            ])
+            Settings.countDocuments({ subscriptionStatus: { $in: ["active", "paid"] } }),
+            Settings.countDocuments({ subscriptionStatus: "trialing" }),
         ]);
 
-        const totalRevenue = totalRevenueRaw[0]?.total || 0;
+        const estimatedRevenue = paidSalons * SUBSCRIPTION_PRICE;
 
         res.json({
             totalSalons,
-            totalStylists,
-            totalClients,
-            totalPrestations,
-            totalRevenue
+            paidSalons,
+            trialSalons,
+            estimatedRevenue
         });
     } catch (error) {
         console.error("Stats error:", error);

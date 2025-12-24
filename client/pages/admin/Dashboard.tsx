@@ -6,15 +6,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Loader2, Trash2, Search, Users, Store, DollarSign, Calendar, LogOut, ShieldCheck } from "lucide-react";
+import { Loader2, Trash2, Search, Users, Store, DollarSign, Calendar, LogOut, ShieldCheck, CreditCard, Activity, TrendingUp } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 
 interface Stats {
     totalSalons: number;
-    totalStylists: number;
-    totalClients: number;
-    totalPrestations: number;
-    totalRevenue: number;
+    paidSalons: number;
+    trialSalons: number;
+    estimatedRevenue: number;
 }
 
 interface Salon {
@@ -22,6 +21,10 @@ interface Salon {
     salonName: string;
     accountEmail?: string;
     adminEmail?: string;
+    salonAddress?: string;
+    salonPostalCode?: string;
+    salonCity?: string;
+    salonPhone?: string;
     subscriptionStatus: string;
     trialEndsAt: number | null;
     createdAt: string;
@@ -51,8 +54,8 @@ export default function AdminDashboard() {
             const headers = { "x-super-admin-token": token };
 
             const [statsRes, salonsRes] = await Promise.all([
-                fetch("/api/admin/stats", { headers }),
-                fetch("/api/admin/salons", { headers }),
+                fetch("/api/superadmin/stats", { headers }),
+                fetch("/api/superadmin/salons", { headers }),
             ]);
 
             if (statsRes.status === 401 || salonsRes.status === 401) {
@@ -81,7 +84,7 @@ export default function AdminDashboard() {
         if (!confirm("Are you sure? This will delete ALL data for this salon definitively.")) return;
 
         try {
-            const res = await fetch(`/api/admin/salons/${salonId}`, {
+            const res = await fetch(`/api/superadmin/salons/${salonId}`, {
                 method: "DELETE",
                 headers: { "x-super-admin-token": token! },
             });
@@ -107,7 +110,7 @@ export default function AdminDashboard() {
             const currentEnd = (salon.trialEndsAt && salon.trialEndsAt > now) ? salon.trialEndsAt : now;
             const newTrialEnd = currentEnd + (days * 24 * 60 * 60 * 1000);
 
-            const res = await fetch(`/api/admin/salons/${selectedSalon.salonId}`, {
+            const res = await fetch(`/api/superadmin/salons/${selectedSalon.salonId}`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
@@ -136,7 +139,7 @@ export default function AdminDashboard() {
         if (!confirm("Grant permissions? This will give this salon full access ('active' status) without Stripe payment.")) return;
 
         try {
-            const res = await fetch(`/api/admin/salons/${salonId}`, {
+            const res = await fetch(`/api/superadmin/salons/${salonId}`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
@@ -161,79 +164,81 @@ export default function AdminDashboard() {
         setExtensionDialogOpen(true);
     }
 
-    if (loading) return <div className="flex justify-center items-center h-screen bg-background"><Loader2 className="animate-spin h-8 w-8 text-primary" /></div>;
+    if (loading) return (
+        <div className="flex justify-center items-center h-screen bg-[#020617]">
+            <Loader2 className="animate-spin h-8 w-8 text-cyan-500" />
+        </div>
+    );
 
     return (
-        <div className="min-h-screen bg-gray-50/50 p-4 md:p-8 space-y-8">
+        <div className="min-h-screen bg-[#020617] bg-gradient-to-br from-slate-950 via-[#0c1425] to-slate-950 text-slate-100 p-4 md:p-8 space-y-8 relative overflow-hidden">
+            {/* Background Decorations */}
+            <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-cyan-500/10 rounded-full blur-[120px] pointer-events-none" />
+            <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-amber-500/10 rounded-full blur-[120px] pointer-events-none" />
+
             {/* Header */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight text-gray-900">Super Admin</h1>
-                    <p className="text-gray-500">Manage salons and platform overview</p>
+                    <div className="flex items-center gap-2 mb-1">
+                        <div className="h-2 w-8 bg-cyan-500 rounded-full" />
+                        <span className="text-cyan-500 font-bold tracking-widest text-xs uppercase">Platform Control</span>
+                    </div>
+                    <h1 className="text-4xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-slate-200 to-slate-500">
+                        Super Admin
+                    </h1>
+                    <p className="text-slate-400 mt-1 font-medium italic">Tableau de bord de gestion globale BarBerpro</p>
                 </div>
-                <Button variant="outline" className="gap-2" onClick={() => {
-                    localStorage.removeItem("superAdminToken");
-                    navigate("/admin/login");
-                }}>
-                    <LogOut className="h-4 w-4" /> Logout
+                <Button
+                    variant="ghost"
+                    className="gap-2 text-slate-300 hover:text-white hover:bg-white/10 border border-white/10 backdrop-blur-sm transition-all"
+                    onClick={() => {
+                        localStorage.removeItem("superAdminToken");
+                        navigate("/admin/login");
+                    }}
+                >
+                    <LogOut className="h-4 w-4" /> Déconnexion
                 </Button>
             </div>
 
             {/* Stats Cards */}
             {stats && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <Card>
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">Total Salons</CardTitle>
-                            <Store className="h-4 w-4 text-muted-foreground" />
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold">{stats.totalSalons}</div>
-                        </CardContent>
-                    </Card>
-                    <Card>
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">Total Stylists</CardTitle>
-                            <Users className="h-4 w-4 text-muted-foreground" />
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold">{stats.totalStylists}</div>
-                        </CardContent>
-                    </Card>
-                    <Card>
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
-                            <DollarSign className="h-4 w-4 text-muted-foreground" />
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold">{stats.totalRevenue.toLocaleString()} €</div>
-                        </CardContent>
-                    </Card>
-                    <Card>
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">Total Prestations</CardTitle>
-                            <Calendar className="h-4 w-4 text-muted-foreground" />
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold">{stats.totalPrestations}</div>
-                        </CardContent>
-                    </Card>
+                <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl">
+                    {[
+                        { label: "Salons Payants", value: stats.paidSalons, icon: CreditCard, color: "text-emerald-400", bg: "bg-emerald-500/10" },
+                        { label: "Essais en Cours", value: stats.trialSalons, icon: Activity, color: "text-cyan-400", bg: "bg-cyan-500/10" },
+                        { label: "Revenu Mensuel Est.", value: `${stats.estimatedRevenue?.toLocaleString()} €`, icon: TrendingUp, color: "text-amber-400", bg: "bg-amber-500/10" },
+                    ].map((item, i) => (
+                        <Card key={i} className="bg-white/5 border-white/10 backdrop-blur-md shadow-2xl hover:border-white/20 transition-all group overflow-hidden">
+                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                <CardTitle className="text-xs font-bold uppercase tracking-wider text-slate-400">{item.label}</CardTitle>
+                                <div className={`p-2 rounded-xl ${item.bg} ${item.color} group-hover:scale-110 transition-transform`}>
+                                    <item.icon className="h-5 w-5" />
+                                </div>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="text-3xl font-black text-white group-hover:translate-x-1 transition-transform">{item.value}</div>
+                            </CardContent>
+                            <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                        </Card>
+                    ))}
                 </div>
             )}
 
             {/* Salons Table */}
-            <Card className="shadow-sm">
-                <CardHeader>
-                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <Card className="relative z-10 bg-white/5 border-white/10 backdrop-blur-md shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden">
+                <CardHeader className="border-b border-white/5 pb-6">
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                         <div>
-                            <CardTitle>Salons Management</CardTitle>
-                            <CardDescription>View and manage registered salons.</CardDescription>
+                            <CardTitle className="text-xl font-bold text-white flex items-center gap-2">
+                                <Users className="h-5 w-5 text-cyan-400" /> Gestion des Salons
+                            </CardTitle>
+                            <CardDescription className="text-slate-400 font-medium">Visualisez et gérez tous les salons enregistrés sur la plateforme.</CardDescription>
                         </div>
-                        <div className="relative w-full md:w-72">
-                            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                        <div className="relative w-full md:w-80 group">
+                            <Search className="absolute left-3 top-3 h-4 w-4 text-slate-500 group-focus-within:text-cyan-400 transition-colors" />
                             <Input
-                                placeholder="Search by email or name..."
-                                className="pl-8"
+                                placeholder="Rechercher par email ou nom..."
+                                className="pl-10 bg-black/40 border-white/10 text-white placeholder:text-slate-600 focus:border-cyan-500/50 focus:ring-cyan-500/20 transition-all rounded-xl h-11"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                             />
@@ -241,15 +246,14 @@ export default function AdminDashboard() {
                     </div>
                 </CardHeader>
                 <CardContent className="p-0">
-                    <div className="rounded-md border border-t-0 border-x-0 overflow-x-auto">
+                    <div className="overflow-x-auto">
                         <Table>
                             <TableHeader>
-                                <TableRow className="bg-gray-50/50 hover:bg-gray-50/50">
-                                    <TableHead>Salon Name</TableHead>
-                                    <TableHead>Email</TableHead>
-                                    <TableHead>Status</TableHead>
-                                    <TableHead>Trial Ends</TableHead>
-                                    <TableHead className="text-right">Actions</TableHead>
+                                <TableRow className="border-white/5 hover:bg-transparent">
+                                    <TableHead className="text-slate-400 font-bold uppercase tracking-widest text-[10px] py-4">Salon & Contact</TableHead>
+                                    <TableHead className="text-slate-400 font-bold uppercase tracking-widest text-[10px] py-4">Localisation</TableHead>
+                                    <TableHead className="text-slate-400 font-bold uppercase tracking-widest text-[10px] py-4">Status & Trial</TableHead>
+                                    <TableHead className="text-right text-slate-400 font-bold uppercase tracking-widest text-[10px] py-4">Actions</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -259,34 +263,81 @@ export default function AdminDashboard() {
                                     const name = (salon.salonName || "").toLowerCase();
                                     return email.includes(query) || name.includes(query);
                                 }).map((salon) => (
-                                    <TableRow key={salon.salonId}>
-                                        <TableCell className="font-medium">
-                                            {salon.salonName || <span className="text-muted-foreground italic">Unnamed Salon</span>}
-                                        </TableCell>
-                                        <TableCell className="text-muted-foreground">
-                                            {salon.accountEmail || salon.adminEmail || "N/A"}
-                                        </TableCell>
-                                        <TableCell>
-                                            <Badge variant={salon.subscriptionStatus === 'active' ? 'default' : salon.subscriptionStatus === 'trialing' ? 'secondary' : 'outline'}>
-                                                {salon.subscriptionStatus || 'Inactive'}
-                                            </Badge>
-                                        </TableCell>
-                                        <TableCell>
-                                            {salon.trialEndsAt ? (
-                                                <span className={salon.trialEndsAt < Date.now() ? "text-red-500 font-medium" : ""}>
-                                                    {new Date(salon.trialEndsAt).toLocaleDateString()}
+                                    <TableRow key={salon.salonId} className="border-white/5 hover:bg-white/5 transition-colors group">
+                                        <TableCell className="py-5">
+                                            <div className="flex flex-col gap-0.5">
+                                                <span className="font-bold text-slate-100 text-base group-hover:text-cyan-400 transition-colors">
+                                                    {salon.salonName || <span className="text-slate-600 italic font-normal">Sans nom</span>}
                                                 </span>
-                                            ) : <span className="text-muted-foreground">-</span>}
+                                                <span className="text-xs text-slate-400 font-medium tracking-tight">
+                                                    {salon.accountEmail || salon.adminEmail || "Pas d'email"}
+                                                </span>
+                                                {salon.salonPhone && (
+                                                    <span className="text-[10px] text-amber-500/80 font-bold uppercase tracking-wider mt-1 flex items-center gap-1">
+                                                        <div className="h-1 w-1 bg-amber-500 rounded-full" /> {salon.salonPhone}
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </TableCell>
+                                        <TableCell>
+                                            <div className="flex flex-col text-xs text-slate-300 gap-0.5">
+                                                {salon.salonAddress ? (
+                                                    <>
+                                                        <span className="font-medium">{salon.salonAddress}</span>
+                                                        <span className="font-black text-slate-500 uppercase text-[10px] tracking-widest">
+                                                            {salon.salonPostalCode} {salon.salonCity}
+                                                        </span>
+                                                    </>
+                                                ) : (
+                                                    <span className="text-slate-600 italic">Adresse non renseignée</span>
+                                                )}
+                                            </div>
+                                        </TableCell>
+                                        <TableCell>
+                                            <div className="flex flex-col gap-2">
+                                                <Badge className={`w-fit font-bold px-2 py-0.5 rounded-md text-[10px] uppercase tracking-tighter ${salon.subscriptionStatus === 'active'
+                                                    ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/20'
+                                                    : salon.subscriptionStatus === 'trialing'
+                                                        ? 'bg-cyan-500/20 text-cyan-400 border-cyan-500/20'
+                                                        : 'bg-slate-800 text-slate-400 border-white/5'
+                                                    }`} variant="outline">
+                                                    {salon.subscriptionStatus || 'Inactive'}
+                                                </Badge>
+                                                {salon.trialEndsAt && (
+                                                    <div className="flex items-center gap-1.5 text-[10px]">
+                                                        <Calendar className="h-3 w-3 text-slate-500" />
+                                                        <span className={`font-bold ${salon.trialEndsAt < Date.now() ? "text-rose-500" : "text-slate-400"}`}>
+                                                            {new Date(salon.trialEndsAt).toLocaleDateString()}
+                                                        </span>
+                                                    </div>
+                                                )}
+                                            </div>
                                         </TableCell>
                                         <TableCell className="text-right">
                                             <div className="flex justify-end gap-2">
-                                                <Button size="icon" variant="outline" onClick={() => handleActivate(salon.salonId)} title="Grant Free Access">
-                                                    <ShieldCheck className="h-4 w-4 text-green-600" />
+                                                <Button
+                                                    size="icon"
+                                                    variant="secondary"
+                                                    className="h-8 w-8 bg-emerald-500/10 hover:bg-emerald-500 text-emerald-500 hover:text-white border border-emerald-500/20 transition-all rounded-lg"
+                                                    onClick={() => handleActivate(salon.salonId)}
+                                                    title="Accès Gratuit"
+                                                >
+                                                    <ShieldCheck className="h-4 w-4" />
                                                 </Button>
-                                                <Button size="sm" variant="outline" onClick={() => openExtensionDialog(salon)}>
-                                                    Extend Trial
+                                                <Button
+                                                    size="sm"
+                                                    variant="secondary"
+                                                    className="h-8 bg-white/5 hover:bg-white/10 text-white border border-white/10 transition-all rounded-lg"
+                                                    onClick={() => openExtensionDialog(salon)}
+                                                >
+                                                    Extension
                                                 </Button>
-                                                <Button size="icon" variant="destructive" onClick={() => handleDelete(salon.salonId)}>
+                                                <Button
+                                                    size="icon"
+                                                    variant="secondary"
+                                                    className="h-8 w-8 bg-rose-500/10 hover:bg-rose-500 text-rose-500 hover:text-white border border-rose-500/20 transition-all rounded-lg"
+                                                    onClick={() => handleDelete(salon.salonId)}
+                                                >
                                                     <Trash2 className="h-4 w-4" />
                                                 </Button>
                                             </div>
@@ -295,8 +346,8 @@ export default function AdminDashboard() {
                                 ))}
                                 {salons.length === 0 && (
                                     <TableRow>
-                                        <TableCell colSpan={5} className="h-24 text-center">
-                                            No salons found.
+                                        <TableCell colSpan={4} className="h-40 text-center text-slate-500 font-medium">
+                                            Aucun salon trouvé.
                                         </TableCell>
                                     </TableRow>
                                 )}
@@ -308,27 +359,32 @@ export default function AdminDashboard() {
 
             {/* Shared Dialog for Extension */}
             <Dialog open={extensionDialogOpen} onOpenChange={setExtensionDialogOpen}>
-                <DialogContent>
+                <DialogContent className="bg-slate-900 border-white/10 text-white rounded-2xl">
                     <DialogHeader>
-                        <DialogTitle>Extend Trial Period</DialogTitle>
-                        <DialogDescription>
-                            Add extra trial days for <strong>{selectedSalon?.salonName || "this salon"}</strong>.
-                            This will extend the current expiration date.
+                        <DialogTitle className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">Extension Période d'Essai</DialogTitle>
+                        <DialogDescription className="text-slate-400">
+                            Ajoutez des jours d'essai pour le salon <strong>{selectedSalon?.salonName || "ce salon"}</strong>.
                         </DialogDescription>
                     </DialogHeader>
-                    <div className="grid grid-cols-3 gap-4 py-4">
-                        <Button variant="outline" onClick={() => handleUpdateTrial(7)} disabled={processingAction}>
-                            +7 Days
-                        </Button>
-                        <Button variant="outline" onClick={() => handleUpdateTrial(15)} disabled={processingAction}>
-                            +15 Days
-                        </Button>
-                        <Button variant="outline" onClick={() => handleUpdateTrial(30)} disabled={processingAction}>
-                            +30 Days
-                        </Button>
+                    <div className="grid grid-cols-3 gap-4 py-8">
+                        {[
+                            { d: 7, label: "+7 Jours" },
+                            { d: 15, label: "+15 Jours" },
+                            { d: 30, label: "+30 Jours" },
+                        ].map(opt => (
+                            <Button
+                                key={opt.d}
+                                variant="outline"
+                                className="h-16 flex flex-col gap-1 bg-white/5 border-white/10 hover:bg-cyan-500 hover:border-cyan-500 group transition-all rounded-xl"
+                                onClick={() => handleUpdateTrial(opt.d)}
+                                disabled={processingAction}
+                            >
+                                <span className="text-lg font-black group-hover:scale-110 transition-transform">{opt.label}</span>
+                            </Button>
+                        ))}
                     </div>
                     <DialogFooter>
-                        <Button variant="ghost" onClick={() => setExtensionDialogOpen(false)}>Cancel</Button>
+                        <Button variant="ghost" className="text-slate-400 hover:text-white" onClick={() => setExtensionDialogOpen(false)}>Annuler</Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
