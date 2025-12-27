@@ -147,10 +147,10 @@ export default function SharedLayout({ children }: PropsWithChildren) {
                     <span
                       key={s.id}
                       className={cn(
-                        "px-2 py-0.5 rounded-full text-xs font-semibold",
+                        "rounded-full font-semibold",
                         index === 0
-                          ? "bg-emerald-500/20 border border-emerald-400/50 text-emerald-300"
-                          : "bg-slate-700/50 border border-slate-600/50 text-white/70"
+                          ? "px-3 py-1 text-sm bg-emerald-500/20 border border-emerald-400/50 text-emerald-300"
+                          : "px-2 py-0.5 text-xs bg-slate-700/50 border border-slate-600/50 text-white/70"
                       )}
                     >
                       {index + 1}. {s.name}
