@@ -2,7 +2,7 @@ import type { PropsWithChildren } from "react";
 import { useEffect, useState, useRef } from "react";
 import { Home, Users, Settings, LogOut, HelpCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useConfig, createCheckoutSession } from "@/lib/api";
+import { useConfig, createCheckoutSession, useStylistsByPriority } from "@/lib/api";
 import AuthGate from "./auth/AuthGate";
 import { setAdminToken } from "@/lib/admin";
 import { clearSalonCache } from "@/lib/salon";
@@ -18,6 +18,7 @@ export default function SharedLayout({ children }: PropsWithChildren) {
   const navigate = useNavigate();
   const current = location.pathname;
   const { data: config, refetch } = useConfig();
+  const { data: priorityData } = useStylistsByPriority();
   const viewport = useViewportSize();
   const qc = useQueryClient();
   // Lock access if not admin OR if admin but subscription not active or trialing
@@ -137,6 +138,28 @@ export default function SharedLayout({ children }: PropsWithChildren) {
               </button>
             </div>
           </div>
+          {priorityData?.enabled && priorityData.stylists.length > 0 && (
+            <div className="bg-slate-900/60 border-b border-white/10 px-4 py-2">
+              <div className="container">
+                <div className="flex flex-wrap gap-2 items-center">
+                  <span className="text-xs font-medium text-white/60">Priorité :</span>
+                  {priorityData.stylists.map((s, index) => (
+                    <span
+                      key={s.id}
+                      className={cn(
+                        "px-2 py-0.5 rounded-full text-xs font-semibold",
+                        index === 0
+                          ? "bg-emerald-500/20 border border-emerald-400/50 text-emerald-300"
+                          : "bg-slate-700/50 border border-slate-600/50 text-white/70"
+                      )}
+                    >
+                      {index + 1}. {s.name}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
           {/* Trial Banner */}
           {config?.subscriptionStatus === "trialing" && (
             <div className="bg-amber-500/10 border-b border-amber-500/20 px-4 py-2 text-center text-xs font-medium text-amber-600 backdrop-blur-sm">

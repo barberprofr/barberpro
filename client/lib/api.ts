@@ -454,7 +454,7 @@ export function useConfig() {
     queryFn: async () => {
       const res = await apiFetch("/api/config", { headers: { "x-admin-token": getAdminToken() || "" } });
       if (!res.ok) throw new Error("Failed to load config");
-      return res.json() as Promise<{ loyaltyPercentDefault: number; paymentModes: MethodKey[]; commissionDefault: number; pointsRedeemDefault: number; adminSet: boolean; adminCodeSet: boolean; isAdmin: boolean; accountEmail: string | null; adminEmail: string | null; salonName: string | null; salonAddress: string | null; salonPostalCode: string | null; salonCity: string | null; salonPhone: string | null; subscriptionStatus: string | null; stripeCustomerId: string | null; stripeSubscriptionId: string | null; subscriptionCurrentPeriodEnd: number | null }>;
+      return res.json() as Promise<{ loyaltyPercentDefault: number; paymentModes: MethodKey[]; commissionDefault: number; pointsRedeemDefault: number; adminSet: boolean; adminCodeSet: boolean; isAdmin: boolean; accountEmail: string | null; adminEmail: string | null; salonName: string | null; salonAddress: string | null; salonPostalCode: string | null; salonCity: string | null; salonPhone: string | null; subscriptionStatus: string | null; stripeCustomerId: string | null; stripeSubscriptionId: string | null; subscriptionCurrentPeriodEnd: number | null; showStylistPriority: boolean }>;
     }
   });
 }
@@ -462,12 +462,25 @@ export function useConfig() {
 export function useUpdateConfig() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (input: Partial<{ loyaltyPercentDefault: number; paymentModes: MethodKey[]; commissionDefault: number; pointsRedeemDefault: number; salonName: string | null }>) => {
+    mutationFn: async (input: Partial<{ loyaltyPercentDefault: number; paymentModes: MethodKey[]; commissionDefault: number; pointsRedeemDefault: number; salonName: string | null; showStylistPriority: boolean }>) => {
       const res = await apiFetch("/api/admin/config", { method: "PATCH", headers: { "Content-Type": "application/json", "x-admin-token": getAdminToken() || "" }, body: JSON.stringify(input) });
       if (!res.ok) await throwResponseError(res);
       return res.json() as Promise<{ ok: true }>;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["config"] })
+  });
+}
+
+export function useStylistsByPriority() {
+  const salonId = useSalonId();
+  return useQuery({
+    queryKey: ["stylists-priority", salonId],
+    queryFn: async () => {
+      const res = await apiFetch("/api/stylists/priority");
+      if (!res.ok) throw new Error("Failed to load stylists priority");
+      return res.json() as Promise<{ stylists: { id: string; name: string; lastPrestationTimestamp: number }[]; enabled: boolean }>;
+    },
+    refetchInterval: 5000
   });
 }
 

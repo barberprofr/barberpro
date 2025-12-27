@@ -1389,12 +1389,13 @@ export const updateConfig: RequestHandler = async (req, res) => {
     const body = await parseRequestBody(req);
     const salonId = getSalonId(req);
     const settings = await getSettings(salonId);
-    const { loyaltyPercentDefault, paymentModes, commissionDefault, pointsRedeemDefault, salonName } = body as {
+    const { loyaltyPercentDefault, paymentModes, commissionDefault, pointsRedeemDefault, salonName, showStylistPriority } = body as {
       loyaltyPercentDefault?: number;
       paymentModes?: PaymentMethod[];
       commissionDefault?: number;
       pointsRedeemDefault?: number;
       salonName?: string | null;
+      showStylistPriority?: boolean;
     };
 
     const updates: any = {};
@@ -1412,6 +1413,9 @@ export const updateConfig: RequestHandler = async (req, res) => {
       } else if (salonName === null) {
         updates.salonName = null;
       }
+    }
+    if (typeof showStylistPriority === "boolean") {
+      updates.showStylistPriority = showStylistPriority;
     }
 
     await Settings.findOneAndUpdate({ salonId }, { $set: updates });

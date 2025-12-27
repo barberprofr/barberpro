@@ -9,6 +9,7 @@ import ClientsExport from "@/components/Salon/ClientsExport";
 import PointsManager from "@/components/Salon/PointsManager";
 import ServicesManager from "@/components/Salon/ServicesManager";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Switch } from "@/components/ui/switch";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
@@ -2209,7 +2210,20 @@ export default function Settings() {
                 <dd className="text-right text-base font-black text-white drop-shadow-[0_10px_25px_rgba(59,130,246,0.45)]">{config?.commissionDefault ?? 50}%</dd>
                 <dt className="font-semibold text-white/80">Points à déduire</dt>
                 <dd className="text-right text-base font-black text-white drop-shadow-[0_10px_25px_rgba(249,115,22,0.45)]">{config?.pointsRedeemDefault ?? 0} pts</dd>
+                <dt className="font-semibold text-white/80">Priorité coiffeurs</dt>
+                <dd className="flex justify-end">
+                  <Switch
+                    checked={config?.showStylistPriority ?? false}
+                    onCheckedChange={(checked) => {
+                      updateConfig.mutate({ showStylistPriority: checked });
+                    }}
+                    className="data-[state=checked]:bg-emerald-500"
+                  />
+                </dd>
               </dl>
+              <p className="text-[10px] text-white/50 mt-1">
+                Affiche la liste des coiffeurs par ordre de dernière prestation sur l'accueil
+              </p>
             </div>
 
             <div className={cn(glassPanelClasses, "space-y-1.5 text-xs p-2")}>
