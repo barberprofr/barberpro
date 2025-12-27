@@ -623,6 +623,40 @@ export const listStylists: RequestHandler = async (req, res) => {
   }
 };
 
+export const getStylistsByPriority: RequestHandler = async (req, res) => {
+  try {
+    const salonId = getSalonId(req);
+    const settings = await getSettings(salonId);
+    
+    if (!settings.showStylistPriority) {
+      return res.json({ stylists: [], enabled: false });
+    }
+    
+    const stylists = await Stylist.find({ salonId });
+    
+    const stylistsWithLastPrestation = await Promise.all(
+      stylists.map(async (s) => {
+        const lastPrestation = await Prestation.findOne({ stylistId: s.id, salonId })
+          .sort({ timestamp: -1 })
+          .limit(1);
+        return {
+          id: s.id,
+          name: s.name,
+          lastPrestationTimestamp: lastPrestation?.timestamp ?? 0
+        };
+      })
+    );
+    
+    const sortedStylists = stylistsWithLastPrestation
+      .sort((a, b) => b.lastPrestationTimestamp - a.lastPrestationTimestamp);
+    
+    res.json({ stylists: sortedStylists, enabled: true });
+  } catch (error) {
+    console.error('Error getting stylists by priority:', error);
+    res.status(500).json({ error: "Erreur serveur" });
+  }
+};
+
 export const getConfig: RequestHandler = async (req, res) => {
   try {
     const salonId = getSalonId(req);
@@ -689,6 +723,7 @@ export const getConfig: RequestHandler = async (req, res) => {
       // ⭐️ RÉINTÉGRATION : Champs de trial
       trialStartedAt: settings.trialStartedAt ?? null,
       trialEndsAt: settings.trialEndsAt ?? null,
+      showStylistPriority: settings.showStylistPriority ?? false,
     });
   } catch (error) {
     console.error('Error getting config:', error);

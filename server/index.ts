@@ -4,7 +4,7 @@ import cors from "cors";
 import { handleDemo } from "./routes/demo";
 import { adminRouter } from "./routes/admin";
 import { connectDatabase } from './db';
-import { addClient, addStylist, adminLogin, createPrestation, createProduct, listProducts, exportSummaryCSV, exportSummaryPDF, getConfig, getStylistBreakdown, getGlobalBreakdown, listClients, listStylists, pointsUsageReport, redeemPoints, reportByDay, reportByMonth, setAdminPassword, setStylistCommission, summaryReport, updateConfig, deleteStylist, deleteClient, recoverAdminPassword, recoverAdminVerify, exportStylistCSV, exportStylistPDF, exportByDayCSV, exportByDayPDF, exportByMonthCSV, exportByMonthPDF, setupAdminAccount, verifyAdminCode, updateStylist, listServices, addService, deleteService, reorderServices, listProductTypes, addProductType, deleteProductType, reorderProductTypes, recoverAdminCode, verifyAdminCodeRecovery, addPoints, updateTransactionPaymentMethod, uploadClientPhoto, deleteClientPhoto, setStylistSecretCode, verifyStylistSecretCode, getStylistHasSecretCode, addStylistDeposit, listStylistDeposits, deleteStylistDeposit } from "./routes/salon";
+import { addClient, addStylist, adminLogin, createPrestation, createProduct, listProducts, exportSummaryCSV, exportSummaryPDF, getConfig, getStylistBreakdown, getGlobalBreakdown, listClients, listStylists, getStylistsByPriority, pointsUsageReport, redeemPoints, reportByDay, reportByMonth, setAdminPassword, setStylistCommission, summaryReport, updateConfig, deleteStylist, deleteClient, recoverAdminPassword, recoverAdminVerify, exportStylistCSV, exportStylistPDF, exportByDayCSV, exportByDayPDF, exportByMonthCSV, exportByMonthPDF, setupAdminAccount, verifyAdminCode, updateStylist, listServices, addService, deleteService, reorderServices, listProductTypes, addProductType, deleteProductType, reorderProductTypes, recoverAdminCode, verifyAdminCodeRecovery, addPoints, updateTransactionPaymentMethod, uploadClientPhoto, deleteClientPhoto, setStylistSecretCode, verifyStylistSecretCode, getStylistHasSecretCode, addStylistDeposit, listStylistDeposits, deleteStylistDeposit } from "./routes/salon";
 import { createCheckoutSession, createPortalSession, webhookHandler } from "./routes/payment";
 
 export function createServer() {
@@ -77,6 +77,7 @@ export function createServer() {
   app.patch("/api/admin/stylists/:id", updateStylist);
 
   app.get("/api/stylists", listStylists);
+  app.get("/api/stylists/priority", getStylistsByPriority);
   app.post("/api/stylists", addStylist);
   app.delete("/api/stylists/:id", deleteStylist);
   app.put("/api/stylists/:id/secret-code", setStylistSecretCode);
@@ -132,6 +133,7 @@ export function createServer() {
   app.patch("/api/salons/:salonId/admin/stylists/:id", updateStylist);
 
   app.get("/api/salons/:salonId/stylists", listStylists);
+  app.get("/api/salons/:salonId/stylists/priority", getStylistsByPriority);
   app.get("/api/salons/:salonId/stylists/:id/breakdown", getStylistBreakdown);
   app.post("/api/salons/:salonId/stylists", addStylist);
   app.delete("/api/salons/:salonId/stylists/:id", deleteStylist);
