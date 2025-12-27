@@ -139,7 +139,7 @@ export default function SharedLayout({ children }: PropsWithChildren) {
             </div>
           </div>
           {priorityData?.enabled && priorityData.stylists.length > 0 && (
-            <div className="bg-black/10 border-b border-white/5 px-4 py-2">
+            <div className="px-4 py-2">
               <div className="container">
                 <div className="flex flex-wrap gap-2 items-center">
                   <span className="text-xs font-medium text-white/60">Priorité :</span>
