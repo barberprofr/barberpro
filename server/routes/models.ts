@@ -134,6 +134,7 @@ export interface ISettings extends Document {
     paymentModes: PaymentMethod[];
     commissionDefault: number;
     pointsRedeemDefault: number;
+    showStylistPriority: boolean; // Afficher la liste des coiffeurs par priorité sur l'accueil
     // Payment / subscription fields
     stripeCustomerId?: string | null;
     stripeSubscriptionId?: string | null;
@@ -280,8 +281,8 @@ const SettingsSchema = new Schema({
         enum: ["cash", "check", "card", "mixed"]
     }],
     commissionDefault: { type: Number, default: 50, min: 0, max: 100 },
-    pointsRedeemDefault: { type: Number, default: 10, min: 0 }
-    ,
+    pointsRedeemDefault: { type: Number, default: 10, min: 0 },
+    showStylistPriority: { type: Boolean, default: false },
     // Subscription management (optional, for Stripe integration)
     stripeCustomerId: { type: String, default: null },
     stripeSubscriptionId: { type: String, default: null },
