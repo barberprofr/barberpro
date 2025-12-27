@@ -647,8 +647,9 @@ export const getStylistsByPriority: RequestHandler = async (req, res) => {
       })
     );
     
+    // Tri ascendant : le coiffeur avec la prestation la plus ancienne (ou sans prestation) est en premier
     const sortedStylists = stylistsWithLastPrestation
-      .sort((a, b) => b.lastPrestationTimestamp - a.lastPrestationTimestamp);
+      .sort((a, b) => a.lastPrestationTimestamp - b.lastPrestationTimestamp);
     
     res.json({ stylists: sortedStylists, enabled: true });
   } catch (error) {
