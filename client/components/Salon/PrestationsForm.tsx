@@ -762,6 +762,7 @@ export default function PrestationsForm() {
           qc.invalidateQueries({ queryKey: ["summary"] });
           qc.invalidateQueries({ queryKey: ["stylists"] });
           qc.invalidateQueries({ queryKey: ["clients"] });
+          qc.refetchQueries({ queryKey: ["stylists-priority"] });
         } catch (error) {
           console.error("Failed to submit prestations", error);
           setIsSubmitting(false);
