@@ -637,12 +637,15 @@ export const getStylistsByPriority: RequestHandler = async (req, res) => {
     const stylistsWithLastPrestation = await Promise.all(
       stylists.map(async (s) => {
         const lastPrestation = await Prestation.findOne({ stylistId: s.id, salonId })
-          .sort({ timestamp: -1 })
+          .sort({ createdAt: -1, timestamp: -1 })
           .limit(1);
+        const createdAtValue = lastPrestation?.createdAt;
+        const timestampValue = lastPrestation?.timestamp;
+        const lastTs = typeof createdAtValue === 'number' ? createdAtValue : (typeof timestampValue === 'number' ? timestampValue : 0);
         return {
           id: s.id,
           name: s.name,
-          lastPrestationTimestamp: lastPrestation?.timestamp ?? 0
+          lastPrestationTimestamp: lastTs
         };
       })
     );
@@ -1639,6 +1642,7 @@ export const createPrestation: RequestHandler = async (req, res) => {
       mixedCardAmount: paymentMethod === "mixed" ? mixedCardAmount : undefined,
       mixedCashAmount: paymentMethod === "mixed" ? mixedCashAmount : undefined,
       timestamp: ts,
+      createdAt: Date.now(),
       pointsPercent: pct,
       pointsAwarded: points,
       serviceName,
