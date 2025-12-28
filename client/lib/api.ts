@@ -229,7 +229,7 @@ export function useAddPrestation() {
       qc.invalidateQueries({ queryKey: ["stylists"] });
       qc.invalidateQueries({ queryKey: ["clients"] });
       qc.invalidateQueries({ queryKey: ["summary"] });
-      qc.invalidateQueries({ queryKey: ["stylists-priority"] });
+      qc.refetchQueries({ queryKey: ["stylists-priority"] });
     }
   });
 }
@@ -247,7 +247,7 @@ export function useAddProduct() {
       qc.invalidateQueries({ queryKey: ["clients"] });
       qc.invalidateQueries({ queryKey: ["summary"] });
       qc.invalidateQueries({ queryKey: ["products"] });
-      qc.invalidateQueries({ queryKey: ["stylists-priority"] });
+      qc.refetchQueries({ queryKey: ["stylists-priority"] });
     }
   });
 }
