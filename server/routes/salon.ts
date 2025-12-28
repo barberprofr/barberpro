@@ -641,7 +641,12 @@ export const getStylistsByPriority: RequestHandler = async (req, res) => {
           .limit(1);
         const createdAtValue = lastPrestation?.createdAt;
         const timestampValue = lastPrestation?.timestamp;
-        const lastTs = typeof createdAtValue === 'number' ? createdAtValue : (typeof timestampValue === 'number' ? timestampValue : 0);
+        let lastTs = 0;
+        if (createdAtValue) {
+          lastTs = createdAtValue instanceof Date ? createdAtValue.getTime() : (typeof createdAtValue === 'number' ? createdAtValue : new Date(createdAtValue).getTime());
+        } else if (typeof timestampValue === 'number') {
+          lastTs = timestampValue;
+        }
         return {
           id: s.id,
           name: s.name,
