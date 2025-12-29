@@ -2963,6 +2963,7 @@ export default function Settings() {
                                 className={cn(inputFieldClasses, "h-12 w-full bg-slate-950/70 px-4 text-base font-semibold text-white caret-emerald-200 placeholder:text-white/60")}
                               />
                             </div>
+                            <div onMouseDown={(e) => e.stopPropagation()} onClick={(e) => e.stopPropagation()}>
                             <Select
                               value={commissionPct || undefined}
                               onValueChange={(value) => setCommissionPct(value)}
@@ -2983,6 +2984,7 @@ export default function Settings() {
                                 ))}
                               </SelectContent>
                             </Select>
+                            </div>
                             <Button
                               className={cn(addStylistButtonClasses, "h-12")}
                               disabled={!stylistName.trim() || !commissionPct}
