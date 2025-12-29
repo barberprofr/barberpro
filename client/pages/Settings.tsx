@@ -2969,7 +2969,10 @@ export default function Settings() {
                               <SelectTrigger className={cn(selectTriggerClasses, "h-12 max-w-[6.5rem] bg-slate-950/70 px-3.5 text-sm font-semibold text-white uppercase tracking-wide")}>
                                 <SelectValue placeholder="%" />
                               </SelectTrigger>
-                              <SelectContent className="w-[6.5rem] max-h-48 overflow-y-auto rounded-xl border border-emerald-300/50 bg-slate-950/95 text-slate-100">
+                              <SelectContent 
+                                className="z-[99999] w-[6.5rem] max-h-48 overflow-y-auto rounded-xl border border-emerald-300/50 bg-slate-950/95 text-slate-100"
+                                onPointerDownOutside={(e) => e.preventDefault()}
+                              >
                                 {STYLIST_COMMISSION_CHOICES.map((choice) => (
                                   <SelectItem key={choice} value={String(choice)}>
                                     {choice} %
