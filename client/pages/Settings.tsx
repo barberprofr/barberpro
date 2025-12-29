@@ -2963,26 +2963,24 @@ export default function Settings() {
                                 className={cn(inputFieldClasses, "h-12 w-full bg-slate-950/70 px-4 text-base font-semibold text-white caret-emerald-200 placeholder:text-white/60")}
                               />
                             </div>
-                            <Select
-                              value={commissionPct || undefined}
-                              onValueChange={(value) => setCommissionPct(value)}
-                              open={commissionSelectOpen}
-                              onOpenChange={setCommissionSelectOpen}
+                            <select
+                              value={commissionPct}
+                              onChange={(e) => setCommissionPct(e.target.value)}
+                              className={cn(
+                                "h-12 w-[6.5rem] rounded-2xl border px-3 text-sm font-semibold transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300/70",
+                                commissionPct
+                                  ? "border-emerald-300/70 bg-emerald-400/20 text-emerald-100"
+                                  : "border-white/18 bg-slate-950/70 text-white",
+                                "[&>option]:bg-slate-900 [&>option]:text-white"
+                              )}
                             >
-                              <SelectTrigger className={cn(selectTriggerClasses, "h-12 max-w-[6.5rem] bg-slate-950/70 px-3.5 text-sm font-semibold text-white uppercase tracking-wide")}>
-                                <SelectValue placeholder="%" />
-                              </SelectTrigger>
-                              <SelectContent 
-                                className="z-[99999] w-[6.5rem] max-h-48 overflow-y-auto rounded-xl border border-emerald-300/50 bg-slate-950/95 text-slate-100"
-                                onPointerDownOutside={(e) => e.preventDefault()}
-                              >
-                                {STYLIST_COMMISSION_CHOICES.map((choice) => (
-                                  <SelectItem key={choice} value={String(choice)}>
-                                    {choice} %
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
+                              <option value="">%</option>
+                              {STYLIST_COMMISSION_CHOICES.map((choice) => (
+                                <option key={choice} value={String(choice)}>
+                                  {choice} %
+                                </option>
+                              ))}
+                            </select>
                             <Button
                               className={cn(addStylistButtonClasses, "h-12")}
                               disabled={!stylistName.trim() || !commissionPct}
