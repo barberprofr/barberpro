@@ -1644,6 +1644,7 @@ export default function Settings() {
   const adminEmailValid = adminEmailTrimmed ? /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(adminEmailTrimmed) : !adminEmailRequired;
   const [stylistName, setStylistName] = useState("");
   const [commissionPct, setCommissionPct] = useState("");
+  const [commissionSelectOpen, setCommissionSelectOpen] = useState(false);
   const [pointsRedeemDefaultStr, setPointsRedeemDefaultStr] = useState("" + (typeof config?.pointsRedeemDefault === "number" ? config.pointsRedeemDefault : 10));
   const [loginCode, setLoginCode] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -2928,7 +2929,7 @@ export default function Settings() {
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.15 }}
                     className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
-                    onClick={closeCoiffeurPopupAndRefresh}
+                    onClick={() => { if (!commissionSelectOpen) closeCoiffeurPopupAndRefresh(); }}
                   >
                     <motion.div
                       initial={{ opacity: 0, scale: 0.9, y: 20 }}
@@ -2965,6 +2966,8 @@ export default function Settings() {
                             <Select
                               value={commissionPct || undefined}
                               onValueChange={(value) => setCommissionPct(value)}
+                              open={commissionSelectOpen}
+                              onOpenChange={setCommissionSelectOpen}
                             >
                               <SelectTrigger className={cn(selectTriggerClasses, "h-12 max-w-[6.5rem] bg-slate-950/70 px-3.5 text-sm font-semibold text-white uppercase tracking-wide")}>
                                 <SelectValue placeholder="%" />
