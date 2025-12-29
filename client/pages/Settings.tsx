@@ -2929,7 +2929,7 @@ export default function Settings() {
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.15 }}
                     className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
-                    onClick={() => { if (!commissionSelectOpen) closeCoiffeurPopupAndRefresh(); }}
+                    onPointerDown={(e) => { if (e.target === e.currentTarget) closeCoiffeurPopupAndRefresh(); }}
                   >
                     <motion.div
                       initial={{ opacity: 0, scale: 0.9, y: 20 }}
@@ -2963,7 +2963,6 @@ export default function Settings() {
                                 className={cn(inputFieldClasses, "h-12 w-full bg-slate-950/70 px-4 text-base font-semibold text-white caret-emerald-200 placeholder:text-white/60")}
                               />
                             </div>
-                            <div onMouseDown={(e) => e.stopPropagation()} onClick={(e) => e.stopPropagation()}>
                             <Select
                               value={commissionPct || undefined}
                               onValueChange={(value) => setCommissionPct(value)}
@@ -2984,7 +2983,6 @@ export default function Settings() {
                                 ))}
                               </SelectContent>
                             </Select>
-                            </div>
                             <Button
                               className={cn(addStylistButtonClasses, "h-12")}
                               disabled={!stylistName.trim() || !commissionPct}
