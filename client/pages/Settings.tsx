@@ -2221,6 +2221,16 @@ export default function Settings() {
                     className="data-[state=checked]:bg-emerald-500"
                   />
                 </dd>
+                <dt className="font-semibold text-white/80">Cacher le CA total</dt>
+                <dd className="flex justify-end">
+                  <Switch
+                    checked={config?.hideTotalCA ?? false}
+                    onCheckedChange={(checked) => {
+                      updateConfig.mutate({ hideTotalCA: checked });
+                    }}
+                    className="data-[state=checked]:bg-rose-500"
+                  />
+                </dd>
               </dl>
               <p className="text-[10px] text-white/50 mt-1">
                 Affiche la liste des coiffeurs par ordre de dernière prestation sur l'accueil

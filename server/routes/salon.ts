@@ -733,6 +733,7 @@ export const getConfig: RequestHandler = async (req, res) => {
       trialStartedAt: settings.trialStartedAt ?? null,
       trialEndsAt: settings.trialEndsAt ?? null,
       showStylistPriority: settings.showStylistPriority ?? false,
+      hideTotalCA: settings.hideTotalCA ?? false,
     });
   } catch (error) {
     console.error('Error getting config:', error);
@@ -1398,13 +1399,14 @@ export const updateConfig: RequestHandler = async (req, res) => {
     const body = await parseRequestBody(req);
     const salonId = getSalonId(req);
     const settings = await getSettings(salonId);
-    const { loyaltyPercentDefault, paymentModes, commissionDefault, pointsRedeemDefault, salonName, showStylistPriority } = body as {
+    const { loyaltyPercentDefault, paymentModes, commissionDefault, pointsRedeemDefault, salonName, showStylistPriority, hideTotalCA } = body as {
       loyaltyPercentDefault?: number;
       paymentModes?: PaymentMethod[];
       commissionDefault?: number;
       pointsRedeemDefault?: number;
       salonName?: string | null;
       showStylistPriority?: boolean;
+      hideTotalCA?: boolean;
     };
 
     const updates: any = {};
@@ -1425,6 +1427,9 @@ export const updateConfig: RequestHandler = async (req, res) => {
     }
     if (typeof showStylistPriority === "boolean") {
       updates.showStylistPriority = showStylistPriority;
+    }
+    if (typeof hideTotalCA === "boolean") {
+      updates.hideTotalCA = hideTotalCA;
     }
 
     await Settings.findOneAndUpdate({ salonId }, { $set: updates });

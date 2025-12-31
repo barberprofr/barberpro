@@ -456,7 +456,7 @@ export function useConfig() {
     queryFn: async () => {
       const res = await apiFetch("/api/config", { headers: { "x-admin-token": getAdminToken() || "" } });
       if (!res.ok) throw new Error("Failed to load config");
-      return res.json() as Promise<{ loyaltyPercentDefault: number; paymentModes: MethodKey[]; commissionDefault: number; pointsRedeemDefault: number; adminSet: boolean; adminCodeSet: boolean; isAdmin: boolean; accountEmail: string | null; adminEmail: string | null; salonName: string | null; salonAddress: string | null; salonPostalCode: string | null; salonCity: string | null; salonPhone: string | null; subscriptionStatus: string | null; stripeCustomerId: string | null; stripeSubscriptionId: string | null; subscriptionCurrentPeriodEnd: number | null; showStylistPriority: boolean }>;
+      return res.json() as Promise<{ loyaltyPercentDefault: number; paymentModes: MethodKey[]; commissionDefault: number; pointsRedeemDefault: number; adminSet: boolean; adminCodeSet: boolean; isAdmin: boolean; accountEmail: string | null; adminEmail: string | null; salonName: string | null; salonAddress: string | null; salonPostalCode: string | null; salonCity: string | null; salonPhone: string | null; subscriptionStatus: string | null; stripeCustomerId: string | null; stripeSubscriptionId: string | null; subscriptionCurrentPeriodEnd: number | null; showStylistPriority: boolean; hideTotalCA: boolean }>;
     }
   });
 }
@@ -464,7 +464,7 @@ export function useConfig() {
 export function useUpdateConfig() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (input: Partial<{ loyaltyPercentDefault: number; paymentModes: MethodKey[]; commissionDefault: number; pointsRedeemDefault: number; salonName: string | null; showStylistPriority: boolean }>) => {
+    mutationFn: async (input: Partial<{ loyaltyPercentDefault: number; paymentModes: MethodKey[]; commissionDefault: number; pointsRedeemDefault: number; salonName: string | null; showStylistPriority: boolean; hideTotalCA: boolean }>) => {
       const res = await apiFetch("/api/admin/config", { method: "PATCH", headers: { "Content-Type": "application/json", "x-admin-token": getAdminToken() || "" }, body: JSON.stringify(input) });
       if (!res.ok) await throwResponseError(res);
       return res.json() as Promise<{ ok: true }>;

@@ -571,9 +571,15 @@ export default function StatsCards() {
               <div className="flex flex-col items-center text-center">
                 <span className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-300/80 mb-1">TOTAL CA</span>
                 <span className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-300/80 mb-6">AUJOURD'HUI</span>
-                <div className="text-5xl font-bold text-white tracking-tight">
-                  {(summary?.dailyAmount ?? 0).toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
-                </div>
+                {config?.hideTotalCA ? (
+                  <div className="text-3xl font-bold text-white/40 tracking-tight">
+                    ••••••
+                  </div>
+                ) : (
+                  <div className="text-5xl font-bold text-white tracking-tight">
+                    {(summary?.dailyAmount ?? 0).toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
+                  </div>
+                )}
               </div>
             </motion.div>
           </motion.div>
