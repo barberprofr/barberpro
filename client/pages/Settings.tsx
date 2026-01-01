@@ -32,196 +32,196 @@ const DAYS_FR = ["Lu", "Ma", "Me", "Je", "Ve", "Sa", "Di"];
 const MONTHS_FR = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
 
 function CustomCalendarSettings({
-    startDate,
-    endDate,
-    onValidate,
-    onClose,
-    formatDateDisplay
+  startDate,
+  endDate,
+  onValidate,
+  onClose,
+  formatDateDisplay
 }: {
-    startDate: string;
-    endDate: string;
-    onValidate: (start: string, end: string) => void;
-    onClose: () => void;
-    formatDateDisplay: (d: string) => string;
+  startDate: string;
+  endDate: string;
+  onValidate: (start: string, end: string) => void;
+  onClose: () => void;
+  formatDateDisplay: (d: string) => string;
 }) {
-    const now = new Date();
-    const [viewMonth, setViewMonth] = useState(now.getMonth());
-    const [viewYear, setViewYear] = useState(now.getFullYear());
-    const [tempStart, setTempStart] = useState(startDate);
-    const [tempEnd, setTempEnd] = useState(endDate);
+  const now = new Date();
+  const [viewMonth, setViewMonth] = useState(now.getMonth());
+  const [viewYear, setViewYear] = useState(now.getFullYear());
+  const [tempStart, setTempStart] = useState(startDate);
+  const [tempEnd, setTempEnd] = useState(endDate);
 
-    const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
-    const firstDayOfWeek = (new Date(viewYear, viewMonth, 1).getDay() + 6) % 7;
+  const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+  const firstDayOfWeek = (new Date(viewYear, viewMonth, 1).getDay() + 6) % 7;
 
-    const handlePrevMonth = () => {
-        if (viewMonth === 0) {
-            setViewMonth(11);
-            setViewYear(viewYear - 1);
-        } else {
-            setViewMonth(viewMonth - 1);
-        }
-    };
-
-    const handleNextMonth = () => {
-        if (viewMonth === 11) {
-            setViewMonth(0);
-            setViewYear(viewYear + 1);
-        } else {
-            setViewMonth(viewMonth + 1);
-        }
-    };
-
-    const handleDayClick = (day: number) => {
-        const dateStr = `${viewYear}-${String(viewMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-        
-        if (dateStr === tempStart && !tempEnd) {
-            setTempStart("");
-            return;
-        }
-        
-        if (dateStr === tempEnd && tempEnd) {
-            setTempEnd("");
-            return;
-        }
-        
-        if (dateStr === tempStart && tempEnd) {
-            setTempStart("");
-            setTempEnd("");
-            return;
-        }
-        
-        if (!tempStart || (tempStart && tempEnd)) {
-            setTempStart(dateStr);
-            setTempEnd("");
-        } else {
-            if (dateStr < tempStart) {
-                setTempStart(dateStr);
-                setTempEnd(tempStart);
-            } else {
-                setTempEnd(dateStr);
-            }
-        }
-    };
-
-    const isInRange = (day: number) => {
-        if (!tempStart || !tempEnd) return false;
-        const dateStr = `${viewYear}-${String(viewMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-        return dateStr >= tempStart && dateStr <= tempEnd;
-    };
-
-    const isStart = (day: number) => {
-        const dateStr = `${viewYear}-${String(viewMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-        return dateStr === tempStart;
-    };
-
-    const isEnd = (day: number) => {
-        const dateStr = `${viewYear}-${String(viewMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-        return dateStr === tempEnd;
-    };
-
-    const isToday = (day: number) => {
-        return day === now.getDate() && viewMonth === now.getMonth() && viewYear === now.getFullYear();
-    };
-
-    const cells = [];
-    for (let i = 0; i < firstDayOfWeek; i++) {
-        cells.push(<div key={`empty-start-${i}`} className="h-9 w-9" />);
+  const handlePrevMonth = () => {
+    if (viewMonth === 0) {
+      setViewMonth(11);
+      setViewYear(viewYear - 1);
+    } else {
+      setViewMonth(viewMonth - 1);
     }
-    for (let day = 1; day <= daysInMonth; day++) {
-        const inRange = isInRange(day);
-        const start = isStart(day);
-        const end = isEnd(day);
-        const todayDay = isToday(day);
-        
-        cells.push(
-            <button
-                key={day}
-                type="button"
-                onClick={() => handleDayClick(day)}
-                className={cn(
-                    "h-9 w-9 flex items-center justify-center rounded-lg text-sm font-semibold transition-all",
-                    start || end
-                        ? "bg-gradient-to-br from-violet-500 to-fuchsia-500 text-white shadow-lg"
-                        : inRange
-                            ? "bg-violet-500/40 text-white"
-                            : "text-white hover:bg-violet-500/30",
-                    todayDay && !start && !end && "ring-2 ring-fuchsia-400"
-                )}
-            >
-                {day}
-            </button>
-        );
+  };
+
+  const handleNextMonth = () => {
+    if (viewMonth === 11) {
+      setViewMonth(0);
+      setViewYear(viewYear + 1);
+    } else {
+      setViewMonth(viewMonth + 1);
     }
-    
-    const totalCells = 42;
-    const currentCells = firstDayOfWeek + daysInMonth;
-    for (let i = currentCells; i < totalCells; i++) {
-        cells.push(<div key={`empty-end-${i}`} className="h-9 w-9" />);
+  };
+
+  const handleDayClick = (day: number) => {
+    const dateStr = `${viewYear}-${String(viewMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+
+    if (dateStr === tempStart && !tempEnd) {
+      setTempStart("");
+      return;
     }
 
-    return (
-        <div className="space-y-2 w-full">
-            <div className="flex justify-center gap-4">
-                <div className="text-center">
-                    <span className="text-violet-300 font-semibold text-xs block">Début</span>
-                    <div className="mt-0.5 px-3 py-1.5 rounded-lg bg-violet-500/20 border border-violet-400/40 text-white font-bold text-sm w-[110px] text-center">
-                        {tempStart ? formatDateDisplay(tempStart) : "— — —"}
-                    </div>
-                </div>
-                <div className="text-center">
-                    <span className="text-fuchsia-300 font-semibold text-xs block">Fin</span>
-                    <div className="mt-0.5 px-3 py-1.5 rounded-lg bg-fuchsia-500/20 border border-fuchsia-400/40 text-white font-bold text-sm w-[110px] text-center">
-                        {tempEnd ? formatDateDisplay(tempEnd) : "— — —"}
-                    </div>
-                </div>
-            </div>
+    if (dateStr === tempEnd && tempEnd) {
+      setTempEnd("");
+      return;
+    }
 
-            <div className="rounded-xl border border-violet-500/30 bg-slate-900/80 p-2 w-full">
-                <div className="flex items-center justify-between mb-1.5 h-8">
-                    <button
-                        type="button"
-                        onClick={handlePrevMonth}
-                        className="h-8 w-8 flex-shrink-0 flex items-center justify-center rounded-full bg-violet-500/30 border border-violet-400/50 text-white hover:bg-violet-500/50 transition-all"
-                    >
-                        <ChevronLeft className="h-4 w-4" />
-                    </button>
-                    <span className="text-sm font-bold text-white w-32 text-center">
-                        {MONTHS_FR[viewMonth]} {viewYear}
-                    </span>
-                    <button
-                        type="button"
-                        onClick={handleNextMonth}
-                        className="h-8 w-8 flex-shrink-0 flex items-center justify-center rounded-full bg-violet-500/30 border border-violet-400/50 text-white hover:bg-violet-500/50 transition-all"
-                    >
-                        <ChevronRight className="h-4 w-4" />
-                    </button>
-                </div>
+    if (dateStr === tempStart && tempEnd) {
+      setTempStart("");
+      setTempEnd("");
+      return;
+    }
 
-                <div className="grid grid-cols-7 w-full">
-                    {DAYS_FR.map((day) => (
-                        <div key={day} className="h-6 flex items-center justify-center text-[10px] font-bold text-violet-300">
-                            {day}
-                        </div>
-                    ))}
-                </div>
+    if (!tempStart || (tempStart && tempEnd)) {
+      setTempStart(dateStr);
+      setTempEnd("");
+    } else {
+      if (dateStr < tempStart) {
+        setTempStart(dateStr);
+        setTempEnd(tempStart);
+      } else {
+        setTempEnd(dateStr);
+      }
+    }
+  };
 
-                <div className="grid grid-cols-7 grid-rows-6 w-full">
-                    {cells}
-                </div>
-            </div>
+  const isInRange = (day: number) => {
+    if (!tempStart || !tempEnd) return false;
+    const dateStr = `${viewYear}-${String(viewMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+    return dateStr >= tempStart && dateStr <= tempEnd;
+  };
 
-            <button
-                type="button"
-                onClick={() => {
-                    onValidate(tempStart, tempEnd);
-                    onClose();
-                }}
-                className="w-full px-4 py-2 rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white font-semibold text-sm hover:from-violet-500 hover:to-fuchsia-500 transition-all shadow-lg"
-            >
-                Valider
-            </button>
-        </div>
+  const isStart = (day: number) => {
+    const dateStr = `${viewYear}-${String(viewMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+    return dateStr === tempStart;
+  };
+
+  const isEnd = (day: number) => {
+    const dateStr = `${viewYear}-${String(viewMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+    return dateStr === tempEnd;
+  };
+
+  const isToday = (day: number) => {
+    return day === now.getDate() && viewMonth === now.getMonth() && viewYear === now.getFullYear();
+  };
+
+  const cells = [];
+  for (let i = 0; i < firstDayOfWeek; i++) {
+    cells.push(<div key={`empty-start-${i}`} className="h-9 w-9" />);
+  }
+  for (let day = 1; day <= daysInMonth; day++) {
+    const inRange = isInRange(day);
+    const start = isStart(day);
+    const end = isEnd(day);
+    const todayDay = isToday(day);
+
+    cells.push(
+      <button
+        key={day}
+        type="button"
+        onClick={() => handleDayClick(day)}
+        className={cn(
+          "h-9 w-9 flex items-center justify-center rounded-lg text-sm font-semibold transition-all",
+          start || end
+            ? "bg-gradient-to-br from-violet-500 to-fuchsia-500 text-white shadow-lg"
+            : inRange
+              ? "bg-violet-500/40 text-white"
+              : "text-white hover:bg-violet-500/30",
+          todayDay && !start && !end && "ring-2 ring-fuchsia-400"
+        )}
+      >
+        {day}
+      </button>
     );
+  }
+
+  const totalCells = 42;
+  const currentCells = firstDayOfWeek + daysInMonth;
+  for (let i = currentCells; i < totalCells; i++) {
+    cells.push(<div key={`empty-end-${i}`} className="h-9 w-9" />);
+  }
+
+  return (
+    <div className="space-y-2 w-full">
+      <div className="flex justify-center gap-4">
+        <div className="text-center">
+          <span className="text-violet-300 font-semibold text-xs block">Début</span>
+          <div className="mt-0.5 px-3 py-1.5 rounded-lg bg-violet-500/20 border border-violet-400/40 text-white font-bold text-sm w-[110px] text-center">
+            {tempStart ? formatDateDisplay(tempStart) : "— — —"}
+          </div>
+        </div>
+        <div className="text-center">
+          <span className="text-fuchsia-300 font-semibold text-xs block">Fin</span>
+          <div className="mt-0.5 px-3 py-1.5 rounded-lg bg-fuchsia-500/20 border border-fuchsia-400/40 text-white font-bold text-sm w-[110px] text-center">
+            {tempEnd ? formatDateDisplay(tempEnd) : "— — —"}
+          </div>
+        </div>
+      </div>
+
+      <div className="rounded-xl border border-violet-500/30 bg-slate-900/80 p-2 w-full">
+        <div className="flex items-center justify-between mb-1.5 h-8">
+          <button
+            type="button"
+            onClick={handlePrevMonth}
+            className="h-8 w-8 flex-shrink-0 flex items-center justify-center rounded-full bg-violet-500/30 border border-violet-400/50 text-white hover:bg-violet-500/50 transition-all"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </button>
+          <span className="text-sm font-bold text-white w-32 text-center">
+            {MONTHS_FR[viewMonth]} {viewYear}
+          </span>
+          <button
+            type="button"
+            onClick={handleNextMonth}
+            className="h-8 w-8 flex-shrink-0 flex items-center justify-center rounded-full bg-violet-500/30 border border-violet-400/50 text-white hover:bg-violet-500/50 transition-all"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </button>
+        </div>
+
+        <div className="grid grid-cols-7 w-full">
+          {DAYS_FR.map((day) => (
+            <div key={day} className="h-6 flex items-center justify-center text-[10px] font-bold text-violet-300">
+              {day}
+            </div>
+          ))}
+        </div>
+
+        <div className="grid grid-cols-7 grid-rows-6 w-full">
+          {cells}
+        </div>
+      </div>
+
+      <button
+        type="button"
+        onClick={() => {
+          onValidate(tempStart, tempEnd);
+          onClose();
+        }}
+        className="w-full px-4 py-2 rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white font-semibold text-sm hover:from-violet-500 hover:to-fuchsia-500 transition-all shadow-lg"
+      >
+        Valider
+      </button>
+    </div>
+  );
 }
 
 interface PaymentSummaryMeta {
@@ -284,35 +284,35 @@ function PaymentSummaryGrid({ items }: { items: PaymentSummaryItem[] }) {
 
 const MONTHS_FR_SHORT = ["Jan", "Fév", "Mar", "Avr", "Mai", "Juin", "Juil", "Août", "Sep", "Oct", "Nov", "Déc"];
 
-function MonthYearPicker({ 
-  value, 
-  onChange, 
+function MonthYearPicker({
+  value,
+  onChange,
   variant = "emerald",
   showYearNav = true
-}: { 
-  value: number; 
-  onChange: (v: number) => void; 
+}: {
+  value: number;
+  onChange: (v: number) => void;
   variant?: "emerald" | "violet";
   showYearNav?: boolean;
 }) {
   const year = Math.floor(value / 100);
   const month = value % 100;
-  
+
   const setYear = (newYear: number) => {
     onChange(newYear * 100 + month);
   };
-  
+
   const setMonth = (newMonth: number) => {
     onChange(year * 100 + newMonth);
   };
-  
+
   const borderColor = variant === "violet" ? "border-violet-400/30" : "border-emerald-400/30";
-  const selectedBg = variant === "violet" 
-    ? "bg-gradient-to-r from-violet-500 to-fuchsia-500" 
+  const selectedBg = variant === "violet"
+    ? "bg-gradient-to-r from-violet-500 to-fuchsia-500"
     : "bg-gradient-to-r from-emerald-500 to-teal-500";
   const hoverBg = variant === "violet" ? "hover:bg-violet-500/20" : "hover:bg-emerald-500/20";
   const arrowBg = variant === "violet" ? "hover:bg-violet-500/30" : "hover:bg-emerald-500/30";
-  
+
   return (
     <div className={`rounded-2xl border ${borderColor} bg-slate-800/50 p-4`}>
       {showYearNav && (
@@ -345,8 +345,8 @@ function MonthYearPicker({
               onClick={() => setMonth(monthNum)}
               className={cn(
                 "h-10 rounded-xl text-sm font-semibold transition-all",
-                isSelected 
-                  ? `${selectedBg} text-white shadow-lg` 
+                isSelected
+                  ? `${selectedBg} text-white shadow-lg`
                   : `bg-slate-700/50 text-white/70 ${hoverBg}`
               )}
             >
@@ -717,15 +717,15 @@ function GlobalRevenueStats() {
   const [datePickerOpen, setDatePickerOpen] = useState(false);
   const [monthPickerOpen, setMonthPickerOpen] = useState(false);
   const updatePaymentMethod = useUpdateTransactionPaymentMethod();
-  
+
   const dateStr = mode === "today" ? today : `${month}-01`;
   const effectiveEndDate = mode === "range" && startDate && !endDate ? startDate : endDate;
   const { data } = useGlobalBreakdown(
-    dateStr, 
-    mode === "range" ? startDate : undefined, 
+    dateStr,
+    mode === "range" ? startDate : undefined,
     mode === "range" ? effectiveEndDate : undefined
   );
-  
+
   const d = data?.daily;
   const m = data?.monthly;
   const r = data?.range;
@@ -737,7 +737,7 @@ function GlobalRevenueStats() {
   const rangePrestationCount = data?.rangePrestationCount ?? 0;
   const rangeEntries = data?.rangeEntries || [];
   const dailyEntries = data?.dailyEntries || [];
-  
+
   const useRangeData = mode === "range" && startDate && endDate && r;
   const useSingleDayRange = mode === "range" && startDate && !endDate && r;
   const useTodayData = mode === "today";
@@ -745,9 +745,9 @@ function GlobalRevenueStats() {
   const displayProductCount = useTodayData ? dailyProductCount : ((useRangeData || useSingleDayRange) ? rangeProductCount : monthlyProductCount);
   const displayPrestationCount = useTodayData ? dailyPrestationCount : ((useRangeData || useSingleDayRange) ? rangePrestationCount : monthlyPrestationCount);
   const displayEntries = useTodayData ? dailyEntries : rangeEntries;
-  
+
   const total = displayData?.total;
-  
+
   const formatDateDisplay = (dateStr: string) => {
     if (!dateStr) return "";
     const [year, month, day] = dateStr.split("-");
@@ -757,7 +757,7 @@ function GlobalRevenueStats() {
   const handleUpdatePayment = (entryId: string, kind: "prestation" | "produit", method: "cash" | "check" | "card") => {
     updatePaymentMethod.mutate({ id: entryId, kind, paymentMethod: method });
   };
-  
+
   return (
     <div className="space-y-3">
       <div className="flex flex-wrap items-center gap-2 text-sm">
@@ -801,7 +801,7 @@ function GlobalRevenueStats() {
           Période
         </button>
       </div>
-      
+
       {mode === "today" ? null : mode === "month" ? (
         <>
           <button
@@ -812,7 +812,7 @@ function GlobalRevenueStats() {
             <span className="text-white/80 font-medium">Mois :</span>
             <span className="text-cyan-300 font-semibold">{MONTHS_FR[parseInt(month.split("-")[1]) - 1]} {month.split("-")[0]}</span>
           </button>
-          
+
           {monthPickerOpen && createPortal(
             <AnimatePresence>
               <motion.div
@@ -837,7 +837,7 @@ function GlobalRevenueStats() {
                       ✕
                     </button>
                   </div>
-                  
+
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
                       <button
@@ -856,7 +856,7 @@ function GlobalRevenueStats() {
                         <ChevronRight className="h-4 w-4" />
                       </button>
                     </div>
-                    
+
                     <div className="grid grid-cols-4 gap-2">
                       {MONTHS_FR_SHORT.map((m, i) => {
                         const monthNum = String(i + 1).padStart(2, "0");
@@ -868,8 +868,8 @@ function GlobalRevenueStats() {
                             onClick={() => setMonth(`${month.split("-")[0]}-${monthNum}`)}
                             className={cn(
                               "h-10 rounded-xl text-sm font-semibold transition-all",
-                              isSelected 
-                                ? "bg-gradient-to-r from-cyan-500 to-teal-500 text-white shadow-lg" 
+                              isSelected
+                                ? "bg-gradient-to-r from-cyan-500 to-teal-500 text-white shadow-lg"
                                 : "bg-slate-700/50 text-white/70 hover:bg-cyan-500/20"
                             )}
                           >
@@ -878,7 +878,7 @@ function GlobalRevenueStats() {
                         );
                       })}
                     </div>
-                    
+
                     <div className="flex gap-2">
                       <button
                         type="button"
@@ -917,7 +917,7 @@ function GlobalRevenueStats() {
             <span className="text-white/80 font-medium">au</span>
             <span className="text-violet-300 font-semibold">{endDate ? formatDateDisplay(endDate) : "jj/mm/aaaa"}</span>
           </button>
-          
+
           {datePickerOpen && createPortal(
             <AnimatePresence>
               <motion.div
@@ -942,7 +942,7 @@ function GlobalRevenueStats() {
                       ✕
                     </button>
                   </div>
-                  
+
                   <CustomCalendarSettings
                     startDate={startDate}
                     endDate={endDate}
@@ -960,15 +960,15 @@ function GlobalRevenueStats() {
           )}
         </>
       )}
-      
+
       <div className="rounded-3xl border border-white/10 bg-slate-950/50 p-4 shadow-inner text-sm space-y-3">
         <div className="flex items-baseline justify-between text-slate-100">
           <span className="text-sm font-light text-white leading-none">
-            {useTodayData 
+            {useTodayData
               ? "CA du jour"
               : useSingleDayRange
                 ? `CA du jour (${formatDateDisplay(startDate)})`
-                : useRangeData 
+                : useRangeData
                   ? `CA de la période (${formatDateDisplay(startDate)} au ${formatDateDisplay(endDate)})`
                   : "CA du mois"
             }
@@ -996,7 +996,7 @@ function GlobalRevenueStats() {
           transition={{ type: "spring", stiffness: 400, damping: 15 }}
           className={cn(
             "w-full flex items-center justify-between rounded-xl border backdrop-blur-xl px-3 py-2 shadow-[0_4px_16px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.1)] transition-all",
-            useTodayData 
+            useTodayData
               ? "border-fuchsia-500/40 bg-gradient-to-br from-fuchsia-900/40 via-slate-900/60 to-slate-900/80 hover:border-fuchsia-400/60"
               : "border-violet-500/40 bg-gradient-to-br from-violet-900/40 via-slate-900/60 to-slate-900/80 hover:border-violet-400/60"
           )}
@@ -1004,7 +1004,7 @@ function GlobalRevenueStats() {
           <div className="flex items-center gap-2">
             <span className={cn(
               "inline-flex h-7 w-7 items-center justify-center rounded-full border",
-              useTodayData 
+              useTodayData
                 ? "border-fuchsia-400/40 bg-fuchsia-500/20"
                 : "border-violet-400/40 bg-violet-500/20"
             )}>
@@ -1038,7 +1038,7 @@ function GlobalRevenueStats() {
               onClick={(e) => e.stopPropagation()}
               className={cn(
                 "relative w-full max-w-md max-h-[calc(100vh-32px)] overflow-hidden rounded-3xl border shadow-[0_25px_80px_rgba(0,0,0,0.6)] backdrop-blur-xl",
-                useTodayData 
+                useTodayData
                   ? "bg-gradient-to-br from-slate-900/98 via-fuchsia-900/40 to-slate-800/98 border-fuchsia-500/30 shadow-[0_25px_80px_rgba(0,0,0,0.6),0_0_40px_rgba(236,72,153,0.2)]"
                   : "bg-gradient-to-br from-slate-900/98 via-violet-900/40 to-slate-800/98 border-violet-500/30 shadow-[0_25px_80px_rgba(0,0,0,0.6),0_0_40px_rgba(139,92,246,0.2)]"
               )}
@@ -1047,7 +1047,7 @@ function GlobalRevenueStats() {
                 <div className="flex items-center gap-3">
                   <span className={cn(
                     "inline-flex h-10 w-10 items-center justify-center rounded-full border",
-                    useTodayData 
+                    useTodayData
                       ? "border-fuchsia-400/40 bg-fuchsia-500/20"
                       : "border-violet-400/40 bg-violet-500/20"
                   )}>
@@ -1058,7 +1058,7 @@ function GlobalRevenueStats() {
                       {useTodayData ? "Encaissements du jour" : "Encaissements"}
                     </h3>
                     <p className="text-xs text-white/50">
-                      {useTodayData 
+                      {useTodayData
                         ? formatDateDisplay(today)
                         : `${formatDateDisplay(startDate)} au ${formatDateDisplay(endDate)}`
                       }
@@ -1252,7 +1252,8 @@ function BestDaysOfMonth() {
     "juillet", "août", "septembre", "octobre", "novembre", "décembre"
   ];
   const endYear = 2095;
-  const years = Array.from({ length: Math.max(0, endYear - currentYear + 1) }, (_, i) => currentYear + i);
+  const startYear = 2020;
+  const years = Array.from({ length: endYear - startYear + 1 }, (_, i) => startYear + i);
 
   const bestStylist = stylistsData && stylistsData.length > 0
     ? stylistsData.reduce((max, stylist) => {
@@ -1397,7 +1398,8 @@ function RevenueByDay({ fallbackMonthly, stylists, defaultCommissionPct }: { fal
   const { data } = useRevenueByDay(year, month);
   const [open, setOpen] = useState(false);
   const endYear = 2095;
-  const years = Array.from({ length: Math.max(0, endYear - currentYear + 1) }, (_, i) => currentYear + i);
+  const startYear = 2020;
+  const years = Array.from({ length: endYear - startYear + 1 }, (_, i) => startYear + i);
   const monthLabels = [
     "janvier", "février", "mars", "avril", "mai", "juin",
     "juillet", "août", "septembre", "octobre", "novembre", "décembre"
@@ -1507,7 +1509,8 @@ function RevenueByMonth() {
   const { data } = useRevenueByMonth(year);
   const [open, setOpen] = useState(false);
   const endYear = 2095;
-  const years = Array.from({ length: Math.max(0, endYear - currentYear + 1) }, (_, i) => currentYear + i);
+  const startYear = 2020;
+  const years = Array.from({ length: endYear - startYear + 1 }, (_, i) => startYear + i);
   const monthsData = data?.months ?? [];
   const reducedAmount = monthsData.reduce((sum, m) => sum + m.amount, 0);
   const reducedCount = monthsData.reduce((sum, m) => sum + m.count, 0);
@@ -2052,16 +2055,16 @@ export default function Settings() {
     );
   }
 
-  const hasAnyPopupOpen = accordionValue !== "" || bestDaysAccordionValue !== "" || servicesAccordionValue !== "" || 
-    openStylistId !== null || coiffCaPopupOpen || dailyCaPopupOpen || yearCaPopupOpen || 
+  const hasAnyPopupOpen = accordionValue !== "" || bestDaysAccordionValue !== "" || servicesAccordionValue !== "" ||
+    openStylistId !== null || coiffCaPopupOpen || dailyCaPopupOpen || yearCaPopupOpen ||
     Object.values(openDaily).some(Boolean) || Object.values(openMonthly).some(Boolean) ||
     isDayUsageVisible || isMonthUsageVisible;
 
   return (
     <SharedLayout>
       {hasAnyPopupOpen && (
-        <div 
-          className="fixed inset-0 z-[5]" 
+        <div
+          className="fixed inset-0 z-[5]"
           onClick={closeAllPopups}
           style={{ cursor: 'default' }}
         />
@@ -2111,90 +2114,90 @@ export default function Settings() {
                         </button>
                       </div>
                       <div className="space-y-4">
-                  {(!config?.adminEmail) && (
-                    <div className="relative overflow-hidden rounded-xl border border-amber-200/45 bg-[linear-gradient(135deg,rgba(253,230,138,0.25)0%,rgba(252,211,77,0.2)45%,rgba(167,139,250,0.25)100%)] px-3 py-2 text-xs font-semibold text-amber-100 shadow-[0_14px_34px_rgba(253,230,138,0.3)]">
-                      <span className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(250,204,21,0.32),transparent_52%)] opacity-80" />
-                      <span className="relative z-10">Déverrouillé avec le code par défaut. Merci de personnaliser votre code et d’indiquer un email de récupération.</span>
-                    </div>
-                  )}
-                  <div className="sr-only" aria-hidden="true">
-                    <input type="text" name="email" autoComplete="email" tabIndex={-1} />
-                    <input type="password" name="password" autoComplete="new-password" tabIndex={-1} />
-                  </div>
-                  <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-                    {config?.accountEmail && (
-                      <div className="col-span-full mb-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2">
-                        <div className="text-[10px] font-semibold uppercase tracking-wider text-white/50">Email de connexion (Compte)</div>
-                        <div className="font-mono text-sm text-white/90">{config.accountEmail}</div>
-                      </div>
-                    )}
-                    <PasswordInput name="admin_code_current" autoComplete="off" placeholder={adminCodeAlreadySet ? "Code admin actuel" : "Définir un code admin"} value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} className={cn(adminInputClasses, "h-11 px-4 text-base")} />
-                    <PasswordInput name="admin_code_new" autoComplete="off" placeholder="Nouveau code admin (min 4)" value={password} onChange={(e) => setPassword(e.target.value)} className={cn(adminInputClasses, "h-11 px-4 text-base")} />
-                    <div className="space-y-0.5">
-                      <Input key={`admin-email-${adminUnlocked ? '1' : '0'}-${adminSaveMsg ? '1' : '0'}`} type="text" inputMode="email" name={emailFieldName} autoComplete="off" autoCapitalize="off" autoCorrect="off" spellCheck={false} placeholder={adminEmailRequired ? "Email de récupération (obligatoire)" : "Email de récupération (optionnel)"} value={adminEmail} onChange={(e) => setAdminEmail(e.target.value)} readOnly={!emailFocus} onFocus={() => setEmailFocus(true)} className={cn(adminInputClasses, "h-11 px-4 text-base")} />
-                      <div className="px-1 text-[10px] text-white/50">
-                        {config?.adminEmail ? `Actuel : ${config.adminEmail}` : "Aucun email de récupération défini"}
-                      </div>
-                      {!adminEmailValid && <span className="text-xs text-destructive">Email invalide</span>}
-                    </div>
-                  </div>
-                  <div className="flex flex-wrap items-center gap-1.5">
-                    <Button
-                      className={gradientButtonClasses}
-                      onClick={() => {
-                        if (!canSaveAdminCode) return;
-                        updateAdminCode.mutate({ newCode: newAdminCode, currentCode: currentAdminCode || undefined, email: adminEmailTrimmed || undefined }, {
-                          onSuccess: () => { setAdminSaveMsg("Code admin mis à jour"); setAdminSaveErr(""); setCurrentPassword(""); setPassword(""); if (!adminEmailRequired) setAdminEmail(""); },
-                          onError: async (e: any) => {
-                            try {
-                              const msg = typeof e?.message === "string" ? e.message : "Erreur d’enregistrement";
-                              const parsed = (() => { try { return JSON.parse(msg); } catch { return null; } })();
-                              setAdminSaveErr(parsed?.error || msg);
-                            } catch { setAdminSaveErr("Erreur d’enregistrement"); }
-                            setAdminSaveMsg("");
-                          }
-                        });
-                      }}
-                      disabled={!canSaveAdminCode || updateAdminCode.isPending}
-                    >
-                      Enregistrer
-                    </Button>
-                    {adminSaveMsg && <span className="text-xs font-semibold text-emerald-200">{adminSaveMsg}</span>}
-                    {adminSaveErr && <span className="text-xs font-semibold text-rose-200">{adminSaveErr}</span>}
-                    <button
-                      type="button"
-                      style={{ textDecoration: "none" }}
-                      className="ml-auto inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/12 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-white/75 transition hover:bg-white/20"
-                      onClick={() => { setRecoverOpen((v) => !v); setRecoverMsg(""); setRecoverErr(""); setRecoverEmail(""); }}
-                    >
-                      Recuperer mon code
-                    </button>
-                  </div>
-                  {recoverOpen && (
-                    <div className="space-y-1.5 rounded-xl border border-white/14 bg-white/8 p-2 shadow-[0_14px_32px_rgba(8,15,40,0.38)] backdrop-blur-xl">
-                      <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center">
-                        <Input type="email" className={cn(inputFieldClasses, "flex-1 border-white/12 bg-white/12")} placeholder="Votre email de récupération" value={recoverEmail} onChange={(e) => setRecoverEmail(e.target.value)} />
-                        <Button variant="outline" className="rounded-xl border-white/24 bg-white/15 px-3 py-1.5 text-xs text-white hover:bg-white/22" onClick={() => recoverCodeHook.mutate((recoverEmail || "").trim(), {
-                          onSuccess: (d: any) => {
-                            setRecoverMsg(d?.emailed ? "Email envoyé" : "Code envoyé");
-                            setRecoverErr("");
-                          },
-                          onError: async (e: any) => {
-                            try {
-                              const msg = typeof e?.message === 'string' ? e.message : 'Erreur';
-                              const p = (() => { try { return JSON.parse(msg); } catch { return null; } })();
-                              setRecoverErr(p?.error || msg);
-                            } catch {
-                              setRecoverErr('Erreur');
-                            }
-                            setRecoverMsg("");
-                          }
-                        })} disabled={!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test((recoverEmail || "").trim())}>Recuperer</Button>
-                      </div>
-                      {recoverMsg && <span className="text-[11px] font-semibold text-emerald-200">{recoverMsg}</span>}
-                      {recoverErr && <span className="text-[11px] font-semibold text-rose-200">{recoverErr}</span>}
-                    </div>
-                  )}
+                        {(!config?.adminEmail) && (
+                          <div className="relative overflow-hidden rounded-xl border border-amber-200/45 bg-[linear-gradient(135deg,rgba(253,230,138,0.25)0%,rgba(252,211,77,0.2)45%,rgba(167,139,250,0.25)100%)] px-3 py-2 text-xs font-semibold text-amber-100 shadow-[0_14px_34px_rgba(253,230,138,0.3)]">
+                            <span className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(250,204,21,0.32),transparent_52%)] opacity-80" />
+                            <span className="relative z-10">Déverrouillé avec le code par défaut. Merci de personnaliser votre code et d’indiquer un email de récupération.</span>
+                          </div>
+                        )}
+                        <div className="sr-only" aria-hidden="true">
+                          <input type="text" name="email" autoComplete="email" tabIndex={-1} />
+                          <input type="password" name="password" autoComplete="new-password" tabIndex={-1} />
+                        </div>
+                        <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+                          {config?.accountEmail && (
+                            <div className="col-span-full mb-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2">
+                              <div className="text-[10px] font-semibold uppercase tracking-wider text-white/50">Email de connexion (Compte)</div>
+                              <div className="font-mono text-sm text-white/90">{config.accountEmail}</div>
+                            </div>
+                          )}
+                          <PasswordInput name="admin_code_current" autoComplete="off" placeholder={adminCodeAlreadySet ? "Code admin actuel" : "Définir un code admin"} value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} className={cn(adminInputClasses, "h-11 px-4 text-base")} />
+                          <PasswordInput name="admin_code_new" autoComplete="off" placeholder="Nouveau code admin (min 4)" value={password} onChange={(e) => setPassword(e.target.value)} className={cn(adminInputClasses, "h-11 px-4 text-base")} />
+                          <div className="space-y-0.5">
+                            <Input key={`admin-email-${adminUnlocked ? '1' : '0'}-${adminSaveMsg ? '1' : '0'}`} type="text" inputMode="email" name={emailFieldName} autoComplete="off" autoCapitalize="off" autoCorrect="off" spellCheck={false} placeholder={adminEmailRequired ? "Email de récupération (obligatoire)" : "Email de récupération (optionnel)"} value={adminEmail} onChange={(e) => setAdminEmail(e.target.value)} readOnly={!emailFocus} onFocus={() => setEmailFocus(true)} className={cn(adminInputClasses, "h-11 px-4 text-base")} />
+                            <div className="px-1 text-[10px] text-white/50">
+                              {config?.adminEmail ? `Actuel : ${config.adminEmail}` : "Aucun email de récupération défini"}
+                            </div>
+                            {!adminEmailValid && <span className="text-xs text-destructive">Email invalide</span>}
+                          </div>
+                        </div>
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          <Button
+                            className={gradientButtonClasses}
+                            onClick={() => {
+                              if (!canSaveAdminCode) return;
+                              updateAdminCode.mutate({ newCode: newAdminCode, currentCode: currentAdminCode || undefined, email: adminEmailTrimmed || undefined }, {
+                                onSuccess: () => { setAdminSaveMsg("Code admin mis à jour"); setAdminSaveErr(""); setCurrentPassword(""); setPassword(""); if (!adminEmailRequired) setAdminEmail(""); },
+                                onError: async (e: any) => {
+                                  try {
+                                    const msg = typeof e?.message === "string" ? e.message : "Erreur d’enregistrement";
+                                    const parsed = (() => { try { return JSON.parse(msg); } catch { return null; } })();
+                                    setAdminSaveErr(parsed?.error || msg);
+                                  } catch { setAdminSaveErr("Erreur d’enregistrement"); }
+                                  setAdminSaveMsg("");
+                                }
+                              });
+                            }}
+                            disabled={!canSaveAdminCode || updateAdminCode.isPending}
+                          >
+                            Enregistrer
+                          </Button>
+                          {adminSaveMsg && <span className="text-xs font-semibold text-emerald-200">{adminSaveMsg}</span>}
+                          {adminSaveErr && <span className="text-xs font-semibold text-rose-200">{adminSaveErr}</span>}
+                          <button
+                            type="button"
+                            style={{ textDecoration: "none" }}
+                            className="ml-auto inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/12 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-white/75 transition hover:bg-white/20"
+                            onClick={() => { setRecoverOpen((v) => !v); setRecoverMsg(""); setRecoverErr(""); setRecoverEmail(""); }}
+                          >
+                            Recuperer mon code
+                          </button>
+                        </div>
+                        {recoverOpen && (
+                          <div className="space-y-1.5 rounded-xl border border-white/14 bg-white/8 p-2 shadow-[0_14px_32px_rgba(8,15,40,0.38)] backdrop-blur-xl">
+                            <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center">
+                              <Input type="email" className={cn(inputFieldClasses, "flex-1 border-white/12 bg-white/12")} placeholder="Votre email de récupération" value={recoverEmail} onChange={(e) => setRecoverEmail(e.target.value)} />
+                              <Button variant="outline" className="rounded-xl border-white/24 bg-white/15 px-3 py-1.5 text-xs text-white hover:bg-white/22" onClick={() => recoverCodeHook.mutate((recoverEmail || "").trim(), {
+                                onSuccess: (d: any) => {
+                                  setRecoverMsg(d?.emailed ? "Email envoyé" : "Code envoyé");
+                                  setRecoverErr("");
+                                },
+                                onError: async (e: any) => {
+                                  try {
+                                    const msg = typeof e?.message === 'string' ? e.message : 'Erreur';
+                                    const p = (() => { try { return JSON.parse(msg); } catch { return null; } })();
+                                    setRecoverErr(p?.error || msg);
+                                  } catch {
+                                    setRecoverErr('Erreur');
+                                  }
+                                  setRecoverMsg("");
+                                }
+                              })} disabled={!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test((recoverEmail || "").trim())}>Recuperer</Button>
+                            </div>
+                            {recoverMsg && <span className="text-[11px] font-semibold text-emerald-200">{recoverMsg}</span>}
+                            {recoverErr && <span className="text-[11px] font-semibold text-rose-200">{recoverErr}</span>}
+                          </div>
+                        )}
                       </div>
                     </motion.div>
                   </motion.div>
@@ -2416,7 +2419,7 @@ export default function Settings() {
                         </div>
                       </div>
 
-                      </div>
+                    </div>
                   </motion.div>
                 </motion.div>
               </AnimatePresence>,
@@ -2843,7 +2846,7 @@ export default function Settings() {
                 );
               })()}
 
-              
+
               {dailyCaPopupOpen && createPortal(
                 <AnimatePresence>
                   <motion.div
@@ -2959,7 +2962,7 @@ export default function Settings() {
                           ✕
                         </button>
                       </div>
-                      
+
                       <div className="space-y-5">
                         {/* Ajouter un coiffeur */}
                         <div className="space-y-3">
@@ -3013,9 +3016,9 @@ export default function Settings() {
                             </Button>
                           </div>
                         </div>
-                        
+
                         <div className="h-px bg-white/20" />
-                        
+
                         {/* Gérer un coiffeur */}
                         <div className="space-y-3">
                           <div className="text-sm font-semibold text-violet-300">Gérer un coiffeur</div>
@@ -3036,7 +3039,7 @@ export default function Settings() {
                                 <option key={s.id} value={s.id} className="bg-slate-900 text-white">{s.name}</option>
                               ))}
                             </select>
-                            
+
                             {manageStylistId && (
                               <>
                                 <Input
@@ -3076,9 +3079,9 @@ export default function Settings() {
                                     Supprimer
                                   </Button>
                                 </div>
-                                
+
                                 <div className="h-px bg-white/15 my-2" />
-                                
+
                                 <div className="text-xs font-medium text-white/60 mb-2">Code d'accès</div>
                                 <div className="flex gap-3">
                                   <Input
@@ -3146,7 +3149,7 @@ export default function Settings() {
                           ✕
                         </button>
                       </div>
-                      
+
                       <div className="space-y-4">
                         {stylists && stylists.length > 0 ? (
                           stylists.map((s) => (
@@ -3186,7 +3189,7 @@ export default function Settings() {
                           </div>
                         )}
                       </div>
-                      
+
                       {/* Sous-popup saisie acompte */}
                       {selectedStylistForDeposit && createPortal(
                         <AnimatePresence>
@@ -3232,14 +3235,14 @@ export default function Settings() {
                                   ✕
                                 </button>
                               </div>
-                              
+
                               {/* Affichage du mois en cours */}
                               <div className="mb-4 text-center">
                                 <span className="text-lg font-bold text-emerald-400">
                                   {new Date().toLocaleDateString("fr-FR", { month: "long", year: "numeric" }).replace(/^\w/, c => c.toUpperCase())}
                                 </span>
                               </div>
-                              
+
                               {/* Champ montant */}
                               <div className="mb-6">
                                 <label className="block text-base font-semibold text-white/90 mb-3">Montant</label>
@@ -3259,7 +3262,7 @@ export default function Settings() {
                                   <span className="absolute right-6 text-4xl font-black text-red-500">€</span>
                                 </div>
                               </div>
-                              
+
                               {/* Boutons */}
                               <div className="flex gap-3">
                                 <Button
@@ -3304,7 +3307,7 @@ export default function Settings() {
                         </AnimatePresence>,
                         document.body
                       )}
-                      
+
                       {/* Sous-popup détails acomptes */}
                       {depositDetailsOpen && selectedStylistForDeposit && createPortal(
                         <AnimatePresence>
@@ -3345,16 +3348,16 @@ export default function Settings() {
                                   ✕
                                 </button>
                               </div>
-                              
+
                               {/* Filtre mois/année */}
                               <div className="mb-4">
-                                <MonthYearPicker 
-                                  value={depositMonth} 
-                                  onChange={setDepositMonth} 
-                                  variant="violet" 
+                                <MonthYearPicker
+                                  value={depositMonth}
+                                  onChange={setDepositMonth}
+                                  variant="violet"
                                 />
                               </div>
-                              
+
                               {/* Liste des acomptes */}
                               <div className="space-y-3">
                                 {stylistDeposits && stylistDeposits.length > 0 ? (
@@ -3438,7 +3441,7 @@ export default function Settings() {
             >
               {/* Reflet glass 3D */}
               <div className="absolute inset-x-4 top-2 h-[35%] rounded-t-2xl bg-gradient-to-b from-white/30 to-transparent pointer-events-none" />
-              
+
               {/* Icône de validation 3D multi-anneaux */}
               <motion.div
                 initial={{ scale: 0, rotate: -180 }}

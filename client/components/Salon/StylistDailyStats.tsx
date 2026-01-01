@@ -36,10 +36,8 @@ function CustomCalendar({
 
     const handlePrevMonth = () => {
         if (viewMonth === 0) {
-            if (viewYear > now.getFullYear()) {
-                setViewMonth(11);
-                setViewYear(viewYear - 1);
-            }
+            setViewMonth(11);
+            setViewYear(viewYear - 1);
         } else {
             setViewMonth(viewMonth - 1);
         }
@@ -58,26 +56,26 @@ function CustomCalendar({
 
     const handleDayClick = (day: number) => {
         const dateStr = `${viewYear}-${String(viewMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-        
+
         // Si on clique sur la date de début et pas de fin → désélectionner
         if (dateStr === tempStart && !tempEnd) {
             setTempStart("");
             return;
         }
-        
+
         // Si on clique sur la date de fin → désélectionner la fin
         if (dateStr === tempEnd && tempEnd) {
             setTempEnd("");
             return;
         }
-        
+
         // Si on clique sur la date de début quand il y a une fin → désélectionner tout
         if (dateStr === tempStart && tempEnd) {
             setTempStart("");
             setTempEnd("");
             return;
         }
-        
+
         // Sinon, logique normale de sélection
         if (!tempStart || (tempStart && tempEnd)) {
             // Pas de début ou plage complète → nouvelle sélection de début
@@ -115,8 +113,7 @@ function CustomCalendar({
         return day === now.getDate() && viewMonth === now.getMonth() && viewYear === now.getFullYear();
     };
 
-    const canGoPrev = viewMonth > 0 || viewYear > now.getFullYear();
-    const canGoNext = viewMonth < 11 || viewYear < now.getFullYear();
+
 
     const cells = [];
     for (let i = 0; i < firstDayOfWeek; i++) {
@@ -127,7 +124,7 @@ function CustomCalendar({
         const start = isStart(day);
         const end = isEnd(day);
         const todayDay = isToday(day);
-        
+
         cells.push(
             <button
                 key={day}
@@ -147,7 +144,7 @@ function CustomCalendar({
             </button>
         );
     }
-    
+
     // Toujours 42 cellules (6 lignes) pour hauteur constante
     const totalCells = 42;
     const currentCells = firstDayOfWeek + daysInMonth;
@@ -177,8 +174,7 @@ function CustomCalendar({
                     <button
                         type="button"
                         onClick={handlePrevMonth}
-                        disabled={!canGoPrev}
-                        className="h-8 w-8 flex-shrink-0 flex items-center justify-center rounded-full bg-violet-500/30 border border-violet-400/50 text-white hover:bg-violet-500/50 transition-all disabled:opacity-30"
+                        className="h-8 w-8 flex-shrink-0 flex items-center justify-center rounded-full bg-violet-500/30 border border-violet-400/50 text-white hover:bg-violet-500/50 transition-all"
                     >
                         <ChevronLeft className="h-4 w-4" />
                     </button>
@@ -188,8 +184,7 @@ function CustomCalendar({
                     <button
                         type="button"
                         onClick={handleNextMonth}
-                        disabled={!canGoNext}
-                        className="h-8 w-8 flex-shrink-0 flex items-center justify-center rounded-full bg-violet-500/30 border border-violet-400/50 text-white hover:bg-violet-500/50 transition-all disabled:opacity-30"
+                        className="h-8 w-8 flex-shrink-0 flex items-center justify-center rounded-full bg-violet-500/30 border border-violet-400/50 text-white hover:bg-violet-500/50 transition-all"
                     >
                         <ChevronRight className="h-4 w-4" />
                     </button>
@@ -589,7 +584,7 @@ function SingleDateCalendar({
     for (let day = 1; day <= daysInMonth; day++) {
         const selected = isSelected(day);
         const todayDay = isToday(day);
-        
+
         cells.push(
             <button
                 key={day}
@@ -607,7 +602,7 @@ function SingleDateCalendar({
             </button>
         );
     }
-    
+
     const totalCells = 42;
     const currentCells = firstDayOfWeek + daysInMonth;
     for (let i = currentCells; i < totalCells; i++) {
@@ -693,7 +688,7 @@ export function StylistDailySection({ id, commissionPct, stylistName }: { id: st
     const today = parisDateString();
     const now = new Date();
     const defMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
-    
+
     const [mode, setMode] = useState<"today" | "month" | "range">("today");
     const [date, setDate] = useState<string>(today);
     const [month, setMonth] = useState<string>(defMonth);
@@ -753,7 +748,7 @@ export function StylistDailySection({ id, commissionPct, stylistName }: { id: st
                     Période
                 </button>
             </div>
-            
+
             {mode === "today" ? null : mode === "month" ? (
                 <>
                     <button
@@ -764,7 +759,7 @@ export function StylistDailySection({ id, commissionPct, stylistName }: { id: st
                         <span className="text-white/80 font-medium">Mois :</span>
                         <span className="text-cyan-300 font-semibold">{MONTHS_FR[parseInt(month.split("-")[1]) - 1]} {month.split("-")[0]}</span>
                     </button>
-                    
+
                     {monthPickerOpen && createPortal(
                         <AnimatePresence>
                             <motion.div
@@ -789,7 +784,7 @@ export function StylistDailySection({ id, commissionPct, stylistName }: { id: st
                                             ✕
                                         </button>
                                     </div>
-                                    
+
                                     <div className="space-y-3">
                                         <div className="flex items-center justify-between">
                                             <button
@@ -808,7 +803,7 @@ export function StylistDailySection({ id, commissionPct, stylistName }: { id: st
                                                 <ChevronRight className="h-4 w-4" />
                                             </button>
                                         </div>
-                                        
+
                                         <div className="grid grid-cols-4 gap-2">
                                             {MONTHS_FR_SHORT.map((m, i) => {
                                                 const monthNum = String(i + 1).padStart(2, "0");
@@ -820,8 +815,8 @@ export function StylistDailySection({ id, commissionPct, stylistName }: { id: st
                                                         onClick={() => setMonth(`${month.split("-")[0]}-${monthNum}`)}
                                                         className={cn(
                                                             "h-10 rounded-xl text-sm font-semibold transition-all",
-                                                            isSelected 
-                                                                ? "bg-gradient-to-r from-cyan-500 to-teal-500 text-white shadow-lg" 
+                                                            isSelected
+                                                                ? "bg-gradient-to-r from-cyan-500 to-teal-500 text-white shadow-lg"
                                                                 : "bg-slate-700/50 text-white/70 hover:bg-cyan-500/20"
                                                         )}
                                                     >
@@ -830,7 +825,7 @@ export function StylistDailySection({ id, commissionPct, stylistName }: { id: st
                                                 );
                                             })}
                                         </div>
-                                        
+
                                         <div className="flex gap-2">
                                             <button
                                                 type="button"
@@ -869,7 +864,7 @@ export function StylistDailySection({ id, commissionPct, stylistName }: { id: st
                         <span className="text-white/80 font-medium">au</span>
                         <span className="text-violet-300 font-semibold">{endDate ? formatDateDisplay(endDate) : "jj/mm/aaaa"}</span>
                     </button>
-                    
+
                     {datePickerOpen && createPortal(
                         <AnimatePresence>
                             <motion.div
@@ -894,7 +889,7 @@ export function StylistDailySection({ id, commissionPct, stylistName }: { id: st
                                             ✕
                                         </button>
                                     </div>
-                                    
+
                                     <CustomCalendar
                                         startDate={startDate}
                                         endDate={endDate}
@@ -912,9 +907,9 @@ export function StylistDailySection({ id, commissionPct, stylistName }: { id: st
                     )}
                 </>
             )}
-            
+
             <StylistDaily id={id} date={mode === "today" ? today : (mode === "range" && startDate ? startDate : `${month}-01`)} commissionPct={commissionPct} />
-            
+
             {/* Bouton pour ouvrir le popup des encaissements */}
             <motion.button
                 onClick={() => setEncaissementsOpen(true)}
@@ -1002,6 +997,13 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
     const [periodEditingMonth, setPeriodEditingMonth] = useState<number | null>(null);
     const [periodStartDay, setPeriodStartDay] = useState<number>(1);
     const [periodEndDay, setPeriodEndDay] = useState<number>(31);
+    const [displayYear, setDisplayYear] = useState(now.getFullYear());
+
+    useEffect(() => {
+        if (monthPickerOpen) {
+            setDisplayYear(parseInt(month.split("-")[0]));
+        }
+    }, [monthPickerOpen, month]);
 
     const getMonthIntFromDate = (dateStr: string) => {
         const [y, m] = dateStr.split("-").map(Number);
@@ -1035,7 +1037,7 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
     };
 
     const activeMonths = getActiveMonths();
-    
+
     const shouldHideData = false;
 
     const [maskDialogOpen, setMaskDialogOpen] = useState(false);
@@ -1055,17 +1057,17 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
     const handleRemoveHiddenMonth = (monthInt: number) => {
         updateHiddenMonths.mutate({ stylistId: id, hiddenMonths: hiddenMonths.filter(m => m !== monthInt) });
     };
-    
+
     const dateStr = mode === "today" ? today : `${month}-01`;
     // Si startDate est rempli mais pas endDate, on utilise startDate comme endDate aussi (pour afficher une seule journée)
     const effectiveEndDate = mode === "range" && startDate && !endDate ? startDate : endDate;
     const { data } = useStylistBreakdown(
-        id, 
-        dateStr, 
-        mode === "range" ? startDate : undefined, 
+        id,
+        dateStr,
+        mode === "range" ? startDate : undefined,
         mode === "range" ? effectiveEndDate : undefined
     );
-    
+
     const d = data?.daily;
     const m = data?.monthly;
     const r = data?.range;
@@ -1077,7 +1079,7 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
     const rangeProductCount = (data as any)?.rangeProductCount ?? 0;
     const rangeEntries = (data as any)?.rangeEntries || [];
     const dailyEntries = data?.dailyEntries || [];
-    
+
     // useRangeData: deux dates sélectionnées (période complète)
     const useRangeData = mode === "range" && startDate && endDate && r;
     // useSingleDayRange: une seule date "Du" sélectionnée (afficher CA du jour pour cette date)
@@ -1086,11 +1088,11 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
     const displayData = useTodayData ? d : (useRangeData ? r : (useSingleDayRange ? r : m));
     const displayPrestationData = useTodayData ? prestationD : (useRangeData ? prestationR : (useSingleDayRange ? prestationR : prestationM));
     const displayProductCount = useTodayData ? dailyProductCount : ((useRangeData || useSingleDayRange) ? rangeProductCount : monthlyProductCount);
-    
+
     const total = displayData?.total;
     const prestationTotal = displayPrestationData?.total;
     const salary = (prestationTotal?.amount || 0) * (commissionPct ?? 0) / 100;
-    
+
     const formatDateDisplay = (dateStr: string) => {
         if (!dateStr) return "";
         const [year, month, day] = dateStr.split("-");
@@ -1100,7 +1102,7 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
     const handleUpdatePayment = (entryId: string, kind: "prestation" | "produit", method: "cash" | "check" | "card") => {
         updatePaymentMethod.mutate({ id: entryId, kind, paymentMethod: method });
     };
-    
+
     return (
         <div className="space-y-2 pb-4 w-full">
             <div className="flex flex-wrap items-center gap-2 text-sm">
@@ -1154,7 +1156,7 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
                     </button>
                 )}
             </div>
-            
+
             {mode === "today" ? null : mode === "month" ? (
                 <div className="flex flex-wrap items-center gap-2 text-sm">
                     <button
@@ -1191,7 +1193,7 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
                     <span className="text-violet-300 font-semibold">{endDate ? formatDateDisplay(endDate) : "jj/mm/aaaa"}</span>
                 </button>
             )}
-            
+
             {/* Popup sélection dates */}
             {datePickerOpen && createPortal(
                 <AnimatePresence>
@@ -1217,7 +1219,7 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
                                     ✕
                                 </button>
                             </div>
-                            
+
                             <CustomCalendar
                                 startDate={startDate}
                                 endDate={endDate}
@@ -1233,7 +1235,7 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
                 </AnimatePresence>,
                 document.body
             )}
-            
+
             {/* Popup sélection mois */}
             {monthPickerOpen && createPortal(
                 <AnimatePresence>
@@ -1259,16 +1261,30 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
                                     ✕
                                 </button>
                             </div>
-                            
-                            <div className="text-center mb-2">
-                                <span className="text-base font-bold text-cyan-300">{now.getFullYear()}</span>
+
+                            <div className="flex items-center justify-between mb-2">
+                                <button
+                                    type="button"
+                                    onClick={() => setDisplayYear(displayYear - 1)}
+                                    className="flex h-7 w-7 items-center justify-center rounded-full bg-cyan-500/30 border border-cyan-400/50 text-white hover:bg-cyan-500/50 transition-all"
+                                >
+                                    <ChevronLeft className="h-4 w-4" />
+                                </button>
+                                <span className="text-base font-bold text-cyan-300">{displayYear}</span>
+                                <button
+                                    type="button"
+                                    onClick={() => setDisplayYear(displayYear + 1)}
+                                    className="flex h-7 w-7 items-center justify-center rounded-full bg-cyan-500/30 border border-cyan-400/50 text-white hover:bg-cyan-500/50 transition-all"
+                                >
+                                    <ChevronRight className="h-4 w-4" />
+                                </button>
                             </div>
-                            
+
                             <div className="grid grid-cols-3 gap-1.5 mb-2">
                                 {MONTHS_FR.map((m, idx) => {
-                                    const monthValue = `${now.getFullYear()}-${String(idx + 1).padStart(2, "0")}`;
+                                    const monthValue = `${displayYear}-${String(idx + 1).padStart(2, "0")}`;
                                     const isSelected = month === monthValue;
-                                    const isCurrent = idx === now.getMonth();
+                                    const isCurrent = idx === now.getMonth() && displayYear === now.getFullYear();
                                     return (
                                         <button
                                             key={m}
@@ -1290,7 +1306,7 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
                                     );
                                 })}
                             </div>
-                            
+
                             <button
                                 type="button"
                                 onClick={() => setMonthPickerOpen(false)}
@@ -1303,7 +1319,7 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
                 </AnimatePresence>,
                 document.body
             )}
-            
+
             {shouldHideData ? (
                 <div className="rounded-2xl border border-rose-500/30 bg-rose-950/30 p-4 shadow-inner text-sm text-center">
                     <div className="flex items-center justify-center gap-2 text-rose-300">
@@ -1315,11 +1331,11 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
                 <div className="rounded-2xl border border-white/10 bg-slate-950/50 p-3 shadow-inner text-sm space-y-1">
                     <div className="flex items-baseline justify-between text-slate-100">
                         <span className="text-sm font-light text-white leading-none">
-                            {useTodayData 
+                            {useTodayData
                                 ? "CA du jour"
                                 : useSingleDayRange
                                     ? `CA du jour (${formatDateDisplay(startDate)})`
-                                    : useRangeData 
+                                    : useRangeData
                                         ? `CA du ${formatDateDisplay(startDate)} au ${formatDateDisplay(endDate)}`
                                         : "CA du mois"
                             }
@@ -1334,16 +1350,16 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
                 </div>
             )}
             {!shouldHideData && (
-            <div className="grid grid-cols-4 text-sm border rounded-md overflow-hidden">
-                <div className="bg-white/12 px-2 py-1"></div>
-                <div className="bg-white/12 px-2 py-1"><span className="inline-flex items-center px-1.5 py-0.5 rounded-full border-2 border-emerald-300 bg-emerald-100/30 text-emerald-100 text-[10px] font-semibold">Espèces</span></div>
-                <div className="bg-white/12 px-2 py-1"><span className="inline-flex items-center px-1.5 py-0.5 rounded-full border-2 border-amber-300 bg-amber-100/30 text-amber-100 text-[8px] font-semibold"><span className="flex flex-col leading-tight text-center"><span>Planity</span><span>Treatwell</span></span></span></div>
-                <div className="bg-white/12 px-2 py-1"><span className="inline-flex items-center px-1.5 py-0.5 rounded-full border-2 border-indigo-300 bg-indigo-100/30 text-indigo-100 text-[10px] font-semibold">Carte</span></div>
-                <div className="px-2 py-1 font-bold text-xs">{useTodayData ? "Jour" : useSingleDayRange ? "Jour" : useRangeData ? "Période" : "Mois"}</div>
-                <div className="px-2 py-1 text-xs">{eur.format(displayData?.methods.cash.amount || 0)}</div>
-                <div className="px-2 py-1 text-xs">{eur.format(displayData?.methods.check.amount || 0)}</div>
-                <div className="px-2 py-1 text-xs">{eur.format(displayData?.methods.card.amount || 0)}</div>
-            </div>
+                <div className="grid grid-cols-4 text-sm border rounded-md overflow-hidden">
+                    <div className="bg-white/12 px-2 py-1"></div>
+                    <div className="bg-white/12 px-2 py-1"><span className="inline-flex items-center px-1.5 py-0.5 rounded-full border-2 border-emerald-300 bg-emerald-100/30 text-emerald-100 text-[10px] font-semibold">Espèces</span></div>
+                    <div className="bg-white/12 px-2 py-1"><span className="inline-flex items-center px-1.5 py-0.5 rounded-full border-2 border-amber-300 bg-amber-100/30 text-amber-100 text-[8px] font-semibold"><span className="flex flex-col leading-tight text-center"><span>Planity</span><span>Treatwell</span></span></span></div>
+                    <div className="bg-white/12 px-2 py-1"><span className="inline-flex items-center px-1.5 py-0.5 rounded-full border-2 border-indigo-300 bg-indigo-100/30 text-indigo-100 text-[10px] font-semibold">Carte</span></div>
+                    <div className="px-2 py-1 font-bold text-xs">{useTodayData ? "Jour" : useSingleDayRange ? "Jour" : useRangeData ? "Période" : "Mois"}</div>
+                    <div className="px-2 py-1 text-xs">{eur.format(displayData?.methods.cash.amount || 0)}</div>
+                    <div className="px-2 py-1 text-xs">{eur.format(displayData?.methods.check.amount || 0)}</div>
+                    <div className="px-2 py-1 text-xs">{eur.format(displayData?.methods.card.amount || 0)}</div>
+                </div>
             )}
 
             {!shouldHideData && (useTodayData || useSingleDayRange) && (
@@ -1508,7 +1524,7 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
                                     ✕
                                 </button>
                             </div>
-                            
+
                             {periodEditingMonth === null ? (
                                 <div>
                                     <p className="text-sm text-white/60 mb-3">Cliquez sur un mois pour définir la période à masquer</p>
@@ -1546,8 +1562,8 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
                                                     className={`
                                                         relative flex flex-col items-center justify-center py-3 px-2 rounded-xl
                                                         font-medium text-sm transition-all touch-manipulation
-                                                        ${hasPeriod 
-                                                            ? 'bg-rose-500/30 border-2 border-rose-400/60 text-rose-200 shadow-[0_0_12px_rgba(244,63,94,0.3)]' 
+                                                        ${hasPeriod
+                                                            ? 'bg-rose-500/30 border-2 border-rose-400/60 text-rose-200 shadow-[0_0_12px_rgba(244,63,94,0.3)]'
                                                             : 'bg-slate-800/60 border border-slate-600/50 text-white/70 hover:bg-slate-700/60 hover:border-slate-500'
                                                         }
                                                     `}
@@ -1561,8 +1577,8 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
                                         })}
                                     </div>
                                     <p className="text-xs text-white/40 mt-3 text-center">
-                                        {hiddenPeriods.length === 0 
-                                            ? 'Aucune période masquée' 
+                                        {hiddenPeriods.length === 0
+                                            ? 'Aucune période masquée'
                                             : `${hiddenPeriods.length} période${hiddenPeriods.length > 1 ? 's' : ''} masquée${hiddenPeriods.length > 1 ? 's' : ''}`
                                         }
                                     </p>
@@ -1577,14 +1593,14 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
                                         <ChevronLeft className="h-4 w-4" />
                                         Retour aux mois
                                     </button>
-                                    
+
                                     <div className="text-center">
                                         <h4 className="text-lg font-semibold text-white mb-1">
                                             {MONTHS_FR[(periodEditingMonth % 100) - 1]} {Math.floor(periodEditingMonth / 100)}
                                         </h4>
                                         <p className="text-sm text-white/60">Définir la période à masquer</p>
                                     </div>
-                                    
+
                                     <div className="grid grid-cols-2 gap-4">
                                         <div>
                                             <label className="block text-xs text-white/60 mb-1">Du jour</label>
@@ -1611,13 +1627,13 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
                                             </select>
                                         </div>
                                     </div>
-                                    
+
                                     <div className="text-center py-2">
                                         <span className="text-sm text-rose-300">
                                             Du {String(periodStartDay).padStart(2, '0')}/{String(periodEditingMonth % 100).padStart(2, '0')} au {String(periodEndDay).padStart(2, '0')}/{String(periodEditingMonth % 100).padStart(2, '0')}
                                         </span>
                                     </div>
-                                    
+
                                     <div className="flex gap-2">
                                         {hiddenPeriods.find(p => p.month === periodEditingMonth) && (
                                             <button
