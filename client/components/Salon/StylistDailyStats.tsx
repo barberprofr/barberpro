@@ -390,7 +390,7 @@ function RangeTransactionRow({ entry: e, onUpdate, isAdmin = false, onDelete }: 
                             </span>
                         </button>
                     </PopoverTrigger>
-                    <PopoverContent className="w-44 p-1.5 bg-slate-900/95 border-slate-700 backdrop-blur-xl">
+                    <PopoverContent className="w-44 p-1.5 bg-slate-900/95 border-slate-700 backdrop-blur-xl z-[99999]">
                         <div className="grid gap-1">
                             {(["cash", "check", "card"] as const).map((method) => {
                                 const methodStyle = getPaymentStyle(method);
@@ -579,7 +579,7 @@ function TransactionRow({ entry: e, fmt, onUpdate, isAdmin = false, onDelete }: 
                             </span>
                         </button>
                     </PopoverTrigger>
-                    <PopoverContent className="w-44 p-1.5 bg-slate-900/95 border-slate-700 backdrop-blur-xl">
+                    <PopoverContent className="w-44 p-1.5 bg-slate-900/95 border-slate-700 backdrop-blur-xl z-[99999]">
                         <div className="grid gap-1">
                             {(["cash", "check", "card"] as const).map((method) => {
                                 const methodStyle = getPaymentStyle(method);
