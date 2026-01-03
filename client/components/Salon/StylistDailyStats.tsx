@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, ChevronLeft, ChevronRight, List, EyeOff, Eye, X, Trash2, Calendar } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { isAdminClient } from "@/lib/admin";
-import { playDeleteWarningSound } from "@/lib/sounds";
+import { playDeleteWarningSound, playDeleteConfirmSound } from "@/lib/sounds";
 
 const eur = new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" });
 
@@ -484,6 +484,7 @@ function RangeTransactionRow({ entry: e, onUpdate, isAdmin = false, onDelete }: 
                                     <button
                                         type="button"
                                         onClick={() => {
+                                            playDeleteConfirmSound();
                                             onDelete(e.id);
                                             setConfirmDeleteOpen(false);
                                         }}
