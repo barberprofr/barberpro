@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { Button } from "@/components/ui/button";
-import { useStylistBreakdown, useUpdateTransactionPaymentMethod, useUpdateStylistHiddenMonths, useUpdateStylistHiddenPeriods, HiddenPeriod } from "@/lib/api";
+import { useStylistBreakdown, useUpdateTransactionPaymentMethod, useUpdateStylistHiddenMonths, useUpdateStylistHiddenPeriods, useDeletePrestation, HiddenPeriod } from "@/lib/api";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, ChevronLeft, ChevronRight, List, EyeOff, Eye, X, Trash2, Calendar } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { isAdminClient } from "@/lib/admin";
 
 const eur = new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" });
 
@@ -286,27 +287,39 @@ function StylistDaily({ id, date, commissionPct }: { id: string; date?: string; 
 function StylistEncaissements({ id, date }: { id: string; date?: string }) {
     const { data } = useStylistBreakdown(id, date);
     const updatePaymentMethod = useUpdateTransactionPaymentMethod();
+    const deletePrestation = useDeletePrestation();
     const entries = data?.dailyEntries || [];
     const fmt = (ts: number) => new Date(ts).toLocaleTimeString("fr-FR", { timeZone: "Europe/Paris", hour: "2-digit", minute: "2-digit" });
+    const isAdmin = isAdminClient();
 
     const handleUpdatePayment = (entryId: string, kind: "prestation" | "produit", method: "cash" | "check" | "card") => {
         updatePaymentMethod.mutate({ id: entryId, kind, paymentMethod: method });
+    };
+
+    const handleDelete = (entryId: string) => {
+        if (confirm("Supprimer cette prestation ?")) {
+            deletePrestation.mutate(entryId);
+        }
     };
 
     return (
         <div className="text-sm border border-gray-700 rounded-md overflow-hidden bg-slate-900/70 w-full">
             <div className="overflow-x-auto">
                 <div className="min-w-[380px]">
-                    <div className="grid grid-cols-[60px_minmax(120px,1fr)_minmax(100px,1fr)] bg-slate-800/80 text-gray-100 px-3 py-2 font-medium text-xs sm:text-sm sm:px-4">
+                    <div className={cn(
+                        "bg-slate-800/80 text-gray-100 px-3 py-2 font-medium text-xs sm:text-sm sm:px-4",
+                        isAdmin ? "grid grid-cols-[60px_minmax(100px,1fr)_minmax(80px,1fr)_40px]" : "grid grid-cols-[60px_minmax(120px,1fr)_minmax(100px,1fr)]"
+                    )}>
                         <div>Heure</div>
                         <div>Mode</div>
                         <div>Montant</div>
+                        {isAdmin && <div></div>}
                     </div>
                     <div className="max-h-[400px] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
                         {entries.length === 0 ? (
                             <div className="px-2 py-2 text-muted-foreground sm:px-3">Aucun encaissement pour ce jour</div>
                         ) : entries.map((e: any, i: number) => (
-                            <TransactionRow key={i} entry={e} fmt={fmt} onUpdate={handleUpdatePayment} />
+                            <TransactionRow key={i} entry={e} fmt={fmt} onUpdate={handleUpdatePayment} isAdmin={isAdmin} onDelete={handleDelete} />
                         ))}
                     </div>
                 </div>
@@ -437,7 +450,7 @@ function StylistRangeEncaissements({ entries, onUpdate }: { entries: any[]; onUp
     );
 }
 
-function TransactionRow({ entry: e, fmt, onUpdate }: { entry: any, fmt: (ts: number) => string, onUpdate: (id: string, kind: "prestation" | "produit", method: "cash" | "check" | "card") => void }) {
+function TransactionRow({ entry: e, fmt, onUpdate, isAdmin = false, onDelete }: { entry: any, fmt: (ts: number) => string, onUpdate: (id: string, kind: "prestation" | "produit", method: "cash" | "check" | "card") => void, isAdmin?: boolean, onDelete?: (id: string) => void }) {
     const [open, setOpen] = useState(false);
 
     const getPaymentStyle = (method: string) => {
@@ -472,7 +485,10 @@ function TransactionRow({ entry: e, fmt, onUpdate }: { entry: any, fmt: (ts: num
     };
 
     return (
-        <div className="grid grid-cols-[60px_minmax(120px,1fr)_minmax(100px,1fr)] px-3 py-2 border-t border-gray-700 items-center text-xs sm:text-sm sm:px-4">
+        <div className={cn(
+            "px-3 py-2 border-t border-gray-700 items-center text-xs sm:text-sm sm:px-4",
+            isAdmin ? "grid grid-cols-[60px_minmax(100px,1fr)_minmax(80px,1fr)_40px]" : "grid grid-cols-[60px_minmax(120px,1fr)_minmax(100px,1fr)]"
+        )}>
             <div>{fmt(e.timestamp)}</div>
             <div>
                 <Popover open={open} onOpenChange={setOpen}>
@@ -522,6 +538,21 @@ function TransactionRow({ entry: e, fmt, onUpdate }: { entry: any, fmt: (ts: num
                 <span className="font-medium">{eur.format(e.amount)}</span>
                 <span className="text-[10px] sm:text-xs text-white/60 block truncate">{e.name || (e.kind === "prestation" ? "prestation" : "produit")}</span>
             </div>
+            {isAdmin && onDelete && e.kind === "prestation" && (
+                <div className="flex justify-center">
+                    <button
+                        type="button"
+                        onClick={() => onDelete(e.id)}
+                        className="flex h-7 w-7 items-center justify-center rounded-full border border-red-500/30 bg-red-500/10 text-red-400 transition hover:bg-red-500/20 hover:text-red-300"
+                        title="Supprimer"
+                    >
+                        <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                </div>
+            )}
+            {isAdmin && e.kind !== "prestation" && (
+                <div></div>
+            )}
         </div>
     );
 }
