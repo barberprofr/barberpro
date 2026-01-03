@@ -352,12 +352,15 @@ async function aggregateByPayment(salonId: string, stylistId: string, refNowMs: 
   let dailyTipCountStylist = 0;
   let monthlyTipCountStylist = 0;
   let rangeTipCountStylist = 0;
+  let dailyTipAmount = 0;
+  let monthlyTipAmount = 0;
+  let rangeTipAmount = 0;
 
   for (const p of prestations) {
     const isHidden = isTimestampInHiddenPeriod(p.timestamp, hiddenPeriods);
     const isTip = p.serviceName === "Pourboire";
     
-    const inc = (scope: ReturnType<typeof makeScope>, countTips: boolean = true) => {
+    const inc = (scope: ReturnType<typeof makeScope>) => {
       scope.total.amount += p.amount;
       if (!isTip) {
         scope.total.count += 1;
@@ -376,7 +379,10 @@ async function aggregateByPayment(salonId: string, stylistId: string, refNowMs: 
     if (startOfDayParis(p.timestamp) === todayStart && !isHidden) {
       inc(daily);
       inc(prestationDaily);
-      if (isTip) dailyTipCountStylist++;
+      if (isTip) {
+        dailyTipCountStylist++;
+        dailyTipAmount += p.amount;
+      }
       dailyEntries.push({
         id: p.id,
         amount: p.amount,
@@ -391,12 +397,18 @@ async function aggregateByPayment(salonId: string, stylistId: string, refNowMs: 
     if (isSameMonthParis(p.timestamp, now) && !isHidden) {
       inc(monthly);
       inc(prestationMonthly);
-      if (isTip) monthlyTipCountStylist++;
+      if (isTip) {
+        monthlyTipCountStylist++;
+        monthlyTipAmount += p.amount;
+      }
     }
     if (useRange && p.timestamp >= startDateMs! && p.timestamp <= endDateMs! && !isHidden) {
       inc(range);
       inc(prestationRange);
-      if (isTip) rangeTipCountStylist++;
+      if (isTip) {
+        rangeTipCountStylist++;
+        rangeTipAmount += p.amount;
+      }
       rangeEntries.push({
         id: p.id,
         amount: p.amount,
@@ -470,7 +482,7 @@ async function aggregateByPayment(salonId: string, stylistId: string, refNowMs: 
     }
   }
 
-  return { daily, monthly, range, prestationDaily, prestationMonthly, prestationRange, dailyEntries, rangeEntries, dailyProductCount, monthlyProductCount, rangeProductCount, dailyTipCount: dailyTipCountStylist, monthlyTipCount: monthlyTipCountStylist, rangeTipCount: rangeTipCountStylist };
+  return { daily, monthly, range, prestationDaily, prestationMonthly, prestationRange, dailyEntries, rangeEntries, dailyProductCount, monthlyProductCount, rangeProductCount, dailyTipCount: dailyTipCountStylist, monthlyTipCount: monthlyTipCountStylist, rangeTipCount: rangeTipCountStylist, dailyTipAmount, monthlyTipAmount, rangeTipAmount };
 }
 
 async function aggregateAllPayments(salonId: string) {

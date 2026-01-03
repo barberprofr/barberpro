@@ -237,7 +237,9 @@ function StylistDaily({ id, date, commissionPct }: { id: string; date?: string; 
     const prestationTotal = prestationD?.total;
     const dailyProductCount = (data as any)?.dailyProductCount ?? 0;
     const dailyTipCount = (data as any)?.dailyTipCount ?? 0;
-    const salary = (prestationTotal?.amount || 0) * (commissionPct ?? 0) / 100;
+    const dailyTipAmount = (data as any)?.dailyTipAmount ?? 0;
+    const prestationAmountWithoutTips = (prestationTotal?.amount || 0) - dailyTipAmount;
+    const salary = prestationAmountWithoutTips * (commissionPct ?? 0) / 100;
     return (
         <div className="rounded-2xl border border-white/25 bg-slate-800/70 p-3 shadow-inner text-sm space-y-2 backdrop-blur-sm">
             <div className="space-y-1">
@@ -1186,6 +1188,9 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
     const dailyProductCount = (data as any)?.dailyProductCount ?? 0;
     const monthlyProductCount = (data as any)?.monthlyProductCount ?? 0;
     const rangeProductCount = (data as any)?.rangeProductCount ?? 0;
+    const dailyTipAmount = (data as any)?.dailyTipAmount ?? 0;
+    const monthlyTipAmount = (data as any)?.monthlyTipAmount ?? 0;
+    const rangeTipAmount = (data as any)?.rangeTipAmount ?? 0;
     const rangeEntries = (data as any)?.rangeEntries || [];
     const dailyEntries = data?.dailyEntries || [];
 
@@ -1197,10 +1202,12 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
     const displayData = useTodayData ? d : (useRangeData ? r : (useSingleDayRange ? r : m));
     const displayPrestationData = useTodayData ? prestationD : (useRangeData ? prestationR : (useSingleDayRange ? prestationR : prestationM));
     const displayProductCount = useTodayData ? dailyProductCount : ((useRangeData || useSingleDayRange) ? rangeProductCount : monthlyProductCount);
+    const displayTipAmount = useTodayData ? dailyTipAmount : ((useRangeData || useSingleDayRange) ? rangeTipAmount : monthlyTipAmount);
 
     const total = displayData?.total;
     const prestationTotal = displayPrestationData?.total;
-    const salary = (prestationTotal?.amount || 0) * (commissionPct ?? 0) / 100;
+    const prestationAmountWithoutTips = (prestationTotal?.amount || 0) - displayTipAmount;
+    const salary = prestationAmountWithoutTips * (commissionPct ?? 0) / 100;
 
     const formatDateDisplay = (dateStr: string) => {
         if (!dateStr) return "";
