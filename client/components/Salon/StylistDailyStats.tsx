@@ -1105,6 +1105,7 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
     const [periodStartDay, setPeriodStartDay] = useState<number>(1);
     const [periodEndDay, setPeriodEndDay] = useState<number>(31);
     const [displayYear, setDisplayYear] = useState(now.getFullYear());
+    const [maskYear, setMaskYear] = useState(now.getFullYear());
 
     useEffect(() => {
         if (monthPickerOpen) {
@@ -1626,7 +1627,7 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
                             <div className="flex items-center justify-between mb-4">
                                 <div className="flex items-center gap-3 text-rose-300 text-lg">
                                     <EyeOff className="h-5 w-5" />
-                                    <span className="font-semibold">Masquer le CA - 2025</span>
+                                    <span className="font-semibold">Masquer le CA</span>
                                 </div>
                                 <button
                                     type="button"
@@ -1638,24 +1639,43 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
                                 </button>
                             </div>
 
+                            <div className="flex items-center justify-center gap-4 mb-4">
+                                <button
+                                    type="button"
+                                    onClick={() => setMaskYear(maskYear - 1)}
+                                    className="flex h-8 w-8 items-center justify-center rounded-full bg-rose-500/30 border border-rose-400/50 text-white hover:bg-rose-500/50 transition-all"
+                                >
+                                    <ChevronLeft className="h-5 w-5" />
+                                </button>
+                                <span className="text-xl font-bold text-rose-300 min-w-[80px] text-center">{maskYear}</span>
+                                <button
+                                    type="button"
+                                    onClick={() => setMaskYear(maskYear + 1)}
+                                    className="flex h-8 w-8 items-center justify-center rounded-full bg-rose-500/30 border border-rose-400/50 text-white hover:bg-rose-500/50 transition-all"
+                                >
+                                    <ChevronRight className="h-5 w-5" />
+                                </button>
+                            </div>
+
                             {periodEditingMonth === null ? (
                                 <div>
                                     <p className="text-sm text-white/60 mb-3">Cliquez sur un mois pour définir la période à masquer</p>
                                     <div className="grid grid-cols-4 gap-2">
                                         {[
-                                            { label: 'Jan', value: 202501, days: 31 },
-                                            { label: 'Fév', value: 202502, days: 28 },
-                                            { label: 'Mar', value: 202503, days: 31 },
-                                            { label: 'Avr', value: 202504, days: 30 },
-                                            { label: 'Mai', value: 202505, days: 31 },
-                                            { label: 'Juin', value: 202506, days: 30 },
-                                            { label: 'Juil', value: 202507, days: 31 },
-                                            { label: 'Août', value: 202508, days: 31 },
-                                            { label: 'Sep', value: 202509, days: 30 },
-                                            { label: 'Oct', value: 202510, days: 31 },
-                                            { label: 'Nov', value: 202511, days: 30 },
-                                            { label: 'Déc', value: 202512, days: 31 },
-                                        ].map((monthData) => {
+                                            { label: 'Jan', month: 1, days: 31 },
+                                            { label: 'Fév', month: 2, days: (maskYear % 4 === 0 && (maskYear % 100 !== 0 || maskYear % 400 === 0)) ? 29 : 28 },
+                                            { label: 'Mar', month: 3, days: 31 },
+                                            { label: 'Avr', month: 4, days: 30 },
+                                            { label: 'Mai', month: 5, days: 31 },
+                                            { label: 'Juin', month: 6, days: 30 },
+                                            { label: 'Juil', month: 7, days: 31 },
+                                            { label: 'Août', month: 8, days: 31 },
+                                            { label: 'Sep', month: 9, days: 30 },
+                                            { label: 'Oct', month: 10, days: 31 },
+                                            { label: 'Nov', month: 11, days: 30 },
+                                            { label: 'Déc', month: 12, days: 31 },
+                                        ].map((m) => {
+                                            const monthData = { ...m, value: maskYear * 100 + m.month };
                                             const period = hiddenPeriods.find(p => p.month === monthData.value);
                                             const hasPeriod = !!period;
                                             return (
