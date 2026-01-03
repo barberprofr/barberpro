@@ -300,9 +300,7 @@ function StylistEncaissements({ id, date }: { id: string; date?: string }) {
     };
 
     const handleDelete = (entryId: string) => {
-        if (confirm("Supprimer cette prestation ?")) {
-            deletePrestation.mutate(entryId);
-        }
+        deletePrestation.mutate(entryId);
     };
 
     return (
@@ -1224,9 +1222,7 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
     };
 
     const handleDelete = (entryId: string) => {
-        if (confirm("Supprimer cette prestation ?")) {
-            deletePrestation.mutate(entryId);
-        }
+        deletePrestation.mutate(entryId);
     };
 
     return (
