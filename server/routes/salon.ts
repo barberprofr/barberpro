@@ -349,12 +349,19 @@ async function aggregateByPayment(salonId: string, stylistId: string, refNowMs: 
   const rangeEntries: { id: string; amount: number; paymentMethod: PaymentMethod; timestamp: number; kind: "prestation" | "produit"; name?: string; mixedCardAmount?: number; mixedCashAmount?: number }[] = [];
   let rangeProductCount = 0;
 
+  let dailyTipCountStylist = 0;
+  let monthlyTipCountStylist = 0;
+  let rangeTipCountStylist = 0;
+
   for (const p of prestations) {
     const isHidden = isTimestampInHiddenPeriod(p.timestamp, hiddenPeriods);
+    const isTip = p.serviceName === "Pourboire";
     
-    const inc = (scope: ReturnType<typeof makeScope>) => {
+    const inc = (scope: ReturnType<typeof makeScope>, countTips: boolean = true) => {
       scope.total.amount += p.amount;
-      scope.total.count += 1;
+      if (!isTip) {
+        scope.total.count += 1;
+      }
       const method = p.paymentMethod as PaymentMethod;
       if (method === "mixed" && (p as any).mixedCardAmount && (p as any).mixedCashAmount) {
         scope.methods.card.amount += (p as any).mixedCardAmount;
@@ -369,6 +376,7 @@ async function aggregateByPayment(salonId: string, stylistId: string, refNowMs: 
     if (startOfDayParis(p.timestamp) === todayStart && !isHidden) {
       inc(daily);
       inc(prestationDaily);
+      if (isTip) dailyTipCountStylist++;
       dailyEntries.push({
         id: p.id,
         amount: p.amount,
@@ -383,10 +391,12 @@ async function aggregateByPayment(salonId: string, stylistId: string, refNowMs: 
     if (isSameMonthParis(p.timestamp, now) && !isHidden) {
       inc(monthly);
       inc(prestationMonthly);
+      if (isTip) monthlyTipCountStylist++;
     }
     if (useRange && p.timestamp >= startDateMs! && p.timestamp <= endDateMs! && !isHidden) {
       inc(range);
       inc(prestationRange);
+      if (isTip) rangeTipCountStylist++;
       rangeEntries.push({
         id: p.id,
         amount: p.amount,
@@ -460,7 +470,7 @@ async function aggregateByPayment(salonId: string, stylistId: string, refNowMs: 
     }
   }
 
-  return { daily, monthly, range, prestationDaily, prestationMonthly, prestationRange, dailyEntries, rangeEntries, dailyProductCount, monthlyProductCount, rangeProductCount };
+  return { daily, monthly, range, prestationDaily, prestationMonthly, prestationRange, dailyEntries, rangeEntries, dailyProductCount, monthlyProductCount, rangeProductCount, dailyTipCount: dailyTipCountStylist, monthlyTipCount: monthlyTipCountStylist, rangeTipCount: rangeTipCountStylist };
 }
 
 async function aggregateAllPayments(salonId: string) {
@@ -1913,16 +1923,23 @@ export const getGlobalBreakdown: RequestHandler = async (req, res) => {
     let monthlyPrestationCount = 0;
     let rangePrestationCount = 0;
 
+    let dailyTipCount = 0;
+    let monthlyTipCount = 0;
+    let rangeTipCount = 0;
+
     for (const p of prestations) {
       const ts = startOfDayParis(p.timestamp);
       const isDaily = ts === todayStart;
       const isMonthly = isSameMonthParis(p.timestamp, ref);
       const isRange = startDateMs && endDateMs && p.timestamp >= startDateMs && p.timestamp <= endDateMs;
       const method = p.paymentMethod as PaymentMethod;
+      const isTip = p.serviceName === "Pourboire";
 
       if (isDaily) {
         daily.total.amount += p.amount;
-        daily.total.count += 1;
+        if (!isTip) {
+          daily.total.count += 1;
+        }
         if (method === "mixed" && (p as any).mixedCardAmount && (p as any).mixedCashAmount) {
           daily.methods.card.amount += (p as any).mixedCardAmount;
           daily.methods.cash.amount += (p as any).mixedCashAmount;
@@ -1931,7 +1948,11 @@ export const getGlobalBreakdown: RequestHandler = async (req, res) => {
           daily.methods[method].amount += p.amount;
           daily.methods[method].count += 1;
         }
-        dailyPrestationCount++;
+        if (isTip) {
+          dailyTipCount++;
+        } else {
+          dailyPrestationCount++;
+        }
         dailyEntries.push({
           id: p.id,
           timestamp: p.timestamp,
@@ -1945,7 +1966,9 @@ export const getGlobalBreakdown: RequestHandler = async (req, res) => {
       }
       if (isMonthly) {
         monthly.total.amount += p.amount;
-        monthly.total.count += 1;
+        if (!isTip) {
+          monthly.total.count += 1;
+        }
         if (method === "mixed" && (p as any).mixedCardAmount && (p as any).mixedCashAmount) {
           monthly.methods.card.amount += (p as any).mixedCardAmount;
           monthly.methods.cash.amount += (p as any).mixedCashAmount;
@@ -1954,11 +1977,17 @@ export const getGlobalBreakdown: RequestHandler = async (req, res) => {
           monthly.methods[method].amount += p.amount;
           monthly.methods[method].count += 1;
         }
-        monthlyPrestationCount++;
+        if (isTip) {
+          monthlyTipCount++;
+        } else {
+          monthlyPrestationCount++;
+        }
       }
       if (isRange) {
         range.total.amount += p.amount;
-        range.total.count += 1;
+        if (!isTip) {
+          range.total.count += 1;
+        }
         if (method === "mixed" && (p as any).mixedCardAmount && (p as any).mixedCashAmount) {
           range.methods.card.amount += (p as any).mixedCardAmount;
           range.methods.cash.amount += (p as any).mixedCashAmount;
@@ -1967,7 +1996,11 @@ export const getGlobalBreakdown: RequestHandler = async (req, res) => {
           range.methods[method].amount += p.amount;
           range.methods[method].count += 1;
         }
-        rangePrestationCount++;
+        if (isTip) {
+          rangeTipCount++;
+        } else {
+          rangePrestationCount++;
+        }
         rangeEntries.push({
           id: p.id,
           timestamp: p.timestamp,
@@ -2055,6 +2088,9 @@ export const getGlobalBreakdown: RequestHandler = async (req, res) => {
       dailyPrestationCount,
       monthlyPrestationCount,
       rangePrestationCount: startDateMs && endDateMs ? rangePrestationCount : 0,
+      dailyTipCount,
+      monthlyTipCount,
+      rangeTipCount: startDateMs && endDateMs ? rangeTipCount : 0,
     });
   } catch (error) {
     console.error('Error getting global breakdown:', error);

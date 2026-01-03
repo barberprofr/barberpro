@@ -236,6 +236,7 @@ function StylistDaily({ id, date, commissionPct }: { id: string; date?: string; 
     const total = d?.total;
     const prestationTotal = prestationD?.total;
     const dailyProductCount = (data as any)?.dailyProductCount ?? 0;
+    const dailyTipCount = (data as any)?.dailyTipCount ?? 0;
     const salary = (prestationTotal?.amount || 0) * (commissionPct ?? 0) / 100;
     return (
         <div className="rounded-2xl border border-white/25 bg-slate-800/70 p-3 shadow-inner text-sm space-y-2 backdrop-blur-sm">
@@ -244,7 +245,7 @@ function StylistDaily({ id, date, commissionPct }: { id: string; date?: string; 
                     <span className="text-base font-black tracking-wide [-webkit-text-stroke:0.5px_black]">CA du jour</span>
                     <span className="text-4xl font-black tracking-wide text-fuchsia-300" style={{ WebkitTextStroke: '0.5px black' }}>{eur.format(total?.amount || 0)}</span>
                 </div>
-                <div className="text-xs text-white">{prestationTotal?.count || 0} prestation{(prestationTotal?.count ?? 0) > 1 ? "s" : ""}{dailyProductCount ? `, ${dailyProductCount} produit${dailyProductCount > 1 ? "s" : ""}` : ""}</div>
+                <div className="text-xs text-white">{prestationTotal?.count || 0} prestation{(prestationTotal?.count ?? 0) > 1 ? "s" : ""}{dailyTipCount ? `, ${dailyTipCount} pourboire${dailyTipCount > 1 ? "s" : ""}` : ""}{dailyProductCount ? `, ${dailyProductCount} produit${dailyProductCount > 1 ? "s" : ""}` : ""}</div>
             </div>
             <div className="grid grid-cols-4 gap-1.5">
                 <div className="flex flex-col items-center justify-center rounded-lg border border-indigo-500/30 bg-gradient-to-br from-indigo-900/40 via-slate-900/60 to-slate-900/80 backdrop-blur-xl px-1.5 py-2 shadow-[0_4px_16px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.1)]">
