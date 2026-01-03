@@ -328,12 +328,8 @@ function StylistEncaissements({ id, date }: { id: string; date?: string }) {
     );
 }
 
-function RangeTransactionRow({ entry: e, onUpdate }: { entry: any, onUpdate: (id: string, kind: "prestation" | "produit", method: "cash" | "check" | "card") => void }) {
+function RangeTransactionRow({ entry: e, onUpdate, isAdmin = false, onDelete }: { entry: any, onUpdate: (id: string, kind: "prestation" | "produit", method: "cash" | "check" | "card") => void, isAdmin?: boolean, onDelete?: (id: string) => void }) {
     const [open, setOpen] = useState(false);
-    const fmtDate = (ts: number) => {
-        const d = new Date(ts);
-        return d.toLocaleDateString("fr-FR", { timeZone: "Europe/Paris", day: "2-digit", month: "2-digit" });
-    };
     const fmtTime = (ts: number) => {
         const d = new Date(ts);
         return d.toLocaleTimeString("fr-FR", { timeZone: "Europe/Paris", hour: "2-digit", minute: "2-digit" });
@@ -371,7 +367,10 @@ function RangeTransactionRow({ entry: e, onUpdate }: { entry: any, onUpdate: (id
     };
 
     return (
-        <div className="grid grid-cols-[70px_minmax(120px,1fr)_minmax(100px,1fr)] px-3 py-2 border-t border-gray-700 items-center text-xs sm:text-sm sm:px-4">
+        <div className={cn(
+            "px-3 py-2 border-t border-gray-700 items-center text-xs sm:text-sm sm:px-4",
+            isAdmin ? "grid grid-cols-[70px_minmax(100px,1fr)_minmax(80px,1fr)_40px]" : "grid grid-cols-[70px_minmax(120px,1fr)_minmax(100px,1fr)]"
+        )}>
             <div className="flex flex-col">
                 <span className="font-light text-white">{fmtTime(e.timestamp)}</span>
             </div>
@@ -423,25 +422,44 @@ function RangeTransactionRow({ entry: e, onUpdate }: { entry: any, onUpdate: (id
                 <span className="font-medium">{eur.format(e.amount)}</span>
                 <span className="text-[10px] sm:text-xs text-white/60 block truncate">{e.name || (e.kind === "prestation" ? "prestation" : "produit")}</span>
             </div>
+            {isAdmin && onDelete && e.kind === "prestation" && (
+                <div className="flex justify-center">
+                    <button
+                        type="button"
+                        onClick={() => onDelete(e.id)}
+                        className="flex h-7 w-7 items-center justify-center rounded-full border border-red-500/30 bg-red-500/10 text-red-400 transition hover:bg-red-500/20 hover:text-red-300"
+                        title="Supprimer"
+                    >
+                        <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                </div>
+            )}
+            {isAdmin && e.kind !== "prestation" && (
+                <div></div>
+            )}
         </div>
     );
 }
 
-function StylistRangeEncaissements({ entries, onUpdate }: { entries: any[]; onUpdate: (id: string, kind: "prestation" | "produit", method: "cash" | "check" | "card") => void }) {
+function StylistRangeEncaissements({ entries, onUpdate, isAdmin = false, onDelete }: { entries: any[]; onUpdate: (id: string, kind: "prestation" | "produit", method: "cash" | "check" | "card") => void; isAdmin?: boolean; onDelete?: (id: string) => void }) {
     return (
         <div className="text-sm border border-gray-700 rounded-md overflow-hidden bg-slate-900/70 w-full">
             <div className="overflow-x-auto">
                 <div className="min-w-0">
-                    <div className="grid grid-cols-[70px_minmax(120px,1fr)_minmax(100px,1fr)] bg-slate-800/80 text-gray-100 px-3 py-2 font-medium text-xs sm:text-sm sm:px-4">
+                    <div className={cn(
+                        "bg-slate-800/80 text-gray-100 px-3 py-2 font-medium text-xs sm:text-sm sm:px-4",
+                        isAdmin ? "grid grid-cols-[70px_minmax(100px,1fr)_minmax(80px,1fr)_40px]" : "grid grid-cols-[70px_minmax(120px,1fr)_minmax(100px,1fr)]"
+                    )}>
                         <div>Heure</div>
                         <div>Mode</div>
                         <div>Montant</div>
+                        {isAdmin && <div></div>}
                     </div>
                     <div className="max-h-[400px] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
                         {entries.length === 0 ? (
                             <div className="px-2 py-2 text-muted-foreground sm:px-3">Aucun encaissement pour cette période</div>
                         ) : entries.map((e: any, i: number) => (
-                            <RangeTransactionRow key={i} entry={e} onUpdate={onUpdate} />
+                            <RangeTransactionRow key={i} entry={e} onUpdate={onUpdate} isAdmin={isAdmin} onDelete={onDelete} />
                         ))}
                     </div>
                 </div>
@@ -1023,8 +1041,10 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
     const [datePickerOpen, setDatePickerOpen] = useState(false);
     const [monthPickerOpen, setMonthPickerOpen] = useState(false);
     const updatePaymentMethod = useUpdateTransactionPaymentMethod();
+    const deletePrestation = useDeletePrestation();
     const updateHiddenMonths = useUpdateStylistHiddenMonths();
     const updateHiddenPeriods = useUpdateStylistHiddenPeriods();
+    const isAdmin = isAdminClient();
     const [periodEditingMonth, setPeriodEditingMonth] = useState<number | null>(null);
     const [periodStartDay, setPeriodStartDay] = useState<number>(1);
     const [periodEndDay, setPeriodEndDay] = useState<number>(31);
@@ -1132,6 +1152,12 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
 
     const handleUpdatePayment = (entryId: string, kind: "prestation" | "produit", method: "cash" | "check" | "card") => {
         updatePaymentMethod.mutate({ id: entryId, kind, paymentMethod: method });
+    };
+
+    const handleDelete = (entryId: string) => {
+        if (confirm("Supprimer cette prestation ?")) {
+            deletePrestation.mutate(entryId);
+        }
     };
 
     return (
@@ -1470,7 +1496,7 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
                                 </button>
                             </div>
                             <div className="p-2 sm:p-4 overflow-y-auto max-h-[calc(85vh-80px)]">
-                                <StylistRangeEncaissements entries={useSingleDayRange ? rangeEntries : dailyEntries} onUpdate={handleUpdatePayment} />
+                                <StylistRangeEncaissements entries={useSingleDayRange ? rangeEntries : dailyEntries} onUpdate={handleUpdatePayment} isAdmin={isAdmin} onDelete={handleDelete} />
                             </div>
                         </motion.div>
                     </motion.div>
@@ -1515,7 +1541,7 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
                                 </button>
                             </div>
                             <div className="p-2 sm:p-4 overflow-y-auto max-h-[calc(85vh-80px)]">
-                                <StylistRangeEncaissements entries={rangeEntries} onUpdate={handleUpdatePayment} />
+                                <StylistRangeEncaissements entries={rangeEntries} onUpdate={handleUpdatePayment} isAdmin={isAdmin} onDelete={handleDelete} />
                             </div>
                         </motion.div>
                     </motion.div>
