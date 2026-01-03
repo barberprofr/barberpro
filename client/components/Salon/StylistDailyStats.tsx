@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, ChevronLeft, ChevronRight, List, EyeOff, Eye, X, Trash2, Calendar } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { isAdminClient } from "@/lib/admin";
+import { playDeleteWarningSound } from "@/lib/sounds";
 
 const eur = new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" });
 
@@ -428,7 +429,10 @@ function RangeTransactionRow({ entry: e, onUpdate, isAdmin = false, onDelete }: 
                 <div className="flex justify-center">
                     <button
                         type="button"
-                        onClick={() => setConfirmDeleteOpen(true)}
+                        onClick={() => {
+                            playDeleteWarningSound();
+                            setConfirmDeleteOpen(true);
+                        }}
                         className="flex h-7 w-7 items-center justify-center rounded-full border border-red-500/30 bg-red-500/10 text-red-400 transition hover:bg-red-500/20 hover:text-red-300"
                         title="Supprimer"
                     >
