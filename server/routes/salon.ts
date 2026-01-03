@@ -359,19 +359,24 @@ async function aggregateByPayment(salonId: string, stylistId: string, refNowMs: 
   for (const p of prestations) {
     const isHidden = isTimestampInHiddenPeriod(p.timestamp, hiddenPeriods);
     const isTip = p.serviceName === "Pourboire";
+    const method = p.paymentMethod as PaymentMethod;
+    const isCashTip = isTip && method === "cash";
     
     const inc = (scope: ReturnType<typeof makeScope>) => {
-      scope.total.amount += p.amount;
+      if (!isCashTip) {
+        scope.total.amount += p.amount;
+      }
       if (!isTip) {
         scope.total.count += 1;
       }
-      const method = p.paymentMethod as PaymentMethod;
       if (method === "mixed" && (p as any).mixedCardAmount && (p as any).mixedCashAmount) {
         scope.methods.card.amount += (p as any).mixedCardAmount;
         scope.methods.cash.amount += (p as any).mixedCashAmount;
         scope.methods.mixed.count += 1;
       } else if (scope.methods[method]) {
-        scope.methods[method].amount += p.amount;
+        if (!isCashTip) {
+          scope.methods[method].amount += p.amount;
+        }
         scope.methods[method].count += 1;
       }
     };
@@ -1946,9 +1951,12 @@ export const getGlobalBreakdown: RequestHandler = async (req, res) => {
       const isRange = startDateMs && endDateMs && p.timestamp >= startDateMs && p.timestamp <= endDateMs;
       const method = p.paymentMethod as PaymentMethod;
       const isTip = p.serviceName === "Pourboire";
+      const isCashTip = isTip && method === "cash";
 
       if (isDaily) {
-        daily.total.amount += p.amount;
+        if (!isCashTip) {
+          daily.total.amount += p.amount;
+        }
         if (!isTip) {
           daily.total.count += 1;
         }
@@ -1957,7 +1965,9 @@ export const getGlobalBreakdown: RequestHandler = async (req, res) => {
           daily.methods.cash.amount += (p as any).mixedCashAmount;
           daily.methods.mixed.count += 1;
         } else if (daily.methods[method]) {
-          daily.methods[method].amount += p.amount;
+          if (!isCashTip) {
+            daily.methods[method].amount += p.amount;
+          }
           daily.methods[method].count += 1;
         }
         if (isTip) {
@@ -1977,7 +1987,9 @@ export const getGlobalBreakdown: RequestHandler = async (req, res) => {
         });
       }
       if (isMonthly) {
-        monthly.total.amount += p.amount;
+        if (!isCashTip) {
+          monthly.total.amount += p.amount;
+        }
         if (!isTip) {
           monthly.total.count += 1;
         }
@@ -1986,7 +1998,9 @@ export const getGlobalBreakdown: RequestHandler = async (req, res) => {
           monthly.methods.cash.amount += (p as any).mixedCashAmount;
           monthly.methods.mixed.count += 1;
         } else if (monthly.methods[method]) {
-          monthly.methods[method].amount += p.amount;
+          if (!isCashTip) {
+            monthly.methods[method].amount += p.amount;
+          }
           monthly.methods[method].count += 1;
         }
         if (isTip) {
@@ -1996,7 +2010,9 @@ export const getGlobalBreakdown: RequestHandler = async (req, res) => {
         }
       }
       if (isRange) {
-        range.total.amount += p.amount;
+        if (!isCashTip) {
+          range.total.amount += p.amount;
+        }
         if (!isTip) {
           range.total.count += 1;
         }
@@ -2005,7 +2021,9 @@ export const getGlobalBreakdown: RequestHandler = async (req, res) => {
           range.methods.cash.amount += (p as any).mixedCashAmount;
           range.methods.mixed.count += 1;
         } else if (range.methods[method]) {
-          range.methods[method].amount += p.amount;
+          if (!isCashTip) {
+            range.methods[method].amount += p.amount;
+          }
           range.methods[method].count += 1;
         }
         if (isTip) {
@@ -2789,14 +2807,18 @@ export const reportByDay: RequestHandler = async (req, res) => {
       const d = new Date(p.timestamp);
       if (d.getFullYear() !== year || d.getMonth() !== monthIdx) continue;
       const dStart = startOfDayParis(p.timestamp);
+      const isTip = p.serviceName === "Pourboire";
+      const isCashTip = isTip && p.paymentMethod === "cash";
+      
       const cur = totals.get(dStart) || { amount: 0, count: 0 };
-      cur.amount += p.amount;
+      if (!isCashTip) {
+        cur.amount += p.amount;
+      }
       cur.count += 1;
       totals.set(dStart, cur);
 
       const stylist = stylistMap.get(p.stylistId);
       const pct = typeof stylist?.commissionPct === "number" ? stylist.commissionPct : settings.commissionDefault;
-      const isTip = p.serviceName === "Pourboire";
       const salary = isTip ? 0 : (p.amount * pct) / 100;
       monthlySalary += salary;
       salaryTotals.set(dStart, (salaryTotals.get(dStart) || 0) + salary);
@@ -2819,13 +2841,17 @@ export const reportByDay: RequestHandler = async (req, res) => {
         monthlyTotals.methods.cash.amount += (p as any).mixedCashAmount;
         monthlyTotals.methods.mixed.count += 1;
       } else {
-        scope[p.paymentMethod].amount += p.amount;
+        if (!isCashTip) {
+          scope[p.paymentMethod].amount += p.amount;
+          monthlyTotals.methods[p.paymentMethod].amount += p.amount;
+        }
         scope[p.paymentMethod].count += 1;
-        monthlyTotals.methods[p.paymentMethod].amount += p.amount;
         monthlyTotals.methods[p.paymentMethod].count += 1;
       }
 
-      monthlyTotals.total.amount += p.amount;
+      if (!isCashTip) {
+        monthlyTotals.total.amount += p.amount;
+      }
       monthlyTotals.total.count += 1;
     }
 
@@ -2913,9 +2939,14 @@ export const reportByMonth: RequestHandler = async (req, res) => {
         scope = makeScope();
         monthlyScopes.set(key, scope);
       }
-      scope.total.amount += p.amount;
-      scope.total.count += 1;
       const method = p.paymentMethod as PaymentMethod;
+      const isTip = p.serviceName === "Pourboire";
+      const isCashTip = isTip && method === "cash";
+      
+      if (!isCashTip) {
+        scope.total.amount += p.amount;
+      }
+      scope.total.count += 1;
       if (method === "mixed" && (p as any).mixedCardAmount && (p as any).mixedCashAmount) {
         scope.methods.card.amount += (p as any).mixedCardAmount;
         scope.methods.cash.amount += (p as any).mixedCashAmount;
@@ -2924,18 +2955,23 @@ export const reportByMonth: RequestHandler = async (req, res) => {
         yearlyScope.methods.cash.amount += (p as any).mixedCashAmount;
         yearlyScope.methods.mixed.count += 1;
       } else if (scope.methods[method]) {
-        scope.methods[method].amount += p.amount;
+        if (!isCashTip) {
+          scope.methods[method].amount += p.amount;
+          if (yearlyScope.methods[method]) {
+            yearlyScope.methods[method].amount += p.amount;
+          }
+        }
         scope.methods[method].count += 1;
         if (yearlyScope.methods[method]) {
-          yearlyScope.methods[method].amount += p.amount;
           yearlyScope.methods[method].count += 1;
         }
       }
-      yearlyScope.total.amount += p.amount;
+      if (!isCashTip) {
+        yearlyScope.total.amount += p.amount;
+      }
       yearlyScope.total.count += 1;
       const stylist = stylistMap.get(p.stylistId);
       const pct = typeof stylist?.commissionPct === "number" ? stylist.commissionPct : settings.commissionDefault;
-      const isTip = p.serviceName === "Pourboire";
       const salary = isTip ? 0 : (p.amount * pct) / 100;
       yearlySalaryTotal += salary;
       monthlySalaryTotals.set(key, (monthlySalaryTotals.get(key) || 0) + salary);
@@ -3002,8 +3038,12 @@ export const exportByDayCSV: RequestHandler = async (req, res) => {
       const d = new Date(p.timestamp);
       if (d.getFullYear() !== year || d.getMonth() !== monthIdx) continue;
       const dStart = startOfDayParis(p.timestamp);
+      const isTip = p.serviceName === "Pourboire";
+      const isCashTip = isTip && p.paymentMethod === "cash";
       const cur = totals.get(dStart) || { amount: 0, count: 0 };
-      cur.amount += p.amount;
+      if (!isCashTip) {
+        cur.amount += p.amount;
+      }
       cur.count += 1;
       totals.set(dStart, cur);
     }
@@ -3045,8 +3085,12 @@ export const exportByDayPDF: RequestHandler = async (req, res) => {
       const d = new Date(p.timestamp);
       if (d.getFullYear() !== year || d.getMonth() !== monthIdx) continue;
       const dStart = startOfDayParis(p.timestamp);
+      const isTip = p.serviceName === "Pourboire";
+      const isCashTip = isTip && p.paymentMethod === "cash";
       const cur = totals.get(dStart) || { amount: 0, count: 0 };
-      cur.amount += p.amount;
+      if (!isCashTip) {
+        cur.amount += p.amount;
+      }
       cur.count += 1;
       totals.set(dStart, cur);
     }
