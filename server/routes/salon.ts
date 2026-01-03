@@ -355,6 +355,9 @@ async function aggregateByPayment(salonId: string, stylistId: string, refNowMs: 
   let dailyTipAmount = 0;
   let monthlyTipAmount = 0;
   let rangeTipAmount = 0;
+  let dailyNonCashTipAmount = 0;
+  let monthlyNonCashTipAmount = 0;
+  let rangeNonCashTipAmount = 0;
 
   for (const p of prestations) {
     const isHidden = isTimestampInHiddenPeriod(p.timestamp, hiddenPeriods);
@@ -387,6 +390,9 @@ async function aggregateByPayment(salonId: string, stylistId: string, refNowMs: 
       if (isTip) {
         dailyTipCountStylist++;
         dailyTipAmount += p.amount;
+        if (!isCashTip) {
+          dailyNonCashTipAmount += p.amount;
+        }
       }
       dailyEntries.push({
         id: p.id,
@@ -405,6 +411,9 @@ async function aggregateByPayment(salonId: string, stylistId: string, refNowMs: 
       if (isTip) {
         monthlyTipCountStylist++;
         monthlyTipAmount += p.amount;
+        if (!isCashTip) {
+          monthlyNonCashTipAmount += p.amount;
+        }
       }
     }
     if (useRange && p.timestamp >= startDateMs! && p.timestamp <= endDateMs! && !isHidden) {
@@ -413,6 +422,9 @@ async function aggregateByPayment(salonId: string, stylistId: string, refNowMs: 
       if (isTip) {
         rangeTipCountStylist++;
         rangeTipAmount += p.amount;
+        if (!isCashTip) {
+          rangeNonCashTipAmount += p.amount;
+        }
       }
       rangeEntries.push({
         id: p.id,
@@ -487,7 +499,7 @@ async function aggregateByPayment(salonId: string, stylistId: string, refNowMs: 
     }
   }
 
-  return { daily, monthly, range, prestationDaily, prestationMonthly, prestationRange, dailyEntries, rangeEntries, dailyProductCount, monthlyProductCount, rangeProductCount, dailyTipCount: dailyTipCountStylist, monthlyTipCount: monthlyTipCountStylist, rangeTipCount: rangeTipCountStylist, dailyTipAmount, monthlyTipAmount, rangeTipAmount };
+  return { daily, monthly, range, prestationDaily, prestationMonthly, prestationRange, dailyEntries, rangeEntries, dailyProductCount, monthlyProductCount, rangeProductCount, dailyTipCount: dailyTipCountStylist, monthlyTipCount: monthlyTipCountStylist, rangeTipCount: rangeTipCountStylist, dailyTipAmount, monthlyTipAmount, rangeTipAmount, dailyNonCashTipAmount, monthlyNonCashTipAmount, rangeNonCashTipAmount };
 }
 
 async function aggregateAllPayments(salonId: string) {
