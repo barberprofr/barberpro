@@ -62,6 +62,7 @@ export default function ServicesPicker({ onServiceSelect, onReset, externalOpen,
   const [animatingQtyId, setAnimatingQtyId] = useState<string | null>(null);
   const [animatingProductQtyId, setAnimatingProductQtyId] = useState<string | null>(null);
   const [customAmount, setCustomAmount] = useState<string>("");
+  const [tipAmount, setTipAmount] = useState<string>("");
 
   useEffect(() => {
     onReset?.(() => {
@@ -69,6 +70,7 @@ export default function ServicesPicker({ onServiceSelect, onReset, externalOpen,
       setSelectedPrestations(new Map());
       setSelectedProducts(new Map());
       setCustomAmount("");
+      setTipAmount("");
     });
   }, [onReset]);
 
@@ -124,11 +126,12 @@ export default function ServicesPicker({ onServiceSelect, onReset, externalOpen,
   }, []);
 
   const customAmountValue = parseFloat(customAmount) || 0;
+  const tipAmountValue = parseFloat(tipAmount) || 0;
 
   const prestationsTotal = Array.from(selectedPrestations.values()).reduce(
     (sum, p) => sum + p.price * p.quantity,
     0
-  ) + customAmountValue;
+  ) + customAmountValue + tipAmountValue;
 
   const productsTotal = Array.from(selectedProducts.values()).reduce(
     (sum, p) => sum + p.price * p.quantity,
@@ -138,7 +141,7 @@ export default function ServicesPicker({ onServiceSelect, onReset, externalOpen,
   const total = prestationsTotal + productsTotal;
 
   const handleValidate = useCallback(() => {
-    if (selectedPrestations.size > 0 || selectedProducts.size > 0 || customAmountValue > 0) {
+    if (selectedPrestations.size > 0 || selectedProducts.size > 0 || customAmountValue > 0 || tipAmountValue > 0) {
       const allPrestations = Array.from(selectedPrestations.values());
       if (customAmountValue > 0) {
         allPrestations.push({
@@ -148,11 +151,20 @@ export default function ServicesPicker({ onServiceSelect, onReset, externalOpen,
           quantity: 1
         });
       }
+      if (tipAmountValue > 0) {
+        allPrestations.push({
+          id: `tip-${Date.now()}`,
+          name: "Pourboire",
+          price: tipAmountValue,
+          quantity: 1
+        });
+      }
       onServiceSelect?.(allPrestations, Array.from(selectedProducts.values()));
       setPopoverOpen(false);
       setCustomAmount("");
+      setTipAmount("");
     }
-  }, [selectedPrestations, selectedProducts, customAmountValue, onServiceSelect]);
+  }, [selectedPrestations, selectedProducts, customAmountValue, tipAmountValue, onServiceSelect]);
 
   if (!popoverOpen) return null;
 
@@ -465,6 +477,35 @@ export default function ServicesPicker({ onServiceSelect, onReset, externalOpen,
                         placeholder="0.00"
                         value={customAmount}
                         onChange={(e) => setCustomAmount(e.target.value)}
+                        className="w-full bg-transparent text-2xl font-bold text-white placeholder:text-white/30 focus:outline-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none [-moz-appearance:textfield]"
+                      />
+                    </div>
+                    <span className="text-xl font-semibold text-white/80">€</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Champ pourboire - comptabilisé uniquement dans le CA, pas dans le salaire */}
+              <div className="mt-4 pt-4 border-t border-white/10">
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="text-lg">💰</span>
+                  <span className="text-lg font-light text-pink-400 uppercase tracking-wide">Pourboire</span>
+                  <span className="text-xs text-white/40">(CA uniquement)</span>
+                </div>
+                <div className="relative w-full overflow-hidden rounded-2xl border border-pink-400/40 bg-slate-900/30 p-3 shadow-[0_10px_30px_rgba(15,23,42,0.15)] backdrop-blur-[2px]">
+                  <div className="flex items-center gap-3">
+                    <div className="relative flex h-12 w-12 items-center justify-center rounded-full flex-shrink-0 bg-gradient-to-br from-pink-500/30 via-pink-600/20 to-fuchsia-500/20 border-2 border-pink-400/50">
+                      <span className="text-xl">💰</span>
+                    </div>
+                    <div className="flex-1">
+                      <input
+                        type="number"
+                        inputMode="decimal"
+                        step="0.01"
+                        min="0"
+                        placeholder="0.00"
+                        value={tipAmount}
+                        onChange={(e) => setTipAmount(e.target.value)}
                         className="w-full bg-transparent text-2xl font-bold text-white placeholder:text-white/30 focus:outline-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none [-moz-appearance:textfield]"
                       />
                     </div>

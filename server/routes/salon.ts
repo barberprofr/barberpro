@@ -2748,7 +2748,8 @@ export const reportByDay: RequestHandler = async (req, res) => {
 
       const stylist = stylistMap.get(p.stylistId);
       const pct = typeof stylist?.commissionPct === "number" ? stylist.commissionPct : settings.commissionDefault;
-      const salary = (p.amount * pct) / 100;
+      const isTip = p.serviceName === "Pourboire";
+      const salary = isTip ? 0 : (p.amount * pct) / 100;
       monthlySalary += salary;
       salaryTotals.set(dStart, (salaryTotals.get(dStart) || 0) + salary);
 
@@ -2886,7 +2887,8 @@ export const reportByMonth: RequestHandler = async (req, res) => {
       yearlyScope.total.count += 1;
       const stylist = stylistMap.get(p.stylistId);
       const pct = typeof stylist?.commissionPct === "number" ? stylist.commissionPct : settings.commissionDefault;
-      const salary = (p.amount * pct) / 100;
+      const isTip = p.serviceName === "Pourboire";
+      const salary = isTip ? 0 : (p.amount * pct) / 100;
       yearlySalaryTotal += salary;
       monthlySalaryTotals.set(key, (monthlySalaryTotals.get(key) || 0) + salary);
     }
