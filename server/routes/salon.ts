@@ -2276,6 +2276,36 @@ export const deleteClient: RequestHandler = async (req, res) => {
   }
 };
 
+export const deletePrestation: RequestHandler = async (req, res) => {
+  try {
+    if (!(await requireAdmin(req, res))) return;
+
+    const salonId = getSalonId(req);
+    const { id } = req.params as { id: string };
+
+    const prestation = await Prestation.findOne({ id, salonId });
+    if (!prestation) {
+      return res.status(404).json({ error: "prestation not found" });
+    }
+
+    // Remove loyalty points if applicable
+    if (prestation.clientId && prestation.pointsAwarded > 0) {
+      await Client.updateOne(
+        { id: prestation.clientId, salonId },
+        { $inc: { loyaltyPoints: -prestation.pointsAwarded } }
+      );
+    }
+
+    // Delete the prestation
+    await Prestation.deleteOne({ id, salonId });
+
+    res.json({ ok: true });
+  } catch (error) {
+    console.error('Error deleting prestation:', error);
+    res.status(500).json({ error: "Erreur serveur" });
+  }
+};
+
 export const listServices: RequestHandler = async (req, res) => {
   try {
     const salonId = getSalonId(req);
