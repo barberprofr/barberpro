@@ -171,7 +171,7 @@ async function createPdf(clients: ExportClient[]): Promise<Blob> {
   });
 
   const bytes = await doc.save();
-  return new Blob([bytes], { type: "application/pdf" });
+  return new Blob([bytes as BlobPart], { type: "application/pdf" });
 }
 
 function downloadBlob(blob: Blob, filename: string) {

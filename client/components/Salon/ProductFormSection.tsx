@@ -5,6 +5,7 @@ import type { LucideIcon } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -77,8 +78,8 @@ export default function ProductFormSection({ onSuccess }: ProductFormSectionProp
   );
   const usingNewClient = useMemo(() => {
     if (clientId) return false;
-    return Boolean(sanitizedNewClientFirstName || sanitizedNewClientLastName || sanitizedNewClientEmail || sanitizedNewClientEmailConfirm || sanitizedNewClientPhone);
-  }, [clientId, sanitizedNewClientEmail, sanitizedNewClientEmailConfirm, sanitizedNewClientFirstName, sanitizedNewClientLastName, sanitizedNewClientPhone]);
+    return Boolean(sanitizedNewClientFirstName || sanitizedNewClientLastName || sanitizedNewClientPhone);
+  }, [clientId, sanitizedNewClientFirstName, sanitizedNewClientLastName, sanitizedNewClientPhone]);
   const newClientFormComplete = useMemo(() => {
     if (!usingNewClient) return false;
     return Boolean(sanitizedNewClientFirstName && sanitizedNewClientLastName && sanitizedNewClientPhone && sanitizedNewClientPhoneDigits.length === PHONE_DIGITS_REQUIRED);
