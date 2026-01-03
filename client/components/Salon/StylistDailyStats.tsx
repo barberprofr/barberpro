@@ -247,7 +247,7 @@ function StylistDaily({ id, date, commissionPct }: { id: string; date?: string; 
                     <span className="text-base font-black tracking-wide [-webkit-text-stroke:0.5px_black]">CA du jour</span>
                     <span className="text-4xl font-black tracking-wide text-fuchsia-300" style={{ WebkitTextStroke: '0.5px black' }}>{eur.format(total?.amount || 0)}</span>
                 </div>
-                <div className="text-xs text-white">{prestationTotal?.count || 0} prestation{(prestationTotal?.count ?? 0) > 1 ? "s" : ""}{dailyTipCount ? `, ${dailyTipCount} pourboire${dailyTipCount > 1 ? "s" : ""}` : ""}{dailyProductCount ? `, ${dailyProductCount} produit${dailyProductCount > 1 ? "s" : ""}` : ""}</div>
+                <div className="text-xs text-white">{prestationTotal?.count || 0} prestation{(prestationTotal?.count ?? 0) > 1 ? "s" : ""}{dailyTipAmount > 0 ? ` (pourboire${dailyTipCount > 1 ? "s" : ""} ${eur.format(dailyTipAmount)})` : ""}{dailyProductCount ? `, ${dailyProductCount} produit${dailyProductCount > 1 ? "s" : ""}` : ""}</div>
             </div>
             <div className="grid grid-cols-4 gap-1.5">
                 <div className="flex flex-col items-center justify-center rounded-lg border border-indigo-500/30 bg-gradient-to-br from-indigo-900/40 via-slate-900/60 to-slate-900/80 backdrop-blur-xl px-1.5 py-2 shadow-[0_4px_16px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.1)]">
@@ -1191,6 +1191,9 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
     const dailyTipAmount = (data as any)?.dailyTipAmount ?? 0;
     const monthlyTipAmount = (data as any)?.monthlyTipAmount ?? 0;
     const rangeTipAmount = (data as any)?.rangeTipAmount ?? 0;
+    const dailyTipCount = (data as any)?.dailyTipCount ?? 0;
+    const monthlyTipCount = (data as any)?.monthlyTipCount ?? 0;
+    const rangeTipCount = (data as any)?.rangeTipCount ?? 0;
     const rangeEntries = (data as any)?.rangeEntries || [];
     const dailyEntries = data?.dailyEntries || [];
 
@@ -1203,6 +1206,7 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
     const displayPrestationData = useTodayData ? prestationD : (useRangeData ? prestationR : (useSingleDayRange ? prestationR : prestationM));
     const displayProductCount = useTodayData ? dailyProductCount : ((useRangeData || useSingleDayRange) ? rangeProductCount : monthlyProductCount);
     const displayTipAmount = useTodayData ? dailyTipAmount : ((useRangeData || useSingleDayRange) ? rangeTipAmount : monthlyTipAmount);
+    const displayTipCount = useTodayData ? dailyTipCount : ((useRangeData || useSingleDayRange) ? rangeTipCount : monthlyTipCount);
 
     const total = displayData?.total;
     const prestationTotal = displayPrestationData?.total;
@@ -1468,7 +1472,7 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
                         <span className="text-xs font-light">Salaire ({commissionPct}%)</span>
                         <span className="text-xs font-light text-white">{eur.format(salary)}</span>
                     </div>
-                    <div className="text-xs text-slate-300">{prestationTotal?.count || 0} prestation{(prestationTotal?.count ?? 0) > 1 ? "s" : ""}{displayProductCount ? `, ${displayProductCount} produit${displayProductCount > 1 ? "s" : ""}` : ""}</div>
+                    <div className="text-xs text-slate-300">{prestationTotal?.count || 0} prestation{(prestationTotal?.count ?? 0) > 1 ? "s" : ""}{displayTipAmount > 0 ? ` (pourboire${displayTipCount > 1 ? "s" : ""} ${eur.format(displayTipAmount)})` : ""}{displayProductCount ? `, ${displayProductCount} produit${displayProductCount > 1 ? "s" : ""}` : ""}</div>
                 </div>
             )}
             {!shouldHideData && (
