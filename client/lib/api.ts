@@ -702,6 +702,25 @@ export function useDeleteService() {
   });
 }
 
+export function useDeletePrestation() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const res = await apiFetch(`/api/prestations/${id}`, { method: "DELETE", headers: { "x-admin-token": getAdminToken() || "" } });
+      if (!res.ok) await throwResponseError(res);
+      return res.json() as Promise<{ ok: true }>;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["stylist-breakdown"] });
+      qc.invalidateQueries({ queryKey: ["summary"] });
+      qc.invalidateQueries({ queryKey: ["global-breakdown"] });
+      qc.invalidateQueries({ queryKey: ["revenue-by-day"] });
+      qc.invalidateQueries({ queryKey: ["revenue-by-month"] });
+      qc.invalidateQueries({ queryKey: ["clients"] });
+    }
+  });
+}
+
 export function useReorderServices() {
   const qc = useQueryClient();
   const salonId = getSelectedSalon();
