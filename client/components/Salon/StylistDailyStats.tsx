@@ -1496,7 +1496,7 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
                                 </button>
                             </div>
                             <div className="p-2 sm:p-4 overflow-y-auto max-h-[calc(85vh-80px)]">
-                                <StylistRangeEncaissements entries={useSingleDayRange ? rangeEntries : dailyEntries} onUpdate={handleUpdatePayment} isAdmin={isAdmin} onDelete={handleDelete} />
+                                <StylistRangeEncaissements entries={useSingleDayRange ? rangeEntries : dailyEntries} onUpdate={handleUpdatePayment} isAdmin={isAdmin && isSettingsView} onDelete={handleDelete} />
                             </div>
                         </motion.div>
                     </motion.div>
@@ -1541,7 +1541,7 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
                                 </button>
                             </div>
                             <div className="p-2 sm:p-4 overflow-y-auto max-h-[calc(85vh-80px)]">
-                                <StylistRangeEncaissements entries={rangeEntries} onUpdate={handleUpdatePayment} isAdmin={isAdmin} onDelete={handleDelete} />
+                                <StylistRangeEncaissements entries={rangeEntries} onUpdate={handleUpdatePayment} isAdmin={isAdmin && isSettingsView} onDelete={handleDelete} />
                             </div>
                         </motion.div>
                     </motion.div>
