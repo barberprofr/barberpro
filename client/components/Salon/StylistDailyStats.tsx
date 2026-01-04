@@ -242,12 +242,14 @@ function StylistDaily({ id, date, commissionPct }: { id: string; date?: string; 
     const dailyNonCashTipAmount = (data as any)?.dailyNonCashTipAmount ?? 0;
     const prestationAmountWithoutTips = (prestationTotal?.amount || 0) - dailyNonCashTipAmount;
     const salary = prestationAmountWithoutTips * (commissionPct ?? 0) / 100;
+    const adjustedCashAmount = (d?.methods.cash.amount || 0) - dailyNonCashTipAmount;
+    const adjustedTotalAmount = (total?.amount || 0) - dailyNonCashTipAmount;
     return (
         <div className="rounded-2xl border border-white/25 bg-slate-800/70 p-3 shadow-inner text-sm space-y-2 backdrop-blur-sm">
             <div className="space-y-1">
                 <div className="flex items-center justify-between text-slate-100">
                     <span className="text-base font-black tracking-wide [-webkit-text-stroke:0.5px_black]">CA du jour</span>
-                    <span className="text-4xl font-black tracking-wide text-fuchsia-300" style={{ WebkitTextStroke: '0.5px black' }}>{eur.format(total?.amount || 0)}</span>
+                    <span className="text-4xl font-black tracking-wide text-fuchsia-300" style={{ WebkitTextStroke: '0.5px black' }}>{eur.format(adjustedTotalAmount)}</span>
                 </div>
                 <div className="text-xs text-white">{prestationTotal?.count || 0} prestation{(prestationTotal?.count ?? 0) > 1 ? "s" : ""}{dailyTipAmount > 0 ? ` (pourboire${dailyTipCount > 1 ? "s" : ""} ${eur.format(dailyTipAmount)})` : ""}{dailyProductCount ? `, ${dailyProductCount} produit${dailyProductCount > 1 ? "s" : ""}` : ""}</div>
             </div>
@@ -273,7 +275,7 @@ function StylistDaily({ id, date, commissionPct }: { id: string; date?: string; 
                         <svg className="h-2.5 w-2.5 text-emerald-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><rect x="2" y="6" width="20" height="12" rx="2" /><circle cx="12" cy="12" r="3" /><path d="M12 10v4m-1-3.5h2m-2 3h2" /></svg>
                     </span>
                     <div className="text-[9px] font-semibold uppercase text-white/80">ESPÈCES</div>
-                    <div className="text-sm font-bold text-white">{eur.format(d?.methods.cash.amount || 0)}</div>
+                    <div className={`text-sm font-bold ${adjustedCashAmount < 0 ? 'text-red-400' : 'text-white'}`}>{eur.format(adjustedCashAmount)}</div>
                     <div className="text-[9px] text-white/50">{d?.methods.cash.count || 0} prest.</div>
                 </div>
                 <div className="flex flex-col items-center justify-center rounded-lg border border-violet-500/30 bg-gradient-to-br from-violet-900/40 via-fuchsia-900/40 to-slate-900/80 backdrop-blur-xl px-1.5 py-2 shadow-[0_4px_16px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.1)]">
@@ -1220,6 +1222,8 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
     const prestationTotal = displayPrestationData?.total;
     const prestationAmountWithoutTips = (prestationTotal?.amount || 0) - displayNonCashTipAmount;
     const salary = prestationAmountWithoutTips * (commissionPct ?? 0) / 100;
+    const adjustedCashAmount = (displayData?.methods.cash.amount || 0) - displayNonCashTipAmount;
+    const adjustedTotalAmount = (total?.amount || 0) - displayNonCashTipAmount;
 
     const formatDateDisplay = (dateStr: string) => {
         if (!dateStr) return "";
@@ -1472,7 +1476,7 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
                                         : "CA du mois"
                             }
                         </span>
-                        <span className="text-2xl font-black leading-none">{eur.format(total?.amount || 0)}</span>
+                        <span className="text-2xl font-black leading-none">{eur.format(adjustedTotalAmount)}</span>
                     </div>
                     <div className="flex items-center justify-between text-slate-100">
                         <span className="text-xs font-light">Salaire ({commissionPct}%)</span>
@@ -1488,7 +1492,7 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
                     <div className="bg-white/12 px-2 py-1"><span className="inline-flex items-center px-1.5 py-0.5 rounded-full border-2 border-amber-300 bg-amber-100/30 text-amber-100 text-[8px] font-semibold"><span className="flex flex-col leading-tight text-center"><span>Planity</span><span>Treatwell</span></span></span></div>
                     <div className="bg-white/12 px-2 py-1"><span className="inline-flex items-center px-1.5 py-0.5 rounded-full border-2 border-indigo-300 bg-indigo-100/30 text-indigo-100 text-[10px] font-semibold">Carte</span></div>
                     <div className="px-2 py-1 font-bold text-xs">{useTodayData ? "Jour" : useSingleDayRange ? "Jour" : useRangeData ? "Période" : "Mois"}</div>
-                    <div className="px-2 py-1 text-xs">{eur.format(displayData?.methods.cash.amount || 0)}</div>
+                    <div className={`px-2 py-1 text-xs ${adjustedCashAmount < 0 ? 'text-red-400' : ''}`}>{eur.format(adjustedCashAmount)}</div>
                     <div className="px-2 py-1 text-xs">{eur.format(displayData?.methods.check.amount || 0)}</div>
                     <div className="px-2 py-1 text-xs">{eur.format(displayData?.methods.card.amount || 0)}</div>
                 </div>
