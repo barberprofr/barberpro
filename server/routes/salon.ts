@@ -1969,26 +1969,20 @@ export const getGlobalBreakdown: RequestHandler = async (req, res) => {
       const isCashTip = isTip && method === "cash";
 
       if (isDaily) {
-        if (!isCashTip) {
-          daily.total.amount += p.amount;
-        }
         if (!isTip) {
+          daily.total.amount += p.amount;
           daily.total.count += 1;
-        }
-        if (method === "mixed" && (p as any).mixedCardAmount && (p as any).mixedCashAmount) {
-          daily.methods.card.amount += (p as any).mixedCardAmount;
-          daily.methods.cash.amount += (p as any).mixedCashAmount;
-          daily.methods.mixed.count += 1;
-        } else if (daily.methods[method]) {
-          if (!isCashTip) {
+          if (method === "mixed" && (p as any).mixedCardAmount && (p as any).mixedCashAmount) {
+            daily.methods.card.amount += (p as any).mixedCardAmount;
+            daily.methods.cash.amount += (p as any).mixedCashAmount;
+            daily.methods.mixed.count += 1;
+          } else if (daily.methods[method]) {
             daily.methods[method].amount += p.amount;
+            daily.methods[method].count += 1;
           }
-          daily.methods[method].count += 1;
-        }
-        if (isTip) {
-          dailyTipCount++;
-        } else {
           dailyPrestationCount++;
+        } else {
+          dailyTipCount++;
         }
         dailyEntries.push({
           id: p.id,
@@ -2002,49 +1996,37 @@ export const getGlobalBreakdown: RequestHandler = async (req, res) => {
         });
       }
       if (isMonthly) {
-        if (!isCashTip) {
-          monthly.total.amount += p.amount;
-        }
         if (!isTip) {
+          monthly.total.amount += p.amount;
           monthly.total.count += 1;
-        }
-        if (method === "mixed" && (p as any).mixedCardAmount && (p as any).mixedCashAmount) {
-          monthly.methods.card.amount += (p as any).mixedCardAmount;
-          monthly.methods.cash.amount += (p as any).mixedCashAmount;
-          monthly.methods.mixed.count += 1;
-        } else if (monthly.methods[method]) {
-          if (!isCashTip) {
+          if (method === "mixed" && (p as any).mixedCardAmount && (p as any).mixedCashAmount) {
+            monthly.methods.card.amount += (p as any).mixedCardAmount;
+            monthly.methods.cash.amount += (p as any).mixedCashAmount;
+            monthly.methods.mixed.count += 1;
+          } else if (monthly.methods[method]) {
             monthly.methods[method].amount += p.amount;
+            monthly.methods[method].count += 1;
           }
-          monthly.methods[method].count += 1;
-        }
-        if (isTip) {
-          monthlyTipCount++;
-        } else {
           monthlyPrestationCount++;
+        } else {
+          monthlyTipCount++;
         }
       }
       if (isRange) {
-        if (!isCashTip) {
-          range.total.amount += p.amount;
-        }
         if (!isTip) {
+          range.total.amount += p.amount;
           range.total.count += 1;
-        }
-        if (method === "mixed" && (p as any).mixedCardAmount && (p as any).mixedCashAmount) {
-          range.methods.card.amount += (p as any).mixedCardAmount;
-          range.methods.cash.amount += (p as any).mixedCashAmount;
-          range.methods.mixed.count += 1;
-        } else if (range.methods[method]) {
-          if (!isCashTip) {
+          if (method === "mixed" && (p as any).mixedCardAmount && (p as any).mixedCashAmount) {
+            range.methods.card.amount += (p as any).mixedCardAmount;
+            range.methods.cash.amount += (p as any).mixedCashAmount;
+            range.methods.mixed.count += 1;
+          } else if (range.methods[method]) {
             range.methods[method].amount += p.amount;
+            range.methods[method].count += 1;
           }
-          range.methods[method].count += 1;
-        }
-        if (isTip) {
-          rangeTipCount++;
-        } else {
           rangePrestationCount++;
+        } else {
+          rangeTipCount++;
         }
         rangeEntries.push({
           id: p.id,
