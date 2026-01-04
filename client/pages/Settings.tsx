@@ -735,6 +735,9 @@ function GlobalRevenueStats() {
   const dailyPrestationCount = data?.dailyPrestationCount ?? 0;
   const monthlyPrestationCount = data?.monthlyPrestationCount ?? 0;
   const rangePrestationCount = data?.rangePrestationCount ?? 0;
+  const dailyTipAmount = (data as any)?.dailyTipAmount ?? 0;
+  const monthlyTipAmount = (data as any)?.monthlyTipAmount ?? 0;
+  const rangeTipAmount = (data as any)?.rangeTipAmount ?? 0;
   const rangeEntries = data?.rangeEntries || [];
   const dailyEntries = data?.dailyEntries || [];
 
@@ -744,6 +747,7 @@ function GlobalRevenueStats() {
   const displayData = useTodayData ? d : (useRangeData ? r : (useSingleDayRange ? r : m));
   const displayProductCount = useTodayData ? dailyProductCount : ((useRangeData || useSingleDayRange) ? rangeProductCount : monthlyProductCount);
   const displayPrestationCount = useTodayData ? dailyPrestationCount : ((useRangeData || useSingleDayRange) ? rangePrestationCount : monthlyPrestationCount);
+  const displayTipAmount = useTodayData ? dailyTipAmount : ((useRangeData || useSingleDayRange) ? rangeTipAmount : monthlyTipAmount);
   const displayEntries = useTodayData ? dailyEntries : rangeEntries;
 
   const total = displayData?.total;
@@ -975,7 +979,7 @@ function GlobalRevenueStats() {
           </span>
           <span className="text-2xl font-black leading-none">{eur.format(total?.amount || 0)}</span>
         </div>
-        <div className="text-xs text-slate-300">{displayPrestationCount} prestation{displayPrestationCount > 1 ? "s" : ""}{displayProductCount ? `, ${displayProductCount} produit${displayProductCount > 1 ? "s" : ""}` : ""}</div>
+        <div className="text-xs text-slate-300">{displayPrestationCount} prestation{displayPrestationCount > 1 ? "s" : ""}{displayTipAmount > 0 ? ` (pourboires ${eur.format(displayTipAmount)})` : ""}{displayProductCount ? `, ${displayProductCount} produit${displayProductCount > 1 ? "s" : ""}` : ""}</div>
       </div>
       <div className="grid grid-cols-4 text-sm border rounded-md overflow-hidden">
         <div className="bg-white/12 px-3 py-2"></div>

@@ -1958,6 +1958,9 @@ export const getGlobalBreakdown: RequestHandler = async (req, res) => {
     let dailyTipCount = 0;
     let monthlyTipCount = 0;
     let rangeTipCount = 0;
+    let dailyTipAmount = 0;
+    let monthlyTipAmount = 0;
+    let rangeTipAmount = 0;
 
     for (const p of prestations) {
       const ts = startOfDayParis(p.timestamp);
@@ -1983,6 +1986,7 @@ export const getGlobalBreakdown: RequestHandler = async (req, res) => {
           dailyPrestationCount++;
         } else {
           dailyTipCount++;
+          dailyTipAmount += p.amount;
         }
         dailyEntries.push({
           id: p.id,
@@ -2010,6 +2014,7 @@ export const getGlobalBreakdown: RequestHandler = async (req, res) => {
           monthlyPrestationCount++;
         } else {
           monthlyTipCount++;
+          monthlyTipAmount += p.amount;
         }
       }
       if (isRange) {
@@ -2027,6 +2032,7 @@ export const getGlobalBreakdown: RequestHandler = async (req, res) => {
           rangePrestationCount++;
         } else {
           rangeTipCount++;
+          rangeTipAmount += p.amount;
         }
         rangeEntries.push({
           id: p.id,
@@ -2118,6 +2124,9 @@ export const getGlobalBreakdown: RequestHandler = async (req, res) => {
       dailyTipCount,
       monthlyTipCount,
       rangeTipCount: startDateMs && endDateMs ? rangeTipCount : 0,
+      dailyTipAmount,
+      monthlyTipAmount,
+      rangeTipAmount: startDateMs && endDateMs ? rangeTipAmount : 0,
     });
   } catch (error) {
     console.error('Error getting global breakdown:', error);
