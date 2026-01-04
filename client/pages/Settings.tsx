@@ -738,6 +738,9 @@ function GlobalRevenueStats() {
   const dailyTipAmount = (data as any)?.dailyTipAmount ?? 0;
   const monthlyTipAmount = (data as any)?.monthlyTipAmount ?? 0;
   const rangeTipAmount = (data as any)?.rangeTipAmount ?? 0;
+  const dailySalaryTotal = (data as any)?.dailySalaryTotal ?? 0;
+  const monthlySalaryTotal = (data as any)?.monthlySalaryTotal ?? 0;
+  const rangeSalaryTotal = (data as any)?.rangeSalaryTotal ?? 0;
   const rangeEntries = data?.rangeEntries || [];
   const dailyEntries = data?.dailyEntries || [];
 
@@ -748,6 +751,7 @@ function GlobalRevenueStats() {
   const displayProductCount = useTodayData ? dailyProductCount : ((useRangeData || useSingleDayRange) ? rangeProductCount : monthlyProductCount);
   const displayPrestationCount = useTodayData ? dailyPrestationCount : ((useRangeData || useSingleDayRange) ? rangePrestationCount : monthlyPrestationCount);
   const displayTipAmount = useTodayData ? dailyTipAmount : ((useRangeData || useSingleDayRange) ? rangeTipAmount : monthlyTipAmount);
+  const displaySalaryTotal = useTodayData ? dailySalaryTotal : ((useRangeData || useSingleDayRange) ? rangeSalaryTotal : monthlySalaryTotal);
   const displayEntries = useTodayData ? dailyEntries : rangeEntries;
 
   const total = displayData?.total;
@@ -980,6 +984,7 @@ function GlobalRevenueStats() {
           <span className="text-2xl font-black leading-none">{eur.format(total?.amount || 0)}</span>
         </div>
         <div className="text-xs text-slate-300">{displayPrestationCount} prestation{displayPrestationCount > 1 ? "s" : ""}{displayTipAmount > 0 ? ` (pourboires ${eur.format(displayTipAmount)})` : ""}{displayProductCount ? `, ${displayProductCount} produit${displayProductCount > 1 ? "s" : ""}` : ""}</div>
+        <div className="text-xs text-emerald-400">Bénéfice net: {eur.format(Math.max(0, (total?.amount || 0) - displaySalaryTotal))}</div>
       </div>
       <div className="grid grid-cols-4 text-sm border rounded-md overflow-hidden">
         <div className="bg-white/12 px-3 py-2"></div>

@@ -1938,14 +1938,21 @@ export const getGlobalBreakdown: RequestHandler = async (req, res) => {
     }
 
     const todayStart = startOfDayParis(ref);
-    const [prestations, products] = await Promise.all([
+    const [prestations, products, stylists, settings] = await Promise.all([
       Prestation.find({ salonId }),
-      Product.find({ salonId })
+      Product.find({ salonId }),
+      Stylist.find({ salonId }),
+      getSettings(salonId)
     ]);
+
+    const stylistMap = new Map(stylists.map(s => [s.id, s]));
 
     const daily = makeScope();
     const monthly = makeScope();
     const range = makeScope();
+    let dailySalaryTotal = 0;
+    let monthlySalaryTotal = 0;
+    let rangeSalaryTotal = 0;
     const dailyEntries: Array<{ id: string; timestamp: number; amount: number; paymentMethod: PaymentMethod; name?: string; kind: "prestation" | "produit"; mixedCardAmount?: number; mixedCashAmount?: number }> = [];
     const rangeEntries: Array<{ id: string; timestamp: number; amount: number; paymentMethod: PaymentMethod; name?: string; kind: "prestation" | "produit"; mixedCardAmount?: number; mixedCashAmount?: number }> = [];
     let dailyProductCount = 0;
@@ -1971,6 +1978,10 @@ export const getGlobalBreakdown: RequestHandler = async (req, res) => {
       const isTip = p.serviceName === "Pourboire";
       const isCashTip = isTip && method === "cash";
 
+      const stylist = stylistMap.get(p.stylistId);
+      const pct = typeof stylist?.commissionPct === "number" ? stylist.commissionPct : settings.commissionDefault;
+      const salary = isTip ? 0 : (p.amount * pct) / 100;
+
       if (isDaily) {
         if (!isTip) {
           daily.total.amount += p.amount;
@@ -1984,6 +1995,7 @@ export const getGlobalBreakdown: RequestHandler = async (req, res) => {
             daily.methods[method].count += 1;
           }
           dailyPrestationCount++;
+          dailySalaryTotal += salary;
         } else {
           dailyTipCount++;
           dailyTipAmount += p.amount;
@@ -2012,6 +2024,7 @@ export const getGlobalBreakdown: RequestHandler = async (req, res) => {
             monthly.methods[method].count += 1;
           }
           monthlyPrestationCount++;
+          monthlySalaryTotal += salary;
         } else {
           monthlyTipCount++;
           monthlyTipAmount += p.amount;
@@ -2030,6 +2043,7 @@ export const getGlobalBreakdown: RequestHandler = async (req, res) => {
             range.methods[method].count += 1;
           }
           rangePrestationCount++;
+          rangeSalaryTotal += salary;
         } else {
           rangeTipCount++;
           rangeTipAmount += p.amount;
@@ -2127,6 +2141,9 @@ export const getGlobalBreakdown: RequestHandler = async (req, res) => {
       dailyTipAmount,
       monthlyTipAmount,
       rangeTipAmount: startDateMs && endDateMs ? rangeTipAmount : 0,
+      dailySalaryTotal,
+      monthlySalaryTotal,
+      rangeSalaryTotal: startDateMs && endDateMs ? rangeSalaryTotal : 0,
     });
   } catch (error) {
     console.error('Error getting global breakdown:', error);
