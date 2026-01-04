@@ -2947,35 +2947,28 @@ export const reportByMonth: RequestHandler = async (req, res) => {
       }
       const method = p.paymentMethod as PaymentMethod;
       const isTip = p.serviceName === "Pourboire";
-      const isCashTip = isTip && method === "cash";
       
-      if (!isCashTip) {
+      if (!isTip) {
         scope.total.amount += p.amount;
-      }
-      scope.total.count += 1;
-      if (method === "mixed" && (p as any).mixedCardAmount && (p as any).mixedCashAmount) {
-        scope.methods.card.amount += (p as any).mixedCardAmount;
-        scope.methods.cash.amount += (p as any).mixedCashAmount;
-        scope.methods.mixed.count += 1;
-        yearlyScope.methods.card.amount += (p as any).mixedCardAmount;
-        yearlyScope.methods.cash.amount += (p as any).mixedCashAmount;
-        yearlyScope.methods.mixed.count += 1;
-      } else if (scope.methods[method]) {
-        if (!isCashTip) {
+        scope.total.count += 1;
+        if (method === "mixed" && (p as any).mixedCardAmount && (p as any).mixedCashAmount) {
+          scope.methods.card.amount += (p as any).mixedCardAmount;
+          scope.methods.cash.amount += (p as any).mixedCashAmount;
+          scope.methods.mixed.count += 1;
+          yearlyScope.methods.card.amount += (p as any).mixedCardAmount;
+          yearlyScope.methods.cash.amount += (p as any).mixedCashAmount;
+          yearlyScope.methods.mixed.count += 1;
+        } else if (scope.methods[method]) {
           scope.methods[method].amount += p.amount;
+          scope.methods[method].count += 1;
           if (yearlyScope.methods[method]) {
             yearlyScope.methods[method].amount += p.amount;
+            yearlyScope.methods[method].count += 1;
           }
         }
-        scope.methods[method].count += 1;
-        if (yearlyScope.methods[method]) {
-          yearlyScope.methods[method].count += 1;
-        }
-      }
-      if (!isCashTip) {
         yearlyScope.total.amount += p.amount;
+        yearlyScope.total.count += 1;
       }
-      yearlyScope.total.count += 1;
       const stylist = stylistMap.get(p.stylistId);
       const pct = typeof stylist?.commissionPct === "number" ? stylist.commissionPct : settings.commissionDefault;
       const salary = isTip ? 0 : (p.amount * pct) / 100;
