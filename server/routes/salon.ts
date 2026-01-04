@@ -515,6 +515,9 @@ async function aggregateAllPayments(salonId: string) {
   const monthly = makeScope();
 
   for (const p of prestations) {
+    const isTip = p.serviceName === "Pourboire";
+    if (isTip) continue;
+    
     const inc = (scope: ReturnType<typeof makeScope>) => {
       scope.total.amount += p.amount;
       scope.total.count += 1;
