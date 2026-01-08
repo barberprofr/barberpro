@@ -535,6 +535,7 @@ function StylistRangeEncaissements({ entries, onUpdate, isAdmin = false, onDelet
 
 function TransactionRow({ entry: e, fmt, onUpdate, isAdmin = false, onDelete }: { entry: any, fmt: (ts: number) => string, onUpdate: (id: string, kind: "prestation" | "produit", method: "cash" | "check" | "card") => void, isAdmin?: boolean, onDelete?: (id: string) => void }) {
     const [open, setOpen] = useState(false);
+    const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
 
     const getPaymentStyle = (method: string) => {
         switch (method) {
@@ -625,7 +626,10 @@ function TransactionRow({ entry: e, fmt, onUpdate, isAdmin = false, onDelete }: 
                 <div className="flex justify-center">
                     <button
                         type="button"
-                        onClick={() => onDelete(e.id)}
+                        onClick={() => {
+                            playDeleteWarningSound();
+                            setConfirmDeleteOpen(true);
+                        }}
                         className="flex h-7 w-7 items-center justify-center rounded-full border border-red-500/30 bg-red-500/10 text-red-400 transition hover:bg-red-500/20 hover:text-red-300"
                         title="Supprimer"
                     >
@@ -635,6 +639,62 @@ function TransactionRow({ entry: e, fmt, onUpdate, isAdmin = false, onDelete }: 
             )}
             {isAdmin && e.kind !== "prestation" && (
                 <div></div>
+            )}
+
+            {confirmDeleteOpen && createPortal(
+                <AnimatePresence>
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.15 }}
+                        className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+                        onClick={() => setConfirmDeleteOpen(false)}
+                    >
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                            transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                            onClick={(ev) => ev.stopPropagation()}
+                            className="w-full max-w-sm bg-gradient-to-br from-slate-900/98 via-red-900/30 to-slate-800/98 border border-red-500/30 backdrop-blur-xl p-5 rounded-3xl shadow-[0_25px_80px_rgba(0,0,0,0.6),0_0_40px_rgba(239,68,68,0.15)]"
+                        >
+                            <div className="flex flex-col items-center text-center">
+                                <div className="flex h-14 w-14 items-center justify-center rounded-full border border-red-400/40 bg-red-500/20 mb-4">
+                                    <Trash2 className="h-7 w-7 text-red-300" />
+                                </div>
+                                <h3 className="text-lg font-bold text-white mb-2">Supprimer cette prestation ?</h3>
+                                <p className="text-sm text-white/60 mb-1">
+                                    <span className="font-semibold text-white">{e.name || "Prestation"}</span> - {eur.format(e.amount)}
+                                </p>
+                                <p className="text-xs text-white/50 mb-6">
+                                    Cette action est irréversible. Les points de fidélité associés seront également supprimés.
+                                </p>
+                                <div className="flex gap-3 w-full">
+                                    <button
+                                        type="button"
+                                        onClick={() => setConfirmDeleteOpen(false)}
+                                        className="flex-1 py-2.5 px-4 rounded-xl border border-white/20 bg-white/5 text-white font-medium transition hover:bg-white/10"
+                                    >
+                                        Annuler
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            playDeleteConfirmSound();
+                                            onDelete(e.id);
+                                            setConfirmDeleteOpen(false);
+                                        }}
+                                        className="flex-1 py-2.5 px-4 rounded-xl border border-red-500/50 bg-red-500/20 text-red-300 font-medium transition hover:bg-red-500/30"
+                                    >
+                                        Supprimer
+                                    </button>
+                                </div>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                </AnimatePresence>,
+                document.body
             )}
         </div>
     );
