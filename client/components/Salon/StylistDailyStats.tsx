@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useStylistBreakdown, useUpdateTransactionPaymentMethod, useUpdateStylistHiddenMonths, useUpdateStylistHiddenPeriods, useDeletePrestation, HiddenPeriod } from "@/lib/api";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, ChevronLeft, ChevronRight, List, EyeOff, Eye, X, Trash2, Calendar } from "lucide-react";
+import { ChevronDown, ChevronLeft, ChevronRight, List, EyeOff, Eye, X, Trash2, Calendar, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { isAdminClient } from "@/lib/admin";
 import { playDeleteWarningSound, playDeleteConfirmSound } from "@/lib/sounds";
@@ -336,6 +336,7 @@ function StylistEncaissements({ id, date }: { id: string; date?: string }) {
 function RangeTransactionRow({ entry: e, onUpdate, isAdmin = false, onDelete }: { entry: any, onUpdate: (id: string, kind: "prestation" | "produit", method: "cash" | "check" | "card") => void, isAdmin?: boolean, onDelete?: (id: string) => void }) {
     const [open, setOpen] = useState(false);
     const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+    const [successDeleteOpen, setSuccessDeleteOpen] = useState(false);
     const fmtTime = (ts: number) => {
         const d = new Date(ts);
         return d.toLocaleTimeString("fr-FR", { timeZone: "Europe/Paris", hour: "2-digit", minute: "2-digit" });
@@ -490,12 +491,47 @@ function RangeTransactionRow({ entry: e, onUpdate, isAdmin = false, onDelete }: 
                                             playDeleteConfirmSound();
                                             onDelete(e.id);
                                             setConfirmDeleteOpen(false);
+                                            setSuccessDeleteOpen(true);
+                                            setTimeout(() => setSuccessDeleteOpen(false), 2000);
                                         }}
                                         className="flex-1 py-2.5 px-4 rounded-xl border border-red-500/50 bg-red-500/20 text-red-300 font-medium transition hover:bg-red-500/30"
                                     >
                                         Supprimer
                                     </button>
                                 </div>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                </AnimatePresence>,
+                document.body
+            )}
+
+            {successDeleteOpen && createPortal(
+                <AnimatePresence>
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.15 }}
+                        className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+                        onClick={() => setSuccessDeleteOpen(false)}
+                    >
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                            transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                            onClick={(ev) => ev.stopPropagation()}
+                            className="w-full max-w-sm bg-gradient-to-br from-slate-900/98 via-emerald-900/30 to-slate-800/98 border border-emerald-500/30 backdrop-blur-xl p-5 rounded-3xl shadow-[0_25px_80px_rgba(0,0,0,0.6),0_0_40px_rgba(16,185,129,0.15)]"
+                        >
+                            <div className="flex flex-col items-center text-center">
+                                <div className="flex h-14 w-14 items-center justify-center rounded-full border border-emerald-400/40 bg-emerald-500/20 mb-4">
+                                    <Check className="h-7 w-7 text-emerald-300" />
+                                </div>
+                                <h3 className="text-lg font-bold text-white mb-2">Prestation supprimée !</h3>
+                                <p className="text-sm text-white/60">
+                                    La prestation a été supprimée avec succès.
+                                </p>
                             </div>
                         </motion.div>
                     </motion.div>
@@ -536,6 +572,7 @@ function StylistRangeEncaissements({ entries, onUpdate, isAdmin = false, onDelet
 function TransactionRow({ entry: e, fmt, onUpdate, isAdmin = false, onDelete }: { entry: any, fmt: (ts: number) => string, onUpdate: (id: string, kind: "prestation" | "produit", method: "cash" | "check" | "card") => void, isAdmin?: boolean, onDelete?: (id: string) => void }) {
     const [open, setOpen] = useState(false);
     const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+    const [successDeleteOpen, setSuccessDeleteOpen] = useState(false);
 
     const getPaymentStyle = (method: string) => {
         switch (method) {
@@ -684,12 +721,47 @@ function TransactionRow({ entry: e, fmt, onUpdate, isAdmin = false, onDelete }: 
                                             playDeleteConfirmSound();
                                             onDelete(e.id);
                                             setConfirmDeleteOpen(false);
+                                            setSuccessDeleteOpen(true);
+                                            setTimeout(() => setSuccessDeleteOpen(false), 2000);
                                         }}
                                         className="flex-1 py-2.5 px-4 rounded-xl border border-red-500/50 bg-red-500/20 text-red-300 font-medium transition hover:bg-red-500/30"
                                     >
                                         Supprimer
                                     </button>
                                 </div>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                </AnimatePresence>,
+                document.body
+            )}
+
+            {successDeleteOpen && createPortal(
+                <AnimatePresence>
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.15 }}
+                        className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+                        onClick={() => setSuccessDeleteOpen(false)}
+                    >
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                            transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                            onClick={(ev) => ev.stopPropagation()}
+                            className="w-full max-w-sm bg-gradient-to-br from-slate-900/98 via-emerald-900/30 to-slate-800/98 border border-emerald-500/30 backdrop-blur-xl p-5 rounded-3xl shadow-[0_25px_80px_rgba(0,0,0,0.6),0_0_40px_rgba(16,185,129,0.15)]"
+                        >
+                            <div className="flex flex-col items-center text-center">
+                                <div className="flex h-14 w-14 items-center justify-center rounded-full border border-emerald-400/40 bg-emerald-500/20 mb-4">
+                                    <Check className="h-7 w-7 text-emerald-300" />
+                                </div>
+                                <h3 className="text-lg font-bold text-white mb-2">Prestation supprimée !</h3>
+                                <p className="text-sm text-white/60">
+                                    La prestation a été supprimée avec succès.
+                                </p>
                             </div>
                         </motion.div>
                     </motion.div>
