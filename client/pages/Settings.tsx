@@ -994,6 +994,7 @@ function GlobalRevenueStats() {
         <div className="text-xs text-slate-300 space-y-0.5">
           <div>CA Prestation : {eur.format(displayPrestationAmount)}</div>
           <div>CA Produit : {eur.format(displayProductAmount)}</div>
+          <div className="font-semibold">Total : {eur.format(displayPrestationAmount + displayProductAmount)}</div>
         </div>
         <div className="text-xs text-emerald-400">Bénéfice net: {eur.format(Math.max(0, (total?.amount || 0) - displaySalaryTotal))}</div>
       </div>
