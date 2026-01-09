@@ -977,7 +977,7 @@ function GlobalRevenueStats() {
         </>
       )}
 
-      <div className="rounded-3xl border border-white/10 bg-slate-950/50 p-4 shadow-inner text-sm space-y-3">
+      <div className="rounded-3xl border border-white/10 bg-slate-950/50 p-4 shadow-inner text-sm space-y-2">
         <div className="flex items-baseline justify-between text-slate-100">
           <span className="text-sm font-light text-white leading-none">
             {useTodayData
@@ -991,10 +991,19 @@ function GlobalRevenueStats() {
           </span>
           <span className="text-2xl font-black leading-none">{eur.format(total?.amount || 0)}</span>
         </div>
-        <div className="text-xs text-slate-300 space-y-0.5">
-          <div>CA Prestation : {eur.format(displayPrestationAmount)}</div>
-          <div>CA Produit : {eur.format(displayProductAmount)}</div>
-          <div className="font-semibold">Total : {eur.format(displayPrestationAmount + displayProductAmount)}</div>
+        <div className="text-xs text-slate-300 space-y-1">
+          <div className="flex justify-between">
+            <span>CA Prestations</span>
+            <span>{eur.format(displayPrestationAmount)}</span>
+          </div>
+          <div className="flex justify-between">
+            <span>CA Produits</span>
+            <span>{eur.format(displayProductAmount)}</span>
+          </div>
+          <div className="flex justify-between font-semibold text-white pt-1 border-t border-white/10">
+            <span>TOTAL</span>
+            <span>{eur.format(displayPrestationAmount + displayProductAmount)}</span>
+          </div>
         </div>
         <div className="text-xs text-emerald-400">Bénéfice net: {eur.format(Math.max(0, (total?.amount || 0) - displaySalaryTotal))}</div>
       </div>
