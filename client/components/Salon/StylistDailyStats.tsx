@@ -1636,8 +1636,13 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
                             <span>Salaire versé ({commissionPct}%)</span>
                             <span>{eur.format(salary)}</span>
                         </div>
+                        {displayTipAmount > 0 && (
+                            <div className="flex justify-between text-emerald-400 pt-1">
+                                <span>Pourboire{displayTipCount > 1 ? "s" : ""}</span>
+                                <span>{eur.format(displayTipAmount)}</span>
+                            </div>
+                        )}
                     </div>
-                    <div className="text-xs text-slate-300">{prestationTotal?.count || 0} prestation{(prestationTotal?.count ?? 0) > 1 ? "s" : ""}{displayTipAmount > 0 ? ` (pourboire${displayTipCount > 1 ? "s" : ""} ${eur.format(displayTipAmount)})` : ""}{displayProductCount ? `, ${displayProductCount} produit${displayProductCount > 1 ? "s" : ""}` : ""}</div>
                 </div>
             ) : (
                 <div className="rounded-2xl border border-white/10 bg-slate-950/50 p-3 shadow-inner text-sm space-y-1">
