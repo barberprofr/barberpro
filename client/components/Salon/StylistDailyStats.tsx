@@ -1658,7 +1658,12 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
                         <span className="text-base font-black tracking-wide [-webkit-text-stroke:0.5px_black]">Total</span>
                         <span className="text-2xl font-black tracking-wide text-fuchsia-300" style={{ WebkitTextStroke: '0.5px black' }}>{eur.format(adjustedTotalAmount)}</span>
                     </div>
-                    <div className="text-xs text-slate-300">{prestationTotal?.count || 0} prestation{(prestationTotal?.count ?? 0) > 1 ? "s" : ""}{displayTipAmount > 0 ? ` (pourboire${displayTipCount > 1 ? "s" : ""} ${eur.format(displayTipAmount)})` : ""}{displayProductCount ? `, ${displayProductCount} produit${displayProductCount > 1 ? "s" : ""}` : ""}</div>
+                    {displayTipAmount > 0 && (
+                        <div className="flex items-center justify-between text-emerald-400 pt-1">
+                            <span className="text-sm font-medium">Pourboire{displayTipCount > 1 ? "s" : ""}</span>
+                            <span className="text-lg font-bold">{eur.format(displayTipAmount)}</span>
+                        </div>
+                    )}
                 </div>
             )}
             {!shouldHideData && (
