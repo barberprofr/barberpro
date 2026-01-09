@@ -241,15 +241,23 @@ function StylistDaily({ id, date, commissionPct }: { id: string; date?: string; 
     const dailyTipAmount = (data as any)?.dailyTipAmount ?? 0;
     const dailyNonCashTipAmount = (data as any)?.dailyNonCashTipAmount ?? 0;
     const prestationAmountWithoutTips = (prestationTotal?.amount || 0) - dailyNonCashTipAmount;
-    const salary = prestationAmountWithoutTips * (commissionPct ?? 0) / 100;
     const adjustedCashAmount = (d?.methods.cash.amount || 0) - dailyNonCashTipAmount;
     const adjustedTotalAmount = (total?.amount || 0) - dailyNonCashTipAmount;
+    const productAmount = adjustedTotalAmount - prestationAmountWithoutTips;
     return (
         <div className="rounded-2xl border border-white/25 bg-slate-800/70 p-3 shadow-inner text-sm space-y-2 backdrop-blur-sm">
             <div className="space-y-1">
                 <div className="flex items-center justify-between text-slate-100">
-                    <span className="text-base font-black tracking-wide [-webkit-text-stroke:0.5px_black]">CA du jour</span>
-                    <span className="text-4xl font-black tracking-wide text-fuchsia-300" style={{ WebkitTextStroke: '0.5px black' }}>{eur.format(adjustedTotalAmount)}</span>
+                    <span className="text-sm font-medium text-white/80">CA Prestation</span>
+                    <span className="text-lg font-bold text-white">{eur.format(prestationAmountWithoutTips)}</span>
+                </div>
+                <div className="flex items-center justify-between text-slate-100">
+                    <span className="text-sm font-medium text-white/80">CA Produit</span>
+                    <span className="text-lg font-bold text-white">{eur.format(productAmount)}</span>
+                </div>
+                <div className="flex items-center justify-between text-slate-100 pt-1 border-t border-white/20">
+                    <span className="text-base font-black tracking-wide [-webkit-text-stroke:0.5px_black]">Total</span>
+                    <span className="text-2xl font-black tracking-wide text-fuchsia-300" style={{ WebkitTextStroke: '0.5px black' }}>{eur.format(adjustedTotalAmount)}</span>
                 </div>
                 <div className="text-xs text-white">{prestationTotal?.count || 0} prestation{(prestationTotal?.count ?? 0) > 1 ? "s" : ""}{dailyTipAmount > 0 ? ` (pourboire${dailyTipCount > 1 ? "s" : ""} ${eur.format(dailyTipAmount)})` : ""}{dailyProductCount ? `, ${dailyProductCount} produit${dailyProductCount > 1 ? "s" : ""}` : ""}</div>
             </div>
@@ -1353,9 +1361,9 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
     const total = displayData?.total;
     const prestationTotal = displayPrestationData?.total;
     const prestationAmountWithoutTips = (prestationTotal?.amount || 0) - displayNonCashTipAmount;
-    const salary = prestationAmountWithoutTips * (commissionPct ?? 0) / 100;
     const adjustedCashAmount = (displayData?.methods.cash.amount || 0) - displayNonCashTipAmount;
     const adjustedTotalAmount = (total?.amount || 0) - displayNonCashTipAmount;
+    const productAmount = adjustedTotalAmount - prestationAmountWithoutTips;
 
     const formatDateDisplay = (dateStr: string) => {
         if (!dateStr) return "";
@@ -1597,22 +1605,17 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
                 </div>
             ) : (
                 <div className="rounded-2xl border border-white/10 bg-slate-950/50 p-3 shadow-inner text-sm space-y-1">
-                    <div className="flex items-baseline justify-between text-slate-100">
-                        <span className="text-sm font-light text-white leading-none">
-                            {useTodayData
-                                ? "CA du jour"
-                                : useSingleDayRange
-                                    ? `CA du jour (${formatDateDisplay(startDate)})`
-                                    : useRangeData
-                                        ? `CA du ${formatDateDisplay(startDate)} au ${formatDateDisplay(endDate)}`
-                                        : "CA du mois"
-                            }
-                        </span>
-                        <span className="text-2xl font-black leading-none">{eur.format(adjustedTotalAmount)}</span>
+                    <div className="flex items-center justify-between text-slate-100">
+                        <span className="text-sm font-medium text-white/80">CA Prestation</span>
+                        <span className="text-lg font-bold text-white">{eur.format(prestationAmountWithoutTips)}</span>
                     </div>
                     <div className="flex items-center justify-between text-slate-100">
-                        <span className="text-xs font-light">Salaire ({commissionPct}%)</span>
-                        <span className="text-xs font-light text-white">{eur.format(salary)}</span>
+                        <span className="text-sm font-medium text-white/80">CA Produit</span>
+                        <span className="text-lg font-bold text-white">{eur.format(productAmount)}</span>
+                    </div>
+                    <div className="flex items-center justify-between text-slate-100 pt-1 border-t border-white/20">
+                        <span className="text-base font-black tracking-wide [-webkit-text-stroke:0.5px_black]">Total</span>
+                        <span className="text-2xl font-black tracking-wide text-fuchsia-300" style={{ WebkitTextStroke: '0.5px black' }}>{eur.format(adjustedTotalAmount)}</span>
                     </div>
                     <div className="text-xs text-slate-300">{prestationTotal?.count || 0} prestation{(prestationTotal?.count ?? 0) > 1 ? "s" : ""}{displayTipAmount > 0 ? ` (pourboire${displayTipCount > 1 ? "s" : ""} ${eur.format(displayTipAmount)})` : ""}{displayProductCount ? `, ${displayProductCount} produit${displayProductCount > 1 ? "s" : ""}` : ""}</div>
                 </div>
