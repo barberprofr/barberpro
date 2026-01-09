@@ -1004,6 +1004,10 @@ function GlobalRevenueStats() {
             <span>TOTAL</span>
             <span>{eur.format(displayPrestationAmount + displayProductAmount)}</span>
           </div>
+          <div className="flex justify-between text-amber-400 pt-1">
+            <span>Salaire total versé</span>
+            <span>{eur.format(displaySalaryTotal)}</span>
+          </div>
         </div>
         <div className="text-xs text-emerald-400">Bénéfice net: {eur.format(Math.max(0, (total?.amount || 0) - displaySalaryTotal))}</div>
       </div>
