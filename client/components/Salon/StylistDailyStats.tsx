@@ -1605,7 +1605,7 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
                     </div>
                 </div>
             ) : isSettingsView ? (
-                <div className="rounded-2xl border border-white/10 bg-slate-950/50 p-3 shadow-inner text-sm space-y-1">
+                <div className="rounded-2xl border border-white/10 bg-slate-950/50 p-3 shadow-inner text-sm space-y-2">
                     <div className="flex items-baseline justify-between text-slate-100">
                         <span className="text-sm font-light text-white leading-none">
                             {useTodayData
@@ -1619,9 +1619,23 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
                         </span>
                         <span className="text-2xl font-black leading-none">{eur.format(adjustedTotalAmount)}</span>
                     </div>
-                    <div className="flex items-center justify-between text-slate-100">
-                        <span className="text-xs font-light">Salaire ({commissionPct}%)</span>
-                        <span className="text-xs font-light text-white">{eur.format(salary)}</span>
+                    <div className="text-xs text-slate-300 space-y-1">
+                        <div className="flex justify-between">
+                            <span>CA Prestations</span>
+                            <span>{eur.format(prestationAmountWithoutTips)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                            <span>CA Produits</span>
+                            <span>{eur.format(productAmount)}</span>
+                        </div>
+                        <div className="flex justify-between font-semibold text-white pt-1 border-t border-white/10">
+                            <span>TOTAL</span>
+                            <span>{eur.format(adjustedTotalAmount)}</span>
+                        </div>
+                        <div className="flex justify-between text-amber-400 pt-1">
+                            <span>Salaire versé ({commissionPct}%)</span>
+                            <span>{eur.format(salary)}</span>
+                        </div>
                     </div>
                     <div className="text-xs text-slate-300">{prestationTotal?.count || 0} prestation{(prestationTotal?.count ?? 0) > 1 ? "s" : ""}{displayTipAmount > 0 ? ` (pourboire${displayTipCount > 1 ? "s" : ""} ${eur.format(displayTipAmount)})` : ""}{displayProductCount ? `, ${displayProductCount} produit${displayProductCount > 1 ? "s" : ""}` : ""}</div>
                 </div>
