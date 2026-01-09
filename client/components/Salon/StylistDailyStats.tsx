@@ -1361,6 +1361,7 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
     const total = displayData?.total;
     const prestationTotal = displayPrestationData?.total;
     const prestationAmountWithoutTips = (prestationTotal?.amount || 0) - displayNonCashTipAmount;
+    const salary = prestationAmountWithoutTips * (commissionPct ?? 0) / 100;
     const adjustedCashAmount = (displayData?.methods.cash.amount || 0) - displayNonCashTipAmount;
     const adjustedTotalAmount = (total?.amount || 0) - displayNonCashTipAmount;
     const productAmount = adjustedTotalAmount - prestationAmountWithoutTips;
@@ -1602,6 +1603,27 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
                         <EyeOff className="h-5 w-5" />
                         <span className="text-base font-medium">Données masquées</span>
                     </div>
+                </div>
+            ) : isSettingsView ? (
+                <div className="rounded-2xl border border-white/10 bg-slate-950/50 p-3 shadow-inner text-sm space-y-1">
+                    <div className="flex items-baseline justify-between text-slate-100">
+                        <span className="text-sm font-light text-white leading-none">
+                            {useTodayData
+                                ? "CA du jour"
+                                : useSingleDayRange
+                                    ? `CA du jour (${formatDateDisplay(startDate)})`
+                                    : useRangeData
+                                        ? `CA du ${formatDateDisplay(startDate)} au ${formatDateDisplay(endDate)}`
+                                        : "CA du mois"
+                            }
+                        </span>
+                        <span className="text-2xl font-black leading-none">{eur.format(adjustedTotalAmount)}</span>
+                    </div>
+                    <div className="flex items-center justify-between text-slate-100">
+                        <span className="text-xs font-light">Salaire ({commissionPct}%)</span>
+                        <span className="text-xs font-light text-white">{eur.format(salary)}</span>
+                    </div>
+                    <div className="text-xs text-slate-300">{prestationTotal?.count || 0} prestation{(prestationTotal?.count ?? 0) > 1 ? "s" : ""}{displayTipAmount > 0 ? ` (pourboire${displayTipCount > 1 ? "s" : ""} ${eur.format(displayTipAmount)})` : ""}{displayProductCount ? `, ${displayProductCount} produit${displayProductCount > 1 ? "s" : ""}` : ""}</div>
                 </div>
             ) : (
                 <div className="rounded-2xl border border-white/10 bg-slate-950/50 p-3 shadow-inner text-sm space-y-1">
