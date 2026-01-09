@@ -983,7 +983,7 @@ function GlobalRevenueStats() {
           </span>
           <span className="text-2xl font-black leading-none">{eur.format(total?.amount || 0)}</span>
         </div>
-        <div className="text-xs text-slate-300">{displayPrestationCount} prestation{displayPrestationCount > 1 ? "s" : ""}{displayTipAmount > 0 ? ` (pourboires ${eur.format(displayTipAmount)})` : ""}{displayProductCount ? `, ${displayProductCount} produit${displayProductCount > 1 ? "s" : ""}` : ""}</div>
+        <div className="text-xs text-slate-300">{displayPrestationCount} prestation{displayPrestationCount > 1 ? "s" : ""}{displayProductCount ? `, ${displayProductCount} produit${displayProductCount > 1 ? "s" : ""}` : ""}</div>
         <div className="text-xs text-emerald-400">Bénéfice net: {eur.format(Math.max(0, (total?.amount || 0) - displaySalaryTotal))}</div>
       </div>
       <div className="grid grid-cols-4 text-sm border rounded-md overflow-hidden">
