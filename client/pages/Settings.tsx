@@ -741,6 +741,12 @@ function GlobalRevenueStats() {
   const dailySalaryTotal = (data as any)?.dailySalaryTotal ?? 0;
   const monthlySalaryTotal = (data as any)?.monthlySalaryTotal ?? 0;
   const rangeSalaryTotal = (data as any)?.rangeSalaryTotal ?? 0;
+  const dailyPrestationAmount = (data as any)?.dailyPrestationAmount ?? 0;
+  const monthlyPrestationAmount = (data as any)?.monthlyPrestationAmount ?? 0;
+  const rangePrestationAmount = (data as any)?.rangePrestationAmount ?? 0;
+  const dailyProductAmount = (data as any)?.dailyProductAmount ?? 0;
+  const monthlyProductAmount = (data as any)?.monthlyProductAmount ?? 0;
+  const rangeProductAmount = (data as any)?.rangeProductAmount ?? 0;
   const rangeEntries = data?.rangeEntries || [];
   const dailyEntries = data?.dailyEntries || [];
 
@@ -752,6 +758,8 @@ function GlobalRevenueStats() {
   const displayPrestationCount = useTodayData ? dailyPrestationCount : ((useRangeData || useSingleDayRange) ? rangePrestationCount : monthlyPrestationCount);
   const displayTipAmount = useTodayData ? dailyTipAmount : ((useRangeData || useSingleDayRange) ? rangeTipAmount : monthlyTipAmount);
   const displaySalaryTotal = useTodayData ? dailySalaryTotal : ((useRangeData || useSingleDayRange) ? rangeSalaryTotal : monthlySalaryTotal);
+  const displayPrestationAmount = useTodayData ? dailyPrestationAmount : ((useRangeData || useSingleDayRange) ? rangePrestationAmount : monthlyPrestationAmount);
+  const displayProductAmount = useTodayData ? dailyProductAmount : ((useRangeData || useSingleDayRange) ? rangeProductAmount : monthlyProductAmount);
   const displayEntries = useTodayData ? dailyEntries : rangeEntries;
 
   const total = displayData?.total;
@@ -983,7 +991,11 @@ function GlobalRevenueStats() {
           </span>
           <span className="text-2xl font-black leading-none">{eur.format(total?.amount || 0)}</span>
         </div>
-        <div className="text-xs text-slate-300">{displayPrestationCount} prestation{displayPrestationCount > 1 ? "s" : ""}{displayProductCount ? `, ${displayProductCount} produit${displayProductCount > 1 ? "s" : ""}` : ""}</div>
+        <div className="text-xs text-slate-300 space-y-0.5">
+          <div>CA Prestation : {eur.format(displayPrestationAmount)}</div>
+          <div>CA Produit : {eur.format(displayProductAmount)}</div>
+          <div className="font-semibold">Total : {eur.format(displayPrestationAmount + displayProductAmount)}</div>
+        </div>
         <div className="text-xs text-emerald-400">Bénéfice net: {eur.format(Math.max(0, (total?.amount || 0) - displaySalaryTotal))}</div>
       </div>
       <div className="grid grid-cols-4 text-sm border rounded-md overflow-hidden">

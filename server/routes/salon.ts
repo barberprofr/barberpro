@@ -1969,6 +1969,13 @@ export const getGlobalBreakdown: RequestHandler = async (req, res) => {
     let monthlyTipAmount = 0;
     let rangeTipAmount = 0;
 
+    let dailyPrestationAmount = 0;
+    let monthlyPrestationAmount = 0;
+    let rangePrestationAmount = 0;
+    let dailyProductAmount = 0;
+    let monthlyProductAmount = 0;
+    let rangeProductAmount = 0;
+
     for (const p of prestations) {
       const ts = startOfDayParis(p.timestamp);
       const isDaily = ts === todayStart;
@@ -1995,6 +2002,7 @@ export const getGlobalBreakdown: RequestHandler = async (req, res) => {
             daily.methods[method].count += 1;
           }
           dailyPrestationCount++;
+          dailyPrestationAmount += p.amount;
           dailySalaryTotal += salary;
         } else {
           dailyTipCount++;
@@ -2024,6 +2032,7 @@ export const getGlobalBreakdown: RequestHandler = async (req, res) => {
             monthly.methods[method].count += 1;
           }
           monthlyPrestationCount++;
+          monthlyPrestationAmount += p.amount;
           monthlySalaryTotal += salary;
         } else {
           monthlyTipCount++;
@@ -2043,6 +2052,7 @@ export const getGlobalBreakdown: RequestHandler = async (req, res) => {
             range.methods[method].count += 1;
           }
           rangePrestationCount++;
+          rangePrestationAmount += p.amount;
           rangeSalaryTotal += salary;
         } else {
           rangeTipCount++;
@@ -2077,6 +2087,7 @@ export const getGlobalBreakdown: RequestHandler = async (req, res) => {
           daily.methods[prodMethod].amount += prod.amount;
         }
         dailyProductCount++;
+        dailyProductAmount += prod.amount;
         dailyEntries.push({
           id: prod.id,
           timestamp: prod.timestamp,
@@ -2097,6 +2108,7 @@ export const getGlobalBreakdown: RequestHandler = async (req, res) => {
           monthly.methods[prodMethod].amount += prod.amount;
         }
         monthlyProductCount++;
+        monthlyProductAmount += prod.amount;
       }
       if (isRange) {
         range.total.amount += prod.amount;
@@ -2107,6 +2119,7 @@ export const getGlobalBreakdown: RequestHandler = async (req, res) => {
           range.methods[prodMethod].amount += prod.amount;
         }
         rangeProductCount++;
+        rangeProductAmount += prod.amount;
         rangeEntries.push({
           id: prod.id,
           timestamp: prod.timestamp,
@@ -2144,6 +2157,12 @@ export const getGlobalBreakdown: RequestHandler = async (req, res) => {
       dailySalaryTotal,
       monthlySalaryTotal,
       rangeSalaryTotal: startDateMs && endDateMs ? rangeSalaryTotal : 0,
+      dailyPrestationAmount,
+      monthlyPrestationAmount,
+      rangePrestationAmount: startDateMs && endDateMs ? rangePrestationAmount : 0,
+      dailyProductAmount,
+      monthlyProductAmount,
+      rangeProductAmount: startDateMs && endDateMs ? rangeProductAmount : 0,
     });
   } catch (error) {
     console.error('Error getting global breakdown:', error);
