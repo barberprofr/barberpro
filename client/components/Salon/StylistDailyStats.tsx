@@ -437,7 +437,7 @@ function RangeTransactionRow({ entry: e, onUpdate, isAdmin = false, onDelete }: 
                 <span className="font-medium">{eur.format(e.amount)}</span>
                 <span className="text-[10px] sm:text-xs text-white/60 block truncate">{e.name || (e.kind === "prestation" ? "prestation" : "produit")}</span>
             </div>
-            {isAdmin && onDelete && e.kind === "prestation" && (
+            {isAdmin && onDelete && (
                 <div className="flex justify-center">
                     <button
                         type="button"
@@ -667,7 +667,7 @@ function TransactionRow({ entry: e, fmt, onUpdate, isAdmin = false, onDelete }: 
                 <span className="font-medium">{eur.format(e.amount)}</span>
                 <span className="text-[10px] sm:text-xs text-white/60 block truncate">{e.name || (e.kind === "prestation" ? "prestation" : "produit")}</span>
             </div>
-            {isAdmin && onDelete && e.kind === "prestation" && (
+            {isAdmin && onDelete && (
                 <div className="flex justify-center">
                     <button
                         type="button"

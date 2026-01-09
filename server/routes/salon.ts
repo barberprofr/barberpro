@@ -2372,25 +2372,32 @@ export const deletePrestation: RequestHandler = async (req, res) => {
     const salonId = getSalonId(req);
     const { id } = req.params as { id: string };
 
+    // Try to find and delete a prestation first
     const prestation = await Prestation.findOne({ id, salonId });
-    if (!prestation) {
-      return res.status(404).json({ error: "prestation not found" });
+    if (prestation) {
+      // Remove loyalty points if applicable
+      if (prestation.clientId && prestation.pointsAwarded > 0) {
+        await Client.updateOne(
+          { id: prestation.clientId, salonId },
+          { $inc: { loyaltyPoints: -prestation.pointsAwarded } }
+        );
+      }
+
+      // Delete the prestation
+      await Prestation.deleteOne({ id, salonId });
+      return res.json({ ok: true });
     }
 
-    // Remove loyalty points if applicable
-    if (prestation.clientId && prestation.pointsAwarded > 0) {
-      await Client.updateOne(
-        { id: prestation.clientId, salonId },
-        { $inc: { loyaltyPoints: -prestation.pointsAwarded } }
-      );
+    // If not found as prestation, try to find and delete as product
+    const product = await Product.findOne({ id, salonId });
+    if (product) {
+      await Product.deleteOne({ id, salonId });
+      return res.json({ ok: true });
     }
 
-    // Delete the prestation
-    await Prestation.deleteOne({ id, salonId });
-
-    res.json({ ok: true });
+    return res.status(404).json({ error: "prestation or product not found" });
   } catch (error) {
-    console.error('Error deleting prestation:', error);
+    console.error('Error deleting prestation/product:', error);
     res.status(500).json({ error: "Erreur serveur" });
   }
 };
