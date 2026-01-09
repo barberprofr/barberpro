@@ -1664,6 +1664,7 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
                             <span className="text-lg font-bold">{eur.format(displayTipAmount)}</span>
                         </div>
                     )}
+                    <div className="text-xs text-slate-300">{prestationTotal?.count || 0} prestation{(prestationTotal?.count ?? 0) > 1 ? "s" : ""}{displayProductCount ? `, ${displayProductCount} produit${displayProductCount > 1 ? "s" : ""}` : ""}</div>
                 </div>
             )}
             {!shouldHideData && (
