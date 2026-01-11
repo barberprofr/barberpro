@@ -1678,7 +1678,7 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
                         <span className="text-white text-sm font-bold">{eur.format(displayData?.methods.card.amount || 0)}</span>
                     </div>
                     <div className="flex flex-col items-center justify-center px-2 py-2 rounded-lg bg-amber-900/40 border border-amber-500/50">
-                        <span className="text-amber-300 text-xs font-medium">Planity</span>
+                        <span className="text-amber-300 text-[10px] font-medium text-center leading-tight">Planity<br/>Treatwell</span>
                         <span className="text-white text-sm font-bold">{eur.format(displayData?.methods.check.amount || 0)}</span>
                     </div>
                 </div>
