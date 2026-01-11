@@ -1011,15 +1011,19 @@ function GlobalRevenueStats() {
         </div>
         <div className="text-xs text-emerald-400">Bénéfice net: {eur.format(Math.max(0, (total?.amount || 0) - displaySalaryTotal))}</div>
       </div>
-      <div className="grid grid-cols-4 text-sm border rounded-md overflow-hidden">
-        <div className="bg-white/12 px-3 py-2"></div>
-        <div className="bg-white/12 px-3 py-2"><span className="inline-flex items-center px-2 py-0.5 rounded-full border-2 border-emerald-300 bg-emerald-100/30 text-emerald-100 text-xs font-semibold">Espèces</span></div>
-        <div className="bg-white/12 px-3 py-2"><span className="inline-flex items-center px-2 py-0.5 rounded-full border-2 border-amber-300 bg-amber-100/30 text-amber-100 text-[8px] font-semibold"><span className="flex flex-col leading-tight text-center"><span>Planity</span><span>Treatwell</span></span></span></div>
-        <div className="bg-white/12 px-3 py-2"><span className="inline-flex items-center px-2 py-0.5 rounded-full border-2 border-indigo-300 bg-indigo-100/30 text-indigo-100 text-xs font-semibold">Carte</span></div>
-        <div className="px-3 py-2 font-bold">{useTodayData ? "Jour" : useRangeData ? "Période" : "Mois"}</div>
-        <div className="px-3 py-2">{eur.format(displayData?.methods?.cash?.amount ?? 0)}</div>
-        <div className="px-3 py-2">{eur.format(displayData?.methods?.check?.amount ?? 0)}</div>
-        <div className="px-3 py-2">{eur.format(displayData?.methods?.card?.amount ?? 0)}</div>
+      <div className="grid grid-cols-3 gap-2">
+        <div className="flex flex-col items-center justify-center px-2 py-1 rounded-lg bg-emerald-900/40 border border-emerald-500/50">
+          <span className="text-emerald-300 text-[10px] font-medium">Espèces</span>
+          <span className="text-white text-xs font-bold">{eur.format(displayData?.methods?.cash?.amount ?? 0)}</span>
+        </div>
+        <div className="flex flex-col items-center justify-center px-2 py-1 rounded-lg bg-indigo-900/40 border border-indigo-500/50">
+          <span className="text-indigo-300 text-[10px] font-medium">CB</span>
+          <span className="text-white text-xs font-bold">{eur.format(displayData?.methods?.card?.amount ?? 0)}</span>
+        </div>
+        <div className="flex flex-col items-center justify-center px-2 py-1 rounded-lg bg-amber-900/40 border border-amber-500/50">
+          <span className="text-amber-300 text-[9px] font-medium text-center leading-tight">Planity<br/>Treatwell</span>
+          <span className="text-white text-xs font-bold">{eur.format(displayData?.methods?.check?.amount ?? 0)}</span>
+        </div>
       </div>
 
       {(useTodayData || useRangeData) && (
