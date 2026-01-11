@@ -1668,24 +1668,15 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
                 </div>
             )}
             {!shouldHideData && (
-                <div className="rounded-xl border border-white/20 bg-slate-900/60 p-3 backdrop-blur-sm">
-                    <div className="grid grid-cols-3 gap-3">
-                        <div className="flex flex-col items-center gap-2">
-                            <span className="inline-flex items-center px-3 py-1.5 rounded-full border-2 border-emerald-400 bg-emerald-500/30 text-emerald-200 text-xs font-bold shadow-[0_0_10px_rgba(52,211,153,0.3)]">Espèces</span>
-                            <span className={`text-lg font-bold ${adjustedCashAmount < 0 ? 'text-red-400' : 'text-white'}`}>{eur.format(adjustedCashAmount)}</span>
-                        </div>
-                        <div className="flex flex-col items-center gap-2">
-                            <span className="inline-flex items-center px-3 py-1.5 rounded-full border-2 border-amber-400 bg-amber-500/30 text-amber-200 text-[10px] font-bold shadow-[0_0_10px_rgba(251,191,36,0.3)]">
-                                <span className="flex flex-col leading-tight text-center"><span>Planity</span><span>Treatwell</span></span>
-                            </span>
-                            <span className="text-lg font-bold text-white">{eur.format(displayData?.methods.check.amount || 0)}</span>
-                        </div>
-                        <div className="flex flex-col items-center gap-2">
-                            <span className="inline-flex items-center px-3 py-1.5 rounded-full border-2 border-indigo-400 bg-indigo-500/30 text-indigo-200 text-xs font-bold shadow-[0_0_10px_rgba(129,140,248,0.3)]">Carte</span>
-                            <span className="text-lg font-bold text-white">{eur.format(displayData?.methods.card.amount || 0)}</span>
-                        </div>
-                    </div>
-                    <div className="text-center text-xs text-slate-400 mt-2 font-medium">{useTodayData ? "Jour" : useSingleDayRange ? "Jour" : useRangeData ? "Période" : "Mois"}</div>
+                <div className="grid grid-cols-4 text-sm border rounded-md overflow-hidden">
+                    <div className="bg-white/12 px-2 py-1"></div>
+                    <div className="bg-white/12 px-2 py-1"><span className="inline-flex items-center px-1.5 py-0.5 rounded-full border-2 border-emerald-300 bg-emerald-100/30 text-emerald-100 text-[10px] font-semibold">Espèces</span></div>
+                    <div className="bg-white/12 px-2 py-1"><span className="inline-flex items-center px-1.5 py-0.5 rounded-full border-2 border-amber-300 bg-amber-100/30 text-amber-100 text-[8px] font-semibold"><span className="flex flex-col leading-tight text-center"><span>Planity</span><span>Treatwell</span></span></span></div>
+                    <div className="bg-white/12 px-2 py-1"><span className="inline-flex items-center px-1.5 py-0.5 rounded-full border-2 border-indigo-300 bg-indigo-100/30 text-indigo-100 text-[10px] font-semibold">Carte</span></div>
+                    <div className="px-2 py-1 font-bold text-xs">{useTodayData ? "Jour" : useSingleDayRange ? "Jour" : useRangeData ? "Période" : "Mois"}</div>
+                    <div className={`px-2 py-1 text-xs ${adjustedCashAmount < 0 ? 'text-red-400' : ''}`}>{eur.format(adjustedCashAmount)}</div>
+                    <div className="px-2 py-1 text-xs">{eur.format(displayData?.methods.check.amount || 0)}</div>
+                    <div className="px-2 py-1 text-xs">{eur.format(displayData?.methods.card.amount || 0)}</div>
                 </div>
             )}
 
