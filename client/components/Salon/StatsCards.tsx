@@ -568,7 +568,7 @@ export default function StatsCards() {
               >
                 <ChevronDown className="h-5 w-5" />
               </button>
-              <div className="flex flex-col items-center text-center">
+              <div className="flex flex-col items-center text-center w-full">
                 <span className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-300/80 mb-1">TOTAL CA</span>
                 <span className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-300/80 mb-6">AUJOURD'HUI</span>
                 {config?.hideTotalCA ? (
@@ -576,9 +576,25 @@ export default function StatsCards() {
                     ••••••
                   </div>
                 ) : (
-                  <div className="text-5xl font-bold text-white tracking-tight">
-                    {(summary?.dailyAmount ?? 0).toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
-                  </div>
+                  <>
+                    <div className="text-5xl font-bold text-white tracking-tight mb-6">
+                      {(summary?.dailyAmount ?? 0).toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
+                    </div>
+                    <div className="w-full space-y-2 text-sm">
+                      <div className="flex justify-between items-center px-4 py-2 rounded-lg bg-emerald-500/20 border border-emerald-400/30">
+                        <span className="text-emerald-300 font-medium">Espèces</span>
+                        <span className="text-white font-bold">{(summary?.dailyPayments?.methods?.cash?.amount ?? 0).toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</span>
+                      </div>
+                      <div className="flex justify-between items-center px-4 py-2 rounded-lg bg-indigo-500/20 border border-indigo-400/30">
+                        <span className="text-indigo-300 font-medium">CB</span>
+                        <span className="text-white font-bold">{(summary?.dailyPayments?.methods?.card?.amount ?? 0).toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</span>
+                      </div>
+                      <div className="flex justify-between items-center px-4 py-2 rounded-lg bg-amber-500/20 border border-amber-400/30">
+                        <span className="text-amber-300 font-medium">Planity/Treatwell</span>
+                        <span className="text-white font-bold">{(summary?.dailyPayments?.methods?.check?.amount ?? 0).toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</span>
+                      </div>
+                    </div>
+                  </>
                 )}
               </div>
             </motion.div>
