@@ -1669,17 +1669,17 @@ export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView 
             )}
             {!shouldHideData && (
                 <div className="grid grid-cols-3 gap-2">
-                    <div className="flex flex-col items-center justify-center px-2 py-2 rounded-lg bg-emerald-900/40 border border-emerald-500/50">
-                        <span className="text-emerald-300 text-xs font-medium">Espèces</span>
-                        <span className={`text-white text-sm font-bold ${adjustedCashAmount < 0 ? 'text-red-400' : ''}`}>{eur.format(adjustedCashAmount)}</span>
+                    <div className="flex flex-col items-center justify-center px-2 py-1 rounded-lg bg-emerald-900/40 border border-emerald-500/50">
+                        <span className="text-emerald-300 text-[10px] font-medium">Espèces</span>
+                        <span className={`text-white text-xs font-bold ${adjustedCashAmount < 0 ? 'text-red-400' : ''}`}>{eur.format(adjustedCashAmount)}</span>
                     </div>
-                    <div className="flex flex-col items-center justify-center px-2 py-2 rounded-lg bg-indigo-900/40 border border-indigo-500/50">
-                        <span className="text-indigo-300 text-xs font-medium">CB</span>
-                        <span className="text-white text-sm font-bold">{eur.format(displayData?.methods.card.amount || 0)}</span>
+                    <div className="flex flex-col items-center justify-center px-2 py-1 rounded-lg bg-indigo-900/40 border border-indigo-500/50">
+                        <span className="text-indigo-300 text-[10px] font-medium">CB</span>
+                        <span className="text-white text-xs font-bold">{eur.format(displayData?.methods.card.amount || 0)}</span>
                     </div>
-                    <div className="flex flex-col items-center justify-center px-2 py-2 rounded-lg bg-amber-900/40 border border-amber-500/50">
-                        <span className="text-amber-300 text-[10px] font-medium text-center leading-tight">Planity<br/>Treatwell</span>
-                        <span className="text-white text-sm font-bold">{eur.format(displayData?.methods.check.amount || 0)}</span>
+                    <div className="flex flex-col items-center justify-center px-2 py-1 rounded-lg bg-amber-900/40 border border-amber-500/50">
+                        <span className="text-amber-300 text-[9px] font-medium text-center leading-tight">Planity<br/>Treatwell</span>
+                        <span className="text-white text-xs font-bold">{eur.format(displayData?.methods.check.amount || 0)}</span>
                     </div>
                 </div>
             )}
