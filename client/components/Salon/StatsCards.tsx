@@ -4,7 +4,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown, ChevronLeft, Euro, Scissors, Package, Users, UserRound, Delete } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { useDashboardSummary, useStylists, useStylistBreakdown, useConfig, apiPath, useProducts, useStylistHasSecretCode, useVerifyStylistSecretCode } from "@/lib/api";
+import { useDashboardSummary, useStylists, useStylistBreakdown, useConfig, apiPath, useProducts, useStylistHasSecretCode, useVerifyStylistSecretCode, CURRENCY_CONFIG, CurrencyCode } from "@/lib/api";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Lock } from "lucide-react";
@@ -508,7 +508,9 @@ export default function StatsCards() {
         >
           <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none" />
           <div className="relative flex items-center justify-center w-14 h-14 rounded-full border-2 border-pink-400/60 bg-transparent">
-            <Euro className="relative h-6 w-6 text-pink-400 drop-shadow-lg" />
+            <span className="relative text-xl font-bold text-pink-400 drop-shadow-lg">
+              {CURRENCY_CONFIG[(config?.currency as CurrencyCode) || "EUR"]?.symbol || "€"}
+            </span>
           </div>
           <span className="mt-2 text-[10px] font-semibold text-white/80 uppercase tracking-wider">Total CA</span>
         </motion.button>
