@@ -1059,13 +1059,14 @@ export function useDeleteStylistDeposit() {
   });
 }
 
-export type CurrencyCode = "EUR" | "USD" | "MAD" | "GBP";
+export type CurrencyCode = "EUR" | "USD" | "MAD" | "GBP" | "DZD";
 
 export const CURRENCY_CONFIG: Record<CurrencyCode, { symbol: string; locale: string; name: string; flag: string }> = {
   EUR: { symbol: "€", locale: "fr-FR", name: "Euro", flag: "🇪🇺" },
   USD: { symbol: "$", locale: "en-US", name: "Dollar US", flag: "🇺🇸" },
   MAD: { symbol: "DH", locale: "fr-MA", name: "Dirham marocain", flag: "🇲🇦" },
   GBP: { symbol: "£", locale: "en-GB", name: "Livre sterling", flag: "🇬🇧" },
+  DZD: { symbol: "DA", locale: "fr-DZ", name: "Dinar algérien", flag: "🇩🇿" },
 };
 
 export function createCurrencyFormatter(currency: CurrencyCode = "EUR") {
@@ -1073,6 +1074,11 @@ export function createCurrencyFormatter(currency: CurrencyCode = "EUR") {
   if (currency === "MAD") {
     return {
       format: (value: number) => `${value.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} DH`
+    };
+  }
+  if (currency === "DZD") {
+    return {
+      format: (value: number) => `${value.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} DA`
     };
   }
   return new Intl.NumberFormat(config.locale, { style: "currency", currency });
