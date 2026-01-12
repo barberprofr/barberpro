@@ -776,6 +776,7 @@ export const getConfig: RequestHandler = async (req, res) => {
       trialEndsAt: settings.trialEndsAt ?? null,
       showStylistPriority: settings.showStylistPriority ?? false,
       hideTotalCA: settings.hideTotalCA ?? false,
+      currency: settings.currency ?? "EUR",
     });
   } catch (error) {
     console.error('Error getting config:', error);
@@ -1441,7 +1442,7 @@ export const updateConfig: RequestHandler = async (req, res) => {
     const body = await parseRequestBody(req);
     const salonId = getSalonId(req);
     const settings = await getSettings(salonId);
-    const { loyaltyPercentDefault, paymentModes, commissionDefault, pointsRedeemDefault, salonName, showStylistPriority, hideTotalCA } = body as {
+    const { loyaltyPercentDefault, paymentModes, commissionDefault, pointsRedeemDefault, salonName, showStylistPriority, hideTotalCA, currency } = body as {
       loyaltyPercentDefault?: number;
       paymentModes?: PaymentMethod[];
       commissionDefault?: number;
@@ -1449,6 +1450,7 @@ export const updateConfig: RequestHandler = async (req, res) => {
       salonName?: string | null;
       showStylistPriority?: boolean;
       hideTotalCA?: boolean;
+      currency?: "EUR" | "USD" | "MAD" | "GBP";
     };
 
     const updates: any = {};
@@ -1472,6 +1474,9 @@ export const updateConfig: RequestHandler = async (req, res) => {
     }
     if (typeof hideTotalCA === "boolean") {
       updates.hideTotalCA = hideTotalCA;
+    }
+    if (currency && ["EUR", "USD", "MAD", "GBP"].includes(currency)) {
+      updates.currency = currency;
     }
 
     await Settings.findOneAndUpdate({ salonId }, { $set: updates });

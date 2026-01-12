@@ -456,7 +456,7 @@ export function useConfig() {
     queryFn: async () => {
       const res = await apiFetch("/api/config", { headers: { "x-admin-token": getAdminToken() || "" } });
       if (!res.ok) throw new Error("Failed to load config");
-      return res.json() as Promise<{ loyaltyPercentDefault: number; paymentModes: MethodKey[]; commissionDefault: number; pointsRedeemDefault: number; adminSet: boolean; adminCodeSet: boolean; isAdmin: boolean; accountEmail: string | null; adminEmail: string | null; salonName: string | null; salonAddress: string | null; salonPostalCode: string | null; salonCity: string | null; salonPhone: string | null; subscriptionStatus: string | null; stripeCustomerId: string | null; stripeSubscriptionId: string | null; subscriptionCurrentPeriodEnd: number | null; showStylistPriority: boolean; hideTotalCA: boolean }>;
+      return res.json() as Promise<{ loyaltyPercentDefault: number; paymentModes: MethodKey[]; commissionDefault: number; pointsRedeemDefault: number; adminSet: boolean; adminCodeSet: boolean; isAdmin: boolean; accountEmail: string | null; adminEmail: string | null; salonName: string | null; salonAddress: string | null; salonPostalCode: string | null; salonCity: string | null; salonPhone: string | null; subscriptionStatus: string | null; stripeCustomerId: string | null; stripeSubscriptionId: string | null; subscriptionCurrentPeriodEnd: number | null; showStylistPriority: boolean; hideTotalCA: boolean; currency: "EUR" | "USD" | "MAD" | "GBP" }>;
     }
   });
 }
@@ -464,7 +464,7 @@ export function useConfig() {
 export function useUpdateConfig() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (input: Partial<{ loyaltyPercentDefault: number; paymentModes: MethodKey[]; commissionDefault: number; pointsRedeemDefault: number; salonName: string | null; showStylistPriority: boolean; hideTotalCA: boolean }>) => {
+    mutationFn: async (input: Partial<{ loyaltyPercentDefault: number; paymentModes: MethodKey[]; commissionDefault: number; pointsRedeemDefault: number; salonName: string | null; showStylistPriority: boolean; hideTotalCA: boolean; currency: "EUR" | "USD" | "MAD" | "GBP" }>) => {
       const res = await apiFetch("/api/admin/config", { method: "PATCH", headers: { "Content-Type": "application/json", "x-admin-token": getAdminToken() || "" }, body: JSON.stringify(input) });
       if (!res.ok) await throwResponseError(res);
       return res.json() as Promise<{ ok: true }>;
@@ -1057,5 +1057,24 @@ export function useDeleteStylistDeposit() {
       qc.invalidateQueries({ queryKey: ['stylist-deposits'] });
     }
   });
+}
+
+export type CurrencyCode = "EUR" | "USD" | "MAD" | "GBP";
+
+export const CURRENCY_CONFIG: Record<CurrencyCode, { symbol: string; locale: string; name: string; flag: string }> = {
+  EUR: { symbol: "€", locale: "fr-FR", name: "Euro", flag: "🇪🇺" },
+  USD: { symbol: "$", locale: "en-US", name: "Dollar US", flag: "🇺🇸" },
+  MAD: { symbol: "DH", locale: "fr-MA", name: "Dirham marocain", flag: "🇲🇦" },
+  GBP: { symbol: "£", locale: "en-GB", name: "Livre sterling", flag: "🇬🇧" },
+};
+
+export function createCurrencyFormatter(currency: CurrencyCode = "EUR") {
+  const config = CURRENCY_CONFIG[currency];
+  if (currency === "MAD") {
+    return {
+      format: (value: number) => `${value.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} DH`
+    };
+  }
+  return new Intl.NumberFormat(config.locale, { style: "currency", currency });
 }
 

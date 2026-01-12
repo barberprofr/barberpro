@@ -13,7 +13,7 @@ import { Switch } from "@/components/ui/switch";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { useAdminUpdateCode, useAdminVerifyCode, useAddStylist, useConfig, useUpdateConfig, useDashboardSummary, usePointsUsageReport, useStylists, useStylistBreakdown, useRevenueByDay, useRevenueByMonth, useDeleteStylist, useSetStylistCommission, useAdminRecoverCode, useAdminRecoverCodeVerify, useServices, useAddService, useDeleteService, useGlobalBreakdown, useUpdateTransactionPaymentMethod, useSetStylistSecretCode, useStylistHasSecretCode, useVerifyStylistSecretCode, useStylistDeposits, useAddStylistDeposit, useDeleteStylistDeposit, useAllDepositsForMonth, StylistDeposit } from "@/lib/api";
+import { useAdminUpdateCode, useAdminVerifyCode, useAddStylist, useConfig, useUpdateConfig, useDashboardSummary, usePointsUsageReport, useStylists, useStylistBreakdown, useRevenueByDay, useRevenueByMonth, useDeleteStylist, useSetStylistCommission, useAdminRecoverCode, useAdminRecoverCodeVerify, useServices, useAddService, useDeleteService, useGlobalBreakdown, useUpdateTransactionPaymentMethod, useSetStylistSecretCode, useStylistHasSecretCode, useVerifyStylistSecretCode, useStylistDeposits, useAddStylistDeposit, useDeleteStylistDeposit, useAllDepositsForMonth, StylistDeposit, createCurrencyFormatter, CURRENCY_CONFIG, CurrencyCode } from "@/lib/api";
 import { StylistMonthly } from "@/components/Salon/StylistDailyStats";
 import type { SummaryPayments, MethodKey, Stylist, PointsUsageGroup, DashboardSummary, Service } from "@/lib/api";
 import { cn } from "@/lib/utils";
@@ -26,7 +26,6 @@ import type { LucideIcon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 
-const eur = new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" });
 
 const DAYS_FR = ["Lu", "Ma", "Me", "Je", "Ve", "Sa", "Di"];
 const MONTHS_FR = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
@@ -261,6 +260,8 @@ const STYLIST_COMMISSION_CHOICES = [0, ...Array.from({ length: 41 }, (_, index) 
 type PaymentSummaryItem = PaymentSummaryMeta & { amount: number; count: number };
 
 function PaymentSummaryGrid({ items }: { items: PaymentSummaryItem[] }) {
+  const { data: config } = useConfig();
+  const eur = useMemo(() => createCurrencyFormatter(config?.currency || "EUR"), [config?.currency]);
   if (!items.length) return null;
   return (
     <div className="mt-3 flex flex-col gap-2">
@@ -601,6 +602,8 @@ function StylistTotals({ id, commissionPct, stylistName, hiddenMonths = [], hidd
 }
 
 function GlobalTransactionRow({ entry: e, onUpdate }: { entry: any, onUpdate: (id: string, kind: "prestation" | "produit", method: "cash" | "check" | "card") => void }) {
+  const { data: config } = useConfig();
+  const eur = useMemo(() => createCurrencyFormatter(config?.currency || "EUR"), [config?.currency]);
   const [open, setOpen] = useState(false);
   const fmtDate = (ts: number) => {
     const d = new Date(ts);
@@ -706,6 +709,8 @@ function GlobalEncaissements({ entries, onUpdate }: { entries: any[]; onUpdate: 
 }
 
 function GlobalRevenueStats() {
+  const { data: config } = useConfig();
+  const eur = useMemo(() => createCurrencyFormatter(config?.currency || "EUR"), [config?.currency]);
   const now = new Date();
   const defMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
   const today = parisDateString();
@@ -1124,6 +1129,8 @@ function GlobalRevenueStats() {
 }
 
 function RevenueBySingleDay({ summary }: { summary?: DashboardSummary }) {
+  const { data: config } = useConfig();
+  const eur = useMemo(() => createCurrencyFormatter(config?.currency || "EUR"), [config?.currency]);
   const todayParis = useMemo(() => parisDateString(), []);
   const [selectedDate, setSelectedDate] = useState(todayParis);
   const [open, setOpen] = useState(false);
@@ -1277,6 +1284,8 @@ function RevenueBySingleDay({ summary }: { summary?: DashboardSummary }) {
 }
 
 function BestDaysOfMonth() {
+  const { data: config } = useConfig();
+  const eur = useMemo(() => createCurrencyFormatter(config?.currency || "EUR"), [config?.currency]);
   const current = new Date();
   const currentYear = current.getFullYear();
   const currentMonth = current.getMonth() + 1;
@@ -1428,6 +1437,8 @@ function BestDaysOfMonth() {
 }
 
 function RevenueByDay({ fallbackMonthly, stylists, defaultCommissionPct }: { fallbackMonthly?: SummaryPayments; stylists?: Stylist[]; defaultCommissionPct?: number }) {
+  const { data: config } = useConfig();
+  const eur = useMemo(() => createCurrencyFormatter(config?.currency || "EUR"), [config?.currency]);
   const current = new Date();
   const currentYear = current.getFullYear();
   const currentMonth = current.getMonth() + 1; // 1-12
@@ -1542,6 +1553,8 @@ function RevenueByDay({ fallbackMonthly, stylists, defaultCommissionPct }: { fal
 }
 
 function RevenueByMonth() {
+  const { data: config } = useConfig();
+  const eur = useMemo(() => createCurrencyFormatter(config?.currency || "EUR"), [config?.currency]);
   const currentYear = new Date().getFullYear();
   const [year, setYear] = useState(currentYear);
   const { data } = useRevenueByMonth(year);
@@ -1648,6 +1661,7 @@ function RevenueByMonth() {
 export default function Settings() {
   const queryClient = useQueryClient();
   const { data: config } = useConfig();
+  const eur = useMemo(() => createCurrencyFormatter(config?.currency || "EUR"), [config?.currency]);
   const updateAdminCode = useAdminUpdateCode();
   const verifyAdminCode = useAdminVerifyCode();
   const recoverCodeHook = useAdminRecoverCode();
@@ -2454,6 +2468,47 @@ export default function Settings() {
                           >
                             OK
                           </Button>
+                        </div>
+                      </div>
+
+                      {/* Sélection de la devise */}
+                      <div className={cn(inputShellClasses, "flex-col items-start gap-3 border-white/14 bg-slate-950/70")}>
+                        <span className="font-semibold text-white/80">Devise d'affichage</span>
+                        <div className="grid grid-cols-2 gap-2 w-full">
+                          {(Object.keys(CURRENCY_CONFIG) as CurrencyCode[]).map((code) => {
+                            const currencyInfo = CURRENCY_CONFIG[code];
+                            const isSelected = (config?.currency || "EUR") === code;
+                            return (
+                              <button
+                                key={code}
+                                type="button"
+                                onClick={() => {
+                                  updateConfig.mutate({ currency: code }, {
+                                    onSuccess: () => {
+                                      showConfirmPopup("Devise modifiée", `${currencyInfo.flag} ${currencyInfo.name} (${currencyInfo.symbol})`);
+                                    }
+                                  });
+                                }}
+                                className={cn(
+                                  "flex items-center gap-3 rounded-xl border-2 px-4 py-3 transition-all duration-200",
+                                  isSelected
+                                    ? "border-emerald-400 bg-emerald-500/20 shadow-[0_0_20px_rgba(16,185,129,0.3)]"
+                                    : "border-white/20 bg-slate-800/50 hover:border-emerald-400/50 hover:bg-slate-700/50"
+                                )}
+                              >
+                                <span className="text-2xl">{currencyInfo.flag}</span>
+                                <div className="text-left flex-1">
+                                  <div className={cn("text-sm font-bold", isSelected ? "text-emerald-300" : "text-white")}>{currencyInfo.name}</div>
+                                  <div className="text-xs text-white/60">{currencyInfo.symbol}</div>
+                                </div>
+                                {isSelected && (
+                                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500">
+                                    <Check className="h-4 w-4 text-white" />
+                                  </div>
+                                )}
+                              </button>
+                            );
+                          })}
                         </div>
                       </div>
 

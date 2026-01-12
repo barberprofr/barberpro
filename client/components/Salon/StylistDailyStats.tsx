@@ -1,15 +1,13 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { createPortal } from "react-dom";
 import { Button } from "@/components/ui/button";
-import { useStylistBreakdown, useUpdateTransactionPaymentMethod, useUpdateStylistHiddenMonths, useUpdateStylistHiddenPeriods, useDeletePrestation, HiddenPeriod } from "@/lib/api";
+import { useStylistBreakdown, useUpdateTransactionPaymentMethod, useUpdateStylistHiddenMonths, useUpdateStylistHiddenPeriods, useDeletePrestation, HiddenPeriod, useConfig, createCurrencyFormatter } from "@/lib/api";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, ChevronLeft, ChevronRight, List, EyeOff, Eye, X, Trash2, Calendar, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { isAdminClient } from "@/lib/admin";
 import { playDeleteWarningSound, playDeleteConfirmSound } from "@/lib/sounds";
-
-const eur = new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" });
 
 const DAYS_FR = ["Lu", "Ma", "Me", "Je", "Ve", "Sa", "Di"];
 const MONTHS_FR = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
@@ -231,6 +229,8 @@ function parisDateString(at: Date = new Date()) {
 }
 
 function StylistDaily({ id, date, commissionPct }: { id: string; date?: string; commissionPct: number }) {
+    const { data: config } = useConfig();
+    const eur = useMemo(() => createCurrencyFormatter(config?.currency || "EUR"), [config?.currency]);
     const { data } = useStylistBreakdown(id, date);
     const d = data?.daily;
     const prestationD = (data as any)?.prestationDaily;
@@ -342,6 +342,8 @@ function StylistEncaissements({ id, date }: { id: string; date?: string }) {
 }
 
 function RangeTransactionRow({ entry: e, onUpdate, isAdmin = false, onDelete }: { entry: any, onUpdate: (id: string, kind: "prestation" | "produit", method: "cash" | "check" | "card") => void, isAdmin?: boolean, onDelete?: (id: string) => void }) {
+    const { data: config } = useConfig();
+    const eur = useMemo(() => createCurrencyFormatter(config?.currency || "EUR"), [config?.currency]);
     const [open, setOpen] = useState(false);
     const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
     const [successDeleteOpen, setSuccessDeleteOpen] = useState(false);
@@ -578,6 +580,8 @@ function StylistRangeEncaissements({ entries, onUpdate, isAdmin = false, onDelet
 }
 
 function TransactionRow({ entry: e, fmt, onUpdate, isAdmin = false, onDelete }: { entry: any, fmt: (ts: number) => string, onUpdate: (id: string, kind: "prestation" | "produit", method: "cash" | "check" | "card") => void, isAdmin?: boolean, onDelete?: (id: string) => void }) {
+    const { data: config } = useConfig();
+    const eur = useMemo(() => createCurrencyFormatter(config?.currency || "EUR"), [config?.currency]);
     const [open, setOpen] = useState(false);
     const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
     const [successDeleteOpen, setSuccessDeleteOpen] = useState(false);
@@ -939,6 +943,8 @@ function SingleDateCalendar({
 const MONTHS_FR_SHORT = ["Jan", "Fév", "Mar", "Avr", "Mai", "Juin", "Juil", "Août", "Sep", "Oct", "Nov", "Déc"];
 
 export function StylistDailySection({ id, commissionPct, stylistName }: { id: string; commissionPct: number; stylistName?: string }) {
+    const { data: config } = useConfig();
+    const eur = useMemo(() => createCurrencyFormatter(config?.currency || "EUR"), [config?.currency]);
     const today = parisDateString();
     const now = new Date();
     const defMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
@@ -1234,6 +1240,8 @@ export function StylistDailySection({ id, commissionPct, stylistName }: { id: st
 }
 
 export function StylistMonthly({ id, commissionPct, stylistName, isSettingsView = false, hiddenMonths = [], hiddenPeriods = [] }: { id: string; commissionPct: number; stylistName?: string; isSettingsView?: boolean; hiddenMonths?: number[]; hiddenPeriods?: HiddenPeriod[] }) {
+    const { data: config } = useConfig();
+    const eur = useMemo(() => createCurrencyFormatter(config?.currency || "EUR"), [config?.currency]);
     const now = new Date();
     const defMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
     const today = parisDateString();
