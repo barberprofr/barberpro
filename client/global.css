@@ -230,7 +230,7 @@
   }
   50% {
     opacity: 0.85;
-    transform: scale(1.05);
-    box-shadow: 0 0 12px 4px rgba(16, 185, 129, 0.5);
+    transform: scale(1.12);
+    box-shadow: 0 0 14px 5px rgba(16, 185, 129, 0.55);
   }
 }
