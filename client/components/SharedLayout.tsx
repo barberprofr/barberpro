@@ -149,9 +149,12 @@ export default function SharedLayout({ children }: PropsWithChildren) {
                       className={cn(
                         "rounded-full font-semibold",
                         index === 0
-                          ? "px-3 py-1 text-sm bg-emerald-500/20 border border-emerald-400/50 text-emerald-300"
+                          ? "px-3 py-1 text-sm bg-emerald-500/20 border border-emerald-400/50 text-emerald-300 animate-[pulse-priority_1.5s_ease-in-out_infinite]"
                           : "px-2 py-0.5 text-xs bg-slate-700/50 border border-slate-600/50 text-white/70"
                       )}
+                      style={index === 0 ? {
+                        animation: "pulse-priority 1.5s ease-in-out infinite"
+                      } : undefined}
                     >
                       {index + 1}. {s.name}
                     </span>
