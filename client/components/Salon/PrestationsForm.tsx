@@ -11,7 +11,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
-import { useAddClient, useAddPrestation, useAddProduct, useClients, useConfig, useStylists, useDashboardSummary, useUploadClientPhoto, useDeleteClientPhoto, useAdminLogin, useDeleteClient } from "@/lib/api";
+import { useAddClient, useAddPrestation, useAddProduct, useClients, useConfig, useStylists, useDashboardSummary, useUploadClientPhoto, useDeleteClientPhoto, useAdminLogin, useDeleteClient, useStylistsByPriority } from "@/lib/api";
 import ServicesPicker from "./ServicesPicker";
 import ProductsPicker from "./ProductsPicker";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -29,6 +29,7 @@ const PAYMENT_OPTIONS: { value: "cash" | "check" | "card" | "mixed"; label: stri
 
 export default function PrestationsForm() {
   const { data: stylists, isLoading: stylistsLoading } = useStylists();
+  const { data: priorityData } = useStylistsByPriority();
   const qc = useQueryClient();
   const { data: clients } = useClients();
   const addPrestation = useAddPrestation();
@@ -41,6 +42,10 @@ export default function PrestationsForm() {
   const { data: config } = useConfig();
   const { data: summary } = useDashboardSummary();
   const { toast } = useToast();
+  
+  const priorityStylistId = priorityData?.enabled && priorityData.stylists.length > 0 
+    ? priorityData.stylists[0].id 
+    : null;
 
   const salonDisplayName = useMemo(() => (config?.salonName ?? "").trim() || "Votre salon", [config?.salonName]);
   const salonInitials = useMemo(() => {
@@ -1186,7 +1191,9 @@ export default function PrestationsForm() {
                       </div>
                     ) : stylists && stylists.length > 0 ? (
                       <div className="grid gap-5 sm:gap-7 grid-cols-2 p-3 sm:p-5 overflow-visible">
-                        {stylists.map((s) => (
+                        {stylists.map((s) => {
+                          const isPriority = s.id === priorityStylistId && stylistId !== s.id;
+                          return (
                           <motion.button
                             key={s.id}
                             type="button"
@@ -1206,8 +1213,10 @@ export default function PrestationsForm() {
                             whileTap={{ scale: 0.95 }}
                             className={cn(
                               "flex items-center gap-4 sm:gap-6 rounded-2xl border-2 border-white/30 bg-slate-800/40 px-5 sm:px-10 py-6 sm:py-8 text-left transition-colors duration-200 shadow-[0_0_20px_rgba(148,163,184,0.2)] hover:border-fuchsia-400 hover:bg-slate-700/50 hover:shadow-[0_0_35px_rgba(232,121,249,0.7),0_0_50px_rgba(255,184,0,0.4)] focus:outline-none",
-                              stylistId === s.id && "border-fuchsia-400 bg-slate-700/50 shadow-[0_0_50px_rgba(232,121,249,0.8),0_0_70px_rgba(255,184,0,0.5)]"
+                              stylistId === s.id && "border-fuchsia-400 bg-slate-700/50 shadow-[0_0_50px_rgba(232,121,249,0.8),0_0_70px_rgba(255,184,0,0.5)]",
+                              isPriority && "border-emerald-400/60"
                             )}
+                            style={isPriority ? { animation: "pulse-priority 1.5s ease-in-out infinite" } : undefined}
                           >
                             <motion.span
                               className={cn(
@@ -1228,7 +1237,8 @@ export default function PrestationsForm() {
                               {s.name}
                             </span>
                           </motion.button>
-                        ))}
+                          );
+                        })}
                       </div>
                     ) : (
                       <div className="rounded-2xl border border-slate-700/70 bg-slate-800/80 p-5 text-center text-sm text-slate-300">
