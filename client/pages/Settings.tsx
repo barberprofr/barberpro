@@ -1816,6 +1816,9 @@ export default function Settings() {
   const [reglagesPopupOpen, setReglagesPopupOpen] = useState(false);
   const [statsPopupOpen, setStatsPopupOpen] = useState(false);
   const [acomptePopupOpen, setAcomptePopupOpen] = useState(false);
+  const [accessCodePopupOpen, setAccessCodePopupOpen] = useState(false);
+  const [accessCodeStylistId, setAccessCodeStylistId] = useState("");
+  const [accessCodeValue, setAccessCodeValue] = useState("");
   const [selectedStylistForDeposit, setSelectedStylistForDeposit] = useState<Stylist | null>(null);
   const [depositAmount, setDepositAmount] = useState("");
   const [depositMonth, setDepositMonth] = useState(() => {
@@ -1874,6 +1877,13 @@ export default function Settings() {
     queryClient.invalidateQueries({ queryKey: ["stylists"] });
   }, [queryClient]);
 
+  const closeAccessCodePopupAndRefresh = useCallback(() => {
+    setAccessCodePopupOpen(false);
+    setAccessCodeStylistId("");
+    setAccessCodeValue("");
+    queryClient.invalidateQueries({ queryKey: ["stylists"] });
+  }, [queryClient]);
+
   useEffect(() => {
     if (!coiffeurPopupOpen) return;
     const handleClickOutside = () => {
@@ -1924,6 +1934,7 @@ export default function Settings() {
     setReglagesPopupOpen(false);
     setStatsPopupOpen(false);
     setAcomptePopupOpen(false);
+    setAccessCodePopupOpen(false);
     setOpenDaily({});
     setOpenMonthly({});
     setIsDayUsageVisible(false);
@@ -3024,6 +3035,9 @@ export default function Settings() {
                 onOpenAcompte={() => setAcomptePopupOpen(true)}
                 isAcompteOpen={acomptePopupOpen}
                 onCloseAcompte={closeAcomptePopupAndRefresh}
+                onOpenAccessCode={() => setAccessCodePopupOpen(true)}
+                isAccessCodeOpen={accessCodePopupOpen}
+                onCloseAccessCode={closeAccessCodePopupAndRefresh}
               />
 
               {/* Popup Coiffeurs */}
@@ -3173,38 +3187,118 @@ export default function Settings() {
                                   </Button>
                                 </div>
 
-                                <div className="h-px bg-white/15 my-2" />
-
-                                <div className="text-xs font-medium text-white/60 mb-2">Code d'accès</div>
-                                <div className="flex gap-3">
-                                  <Input
-                                    className={cn(inputFieldClasses, "flex-1 h-12 bg-slate-950/70 text-base font-semibold text-white caret-emerald-200 placeholder:text-white/60")}
-                                    placeholder="Code d'accès"
-                                    type="password"
-                                    value={manageSecretCode}
-                                    onChange={(e) => setManageSecretCode(e.target.value)}
-                                  />
-                                  <Button
-                                    className={cn(gradientButtonClasses, "h-12 px-6")}
-                                    disabled={setStylistSecretCode.isPending}
-                                    onClick={() => {
-                                      setStylistSecretCode.mutate({ stylistId: manageStylistId, secretCode: manageSecretCode.trim() }, {
-                                        onSuccess: (data) => {
-                                          setManageSecretCode("");
-                                          showConfirmPopup("Code mis à jour", data.hasCode ? "Code d'accès défini" : "Code d'accès supprimé", "violet");
-                                        },
-                                        onError: () => {
-                                          toast({ title: "Erreur", description: "Impossible de modifier le code", variant: "destructive" });
-                                        }
-                                      });
-                                    }}
-                                  >
-                                    {manageSecretCode.trim() ? "Définir" : "Supprimer"}
-                                  </Button>
-                                </div>
                               </>
                             )}
                           </div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  </motion.div>
+                </AnimatePresence>,
+                document.body
+              )}
+
+              {/* Popup Code d'accès Coiffeur */}
+              {accessCodePopupOpen && createPortal(
+                <AnimatePresence>
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.15 }}
+                    className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
+                    onPointerDown={(e) => { if (e.target === e.currentTarget) closeAccessCodePopupAndRefresh(); }}
+                  >
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                      transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                      className="w-full max-w-lg max-h-[calc(100vh-32px)] overflow-y-auto rounded-3xl border border-cyan-500/30 bg-gradient-to-br from-slate-900/98 via-cyan-900/40 to-slate-800/98 p-6 shadow-[0_25px_80px_rgba(0,0,0,0.6),0_0_40px_rgba(34,211,238,0.2)] backdrop-blur-xl"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <div className="flex items-center justify-between mb-6">
+                        <h3 className="text-xl font-bold text-white">Code d'accès coiffeur</h3>
+                        <button
+                          type="button"
+                          onClick={closeAccessCodePopupAndRefresh}
+                          className="flex h-8 w-8 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition hover:bg-white/20"
+                        >
+                          ✕
+                        </button>
+                      </div>
+
+                      <div className="space-y-5">
+                        <div className="space-y-3">
+                          <div className="text-sm font-semibold text-cyan-300">Sélectionner un coiffeur</div>
+                          <select
+                            className={cn(
+                              "h-12 w-full rounded-2xl border px-4 text-base font-semibold transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300/70",
+                              accessCodeStylistId
+                                ? "border-cyan-300/70 bg-cyan-400/20 text-cyan-100 shadow-[0_14px_34px_rgba(34,211,238,0.3)]"
+                                : "border-white/18 bg-slate-950/70 text-white",
+                              "[&>option]:bg-slate-900 [&>option]:text-white"
+                            )}
+                            value={accessCodeStylistId}
+                            onChange={(e) => {
+                              setAccessCodeStylistId(e.target.value);
+                              setAccessCodeValue("");
+                            }}
+                          >
+                            <option value="" className="bg-slate-900 text-white">Sélectionner un coiffeur</option>
+                            {stylists?.map((s) => (
+                              <option key={s.id} value={s.id} className="bg-slate-900 text-white">{s.name}</option>
+                            ))}
+                          </select>
+
+                          {accessCodeStylistId && (
+                            <>
+                              <div className="text-xs font-medium text-white/60 mt-4 mb-2">Définir ou retirer le code d'accès</div>
+                              <Input
+                                className={cn(inputFieldClasses, "h-12 w-full bg-slate-950/70 text-base font-semibold text-white caret-cyan-200 placeholder:text-white/60")}
+                                placeholder="Nouveau code d'accès"
+                                type="password"
+                                value={accessCodeValue}
+                                onChange={(e) => setAccessCodeValue(e.target.value)}
+                              />
+                              <div className="flex gap-3 mt-3">
+                                <Button
+                                  className="flex-1 h-12 rounded-2xl border border-white/25 bg-gradient-to-r from-cyan-500/80 to-teal-500/80 text-sm font-semibold text-white shadow-[0_14px_34px_rgba(34,211,238,0.3)] hover:from-cyan-400/90 hover:to-teal-400/90 transition-all"
+                                  disabled={!accessCodeValue.trim() || setStylistSecretCode.isPending}
+                                  onClick={() => {
+                                    setStylistSecretCode.mutate({ stylistId: accessCodeStylistId, secretCode: accessCodeValue.trim() }, {
+                                      onSuccess: () => {
+                                        setAccessCodeValue("");
+                                        showConfirmPopup("Code défini", "Code d'accès enregistré", "emerald");
+                                      },
+                                      onError: () => {
+                                        toast({ title: "Erreur", description: "Impossible de définir le code", variant: "destructive" });
+                                      }
+                                    });
+                                  }}
+                                >
+                                  Définir le code
+                                </Button>
+                                <Button
+                                  className="flex-1 h-12 rounded-2xl border border-white/25 bg-gradient-to-r from-rose-500/60 to-orange-500/60 text-sm font-semibold text-white shadow-[0_14px_34px_rgba(244,63,94,0.2)] hover:from-rose-400/70 hover:to-orange-400/70 transition-all"
+                                  disabled={setStylistSecretCode.isPending}
+                                  onClick={() => {
+                                    setStylistSecretCode.mutate({ stylistId: accessCodeStylistId, secretCode: "" }, {
+                                      onSuccess: () => {
+                                        setAccessCodeValue("");
+                                        showConfirmPopup("Code retiré", "Code d'accès supprimé", "violet");
+                                      },
+                                      onError: () => {
+                                        toast({ title: "Erreur", description: "Impossible de retirer le code", variant: "destructive" });
+                                      }
+                                    });
+                                  }}
+                                >
+                                  Retirer le code
+                                </Button>
+                              </div>
+                            </>
+                          )}
                         </div>
                       </div>
                     </motion.div>

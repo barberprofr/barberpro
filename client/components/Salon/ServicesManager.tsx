@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useServices, useAddService, useDeleteService, useReorderServices, useProductTypes, useAddProductType, useDeleteProductType, useReorderProductTypes, Service } from "@/lib/api";
-import { Trash2, Plus, GripVertical, Check, Scissors, Package, UserRound, Wallet } from "lucide-react";
+import { Trash2, Plus, GripVertical, Check, Scissors, Package, UserRound, Wallet, KeyRound } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 import { AnimatePresence, motion } from "framer-motion";
@@ -20,9 +20,12 @@ interface ServicesManagerProps {
   onOpenAcompte?: () => void;
   isAcompteOpen?: boolean;
   onCloseAcompte?: () => void;
+  onOpenAccessCode?: () => void;
+  isAccessCodeOpen?: boolean;
+  onCloseAccessCode?: () => void;
 }
 
-export default function ServicesManager({ accordionValue = "", onAccordionChange, onCloseParent, onOpenCoiffeur, isCoiffeurOpen, onCloseCoiffeur, onOpenAcompte, isAcompteOpen, onCloseAcompte }: ServicesManagerProps) {
+export default function ServicesManager({ accordionValue = "", onAccordionChange, onCloseParent, onOpenCoiffeur, isCoiffeurOpen, onCloseCoiffeur, onOpenAcompte, isAcompteOpen, onCloseAcompte, onOpenAccessCode, isAccessCodeOpen, onCloseAccessCode }: ServicesManagerProps) {
   const { data: services = [] } = useServices();
   const { data: productTypes = [] } = useProductTypes();
   const addService = useAddService();
@@ -410,7 +413,7 @@ export default function ServicesManager({ accordionValue = "", onAccordionChange
           }, 100);
         }
       }}>
-        <div className="grid grid-cols-4 gap-2 mb-4">
+        <div className="grid grid-cols-5 gap-2 mb-4">
           <div 
             className={cn(cardButtonClasses, "w-full min-h-[100px] cursor-pointer")}
             onClick={() => setPrestationsPopupOpen(true)}
@@ -456,6 +459,21 @@ export default function ServicesManager({ accordionValue = "", onAccordionChange
           >
             <Wallet className="h-6 w-6 text-emerald-400/70" />
             <span className="text-xs font-bold text-emerald-400 text-center leading-tight">Acompte coiffeur</span>
+            <span className="text-[9px] text-white/60">Gérer</span>
+          </div>
+
+          <div 
+            className="group relative flex flex-col items-center justify-center gap-1 rounded-2xl border-2 border-cyan-400/60 bg-transparent px-2 py-3 min-h-[100px] cursor-pointer transition-all duration-300 hover:scale-[1.05] hover:border-cyan-300 hover:shadow-[0_0_25px_rgba(34,211,238,0.4)] active:scale-[1.08] active:border-cyan-200 active:bg-cyan-400/20 active:shadow-[0_0_40px_rgba(34,211,238,0.8)]"
+            onClick={() => {
+              if (isAccessCodeOpen) {
+                onCloseAccessCode?.();
+              } else {
+                onOpenAccessCode?.();
+              }
+            }}
+          >
+            <KeyRound className="h-6 w-6 text-cyan-400/70" />
+            <span className="text-xs font-bold text-cyan-400 text-center leading-tight">Code d'accès</span>
             <span className="text-[9px] text-white/60">Gérer</span>
           </div>
         </div>
