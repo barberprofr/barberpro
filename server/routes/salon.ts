@@ -104,7 +104,10 @@ async function getSettings(salonId: string): Promise<ISettings> {
       commissionDefault: 50,
       pointsRedeemDefault: 10,
     });
-    await settings.save();
+    // ⚠️ IMPORTANT : Ne PAS sauvegarder automatiquement le salon s'il n'existe pas.
+    // Cela évite la création de comptes fantômes vides (ghost accounts) lors d'accès par URL ou scan.
+    // Le salon sera créé uniquement via setupAdminAccount (inscription).
+    // await settings.save();
   }
 
   if (settings.pointsRedeemDefault === 100) {
@@ -307,9 +310,9 @@ interface HiddenPeriod {
 
 function isTimestampInHiddenPeriod(timestamp: number, hiddenPeriods: HiddenPeriod[]): boolean {
   if (!hiddenPeriods || hiddenPeriods.length === 0) return false;
-  
+
   const date = new Date(timestamp);
-  const formatter = new Intl.DateTimeFormat('en-CA', { 
+  const formatter = new Intl.DateTimeFormat('en-CA', {
     timeZone: 'Europe/Paris',
     year: 'numeric',
     month: '2-digit',
@@ -320,10 +323,10 @@ function isTimestampInHiddenPeriod(timestamp: number, hiddenPeriods: HiddenPerio
   const month = parseInt(parts.find(p => p.type === 'month')?.value || '0', 10);
   const day = parseInt(parts.find(p => p.type === 'day')?.value || '0', 10);
   const monthInt = year * 100 + month;
-  
+
   const period = hiddenPeriods.find(p => p.month === monthInt);
   if (!period) return false;
-  
+
   const start = Math.min(period.startDay, period.endDay);
   const end = Math.max(period.startDay, period.endDay);
   return day >= start && day <= end;
@@ -364,7 +367,7 @@ async function aggregateByPayment(salonId: string, stylistId: string, refNowMs: 
     const isTip = p.serviceName === "Pourboire";
     const method = p.paymentMethod as PaymentMethod;
     const isCashTip = isTip && method === "cash";
-    
+
     const inc = (scope: ReturnType<typeof makeScope>) => {
       if (!isCashTip) {
         scope.total.amount += p.amount;
@@ -441,7 +444,7 @@ async function aggregateByPayment(salonId: string, stylistId: string, refNowMs: 
 
   for (const prod of products) {
     const isHidden = isTimestampInHiddenPeriod(prod.timestamp, hiddenPeriods);
-    
+
     const incAmount = (scope: ReturnType<typeof makeScope>) => {
       scope.total.amount += prod.amount;
       const method = prod.paymentMethod as PaymentMethod;
@@ -517,7 +520,7 @@ async function aggregateAllPayments(salonId: string) {
   for (const p of prestations) {
     const isTip = p.serviceName === "Pourboire";
     if (isTip) continue;
-    
+
     const inc = (scope: ReturnType<typeof makeScope>) => {
       scope.total.amount += p.amount;
       scope.total.count += 1;
@@ -669,13 +672,13 @@ export const getStylistsByPriority: RequestHandler = async (req, res) => {
   try {
     const salonId = getSalonId(req);
     const settings = await getSettings(salonId);
-    
+
     if (!settings.showStylistPriority) {
       return res.json({ stylists: [], enabled: false });
     }
-    
+
     const stylists = await Stylist.find({ salonId });
-    
+
     const stylistsWithLastPrestation = await Promise.all(
       stylists.map(async (s) => {
         const lastPrestation = await Prestation.findOne({ stylistId: s.id, salonId })
@@ -696,11 +699,11 @@ export const getStylistsByPriority: RequestHandler = async (req, res) => {
         };
       })
     );
-    
+
     // Tri ascendant : le coiffeur avec la prestation la plus ancienne (ou sans prestation) est en premier
     const sortedStylists = stylistsWithLastPrestation
       .sort((a, b) => a.lastPrestationTimestamp - b.lastPrestationTimestamp);
-    
+
     res.json({ stylists: sortedStylists, enabled: true });
   } catch (error) {
     console.error('Error getting stylists by priority:', error);
@@ -1519,9 +1522,9 @@ export const addStylistDeposit: RequestHandler = async (req, res) => {
   try {
     const body = await parseRequestBody(req);
     const salonId = getSalonId(req);
-    const { stylistId, amount, month, note } = body as { 
-      stylistId?: string; 
-      amount?: number; 
+    const { stylistId, amount, month, note } = body as {
+      stylistId?: string;
+      amount?: number;
       month?: number;
       note?: string;
     };
@@ -2245,9 +2248,9 @@ export const updateStylist: RequestHandler = async (req, res) => {
     const body = await parseRequestBody(req);
     const salonId = getSalonId(req);
     const { id } = req.params as { id: string };
-    const { name, commissionPct, hiddenMonths, hiddenPeriods } = body as { 
-      name?: string; 
-      commissionPct?: number; 
+    const { name, commissionPct, hiddenMonths, hiddenPeriods } = body as {
+      name?: string;
+      commissionPct?: number;
       hiddenMonths?: number[];
       hiddenPeriods?: { month: number; startDay: number; endDay: number }[];
     };
@@ -2271,7 +2274,7 @@ export const updateStylist: RequestHandler = async (req, res) => {
       updates.hiddenMonths = hiddenMonths.filter(m => typeof m === "number");
     }
     if (Array.isArray(hiddenPeriods)) {
-      updates.hiddenPeriods = hiddenPeriods.filter(p => 
+      updates.hiddenPeriods = hiddenPeriods.filter(p =>
         typeof p === "object" && p !== null &&
         typeof p.month === "number" &&
         typeof p.startDay === "number" && p.startDay >= 1 && p.startDay <= 31 &&
@@ -2863,7 +2866,7 @@ export const reportByDay: RequestHandler = async (req, res) => {
       const dStart = startOfDayParis(p.timestamp);
       const isTip = p.serviceName === "Pourboire";
       const isCashTip = isTip && p.paymentMethod === "cash";
-      
+
       const cur = totals.get(dStart) || { amount: 0, count: 0 };
       if (!isCashTip) {
         cur.amount += p.amount;
@@ -2995,7 +2998,7 @@ export const reportByMonth: RequestHandler = async (req, res) => {
       }
       const method = p.paymentMethod as PaymentMethod;
       const isTip = p.serviceName === "Pourboire";
-      
+
       if (!isTip) {
         scope.total.amount += p.amount;
         scope.total.count += 1;

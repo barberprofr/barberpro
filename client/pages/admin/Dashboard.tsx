@@ -8,6 +8,17 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Loader2, Trash2, Search, Users, Store, DollarSign, Calendar, LogOut, ShieldCheck, CreditCard, Activity, TrendingUp } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface Stats {
     totalSalons: number;
@@ -27,6 +38,7 @@ interface Salon {
     salonPhone?: string;
     subscriptionStatus: string;
     trialEndsAt: number | null;
+    trialStartedAt: number | null;
     createdAt: string;
 }
 
@@ -253,6 +265,7 @@ export default function AdminDashboard() {
                                     <TableHead className="text-slate-400 font-bold uppercase tracking-widest text-[10px] py-4">Salon & Contact</TableHead>
                                     <TableHead className="text-slate-400 font-bold uppercase tracking-widest text-[10px] py-4">Localisation</TableHead>
                                     <TableHead className="text-slate-400 font-bold uppercase tracking-widest text-[10px] py-4">Status & Trial</TableHead>
+                                    <TableHead className="text-slate-400 font-bold uppercase tracking-widest text-[10px] py-4">Dates</TableHead>
                                     <TableHead className="text-right text-slate-400 font-bold uppercase tracking-widest text-[10px] py-4">Actions</TableHead>
                                 </TableRow>
                             </TableHeader>
@@ -306,11 +319,19 @@ export default function AdminDashboard() {
                                                 {salon.trialEndsAt && (
                                                     <div className="flex items-center gap-1.5 text-[10px]">
                                                         <Calendar className="h-3 w-3 text-slate-500" />
-                                                        <span className={`font-bold ${salon.trialEndsAt < Date.now() ? "text-rose-500" : "text-slate-400"}`}>
+                                                        <span className={`font-bold ${(salon.trialEndsAt < Date.now() && salon.subscriptionStatus !== 'active' && salon.subscriptionStatus !== 'paid') ? "text-rose-500" : "text-slate-400"}`}>
                                                             {new Date(salon.trialEndsAt).toLocaleDateString()}
                                                         </span>
                                                     </div>
                                                 )}
+                                            </div>
+                                        </TableCell>
+                                        <TableCell>
+                                            <div className="flex flex-col gap-1 text-[10px] text-slate-400">
+                                                <div className="flex items-center gap-1.5" title="Date de création">
+                                                    <Store className="h-3 w-3 text-slate-500" />
+                                                    <span>Créé: {new Date(salon.createdAt).toLocaleDateString()}</span>
+                                                </div>
                                             </div>
                                         </TableCell>
                                         <TableCell className="text-right">
@@ -332,14 +353,35 @@ export default function AdminDashboard() {
                                                 >
                                                     Extension
                                                 </Button>
-                                                <Button
-                                                    size="icon"
-                                                    variant="secondary"
-                                                    className="h-8 w-8 bg-rose-500/10 hover:bg-rose-500 text-rose-500 hover:text-white border border-rose-500/20 transition-all rounded-lg"
-                                                    onClick={() => handleDelete(salon.salonId)}
-                                                >
-                                                    <Trash2 className="h-4 w-4" />
-                                                </Button>
+                                                <AlertDialog>
+                                                    <AlertDialogTrigger asChild>
+                                                        <Button
+                                                            size="icon"
+                                                            variant="secondary"
+                                                            className="h-8 w-8 bg-rose-500/10 hover:bg-rose-500 text-rose-500 hover:text-white border border-rose-500/20 transition-all rounded-lg"
+                                                            title="Supprimer"
+                                                        >
+                                                            <Trash2 className="h-4 w-4" />
+                                                        </Button>
+                                                    </AlertDialogTrigger>
+                                                    <AlertDialogContent className="bg-slate-900 border-white/10 text-white">
+                                                        <AlertDialogHeader>
+                                                            <AlertDialogTitle>Êtes-vous absolument sûr ?</AlertDialogTitle>
+                                                            <AlertDialogDescription className="text-slate-400">
+                                                                Cette action est irréversible. Elle supprimera définitivement le compte du salon <strong>{salon.salonName || "Sans nom"}</strong>, ainsi que toutes les données associées (clients, rendez-vous, historique, statistiques).
+                                                            </AlertDialogDescription>
+                                                        </AlertDialogHeader>
+                                                        <AlertDialogFooter>
+                                                            <AlertDialogCancel className="bg-transparent border-white/10 text-white hover:bg-white/5 hover:text-white">Annuler</AlertDialogCancel>
+                                                            <AlertDialogAction
+                                                                className="bg-rose-600 hover:bg-rose-700 text-white border-none"
+                                                                onClick={() => handleDelete(salon.salonId)}
+                                                            >
+                                                                Supprimer définitivement
+                                                            </AlertDialogAction>
+                                                        </AlertDialogFooter>
+                                                    </AlertDialogContent>
+                                                </AlertDialog>
                                             </div>
                                         </TableCell>
                                     </TableRow>
