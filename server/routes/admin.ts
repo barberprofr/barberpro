@@ -208,12 +208,21 @@ router.put("/salons/:id", requireSuperAdmin, async (req, res) => {
             "storeName",
             "salonName",
             "adminEmail",
-            "accountEmail"
+            "accountEmail",
+            "subscriptionStartedAt"
         ];
 
         const safeUpdates: any = {};
         for (const k of allowed) {
             if (k in updates) safeUpdates[k] = updates[k];
+        }
+
+        // Auto-set subscriptionStartedAt if activating and not set
+        if (safeUpdates.subscriptionStatus === 'active') {
+            const current = await Settings.findOne({ salonId: id });
+            if (current && !current.subscriptionStartedAt) {
+                safeUpdates.subscriptionStartedAt = Date.now();
+            }
         }
 
         const salon = await Settings.findOneAndUpdate({ salonId: id }, { $set: safeUpdates }, { new: true });

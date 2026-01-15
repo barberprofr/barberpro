@@ -123,6 +123,9 @@ export const webhookHandler: RequestHandler = async (req, res) => {
         settings.stripeCustomerId = customerId ?? settings.stripeCustomerId;
         settings.stripeSubscriptionId = subscriptionId ?? settings.stripeSubscriptionId;
         settings.subscriptionStatus = "active";
+        if (!settings.subscriptionStartedAt) {
+          settings.subscriptionStartedAt = Date.now();
+        }
         await settings.save();
         console.log('💾 Updated settings with subscription info');
       } else {
@@ -146,6 +149,9 @@ export const webhookHandler: RequestHandler = async (req, res) => {
         // If status is 'paid' (from invoice), normalize to 'active'
         const normalizedStatus = status === 'paid' ? 'active' : status;
         settings.subscriptionStatus = normalizedStatus ?? settings.subscriptionStatus;
+        if (normalizedStatus === 'active' && !settings.subscriptionStartedAt) {
+          settings.subscriptionStartedAt = Date.now();
+        }
         if (currentPeriodEnd) settings.subscriptionCurrentPeriodEnd = currentPeriodEnd;
         await settings.save();
       }

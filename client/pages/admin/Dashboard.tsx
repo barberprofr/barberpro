@@ -38,7 +38,9 @@ interface Salon {
     salonPhone?: string;
     subscriptionStatus: string;
     trialEndsAt: number | null;
+
     trialStartedAt: number | null;
+    subscriptionStartedAt: number | null;
     createdAt: string;
 }
 
@@ -332,6 +334,12 @@ export default function AdminDashboard() {
                                                     <Store className="h-3 w-3 text-slate-500" />
                                                     <span>Créé: {new Date(salon.createdAt).toLocaleDateString()}</span>
                                                 </div>
+                                                {salon.subscriptionStatus === 'active' && salon.subscriptionStartedAt && (
+                                                    <div className="flex items-center gap-1.5 text-emerald-400" title="Date de début d'abonnement">
+                                                        <CreditCard className="h-3 w-3" />
+                                                        <span>Actif: {new Date(salon.subscriptionStartedAt).toLocaleDateString()}</span>
+                                                    </div>
+                                                )}
                                             </div>
                                         </TableCell>
                                         <TableCell className="text-right">

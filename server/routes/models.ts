@@ -142,6 +142,7 @@ export interface ISettings extends Document {
     stripeSubscriptionId?: string | null;
     subscriptionStatus?: string | null;
     subscriptionCurrentPeriodEnd?: number | null;
+    subscriptionStartedAt?: number | null;
     trialStartedAt?: number | null;
     trialEndsAt?: number | null;
     createdAt: Date;
@@ -292,6 +293,7 @@ const SettingsSchema = new Schema({
     stripeSubscriptionId: { type: String, default: null },
     subscriptionStatus: { type: String, default: null },
     subscriptionCurrentPeriodEnd: { type: Number, default: null },
+    subscriptionStartedAt: { type: Number, default: null },
     trialStartedAt: { type: Number, default: null },
     trialEndsAt: { type: Number, default: null }
 }, {
