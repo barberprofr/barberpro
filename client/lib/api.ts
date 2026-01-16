@@ -1059,7 +1059,7 @@ export function useDeleteStylistDeposit() {
   });
 }
 
-export type CurrencyCode = "EUR" | "USD" | "MAD" | "GBP" | "DZD";
+export type CurrencyCode = "EUR" | "USD" | "MAD" | "GBP" | "DZD" | "CHF";
 
 export const CURRENCY_CONFIG: Record<CurrencyCode, { symbol: string; locale: string; name: string; flag: string }> = {
   EUR: { symbol: "€", locale: "fr-FR", name: "Euro", flag: "🇪🇺" },
@@ -1067,6 +1067,7 @@ export const CURRENCY_CONFIG: Record<CurrencyCode, { symbol: string; locale: str
   MAD: { symbol: "DH", locale: "fr-MA", name: "Dirham marocain", flag: "🇲🇦" },
   GBP: { symbol: "£", locale: "en-GB", name: "Livre sterling", flag: "🇬🇧" },
   DZD: { symbol: "DA", locale: "fr-DZ", name: "Dinar algérien", flag: "🇩🇿" },
+  CHF: { symbol: "CHF", locale: "fr-CH", name: "Franc suisse", flag: "🇨🇭" },
 };
 
 export function createCurrencyFormatter(currency: CurrencyCode = "EUR") {
