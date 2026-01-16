@@ -125,12 +125,26 @@ export default function SharedLayout({ children }: PropsWithChildren) {
             <div className="flex items-center gap-2">
               <button
                 className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-md border bg-background hover:bg-accent"
-                onClick={() => {
+                onClick={async () => {
                   if (window.confirm("Se déconnecter ?")) {
+                    // Nettoyer toutes les données d'authentification
                     setAdminToken(null);
                     clearSalonCache();
                     qc.clear();
-                    window.location.href = "/";
+                    
+                    // Pour PWA installée : forcer un rechargement complet
+                    // Vider les caches du service worker si disponible
+                    if ('caches' in window) {
+                      try {
+                        const cacheNames = await caches.keys();
+                        await Promise.all(cacheNames.map(name => caches.delete(name)));
+                      } catch (e) {
+                        console.log('Cache clear skipped');
+                      }
+                    }
+                    
+                    // Forcer un rechargement complet avec cache-busting
+                    window.location.replace("/?logout=" + Date.now());
                   }
                 }}
               >
