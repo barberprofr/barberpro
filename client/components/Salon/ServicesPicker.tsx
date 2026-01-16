@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { createPortal } from "react-dom";
-import { useServices, useProductTypes } from "@/lib/api";
+import { useServices, useProductTypes, useConfig, CURRENCY_CONFIG, CurrencyCode, createCurrencyFormatter } from "@/lib/api";
 import { Check, X, Package, Euro } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState, useEffect, useCallback } from "react";
@@ -32,6 +32,9 @@ interface ServicesPickerProps {
 export default function ServicesPicker({ onServiceSelect, onReset, externalOpen, onOpenChange, disabled }: ServicesPickerProps) {
   const { data: services = [] } = useServices();
   const { data: productTypes = [] } = useProductTypes();
+  const { data: config } = useConfig();
+  const currencyFormatter = createCurrencyFormatter((config?.currency as CurrencyCode) || "EUR");
+  const currencySymbol = CURRENCY_CONFIG[(config?.currency as CurrencyCode) || "EUR"]?.symbol || "€";
   const { toast } = useToast();
   const [internalOpen, setInternalOpen] = useState(false);
 
@@ -200,7 +203,7 @@ export default function ServicesPicker({ onServiceSelect, onReset, externalOpen,
                 >
                   <div className="flex items-center">
                     <span className="text-2xl font-bold text-emerald-100">Total</span>
-                    <span className="flex-1 text-center text-5xl font-black text-cyan-300" style={{ WebkitTextStroke: '0.5px black' }}>{total.toFixed(2)}€</span>
+                    <span className="flex-1 text-center text-5xl font-black text-cyan-300" style={{ WebkitTextStroke: '0.5px black' }}>{currencyFormatter.format(total)}</span>
                   </div>
                 </motion.div>
               )}
@@ -283,7 +286,7 @@ export default function ServicesPicker({ onServiceSelect, onReset, externalOpen,
                           {service.name}
                         </span>
                         <span className="text-lg font-semibold text-white/80">
-                          {service.price.toFixed(2)}€
+                          {currencyFormatter.format(service.price)}
                         </span>
                       </div>
 
@@ -406,7 +409,7 @@ export default function ServicesPicker({ onServiceSelect, onReset, externalOpen,
                               {product.name}
                             </span>
                             <span className="text-lg font-semibold text-white/80">
-                              {product.price.toFixed(2)}€
+                              {currencyFormatter.format(product.price)}
                             </span>
                           </div>
 
@@ -480,7 +483,7 @@ export default function ServicesPicker({ onServiceSelect, onReset, externalOpen,
                         className="w-full bg-transparent text-2xl font-bold text-white placeholder:text-white/30 focus:outline-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none [-moz-appearance:textfield]"
                       />
                     </div>
-                    <span className="text-xl font-semibold text-white/80">€</span>
+                    <span className="text-xl font-semibold text-white/80">{currencySymbol}</span>
                   </div>
                 </div>
               </div>
@@ -509,7 +512,7 @@ export default function ServicesPicker({ onServiceSelect, onReset, externalOpen,
                         className="w-full bg-transparent text-2xl font-bold text-white placeholder:text-white/30 focus:outline-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none [-moz-appearance:textfield]"
                       />
                     </div>
-                    <span className="text-xl font-semibold text-white/80">€</span>
+                    <span className="text-xl font-semibold text-white/80">{currencySymbol}</span>
                   </div>
                 </div>
               </div>
@@ -627,7 +630,7 @@ export default function ServicesPicker({ onServiceSelect, onReset, externalOpen,
                     {/* Reflet glass 3D */}
                     <div className="absolute inset-x-2 top-1 h-[40%] rounded-t-xl bg-gradient-to-b from-white/50 to-transparent pointer-events-none" />
                     <span className="relative z-10 drop-shadow-[0_2px_6px_rgba(0,0,0,0.4)]">
-                      Valider ({selectedPrestations.size > 0 ? `${selectedPrestations.size} prest.` : ''}{selectedPrestations.size > 0 && (selectedProducts.size > 0 || customAmountValue > 0) ? ' + ' : ''}{selectedProducts.size > 0 ? `${selectedProducts.size} prod.` : ''}{selectedProducts.size > 0 && customAmountValue > 0 ? ' + ' : ''}{customAmountValue > 0 ? `${customAmountValue.toFixed(2)}€` : ''})
+                      Valider ({selectedPrestations.size > 0 ? `${selectedPrestations.size} prest.` : ''}{selectedPrestations.size > 0 && (selectedProducts.size > 0 || customAmountValue > 0) ? ' + ' : ''}{selectedProducts.size > 0 ? `${selectedProducts.size} prod.` : ''}{selectedProducts.size > 0 && customAmountValue > 0 ? ' + ' : ''}{customAmountValue > 0 ? currencyFormatter.format(customAmountValue) : ''})
                     </span>
                   </motion.button>
                 </motion.div>

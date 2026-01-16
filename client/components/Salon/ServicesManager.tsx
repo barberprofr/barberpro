@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useServices, useAddService, useDeleteService, useReorderServices, useProductTypes, useAddProductType, useDeleteProductType, useReorderProductTypes, Service } from "@/lib/api";
+import { useServices, useAddService, useDeleteService, useReorderServices, useProductTypes, useAddProductType, useDeleteProductType, useReorderProductTypes, Service, useConfig, CURRENCY_CONFIG, CurrencyCode, createCurrencyFormatter } from "@/lib/api";
 import { Trash2, Plus, GripVertical, Check, Scissors, Package, UserRound, Wallet, KeyRound } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
@@ -28,6 +28,9 @@ interface ServicesManagerProps {
 export default function ServicesManager({ accordionValue = "", onAccordionChange, onCloseParent, onOpenCoiffeur, isCoiffeurOpen, onCloseCoiffeur, onOpenAcompte, isAcompteOpen, onCloseAcompte, onOpenAccessCode, isAccessCodeOpen, onCloseAccessCode }: ServicesManagerProps) {
   const { data: services = [] } = useServices();
   const { data: productTypes = [] } = useProductTypes();
+  const { data: config } = useConfig();
+  const currencyFormatter = createCurrencyFormatter((config?.currency as CurrencyCode) || "EUR");
+  const currencySymbol = CURRENCY_CONFIG[(config?.currency as CurrencyCode) || "EUR"]?.symbol || "€";
   const addService = useAddService();
   const deleteService = useDeleteService();
   const reorderServices = useReorderServices();
@@ -524,7 +527,7 @@ export default function ServicesManager({ accordionValue = "", onAccordionChange
                   </div>
 
                   <div>
-                    <label className="text-base font-semibold text-gray-100">Prix (€)</label>
+                    <label className="text-base font-semibold text-gray-100">Prix ({currencySymbol})</label>
                     <Input
                       type="number"
                       value={servicePrice}
@@ -575,7 +578,7 @@ export default function ServicesManager({ accordionValue = "", onAccordionChange
                               <div className="flex-1 min-w-0">
                                 <div className="font-semibold text-base text-gray-100 truncate">{service.name}</div>
                                 <div className="text-sm text-gray-400 mt-1">
-                                  {service.price.toFixed(2)}€
+                                  {currencyFormatter.format(service.price)}
                                   {service.description && ` - ${service.description}`}
                                 </div>
                               </div>
@@ -661,7 +664,7 @@ export default function ServicesManager({ accordionValue = "", onAccordionChange
                   </div>
 
                   <div>
-                    <label className="text-base font-semibold text-gray-100">Prix (€)</label>
+                    <label className="text-base font-semibold text-gray-100">Prix ({currencySymbol})</label>
                     <Input
                       type="number"
                       value={productPrice}
@@ -709,7 +712,7 @@ export default function ServicesManager({ accordionValue = "", onAccordionChange
                               <div className="flex-1">
                                 <div className="font-semibold text-base text-gray-100">{productType.name}</div>
                                 <div className="text-sm text-gray-400 mt-1">
-                                  {productType.price.toFixed(2)}€
+                                  {currencyFormatter.format(productType.price)}
                                   {productType.description && ` - ${productType.description}`}
                                 </div>
                               </div>
