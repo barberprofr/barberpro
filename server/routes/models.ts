@@ -136,7 +136,7 @@ export interface ISettings extends Document {
     pointsRedeemDefault: number;
     showStylistPriority: boolean; // Afficher la liste des coiffeurs par priorité sur l'accueil
     hideTotalCA: boolean; // Cacher le CA total sur l'accueil
-    currency: "EUR" | "USD" | "MAD" | "GBP"; // Devise d'affichage
+    currency: "EUR" | "USD" | "MAD" | "GBP" | "DZD" | "CHF"; // Devise d'affichage
     // Payment / subscription fields
     stripeCustomerId?: string | null;
     stripeSubscriptionId?: string | null;
@@ -287,7 +287,7 @@ const SettingsSchema = new Schema({
     pointsRedeemDefault: { type: Number, default: 10, min: 0 },
     showStylistPriority: { type: Boolean, default: false },
     hideTotalCA: { type: Boolean, default: false },
-    currency: { type: String, default: "EUR", enum: ["EUR", "USD", "MAD", "GBP"] },
+    currency: { type: String, default: "EUR", enum: ["EUR", "USD", "MAD", "GBP", "DZD", "CHF"] },
     // Subscription management (optional, for Stripe integration)
     stripeCustomerId: { type: String, default: null },
     stripeSubscriptionId: { type: String, default: null },

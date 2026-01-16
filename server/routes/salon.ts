@@ -1453,7 +1453,7 @@ export const updateConfig: RequestHandler = async (req, res) => {
       salonName?: string | null;
       showStylistPriority?: boolean;
       hideTotalCA?: boolean;
-      currency?: "EUR" | "USD" | "MAD" | "GBP";
+      currency?: "EUR" | "USD" | "MAD" | "GBP" | "DZD" | "CHF";
     };
 
     const updates: any = {};
@@ -1478,7 +1478,7 @@ export const updateConfig: RequestHandler = async (req, res) => {
     if (typeof hideTotalCA === "boolean") {
       updates.hideTotalCA = hideTotalCA;
     }
-    if (currency && ["EUR", "USD", "MAD", "GBP"].includes(currency)) {
+    if (currency && ["EUR", "USD", "MAD", "GBP", "DZD", "CHF"].includes(currency)) {
       updates.currency = currency;
     }
 
