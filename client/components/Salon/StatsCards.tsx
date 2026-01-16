@@ -4,7 +4,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown, ChevronLeft, Euro, Scissors, Package, Users, UserRound, Delete } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { useDashboardSummary, useStylists, useStylistBreakdown, useConfig, apiPath, useProducts, useStylistHasSecretCode, useVerifyStylistSecretCode, CURRENCY_CONFIG, CurrencyCode } from "@/lib/api";
+import { useDashboardSummary, useStylists, useStylistBreakdown, useConfig, apiPath, useProducts, useStylistHasSecretCode, useVerifyStylistSecretCode, CURRENCY_CONFIG, CurrencyCode, createCurrencyFormatter } from "@/lib/api";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Lock } from "lucide-react";
@@ -350,7 +350,9 @@ function RevenuePopoverCard({
   methodsStats,
 }: RevenuePopoverCardProps) {
   const [popoverOpen, setPopoverOpen] = useState(false);
-  const formattedTotal = eur.format(paymentTotalAmount);
+  const { data: config } = useConfig();
+  const currencyFormatter = createCurrencyFormatter((config?.currency as CurrencyCode) || "EUR");
+  const formattedTotal = currencyFormatter.format(paymentTotalAmount);
 
   return (
     <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
@@ -413,7 +415,7 @@ function RevenuePopoverCard({
               <PaymentMethodCard
                 key={key}
                 label={methodLabel}
-                amount={eur.format(stats.amount ?? 0)}
+                amount={currencyFormatter.format(stats.amount ?? 0)}
                 count={stats.count ?? 0}
                 gradient={visual.gradient}
                 accentClass={visual.accentClass}
@@ -441,13 +443,15 @@ const paymentCardStyles = {
   },
 } as const;
 
-const eur = new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" });
 const pointsFmt = new Intl.NumberFormat("fr-FR");
 
 export default function StatsCards() {
   const { data: summary } = useDashboardSummary();
   const { data: stylists } = useStylists();
   const { data: config } = useConfig();
+  
+  // Formateur de devise dynamique basé sur la configuration
+  const eur = createCurrencyFormatter((config?.currency as CurrencyCode) || "EUR");
   const { data: products } = useProducts();
   const stylistCount = stylists?.length ?? 0;
   const hasStylists = stylistCount > 0;
