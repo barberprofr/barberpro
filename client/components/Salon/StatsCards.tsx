@@ -584,20 +584,20 @@ export default function StatsCards() {
                 ) : (
                   <>
                     <div className="text-5xl font-bold text-white tracking-tight mb-6">
-                      {(summary?.dailyAmount ?? 0).toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
+                      {eur.format(summary?.dailyAmount ?? 0)}
                     </div>
                     <div className="w-full space-y-2 text-sm">
                       <div className="flex justify-between items-center px-4 py-2 rounded-lg bg-emerald-500/20 border border-emerald-400/30">
                         <span className="text-emerald-300 font-medium">Espèces</span>
-                        <span className="text-white font-bold">{(summary?.dailyPayments?.methods?.cash?.amount ?? 0).toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</span>
+                        <span className="text-white font-bold">{eur.format(summary?.dailyPayments?.methods?.cash?.amount ?? 0)}</span>
                       </div>
                       <div className="flex justify-between items-center px-4 py-2 rounded-lg bg-indigo-500/20 border border-indigo-400/30">
                         <span className="text-indigo-300 font-medium">CB</span>
-                        <span className="text-white font-bold">{(summary?.dailyPayments?.methods?.card?.amount ?? 0).toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</span>
+                        <span className="text-white font-bold">{eur.format(summary?.dailyPayments?.methods?.card?.amount ?? 0)}</span>
                       </div>
                       <div className="flex justify-between items-center px-4 py-2 rounded-lg bg-amber-500/20 border border-amber-400/30">
                         <span className="text-amber-300 font-medium">Planity/Treatwell</span>
-                        <span className="text-white font-bold">{(summary?.dailyPayments?.methods?.check?.amount ?? 0).toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</span>
+                        <span className="text-white font-bold">{eur.format(summary?.dailyPayments?.methods?.check?.amount ?? 0)}</span>
                       </div>
                     </div>
                   </>
