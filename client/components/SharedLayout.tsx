@@ -127,24 +127,34 @@ export default function SharedLayout({ children }: PropsWithChildren) {
                 className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-md border bg-background hover:bg-accent"
                 onClick={async () => {
                   if (window.confirm("Se déconnecter ?")) {
-                    // Nettoyer toutes les données d'authentification
-                    setAdminToken(null);
-                    clearSalonCache();
-                    qc.clear();
-                    
-                    // Pour PWA installée : forcer un rechargement complet
-                    // Vider les caches du service worker si disponible
-                    if ('caches' in window) {
-                      try {
+                    try {
+                      // 1. Nettoyer React Query cache
+                      qc.clear();
+                      
+                      // 2. Vider TOUT le localStorage (PWA PlayStore fix)
+                      localStorage.clear();
+                      
+                      // 3. Vider sessionStorage aussi
+                      sessionStorage.clear();
+                      
+                      // 4. Vider les caches du service worker
+                      if ('caches' in window) {
                         const cacheNames = await caches.keys();
                         await Promise.all(cacheNames.map(name => caches.delete(name)));
-                      } catch (e) {
-                        console.log('Cache clear skipped');
                       }
+                      
+                      // 5. Désenregistrer le service worker pour forcer un nouveau départ
+                      if ('serviceWorker' in navigator) {
+                        const registrations = await navigator.serviceWorker.getRegistrations();
+                        await Promise.all(registrations.map(r => r.unregister()));
+                      }
+                    } catch (e) {
+                      console.log('Logout cleanup error:', e);
                     }
                     
-                    // Forcer un rechargement complet avec cache-busting
-                    window.location.replace("/?logout=" + Date.now());
+                    // 6. Forcer un rechargement complet - méthode la plus fiable
+                    window.location.href = "/?logout=" + Date.now();
+                    window.location.reload();
                   }
                 }}
               >
