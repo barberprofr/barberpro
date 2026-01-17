@@ -47,3 +47,17 @@ BarberPro is a fullstack salon management application built with React (Vite) fr
 - Subscription billing via Stripe
 - PDF/CSV export for reports
 - PWA support
+- **Automatic language switching**: Interface switches to English when USD currency is selected, French for all other currencies
+
+## Internationalization (i18n)
+The app uses an automatic language system based on the selected currency:
+- **USD** → English interface
+- **All other currencies** (EUR, MAD, GBP, DZD, CHF) → French interface
+
+Translation system located in `client/lib/i18n.ts` with categories:
+- `nav`: Navigation elements
+- `salon`: Services, products, stylists
+- `payment`: Payment methods
+- `client`: Client management
+- `stats`: Statistics and reports
+- `settings`: Configuration options
