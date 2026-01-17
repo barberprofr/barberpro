@@ -903,7 +903,6 @@ export const adminLogin: RequestHandler = async (req, res) => {
           settings = null;
         } else {
           // Migration à la volée si trouvé par adminEmail ET accountEmail non défini
-          console.log(`🔄 Migration accountEmail pour salon ${settings.salonId}`);
           settings.accountEmail = settings.adminEmail || e;
           await settings.save();
         }
@@ -1055,7 +1054,6 @@ export const recoverAdminPassword: RequestHandler = async (req, res) => {
       return res.status(400).json({ error: "Adresse email valide requise" });
     }
 
-    console.log(`🔍 Recherche de compte pour email: ${e}`);
 
     // Rechercher dans tous les salons l'email correspondant
     let foundSalonId: string | null = null;
@@ -1064,7 +1062,6 @@ export const recoverAdminPassword: RequestHandler = async (req, res) => {
     // 1. D'abord chercher dans le cache
     const cachedSalonId = emailToSalonId.get(e);
     if (cachedSalonId) {
-      console.log(`📋 Trouvé dans cache: ${cachedSalonId}`);
       const settings = await getSettings(cachedSalonId);
       if (settings.adminEmail && settings.adminEmail.toLowerCase() === e) {
         foundSalonId = cachedSalonId;
@@ -1074,7 +1071,6 @@ export const recoverAdminPassword: RequestHandler = async (req, res) => {
 
     // 2. Si pas trouvé dans cache, chercher dans la base de données
     if (!foundSalonId) {
-      console.log(`🔍 Recherche en base de données pour: ${e}`);
       // Chercher par adminEmail (récupération) OU accountEmail (fallback)
       const settings = await Settings.findOne({
         $or: [
@@ -1086,7 +1082,6 @@ export const recoverAdminPassword: RequestHandler = async (req, res) => {
       if (settings) {
         foundSalonId = settings.salonId;
         foundSettings = settings;
-        console.log(`✅ Trouvé en base: ${foundSalonId}`);
 
         // Mettre à jour le cache pour la prochaine fois
         emailToSalonId.set(e, foundSalonId);
@@ -1094,20 +1089,17 @@ export const recoverAdminPassword: RequestHandler = async (req, res) => {
     }
 
     if (!foundSalonId || !foundSettings) {
-      console.log(`❌ Aucun compte trouvé pour: ${e}`);
       return res.status(401).json({ error: "Aucun compte trouvé avec cet email" });
     }
 
     // Vérifier que l'email de récupération est configuré
     if (!foundSettings.adminEmail) {
-      console.log(`❌ Aucun email admin configuré pour: ${foundSalonId}`);
       return res.status(400).json({ error: "Aucun email de récupération configuré" });
     }
 
     // Vérifier la correspondance exacte de l'email (case insensitive)
     const targetEmail = (foundSettings.adminEmail || foundSettings.accountEmail || "").toLowerCase();
     if (targetEmail !== e) {
-      console.log(`❌ Email non reconnu: ${e} vs ${targetEmail}`);
       return res.status(401).json({ error: "Email non reconnu" });
     }
 
@@ -1124,7 +1116,6 @@ export const recoverAdminPassword: RequestHandler = async (req, res) => {
     const emailed = await EmailService.sendPasswordResetCode(e, code, salonName);
 
     if (emailed) {
-      console.log(`✅ Code de récupération envoyé à: ${e} (salon: ${foundSalonId})`);
       return res.json({
         ok: true,
         message: "Code de récupération envoyé par email",
@@ -1194,7 +1185,6 @@ export const recoverAdminVerify: RequestHandler = async (req, res) => {
 
     await settings.save();
 
-    console.log(`✅ Mot de passe réinitialisé pour: ${e}`);
 
     return res.json({
       token: settings.adminToken,
@@ -1218,7 +1208,6 @@ export const recoverAdminCode: RequestHandler = async (req, res) => {
       return res.status(400).json({ error: "Adresse email valide requise" });
     }
 
-    console.log(`🔍 Recherche de compte pour récupération code admin: ${e}`);
 
     // RECHERCHE ROBUSTE EN BASE DE DONNÉES
     let foundSalonId: string | null = null;
@@ -1226,13 +1215,11 @@ export const recoverAdminCode: RequestHandler = async (req, res) => {
 
     // 1. Recherche dans tous les salons
     const allSettings = await Settings.find({});
-    console.log(`📊 Recherche parmi ${allSettings.length} salons`);
 
     for (const setting of allSettings) {
       if (setting.adminEmail && setting.adminEmail.toLowerCase() === e) {
         foundSalonId = setting.salonId;
         foundSettings = setting;
-        console.log(`✅ Salon trouvé: ${foundSalonId}`);
         emailToSalonId.set(e, foundSalonId);
         break;
       }
@@ -1247,18 +1234,11 @@ export const recoverAdminCode: RequestHandler = async (req, res) => {
       if (settings) {
         foundSalonId = settings.salonId;
         foundSettings = settings;
-        console.log(`✅ Salon trouvé avec recherche alternative: ${foundSalonId}`);
         emailToSalonId.set(e, foundSalonId);
       }
     }
 
     if (!foundSalonId || !foundSettings) {
-      console.log(`❌ Aucun compte trouvé pour: ${e}`);
-      console.log(`📊 Salons disponibles:`, allSettings.map(s => ({
-        salonId: s.salonId,
-        adminEmail: s.adminEmail,
-        hasEmail: !!s.adminEmail
-      })));
       return res.status(401).json({ error: "Aucun compte trouvé avec cet email" });
     }
 
@@ -1268,7 +1248,6 @@ export const recoverAdminCode: RequestHandler = async (req, res) => {
 
     // Vérification exacte de l'email
     if (foundSettings.adminEmail.toLowerCase() !== e) {
-      console.log(`❌ Email mismatch: ${e} vs ${foundSettings.adminEmail}`);
       return res.status(401).json({ error: "Email non reconnu" });
     }
 
@@ -1283,7 +1262,6 @@ export const recoverAdminCode: RequestHandler = async (req, res) => {
     const emailed = await EmailService.sendAdminCodeRecovery(e, code, salonName);
 
     if (emailed) {
-      console.log(`✅ Code admin de récupération envoyé à: ${e} (salon: ${foundSalonId})`);
       return res.json({
         ok: true,
         message: "Code de récupération du code admin envoyé par email",
@@ -1327,7 +1305,6 @@ export const verifyAdminCodeRecovery: RequestHandler = async (req, res) => {
       return res.status(400).json({ error: "Le code admin ne peut pas être 'admin'" });
     }
 
-    console.log(`🔍 Recherche de compte pour vérification code: ${e}`);
 
     // RECHERCHE DIRECTE EN BASE DE DONNÉES - CORRECTION
     let foundSalonId: string | null = null;
@@ -1336,7 +1313,6 @@ export const verifyAdminCodeRecovery: RequestHandler = async (req, res) => {
     // 1. D'abord chercher dans le cache (peut être vide sur Netlify)
     const cachedSalonId = emailToSalonId.get(e);
     if (cachedSalonId) {
-      console.log(`📋 Trouvé dans cache: ${cachedSalonId}`);
       const settings = await getSettings(cachedSalonId);
       if (settings.adminEmail && settings.adminEmail.toLowerCase() === e) {
         foundSalonId = cachedSalonId;
@@ -1346,17 +1322,14 @@ export const verifyAdminCodeRecovery: RequestHandler = async (req, res) => {
 
     // 2. Recherche directe en base de données (IMPORTANT pour Netlify)
     if (!foundSalonId) {
-      console.log(`🔍 Recherche en base de données pour: ${e}`);
 
       // Rechercher TOUS les settings avec cet email
       const allSettings = await Settings.find({});
-      console.log(`📊 Nombre total de salons en base: ${allSettings.length}`);
 
       for (const setting of allSettings) {
         if (setting.adminEmail && setting.adminEmail.toLowerCase() === e) {
           foundSalonId = setting.salonId;
           foundSettings = setting;
-          console.log(`✅ Salon trouvé en base: ${foundSalonId}`);
 
           // Mettre à jour le cache pour les prochains appels
           emailToSalonId.set(e, foundSalonId);
@@ -1367,7 +1340,6 @@ export const verifyAdminCodeRecovery: RequestHandler = async (req, res) => {
 
     // 3. Recherche alternative avec regex (plus permissive)
     if (!foundSalonId) {
-      console.log(`🔍 Recherche alternative avec regex pour: ${e}`);
       const settings = await Settings.findOne({
         adminEmail: { $regex: new RegExp(`^${e}$`, 'i') }
       });
@@ -1375,20 +1347,16 @@ export const verifyAdminCodeRecovery: RequestHandler = async (req, res) => {
       if (settings) {
         foundSalonId = settings.salonId;
         foundSettings = settings;
-        console.log(`✅ Salon trouvé avec recherche regex: ${foundSalonId}`);
         emailToSalonId.set(e, foundSalonId);
       }
     }
 
     if (!foundSalonId || !foundSettings) {
-      console.log(`❌ Aucun compte trouvé pour: ${e}`);
-      console.log(`📊 État du cache emailToSalonId:`, Array.from(emailToSalonId.entries()));
       return res.status(401).json({ error: "Aucun compte trouvé avec cet email" });
     }
 
     // Vérifications supplémentaires
     if (!foundSettings.adminEmail) {
-      console.log(`❌ Aucun email admin configuré pour: ${foundSalonId}`);
       return res.status(400).json({ error: "Aucun email de récupération configuré" });
     }
 
@@ -1397,28 +1365,23 @@ export const verifyAdminCodeRecovery: RequestHandler = async (req, res) => {
     const providedEmail = e.toLowerCase();
 
     if (storedEmail !== providedEmail) {
-      console.log(`❌ Email non reconnu: ${providedEmail} vs ${storedEmail}`);
       return res.status(401).json({ error: "Email non reconnu" });
     }
 
     // Vérification du code de réinitialisation
     if (!foundSettings.resetCode || !foundSettings.resetExpiresAt) {
-      console.log(`❌ Aucun code de réinitialisation pour: ${foundSalonId}`);
       return res.status(400).json({ error: "Code de réinitialisation non trouvé" });
     }
 
     if (Date.now() > foundSettings.resetExpiresAt) {
-      console.log(`❌ Code expiré pour: ${foundSalonId}`);
       return res.status(400).json({ error: "Code expiré" });
     }
 
     if (foundSettings.resetCode !== c) {
-      console.log(`❌ Code incorrect: ${c} vs ${foundSettings.resetCode}`);
       return res.status(401).json({ error: "Code de vérification incorrect" });
     }
 
     // Mise à jour du code admin
-    console.log(`✅ Code admin valide, mise à jour pour: ${e}`);
     foundSettings.adminCodeHash = sha256(newCode);
     foundSettings.resetCode = null;
     foundSettings.resetExpiresAt = 0;
@@ -1426,7 +1389,6 @@ export const verifyAdminCodeRecovery: RequestHandler = async (req, res) => {
 
     await foundSettings.save();
 
-    console.log(`✅ Code admin réinitialisé avec succès pour: ${e}`);
 
     return res.json({
       token: foundSettings.adminToken,
