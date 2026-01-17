@@ -285,7 +285,7 @@ const SettingsSchema = new Schema({
     }],
     commissionDefault: { type: Number, default: 50, min: 0, max: 100 },
     pointsRedeemDefault: { type: Number, default: 10, min: 0 },
-    showStylistPriority: { type: Boolean, default: false },
+    showStylistPriority: { type: Boolean, default: true },
     hideTotalCA: { type: Boolean, default: false },
     currency: { type: String, default: "EUR", enum: ["EUR", "USD", "MAD", "GBP", "DZD", "CHF"] },
     // Subscription management (optional, for Stripe integration)

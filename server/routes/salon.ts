@@ -777,7 +777,7 @@ export const getConfig: RequestHandler = async (req, res) => {
       // ⭐️ RÉINTÉGRATION : Champs de trial
       trialStartedAt: settings.trialStartedAt ?? null,
       trialEndsAt: settings.trialEndsAt ?? null,
-      showStylistPriority: settings.showStylistPriority ?? false,
+      showStylistPriority: settings.showStylistPriority ?? true,
       hideTotalCA: settings.hideTotalCA ?? false,
       currency: settings.currency ?? "EUR",
     });
