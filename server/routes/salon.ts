@@ -868,6 +868,7 @@ export const setupAdminAccount: RequestHandler = async (req, res) => {
     );
 
     emailToSalonId.set(emailValue, salonId);
+    invalidateSettingsCache(salonId);
 
     res.json({ token: settings.adminToken });
   } catch (error) {
@@ -934,6 +935,7 @@ export const adminLogin: RequestHandler = async (req, res) => {
     if (!foundSettings.adminToken) {
       foundSettings.adminToken = makeToken();
       await foundSettings.save();
+      invalidateSettingsCache(foundSettings.salonId);
     }
     emailToSalonId.set(e, foundSalonId);
 
@@ -958,6 +960,7 @@ export const verifyAdminCode: RequestHandler = async (req, res) => {
     if (!settings.adminToken) {
       settings.adminToken = makeToken();
       await settings.save();
+      invalidateSettingsCache(salonId);
     }
     return res.json({ token: settings.adminToken, salonId });
   } catch (error) {
@@ -1020,6 +1023,7 @@ export const setAdminPassword: RequestHandler = async (req, res) => {
     // settings.loginPasswordHash = sha256(newCode); 
 
     settings.adminToken = makeToken();
+    invalidateSettingsCache(salonId);
     await settings.save();
 
     res.json({ token: settings.adminToken, salonId });
@@ -1182,7 +1186,7 @@ export const recoverAdminVerify: RequestHandler = async (req, res) => {
     settings.resetCode = null;
     settings.resetExpiresAt = 0;
     settings.adminToken = makeToken();
-
+    invalidateSettingsCache(salonId);
     await settings.save();
 
 
@@ -1381,11 +1385,11 @@ export const verifyAdminCodeRecovery: RequestHandler = async (req, res) => {
       return res.status(401).json({ error: "Code de vérification incorrect" });
     }
 
-    // Mise à jour du code admin
     foundSettings.adminCodeHash = sha256(newCode);
     foundSettings.resetCode = null;
     foundSettings.resetExpiresAt = 0;
     foundSettings.adminToken = makeToken();
+    invalidateSettingsCache(foundSalonId);
 
     await foundSettings.save();
 
