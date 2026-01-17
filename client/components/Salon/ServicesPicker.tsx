@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { createPortal } from "react-dom";
 import { useServices, useProductTypes, useConfig, CURRENCY_CONFIG, CurrencyCode, createCurrencyFormatter } from "@/lib/api";
+import { useTranslation } from "@/lib/i18n";
 import { Check, X, Package, Euro } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState, useEffect, useCallback } from "react";
@@ -33,6 +34,7 @@ export default function ServicesPicker({ onServiceSelect, onReset, externalOpen,
   const { data: services = [] } = useServices();
   const { data: productTypes = [] } = useProductTypes();
   const { data: config } = useConfig();
+  const { t } = useTranslation(config?.currency);
   const currencyFormatter = createCurrencyFormatter((config?.currency as CurrencyCode) || "EUR");
   const currencySymbol = CURRENCY_CONFIG[(config?.currency as CurrencyCode) || "EUR"]?.symbol || "€";
   const { toast } = useToast();
@@ -43,8 +45,8 @@ export default function ServicesPicker({ onServiceSelect, onReset, externalOpen,
   const setPopoverOpen = useCallback((open: boolean) => {
     if (disabled && open) {
       toast({
-        title: "Action requise",
-        description: "Veuillez sélectionner un coiffeur avant de choisir les prestations.",
+        title: t("salon", "actionRequired"),
+        description: `${t("salon", "selectStylistFirst")} ${t("salon", "theServices")}.`,
         variant: "destructive",
       });
       return;

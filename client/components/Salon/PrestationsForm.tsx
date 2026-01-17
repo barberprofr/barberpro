@@ -12,6 +12,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { useAddClient, useAddPrestation, useAddProduct, useClients, useConfig, useStylists, useDashboardSummary, useUploadClientPhoto, useDeleteClientPhoto, useAdminLogin, useDeleteClient, useStylistsByPriority, CURRENCY_CONFIG, CurrencyCode, createCurrencyFormatter } from "@/lib/api";
+import { useTranslation } from "@/lib/i18n";
 import ServicesPicker from "./ServicesPicker";
 import ProductsPicker from "./ProductsPicker";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -20,11 +21,11 @@ import { playSuccessSound } from "@/lib/sounds";
 
 const PHONE_DIGITS_REQUIRED = 10;
 
-const PAYMENT_OPTIONS: { value: "cash" | "check" | "card" | "mixed"; label: string; icon: LucideIcon; colors: { outer: string; inner: string; glow: string } }[] = [
-  { value: "cash", label: "Espèces", icon: CircleDollarSign, colors: { outer: "conic-gradient(from 160deg, #CAFF58, #74FF9C, #16C772, #CAFF58)", inner: "linear-gradient(140deg, #D9FF96 0%, #7DFFAF 60%, #1FAA7C 100%)", glow: "0 8px 20px rgba(116,255,156,0.5)" } },
-  { value: "card", label: "Carte", icon: CreditCard, colors: { outer: "conic-gradient(from 160deg, #9DF3FF, #52C7FF, #2B7FFF, #9DF3FF)", inner: "linear-gradient(140deg, #BFF6FF 0%, #63DAFF 60%, #318EFF 100%)", glow: "0 8px 20px rgba(82,199,255,0.5)" } },
-  { value: "check", label: "Planity/Treatwell", icon: Building2, colors: { outer: "conic-gradient(from 160deg, #FFD27A, #FF8A4C, #FF5A39, #FFD27A)", inner: "linear-gradient(140deg, #FFE0A1 0%, #FF9C5C 60%, #F1472A 100%)", glow: "0 8px 20px rgba(255,138,76,0.5)" } },
-  { value: "mixed", label: "Carte + Espèces", icon: ArrowLeftRight, colors: { outer: "conic-gradient(from 160deg, #F472B6, #E879F9, #A855F7, #F472B6)", inner: "linear-gradient(140deg, #FBCFE8 0%, #F0ABFC 50%, #C084FC 100%)", glow: "0 8px 20px rgba(244,114,182,0.5)" } },
+const PAYMENT_OPTIONS_BASE: { value: "cash" | "check" | "card" | "mixed"; labelKey: string; icon: LucideIcon; colors: { outer: string; inner: string; glow: string } }[] = [
+  { value: "cash", labelKey: "cash", icon: CircleDollarSign, colors: { outer: "conic-gradient(from 160deg, #CAFF58, #74FF9C, #16C772, #CAFF58)", inner: "linear-gradient(140deg, #D9FF96 0%, #7DFFAF 60%, #1FAA7C 100%)", glow: "0 8px 20px rgba(116,255,156,0.5)" } },
+  { value: "card", labelKey: "card", icon: CreditCard, colors: { outer: "conic-gradient(from 160deg, #9DF3FF, #52C7FF, #2B7FFF, #9DF3FF)", inner: "linear-gradient(140deg, #BFF6FF 0%, #63DAFF 60%, #318EFF 100%)", glow: "0 8px 20px rgba(82,199,255,0.5)" } },
+  { value: "check", labelKey: "planity", icon: Building2, colors: { outer: "conic-gradient(from 160deg, #FFD27A, #FF8A4C, #FF5A39, #FFD27A)", inner: "linear-gradient(140deg, #FFE0A1 0%, #FF9C5C 60%, #F1472A 100%)", glow: "0 8px 20px rgba(255,138,76,0.5)" } },
+  { value: "mixed", labelKey: "cardCash", icon: ArrowLeftRight, colors: { outer: "conic-gradient(from 160deg, #F472B6, #E879F9, #A855F7, #F472B6)", inner: "linear-gradient(140deg, #FBCFE8 0%, #F0ABFC 50%, #C084FC 100%)", glow: "0 8px 20px rgba(244,114,182,0.5)" } },
 ];
 
 export default function PrestationsForm() {
@@ -40,6 +41,11 @@ export default function PrestationsForm() {
   const adminLogin = useAdminLogin();
   const delClient = useDeleteClient();
   const { data: config } = useConfig();
+  const { t } = useTranslation(config?.currency);
+  const PAYMENT_OPTIONS = useMemo(() => PAYMENT_OPTIONS_BASE.map(opt => ({
+    ...opt,
+    label: t("payment", opt.labelKey)
+  })), [t]);
   const currencyFormatter = createCurrencyFormatter((config?.currency as CurrencyCode) || "EUR");
   const currencySymbol = CURRENCY_CONFIG[(config?.currency as CurrencyCode) || "EUR"]?.symbol || "€";
   const { data: summary } = useDashboardSummary();
@@ -1011,11 +1017,11 @@ export default function PrestationsForm() {
                   "text-2xl font-bold mb-2",
                   showSuccess ? "text-emerald-400" : "text-slate-300"
                 )}>
-                  {showSuccess ? "Transaction validée" : "Validation..."}
+                  {showSuccess ? t("transaction", "validated") : t("transaction", "validating")}
                 </h2>
                 
                 <p className="text-slate-400 text-sm mb-6">
-                  {showSuccess ? "Merci !" : "Enregistrement en cours"}
+                  {showSuccess ? t("transaction", "thanks") : t("transaction", "recording")}
                 </p>
 
                 <div className="text-5xl font-bold text-white">
@@ -1077,12 +1083,12 @@ export default function PrestationsForm() {
                       </div>
                     </div>
                     <span className="text-2xl font-light text-violet-300 group-hover:text-violet-200 transition-colors duration-300">
-                      Prestations
+                      {t("salon", "services")}
                     </span>
                     {/* & au milieu */}
                     <span className="text-lg font-light text-white/60">&</span>
                     {/* Texte Produits */}
-                    <span className="text-lg font-light text-cyan-400/80">Produits</span>
+                    <span className="text-lg font-light text-cyan-400/80">{t("salon", "products")}</span>
                   </motion.button>
                 </div>
               </div>
@@ -1160,7 +1166,7 @@ export default function PrestationsForm() {
                 "text-lg font-light transition-all duration-300",
                 stylistId ? "text-white" : "text-slate-300"
               )}>
-                {selectedStylist ? selectedStylist.name : "Coiffeur"}
+                {selectedStylist ? selectedStylist.name : t("salon", "stylist")}
               </span>
             </motion.button>
           </div>

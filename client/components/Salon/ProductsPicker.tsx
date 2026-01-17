@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { createPortal } from "react-dom";
 import { useProductTypes, useConfig, CURRENCY_CONFIG, CurrencyCode, createCurrencyFormatter } from "@/lib/api";
+import { useTranslation } from "@/lib/i18n";
 import { Check, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState, useEffect, useCallback } from "react";
@@ -25,6 +26,7 @@ interface ProductsPickerProps {
 export default function ProductsPicker({ onProductSelect, onReset, externalOpen, onOpenChange, disabled }: ProductsPickerProps) {
   const { data: productTypes = [] } = useProductTypes();
   const { data: config } = useConfig();
+  const { t } = useTranslation(config?.currency);
   const currencyFormatter = createCurrencyFormatter((config?.currency as CurrencyCode) || "EUR");
   const { toast } = useToast();
   const [internalOpen, setInternalOpen] = useState(false);
@@ -34,8 +36,8 @@ export default function ProductsPicker({ onProductSelect, onReset, externalOpen,
   const setPopoverOpen = useCallback((open: boolean) => {
     if (disabled && open) {
       toast({
-        title: "Action requise",
-        description: "Veuillez sélectionner un coiffeur avant de choisir les produits.",
+        title: t("salon", "actionRequired"),
+        description: `${t("salon", "selectStylistFirst")} ${t("salon", "theProducts")}.`,
         variant: "destructive",
       });
       return;

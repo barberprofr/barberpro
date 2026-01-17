@@ -12,12 +12,14 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { AnimatePresence, motion } from "framer-motion";
 import barberBg from "@/assets/barber-bg.avif";
 import { useViewportSize } from "@/hooks/use-mobile";
+import { useTranslation } from "@/lib/i18n";
 
 export default function SharedLayout({ children }: PropsWithChildren) {
   const location = useLocation();
   const navigate = useNavigate();
   const current = location.pathname;
   const { data: config, refetch } = useConfig();
+  const { t } = useTranslation(config?.currency);
   const { data: priorityData } = useStylistsByPriority();
   const viewport = useViewportSize();
   const qc = useQueryClient();
@@ -148,7 +150,7 @@ export default function SharedLayout({ children }: PropsWithChildren) {
                   className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-md border bg-background hover:bg-accent"
                   onClick={() => setShowLogoutConfirm(true)}
                 >
-                  <LogOut className="h-4 w-4" /> Se déconnecter
+                  <LogOut className="h-4 w-4" /> {t("nav", "logout")}
                 </button>
               ) : (
                 <div className="flex items-center gap-1">
@@ -156,13 +158,13 @@ export default function SharedLayout({ children }: PropsWithChildren) {
                     className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-md border border-red-500 bg-red-500/20 text-red-300 hover:bg-red-500/40"
                     onClick={handleLogout}
                   >
-                    Confirmer
+                    {t("nav", "confirm")}
                   </button>
                   <button
                     className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-md border bg-background hover:bg-accent"
                     onClick={() => setShowLogoutConfirm(false)}
                   >
-                    Annuler
+                    {t("nav", "cancel")}
                   </button>
                 </div>
               )}
@@ -172,7 +174,7 @@ export default function SharedLayout({ children }: PropsWithChildren) {
             <div className="px-4 py-2">
               <div className="container">
                 <div className="flex flex-wrap gap-2 items-center">
-                  <span className="text-xs font-medium text-white/60">Priorité :</span>
+                  <span className="text-xs font-medium text-white/60">{t("priority", "priority")} :</span>
                   {priorityData.stylists.map((s, index) => (
                     <span
                       key={s.id}
@@ -283,7 +285,7 @@ export default function SharedLayout({ children }: PropsWithChildren) {
               )}
             >
               <Home className="h-5 w-5" />
-              Accueil
+              {t("nav", "home")}
             </Link>
             <Link
               to="/clients"
@@ -293,7 +295,7 @@ export default function SharedLayout({ children }: PropsWithChildren) {
               )}
             >
               <Users className="h-5 w-5" />
-              Clients
+              {t("nav", "clients")}
             </Link>
             <Link
               to="/settings"
@@ -303,17 +305,17 @@ export default function SharedLayout({ children }: PropsWithChildren) {
               )}
             >
               <Settings className="h-5 w-5" />
-              Paramètres
+              {t("nav", "settings")}
             </Link>
             <Popover>
               <PopoverTrigger asChild>
                 <button
                   type="button"
-                  aria-label="Aide BarBerpro"
+                  aria-label={t("nav", "helpTitle")}
                   className="flex flex-col items-center justify-center gap-2 px-3 text-sm font-semibold text-white/80 transition-colors hover:text-primary"
                 >
                   <HelpCircle className="h-5 w-5" />
-                  Aide
+                  {t("nav", "help")}
                 </button>
               </PopoverTrigger>
               <PopoverContent

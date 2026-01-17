@@ -8,6 +8,8 @@ export const translations = {
     logout: { fr: "Se déconnecter", en: "Log out" },
     confirm: { fr: "Confirmer", en: "Confirm" },
     cancel: { fr: "Annuler", en: "Cancel" },
+    help: { fr: "Aide", en: "Help" },
+    helpTitle: { fr: "Aide BarBerpro", en: "BarBerpro Help" },
   },
   login: {
     title: { fr: "Se connecter", en: "Sign in" },
@@ -56,6 +58,10 @@ export const translations = {
     savedProducts: { fr: "Produits enregistrés:", en: "Saved products:" },
     dragToReorder: { fr: "glisser pour réorganiser", en: "drag to reorder" },
     noStylistFound: { fr: "Aucun coiffeur trouvé", en: "No stylist found" },
+    actionRequired: { fr: "Action requise", en: "Action required" },
+    selectStylistFirst: { fr: "Veuillez sélectionner un coiffeur avant de choisir", en: "Please select a stylist before choosing" },
+    theServices: { fr: "les prestations", en: "services" },
+    theProducts: { fr: "les produits", en: "products" },
   },
   payment: {
     card: { fr: "Carte", en: "Card" },

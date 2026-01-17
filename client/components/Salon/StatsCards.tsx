@@ -5,6 +5,7 @@ import { ChevronDown, ChevronLeft, Euro, Scissors, Package, Users, UserRound, De
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useDashboardSummary, useStylists, useStylistBreakdown, useConfig, apiPath, useProducts, useStylistHasSecretCode, useVerifyStylistSecretCode, CURRENCY_CONFIG, CurrencyCode, createCurrencyFormatter } from "@/lib/api";
+import { useTranslation } from "@/lib/i18n";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Lock } from "lucide-react";
@@ -449,6 +450,7 @@ export default function StatsCards() {
   const { data: summary } = useDashboardSummary();
   const { data: stylists } = useStylists();
   const { data: config } = useConfig();
+  const { t } = useTranslation(config?.currency);
   
   // Formateur de devise dynamique basé sur la configuration
   const eur = createCurrencyFormatter((config?.currency as CurrencyCode) || "EUR");
@@ -466,9 +468,9 @@ export default function StatsCards() {
   });
   const dailyProductCount = dailyProducts.length;
   const paymentMethodOrder: ReadonlyArray<{ key: keyof typeof paymentCardStyles; label: string }> = [
-    { key: "cash", label: "Espèces" },
-    { key: "check", label: "Planity/Treatwell" },
-    { key: "card", label: "Carte" },
+    { key: "cash", label: t("payment", "cash") },
+    { key: "check", label: t("payment", "planity") },
+    { key: "card", label: t("payment", "card") },
   ];
   const paymentTotalAmount = summary?.dailyPayments?.total?.amount ?? summary?.dailyAmount ?? 0;
   const methodsStats = summary?.dailyPayments?.methods as Record<string, { amount?: number; count?: number }> | undefined;

@@ -14,6 +14,7 @@ import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { useAdminUpdateCode, useAdminVerifyCode, useAddStylist, useConfig, useUpdateConfig, useDashboardSummary, usePointsUsageReport, useStylists, useStylistBreakdown, useRevenueByDay, useRevenueByMonth, useDeleteStylist, useSetStylistCommission, useAdminRecoverCode, useAdminRecoverCodeVerify, useServices, useAddService, useDeleteService, useGlobalBreakdown, useUpdateTransactionPaymentMethod, useSetStylistSecretCode, useStylistHasSecretCode, useVerifyStylistSecretCode, useStylistDeposits, useAddStylistDeposit, useDeleteStylistDeposit, useAllDepositsForMonth, StylistDeposit, createCurrencyFormatter, CURRENCY_CONFIG, CurrencyCode } from "@/lib/api";
+import { useTranslation } from "@/lib/i18n";
 import { StylistMonthly } from "@/components/Salon/StylistDailyStats";
 import type { SummaryPayments, MethodKey, Stylist, PointsUsageGroup, DashboardSummary, Service } from "@/lib/api";
 import { cn } from "@/lib/utils";
