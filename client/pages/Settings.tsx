@@ -1027,7 +1027,7 @@ function GlobalRevenueStats() {
           <span className="text-white text-xs font-bold">{eur.format(displayData?.methods?.card?.amount ?? 0)}</span>
         </div>
         <div className="flex flex-col items-center justify-center px-2 py-1 rounded-lg bg-amber-900/40 border border-amber-500/50">
-          <span className="text-amber-300 text-[9px] font-medium text-center leading-tight">Planity<br/>Treatwell</span>
+          <span className="text-amber-300 text-[9px] font-medium text-center leading-tight">Planity<br />Treatwell</span>
           <span className="text-white text-xs font-bold">{eur.format(displayData?.methods?.check?.amount ?? 0)}</span>
         </div>
       </div>
@@ -1749,8 +1749,11 @@ export default function Settings() {
   const [recoverErr, setRecoverErr] = useState("");
   useEffect(() => {
     if (!config) return;
-    if (adminUnlocked) return;
-    if (!config.adminCodeSet || !config.adminEmail) {
+    // Only auto-open if the area is already unlocked and settings are incomplete
+    if (!adminUnlocked) return;
+    // Only auto-open if code is set but email is missing (legacy accounts)
+    // If code is not set, the user is already on the creation screen anyway.
+    if (config.adminCodeSet && !config.adminEmail) {
       setIsAdminSectionOpen(true);
     }
   }, [config, adminUnlocked]);
@@ -2039,7 +2042,7 @@ export default function Settings() {
                     <Input type="text" inputMode="email" autoComplete="off" autoCapitalize="off" autoCorrect="off" spellCheck={false} placeholder="Confirmer l'email" value={confirmAdminEmail} onChange={(e) => setConfirmAdminEmail(e.target.value)} className={cn(adminInputClasses, "h-11 px-4 text-base")} />
                   </div>
                   <div className="flex items-center gap-1.5">
-                    <Button className="relative overflow-hidden rounded-xl border border-white/18 bg-[linear-gradient(135deg,rgba(37,99,235,0.85)0%,rgba(14,165,233,0.72)45%,rgba(16,185,129,0.55)100%)] px-3 py-1.5 text-xs font-semibold text-white shadow-[0_22px_58px_rgba(14,165,233,0.42)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_28px_76px_rgba(14,165,233,0.5)] focus-visible:ring-2 focus-visible:ring-cyan-300/70" onClick={() => { if (newAdminCodeValid && adminEmailValid && password === confirmPassword && adminEmail === confirmAdminEmail) { updateAdminCode.mutate({ newCode: newAdminCode, email: adminEmailTrimmed || undefined }, { onSuccess: () => { setAdminSaveMsg("Code admin créé"); setAdminSaveErr(""); setPassword(""); setConfirmPassword(""); setAdminEmail(""); setConfirmAdminEmail(""); setAdminUnlocked(true); }, onError: async (e: any) => { try { const msg = typeof e?.message === "string" ? e.message : "Erreur"; const p = (() => { try { return JSON.parse(msg); } catch { return null; } })(); setAdminSaveErr(p?.error || msg); } catch { setAdminSaveErr("Erreur d'enregistrement"); } setAdminSaveMsg(""); } }); } }} disabled={!newAdminCodeValid || !adminEmailValid || password !== confirmPassword || adminEmail !== confirmAdminEmail || updateAdminCode.isPending}>Créer</Button>
+                    <Button className="relative overflow-hidden rounded-xl border border-white/18 bg-[linear-gradient(135deg,rgba(37,99,235,0.85)0%,rgba(14,165,233,0.72)45%,rgba(16,185,129,0.55)100%)] px-3 py-1.5 text-xs font-semibold text-white shadow-[0_22px_58px_rgba(14,165,233,0.42)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_28px_76px_rgba(14,165,233,0.5)] focus-visible:ring-2 focus-visible:ring-cyan-300/70" onClick={() => { if (newAdminCodeValid && adminEmailValid && password === confirmPassword && adminEmail === confirmAdminEmail) { updateAdminCode.mutate({ newCode: newAdminCode, email: adminEmailTrimmed || undefined }, { onSuccess: () => { setAdminSaveMsg("Code admin créé"); setAdminSaveErr(""); setPassword(""); setConfirmPassword(""); setAdminEmail(""); setConfirmAdminEmail(""); setAdminUnlocked(true); setIsAdminSectionOpen(false); }, onError: async (e: any) => { try { const msg = typeof e?.message === "string" ? e.message : "Erreur"; const p = (() => { try { return JSON.parse(msg); } catch { return null; } })(); setAdminSaveErr(p?.error || msg); } catch { setAdminSaveErr("Erreur d'enregistrement"); } setAdminSaveMsg(""); } }); } }} disabled={!newAdminCodeValid || !adminEmailValid || password !== confirmPassword || adminEmail !== confirmAdminEmail || updateAdminCode.isPending}>Créer</Button>
                   </div>
                   {!newAdminCodeValid && password && <p className="text-xs text-destructive">Code admin invalide (min 4 caractères)</p>}
                   {password && confirmPassword && password !== confirmPassword && <p className="text-xs text-destructive">Les codes admin ne correspondent pas</p>}
