@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -7,7 +7,6 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Loader2, Trash2, Search, Users, Store, DollarSign, Calendar, LogOut, ShieldCheck, CreditCard, Activity, TrendingUp } from "lucide-react";
-import { createCurrencyFormatter } from "@/lib/api";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import {
     AlertDialog,
@@ -50,7 +49,6 @@ export default function AdminDashboard() {
     const [salons, setSalons] = useState<Salon[]>([]);
     const [searchQuery, setSearchQuery] = useState("");
     const [loading, setLoading] = useState(true);
-    const eurFormatter = useMemo(() => createCurrencyFormatter("EUR"), []);
 
     // Dialog State
     const [extensionDialogOpen, setExtensionDialogOpen] = useState(false);
@@ -222,7 +220,7 @@ export default function AdminDashboard() {
                     {[
                         { label: "Salons Payants", value: stats.paidSalons, icon: CreditCard, color: "text-emerald-400", bg: "bg-emerald-500/10" },
                         { label: "Essais en Cours", value: stats.trialSalons, icon: Activity, color: "text-cyan-400", bg: "bg-cyan-500/10" },
-                        { label: "Revenu Mensuel Est.", value: eurFormatter.format(stats.estimatedRevenue || 0), icon: TrendingUp, color: "text-amber-400", bg: "bg-amber-500/10" },
+                        { label: "Revenu Mensuel Est.", value: `${stats.estimatedRevenue?.toLocaleString()} €`, icon: TrendingUp, color: "text-amber-400", bg: "bg-amber-500/10" },
                     ].map((item, i) => (
                         <Card key={i} className="bg-white/5 border-white/10 backdrop-blur-md shadow-2xl hover:border-white/20 transition-all group overflow-hidden">
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
