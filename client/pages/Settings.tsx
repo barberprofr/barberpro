@@ -1749,10 +1749,11 @@ export default function Settings() {
   const [recoverErr, setRecoverErr] = useState("");
   useEffect(() => {
     if (!config) return;
+    if (adminUnlocked) return;
     if (!config.adminCodeSet || !config.adminEmail) {
       setIsAdminSectionOpen(true);
     }
-  }, [config]);
+  }, [config, adminUnlocked]);
   useEffect(() => {
     if (!addStylistSuccess) return;
     setAccordionValue("");
