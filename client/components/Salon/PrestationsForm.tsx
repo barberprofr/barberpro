@@ -211,19 +211,19 @@ export default function PrestationsForm() {
       const base = `${sanitizedNewClientName} (nouveau)`;
       return contact ? `${base} - ${contact}` : base;
     }
-    return "Aucun client sélectionné";
-  }, [clientId, newClientFormComplete, sanitizedNewClientName, sanitizedNewClientPhone, selectedClient, usingNewClient]);
+    return t("client", "noClientSelected");
+  }, [clientId, newClientFormComplete, sanitizedNewClientName, sanitizedNewClientPhone, selectedClient, usingNewClient, t]);
 
   const clientSelectionTitle = useMemo(() => {
 
     if (selectedClient) {
-      return [selectedClient.name, selectedClient.phone].filter(Boolean).join(" - ") || "Sélectionner un client";
+      return [selectedClient.name, selectedClient.phone].filter(Boolean).join(" - ") || t("client", "selectClient");
     }
     if (usingNewClient && newClientFormComplete) {
       return [sanitizedNewClientName, sanitizedNewClientPhone || null].filter(Boolean).join(" - ");
     }
-    return "Sélectionner un client";
-  }, [clientId, newClientFormComplete, sanitizedNewClientName, sanitizedNewClientPhone, selectedClient, usingNewClient]);
+    return t("client", "selectClient");
+  }, [clientId, newClientFormComplete, sanitizedNewClientName, sanitizedNewClientPhone, selectedClient, usingNewClient, t]);
 
   const filteredClients = useMemo(() => {
     const term = debouncedClientSearch.trim().toLowerCase();

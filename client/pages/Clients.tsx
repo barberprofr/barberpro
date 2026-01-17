@@ -15,6 +15,7 @@ import { Loader2, Sparkles, Search, Camera, ChevronLeft, ChevronRight, X, Trash2
 
 export default function Clients() {
   const { data: config, isLoading: cfgLoading } = useConfig();
+  const { t } = useTranslation(config?.currency);
   const redeemDefault = config?.pointsRedeemDefault ?? 0;
   const locked = !cfgLoading && !!config && !config.isAdmin;
   const qc = useQueryClient();

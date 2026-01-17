@@ -1662,6 +1662,7 @@ function RevenueByMonth() {
 export default function Settings() {
   const queryClient = useQueryClient();
   const { data: config } = useConfig();
+  const { t } = useTranslation(config?.currency);
   const eur = useMemo(() => createCurrencyFormatter(config?.currency || "EUR"), [config?.currency]);
   const currencySymbol = CURRENCY_CONFIG[(config?.currency as CurrencyCode) || "EUR"]?.symbol || "€";
   const updateAdminCode = useAdminUpdateCode();
