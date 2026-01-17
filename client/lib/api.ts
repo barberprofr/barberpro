@@ -1055,6 +1055,7 @@ export function useDeleteStylistDeposit() {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['stylist-deposits'] });
+      qc.invalidateQueries({ queryKey: ['all-deposits-month'] });
     }
   });
 }
