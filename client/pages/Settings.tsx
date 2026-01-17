@@ -1662,6 +1662,7 @@ export default function Settings() {
   const queryClient = useQueryClient();
   const { data: config } = useConfig();
   const eur = useMemo(() => createCurrencyFormatter(config?.currency || "EUR"), [config?.currency]);
+  const currencySymbol = CURRENCY_CONFIG[(config?.currency as CurrencyCode) || "EUR"]?.symbol || "€";
   const updateAdminCode = useAdminUpdateCode();
   const verifyAdminCode = useAdminVerifyCode();
   const recoverCodeHook = useAdminRecoverCode();
@@ -3446,7 +3447,7 @@ export default function Settings() {
                                     style={{ fontSize: '3.5rem', lineHeight: '1' }}
                                     className="h-28 w-full rounded-2xl border-2 border-emerald-400/40 bg-slate-800/80 pl-6 pr-20 font-black text-red-500 text-center placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-emerald-400/50 focus:border-emerald-400/60"
                                   />
-                                  <span className="absolute right-6 text-4xl font-black text-red-500">€</span>
+                                  <span className="absolute right-6 text-4xl font-black text-red-500">{currencySymbol}</span>
                                 </div>
                               </div>
 
@@ -3466,7 +3467,7 @@ export default function Settings() {
                                     }, {
                                       onSuccess: () => {
                                         playSuccessSound();
-                                        showConfirmPopup("Acompte ajouté", `${amount.toFixed(2)} €`, "emerald");
+                                        showConfirmPopup("Acompte ajouté", eur.format(amount), "emerald");
                                         setDepositAmount("");
                                         setSelectedStylistForDeposit(null);
                                         queryClient.invalidateQueries({ queryKey: ['all-deposits-month'] });

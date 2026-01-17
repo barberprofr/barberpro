@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { createPortal } from "react-dom";
-import { useProductTypes } from "@/lib/api";
+import { useProductTypes, useConfig, CURRENCY_CONFIG, CurrencyCode, createCurrencyFormatter } from "@/lib/api";
 import { Check, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState, useEffect, useCallback } from "react";
@@ -24,6 +24,8 @@ interface ProductsPickerProps {
 
 export default function ProductsPicker({ onProductSelect, onReset, externalOpen, onOpenChange, disabled }: ProductsPickerProps) {
   const { data: productTypes = [] } = useProductTypes();
+  const { data: config } = useConfig();
+  const currencyFormatter = createCurrencyFormatter((config?.currency as CurrencyCode) || "EUR");
   const { toast } = useToast();
   const [internalOpen, setInternalOpen] = useState(false);
 
@@ -128,7 +130,7 @@ export default function ProductsPicker({ onProductSelect, onReset, externalOpen,
                 >
                   <div className="flex items-center">
                     <span className="text-2xl font-bold text-emerald-100">Total</span>
-                    <span className="flex-1 text-center text-5xl font-black text-cyan-300" style={{ WebkitTextStroke: '0.5px black' }}>{total.toFixed(2)}€</span>
+                    <span className="flex-1 text-center text-5xl font-black text-cyan-300" style={{ WebkitTextStroke: '0.5px black' }}>{currencyFormatter.format(total)}</span>
                   </div>
                 </motion.div>
               )}
@@ -204,7 +206,7 @@ export default function ProductsPicker({ onProductSelect, onReset, externalOpen,
                           {product.name}
                         </span>
                         <span className="text-lg font-semibold text-white/80">
-                          {product.price.toFixed(2)}€
+                          {currencyFormatter.format(product.price)}
                         </span>
                       </div>
 

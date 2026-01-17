@@ -11,7 +11,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
-import { useAddClient, useAddPrestation, useAddProduct, useClients, useConfig, useStylists, useDashboardSummary, useUploadClientPhoto, useDeleteClientPhoto, useAdminLogin, useDeleteClient, useStylistsByPriority } from "@/lib/api";
+import { useAddClient, useAddPrestation, useAddProduct, useClients, useConfig, useStylists, useDashboardSummary, useUploadClientPhoto, useDeleteClientPhoto, useAdminLogin, useDeleteClient, useStylistsByPriority, CURRENCY_CONFIG, CurrencyCode, createCurrencyFormatter } from "@/lib/api";
 import ServicesPicker from "./ServicesPicker";
 import ProductsPicker from "./ProductsPicker";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -40,6 +40,8 @@ export default function PrestationsForm() {
   const adminLogin = useAdminLogin();
   const delClient = useDeleteClient();
   const { data: config } = useConfig();
+  const currencyFormatter = createCurrencyFormatter((config?.currency as CurrencyCode) || "EUR");
+  const currencySymbol = CURRENCY_CONFIG[(config?.currency as CurrencyCode) || "EUR"]?.symbol || "€";
   const { data: summary } = useDashboardSummary();
   const { toast } = useToast();
   
@@ -1017,7 +1019,7 @@ export default function PrestationsForm() {
                 </p>
 
                 <div className="text-5xl font-bold text-white">
-                  {lastTransactionAmount.toFixed(2)} €
+                  {currencyFormatter.format(lastTransactionAmount)}
                 </div>
               </div>
             </motion.div>
@@ -1460,7 +1462,7 @@ export default function PrestationsForm() {
                     <div className="space-y-4">
                       <div className="text-center p-3 rounded-xl bg-white/5 border border-white/10">
                         <span className="text-sm text-slate-400">Total à payer</span>
-                        <div className="text-3xl font-bold text-white">{parseFloat(amount || "0").toFixed(2)} €</div>
+                        <div className="text-3xl font-bold text-white">{currencyFormatter.format(parseFloat(amount || "0"))}</div>
                       </div>
                       
                       <div className="space-y-3">
@@ -1488,7 +1490,7 @@ export default function PrestationsForm() {
                               placeholder="0.00"
                             />
                           </div>
-                          <span className="text-xl font-bold text-cyan-300">€</span>
+                          <span className="text-xl font-bold text-cyan-300">{currencySymbol}</span>
                         </div>
                         
                         <div className="flex items-center gap-4 p-4 rounded-xl bg-gradient-to-r from-green-500/20 to-emerald-500/20 border border-green-400/30">
@@ -1515,7 +1517,7 @@ export default function PrestationsForm() {
                               placeholder="0.00"
                             />
                           </div>
-                          <span className="text-xl font-bold text-green-300">€</span>
+                          <span className="text-xl font-bold text-green-300">{currencySymbol}</span>
                         </div>
                       </div>
                       
@@ -1531,7 +1533,7 @@ export default function PrestationsForm() {
                             {!isValid && (cardVal > 0 || cashVal > 0) && (
                               <div className="text-center p-2 rounded-lg bg-red-500/20 border border-red-400/30">
                                 <span className="text-sm text-red-300">
-                                  {diff > 0 ? `Trop ${diff.toFixed(2)} €` : `Manque ${Math.abs(diff).toFixed(2)} €`}
+                                  {diff > 0 ? `Trop ${currencyFormatter.format(diff)}` : `Manque ${currencyFormatter.format(Math.abs(diff))}`}
                                 </span>
                               </div>
                             )}

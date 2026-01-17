@@ -10,7 +10,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
-import { useAddClient, useAddProduct, useClients, useStylists } from "@/lib/api";
+import { useAddClient, useAddProduct, useClients, useStylists, useConfig, CURRENCY_CONFIG, CurrencyCode, createCurrencyFormatter } from "@/lib/api";
 
 
 const PHONE_DIGITS_REQUIRED = 10;
@@ -28,6 +28,9 @@ export default function ProductFormSection({ onSuccess }: ProductFormSectionProp
   const { data: stylists, isLoading: stylistsLoading } = useStylists();
   const qc = useQueryClient();
   const { data: clients } = useClients();
+  const { data: config } = useConfig();
+  const currencyFormatter = createCurrencyFormatter((config?.currency as CurrencyCode) || "EUR");
+  const currencySymbol = CURRENCY_CONFIG[(config?.currency as CurrencyCode) || "EUR"]?.symbol || "€";
   const addProduct = useAddProduct();
   const addClient = useAddClient();
   const { toast } = useToast();
@@ -236,7 +239,7 @@ export default function ProductFormSection({ onSuccess }: ProductFormSectionProp
       { onSuccess: () => {
         toast({
           title: "Produit enregistré",
-          description: `${amount}€ - Mode de paiement: ${payment}`,
+          description: `${currencyFormatter.format(Number(amount))} - Mode de paiement: ${payment}`,
         });
         setStylistId("");
         setStylistPickerOpen(false);
@@ -333,12 +336,12 @@ export default function ProductFormSection({ onSuccess }: ProductFormSectionProp
           <label className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-white/80">
             <span className="inline-flex items-center gap-2 rounded-full border border-white/40 bg-white/15 px-3 py-1 text-[11px] font-semibold text-white shadow-[0_8px_18px_rgba(79,70,229,0.35)]">
               <Sparkles className="h-3 w-3 text-amber-200" />
-              Montant (€)
+              Montant ({currencySymbol})
             </span>
           </label>
           <div className="mt-3 rounded-3xl border border-white/18 bg-gradient-to-r from-white/40 via-white/15 to-emerald-200/20 px-3 py-2 shadow-[0_18px_45px_rgba(8,15,40,0.4)]">
             <div className="flex items-center gap-2">
-              <span className="inline-flex items-center gap-1 rounded-full border border-rose-200/70 bg-gradient-to-r from-white/95 via-rose-100/70 to-rose-300/50 px-3 py-1 text-lg font-semibold text-rose-600 shadow-[0_8px_18px_rgba(244,63,94,0.25)]">€</span>
+              <span className="inline-flex items-center gap-1 rounded-full border border-rose-200/70 bg-gradient-to-r from-white/95 via-rose-100/70 to-rose-300/50 px-3 py-1 text-lg font-semibold text-rose-600 shadow-[0_8px_18px_rgba(244,63,94,0.25)]">{currencySymbol}</span>
               <Input
                 ref={amountInputRef}
                 inputMode="decimal"
