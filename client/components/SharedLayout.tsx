@@ -25,7 +25,27 @@ export default function SharedLayout({ children }: PropsWithChildren) {
   const locked = !config?.isAdmin || (config?.isAdmin && config?.subscriptionStatus !== "active" && config?.subscriptionStatus !== "trialing" && config?.subscriptionStatus !== "paid");
   const hasActiveSubscription = config?.isAdmin && (config?.subscriptionStatus === "active" || config?.subscriptionStatus === "trialing" || config?.subscriptionStatus === "paid");
   const [showSubPrompt, setShowSubPrompt] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const retryTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  
+  const handleLogout = async () => {
+    try {
+      qc.clear();
+      localStorage.clear();
+      sessionStorage.clear();
+      if ('caches' in window) {
+        const cacheNames = await caches.keys();
+        await Promise.all(cacheNames.map(name => caches.delete(name)));
+      }
+      if ('serviceWorker' in navigator) {
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        await Promise.all(registrations.map(r => r.unregister()));
+      }
+    } catch (e) {
+      console.error('Logout cleanup error:', e);
+    }
+    window.location.href = "/?logout=" + Date.now();
+  };
 
   // Handle checkout success/cancel from Stripe
   useEffect(() => {
@@ -123,43 +143,29 @@ export default function SharedLayout({ children }: PropsWithChildren) {
               </h1>
             </Link>
             <div className="flex items-center gap-2">
-              <button
-                className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-md border bg-background hover:bg-accent"
-                onClick={async () => {
-                  if (window.confirm("Se déconnecter ?")) {
-                    try {
-                      // 1. Nettoyer React Query cache
-                      qc.clear();
-                      
-                      // 2. Vider TOUT le localStorage (PWA PlayStore fix)
-                      localStorage.clear();
-                      
-                      // 3. Vider sessionStorage aussi
-                      sessionStorage.clear();
-                      
-                      // 4. Vider les caches du service worker
-                      if ('caches' in window) {
-                        const cacheNames = await caches.keys();
-                        await Promise.all(cacheNames.map(name => caches.delete(name)));
-                      }
-                      
-                      // 5. Désenregistrer le service worker pour forcer un nouveau départ
-                      if ('serviceWorker' in navigator) {
-                        const registrations = await navigator.serviceWorker.getRegistrations();
-                        await Promise.all(registrations.map(r => r.unregister()));
-                      }
-                    } catch (e) {
-                      console.log('Logout cleanup error:', e);
-                    }
-                    
-                    // 6. Forcer un rechargement complet - méthode la plus fiable
-                    window.location.href = "/?logout=" + Date.now();
-                    window.location.reload();
-                  }
-                }}
-              >
-                <LogOut className="h-4 w-4" /> Se déconnecter
-              </button>
+              {!showLogoutConfirm ? (
+                <button
+                  className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-md border bg-background hover:bg-accent"
+                  onClick={() => setShowLogoutConfirm(true)}
+                >
+                  <LogOut className="h-4 w-4" /> Se déconnecter
+                </button>
+              ) : (
+                <div className="flex items-center gap-1">
+                  <button
+                    className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-md border border-red-500 bg-red-500/20 text-red-300 hover:bg-red-500/40"
+                    onClick={handleLogout}
+                  >
+                    Confirmer
+                  </button>
+                  <button
+                    className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-md border bg-background hover:bg-accent"
+                    onClick={() => setShowLogoutConfirm(false)}
+                  >
+                    Annuler
+                  </button>
+                </div>
+              )}
             </div>
           </div>
           {priorityData?.enabled && priorityData.stylists.length > 0 && (
