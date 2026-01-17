@@ -1,0 +1,224 @@
+export type Language = "fr" | "en";
+
+export const translations = {
+  nav: {
+    home: { fr: "Accueil", en: "Home" },
+    clients: { fr: "Clients", en: "Clients" },
+    settings: { fr: "Paramètres", en: "Settings" },
+    logout: { fr: "Se déconnecter", en: "Log out" },
+    confirm: { fr: "Confirmer", en: "Confirm" },
+    cancel: { fr: "Annuler", en: "Cancel" },
+  },
+  login: {
+    title: { fr: "Se connecter", en: "Sign in" },
+    email: { fr: "Email", en: "Email" },
+    password: { fr: "Mot de passe personnalisé", en: "Custom password" },
+    connect: { fr: "Connexion", en: "Sign in" },
+    forgotPassword: { fr: "Mot de passe oublié ?", en: "Forgot password?" },
+    createAccount: { fr: "Créer un compte", en: "Create account" },
+    subtitle: { fr: "plateforme de gestion de salon de coiffure", en: "salon management platform" },
+  },
+  common: {
+    add: { fr: "Ajouter", en: "Add" },
+    delete: { fr: "Supprimer", en: "Delete" },
+    save: { fr: "Enregistrer", en: "Save" },
+    validate: { fr: "Valider", en: "Validate" },
+    loading: { fr: "Chargement...", en: "Loading..." },
+    error: { fr: "Erreur", en: "Error" },
+    success: { fr: "Succès", en: "Success" },
+    search: { fr: "Rechercher", en: "Search" },
+    select: { fr: "Sélectionner", en: "Select" },
+    none: { fr: "Aucun", en: "None" },
+    day: { fr: "Jour", en: "Day" },
+    month: { fr: "Mois", en: "Month" },
+    from: { fr: "Du", en: "From" },
+    to: { fr: "Au", en: "To" },
+    reset: { fr: "Réinitialiser", en: "Reset" },
+    close: { fr: "Fermer", en: "Close" },
+    update: { fr: "Mettre à jour", en: "Update" },
+    yes: { fr: "Oui", en: "Yes" },
+    no: { fr: "Non", en: "No" },
+    pts: { fr: "pts", en: "pts" },
+    current: { fr: "Actuel:", en: "Current:" },
+  },
+  salon: {
+    services: { fr: "Prestations", en: "Services" },
+    products: { fr: "Produits", en: "Products" },
+    stylists: { fr: "Coiffeurs", en: "Stylists" },
+    stylist: { fr: "Coiffeur", en: "Stylist" },
+    service: { fr: "Prestation", en: "Service" },
+    product: { fr: "Produit", en: "Product" },
+    price: { fr: "Prix", en: "Price" },
+    name: { fr: "Nom", en: "Name" },
+    productName: { fr: "Nom du produit", en: "Product name" },
+    serviceName: { fr: "Nom de la prestation", en: "Service name" },
+    savedServices: { fr: "Prestations enregistrées:", en: "Saved services:" },
+    savedProducts: { fr: "Produits enregistrés:", en: "Saved products:" },
+    dragToReorder: { fr: "glisser pour réorganiser", en: "drag to reorder" },
+    noStylistFound: { fr: "Aucun coiffeur trouvé", en: "No stylist found" },
+  },
+  payment: {
+    card: { fr: "Carte", en: "Card" },
+    cash: { fr: "Espèces", en: "Cash" },
+    planity: { fr: "Planity/Treatwell", en: "Planity/Treatwell" },
+    cardCash: { fr: "Carte + Espèces", en: "Card + Cash" },
+    paymentMethod: { fr: "Moyen de paiement", en: "Payment method" },
+    splitPayment: { fr: "Répartir le paiement", en: "Split payment" },
+    cardAmount: { fr: "Montant Carte", en: "Card amount" },
+    cashAmount: { fr: "Montant Espèces", en: "Cash amount" },
+    totalToPay: { fr: "Total à payer", en: "Total to pay" },
+    tooMuch: { fr: "Trop", en: "Too much" },
+    notEnough: { fr: "Manque", en: "Missing" },
+    confirmSplit: { fr: "Confirmer la répartition", en: "Confirm split" },
+  },
+  client: {
+    clients: { fr: "Clients", en: "Clients" },
+    client: { fr: "Client", en: "Client" },
+    firstName: { fr: "Prénom", en: "First name" },
+    lastName: { fr: "Nom", en: "Last name" },
+    email: { fr: "Email", en: "Email" },
+    phone: { fr: "Téléphone", en: "Phone" },
+    points: { fr: "Points", en: "Points" },
+    lastVisit: { fr: "Dernier passage", en: "Last visit" },
+    noClientSelected: { fr: "Aucun client sélectionné", en: "No client selected" },
+    selectClient: { fr: "Sélectionner un client", en: "Select a client" },
+    searchClient: { fr: "Rechercher un client", en: "Search for a client" },
+    noClientFound: { fr: "Aucun client trouvé", en: "No client found" },
+    newClient: { fr: "Nouveau client", en: "New client" },
+    selectThisClient: { fr: "Sélectionner ce client", en: "Select this client" },
+    clientSelected: { fr: "Client sélectionné", en: "Client selected" },
+    invalidPhone: { fr: "Numéro invalide", en: "Invalid number" },
+    phoneDigits: { fr: "Le numéro doit contenir 10 chiffres.", en: "Phone must contain 10 digits." },
+    creating: { fr: "Création...", en: "Creating..." },
+    clientCreated: { fr: "Client créé !", en: "Client created!" },
+    createError: { fr: "Erreur lors de la création du client:", en: "Error creating client:" },
+    noClientAvailable: { fr: "Aucun client disponible", en: "No client available" },
+    addClientFirst: { fr: "Ajoutez des clients avant d'exporter.", en: "Add clients before exporting." },
+  },
+  transaction: {
+    validating: { fr: "Validation...", en: "Validating..." },
+    validated: { fr: "Transaction validée", en: "Transaction validated" },
+    thanks: { fr: "Merci !", en: "Thank you!" },
+    recording: { fr: "Enregistrement en cours", en: "Recording in progress" },
+    addedSuccess: { fr: "Ajout pris en compte", en: "Successfully added" },
+  },
+  points: {
+    manualAdd: { fr: "Ajout manuel de points", en: "Manual points addition" },
+    selectClient: { fr: "Sélectionner un client...", en: "Select a client..." },
+    noClientFound: { fr: "Aucun client trouvé.", en: "No client found." },
+    cannotAddPoints: { fr: "Impossible d'ajouter les points.", en: "Cannot add points." },
+    pointsUsed: { fr: "Points utilisés", en: "Points used" },
+    daySelected: { fr: "Jour sélectionné", en: "Day selected" },
+    monthSelected: { fr: "Mois sélectionné", en: "Month selected" },
+    noPointsDay: { fr: "Aucun point utilisé ce jour.", en: "No points used this day." },
+    noPointsMonth: { fr: "Aucun point utilisé ce mois.", en: "No points used this month." },
+    selectDayToView: { fr: "Sélectionnez un jour pour voir l'utilisation des points.", en: "Select a day to view points usage." },
+    selectMonthToView: { fr: "Sélectionnez un mois pour voir l'utilisation des points.", en: "Select a month to view points usage." },
+    redeemDefault: { fr: "Points par défaut à utiliser", en: "Default points to redeem" },
+  },
+  stats: {
+    revenue: { fr: "Chiffre d'affaires", en: "Revenue" },
+    remuneration: { fr: "Rémunération", en: "Earnings" },
+    commission: { fr: "Commission", en: "Commission" },
+    stylistsRevenue: { fr: "Coiffeurs & Chiffre d'affaires", en: "Stylists & Revenue" },
+    services: { fr: "prestations", en: "services" },
+    service: { fr: "prestation", en: "service" },
+    tips: { fr: "Pourboires", en: "Tips" },
+    deposit: { fr: "Acompte", en: "Deposit" },
+  },
+  settings: {
+    title: { fr: "Paramètres", en: "Settings" },
+    adminAccess: { fr: "Accès administrateur", en: "Admin access" },
+    createAccountFirst: { fr: "Créez d'abord votre compte administrateur depuis l'écran de connexion.", en: "First create your admin account from the login screen." },
+    requiredForStylists: { fr: "Requis pour ajouter des coiffeurs et modifier les paramètres.", en: "Required to add stylists and edit settings." },
+    stylistsFromSettings: { fr: "L'ajout de coiffeurs se fait désormais depuis Paramètres.", en: "Adding stylists is now done from Settings." },
+    accessCode: { fr: "Code d'accès", en: "Access code" },
+    deposit: { fr: "Acompte coiffeur", en: "Stylist deposit" },
+    currency: { fr: "Devise", en: "Currency" },
+    changeCurrency: { fr: "Changer la devise", en: "Change currency" },
+  },
+  subscription: {
+    required: { fr: "Abonnement requis", en: "Subscription required" },
+    toAccess: { fr: "Pour accéder à l'application", en: "To access the application" },
+    subscribe: { fr: "S'abonner — 29€/mois", en: "Subscribe — $29/month" },
+    trialActive: { fr: "Période d'essai active. Expire le", en: "Trial period active. Expires on" },
+    activateNow: { fr: "ACTIVER MAINTENANT", en: "ACTIVATE NOW" },
+  },
+  photo: {
+    deletePhoto: { fr: "Supprimer cette photo ?", en: "Delete this photo?" },
+    uploadFailed: { fr: "Échec de l'upload", en: "Upload failed" },
+    noPhoto: { fr: "Aucune photo", en: "No photo" },
+  },
+  export: {
+    csv: { fr: "CSV", en: "CSV" },
+    pdf: { fr: "PDF", en: "PDF" },
+    exportReady: { fr: "Export prêt", en: "Export ready" },
+    fileDownloaded: { fr: "Le fichier a été téléchargé.", en: "File has been downloaded." },
+    exportError: { fr: "Erreur lors de l'export", en: "Export error" },
+    cannotGenerate: { fr: "Impossible de générer le fichier.", en: "Cannot generate file." },
+    clientExport: { fr: "Exports fichier clients", en: "Client file exports" },
+    marketingExport: { fr: "Clients — Export marketing", en: "Clients — Marketing export" },
+    generatedOn: { fr: "Généré le", en: "Generated on" },
+    invalidDateRange: { fr: "Intervalle de dates invalide", en: "Invalid date range" },
+    fixDates: { fr: "Corrigez les dates avant d'exporter.", en: "Fix dates before exporting." },
+    noClientInPeriod: { fr: "Aucun client sur cette période", en: "No client in this period" },
+    adjustDates: { fr: "Ajustez les dates ou réinitialisez le filtre.", en: "Adjust dates or reset filter." },
+  },
+  pwa: {
+    updateAvailable: { fr: "Mise à jour disponible", en: "Update available" },
+    newVersionReady: { fr: "Une nouvelle version est prête", en: "A new version is ready" },
+    serviceWorkerError: { fr: "Erreur Service Worker", en: "Service Worker error" },
+  },
+  priority: {
+    priority: { fr: "Priorité", en: "Priority" },
+  },
+  defaultServices: {
+    coupe: { fr: "Coupe", en: "Haircut" },
+    coupeBarbe: { fr: "Coupe + Barbe", en: "Haircut + Beard" },
+    barbe: { fr: "Barbe", en: "Beard" },
+    degradeAmericain: { fr: "Dégradé américain", en: "American fade" },
+    coloration: { fr: "Coloration", en: "Hair color" },
+    brushing: { fr: "Brushing", en: "Blow-dry" },
+    soin: { fr: "Soin capillaire", en: "Hair treatment" },
+    meches: { fr: "Mèches", en: "Highlights" },
+    lissage: { fr: "Lissage", en: "Straightening" },
+    permanente: { fr: "Permanente", en: "Perm" },
+  },
+  defaultProducts: {
+    shampoing: { fr: "Shampoing", en: "Shampoo" },
+    apresShampoing: { fr: "Après-shampoing", en: "Conditioner" },
+    gel: { fr: "Gel coiffant", en: "Styling gel" },
+    cire: { fr: "Cire", en: "Wax" },
+    huile: { fr: "Huile capillaire", en: "Hair oil" },
+    serum: { fr: "Sérum", en: "Serum" },
+    laque: { fr: "Laque", en: "Hairspray" },
+    masque: { fr: "Masque", en: "Hair mask" },
+  },
+} as const;
+
+export type TranslationKey = keyof typeof translations;
+
+export function getLanguageFromCurrency(currency: string): Language {
+  return currency === "USD" ? "en" : "fr";
+}
+
+export function t(
+  section: keyof typeof translations,
+  key: string,
+  lang: Language
+): string {
+  const sectionData = translations[section] as Record<string, Record<Language, string>>;
+  if (sectionData && sectionData[key]) {
+    return sectionData[key][lang] || sectionData[key]["fr"];
+  }
+  return key;
+}
+
+export function useTranslation(currency: string = "EUR") {
+  const lang = getLanguageFromCurrency(currency);
+  
+  return {
+    lang,
+    t: (section: keyof typeof translations, key: string) => t(section, key, lang),
+  };
+}
