@@ -110,7 +110,7 @@ export default function ProductsPicker({ onProductSelect, onReset, externalOpen,
         onClick={(e) => e.stopPropagation()}
       >
         <div className="px-4 pt-4 pb-2 flex items-center justify-between">
-          <h2 className="text-xl font-black text-white">PRODUITS</h2>
+          <h2 className="text-xl font-black text-white">{t("salon", "productsTitle")}</h2>
           <button
             type="button"
             onClick={() => setPopoverOpen(false)}
@@ -131,7 +131,7 @@ export default function ProductsPicker({ onProductSelect, onReset, externalOpen,
                   className="border-b border-white/15 bg-gradient-to-r from-emerald-500/20 to-emerald-600/20 px-4 py-3"
                 >
                   <div className="flex items-center">
-                    <span className="text-2xl font-bold text-emerald-100">Total</span>
+                    <span className="text-2xl font-bold text-emerald-100">{t("salon", "total")}</span>
                     <span className="flex-1 text-center text-5xl font-black text-cyan-300" style={{ WebkitTextStroke: '0.5px black' }}>{currencyFormatter.format(total)}</span>
                   </div>
                 </motion.div>

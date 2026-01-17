@@ -151,7 +151,7 @@ export default function ServicesPicker({ onServiceSelect, onReset, externalOpen,
       if (customAmountValue > 0) {
         allPrestations.push({
           id: `custom-${Date.now()}`,
-          name: "Montant libre",
+          name: t("salon", "customAmount"),
           price: customAmountValue,
           quantity: 1
         });
@@ -159,7 +159,7 @@ export default function ServicesPicker({ onServiceSelect, onReset, externalOpen,
       if (tipAmountValue > 0) {
         allPrestations.push({
           id: `tip-${Date.now()}`,
-          name: "Pourboire",
+          name: t("salon", "tip"),
           price: tipAmountValue,
           quantity: 1
         });
@@ -183,7 +183,7 @@ export default function ServicesPicker({ onServiceSelect, onReset, externalOpen,
         onClick={(e) => e.stopPropagation()}
       >
         <div className="px-4 pt-4 pb-2 flex items-center justify-between">
-          <h2 className="text-xl font-light text-amber-400">PRESTATIONS & PRODUITS</h2>
+          <h2 className="text-xl font-light text-amber-400">{t("salon", "servicesAndProducts")}</h2>
           <button
             type="button"
             onClick={() => setPopoverOpen(false)}
@@ -204,7 +204,7 @@ export default function ServicesPicker({ onServiceSelect, onReset, externalOpen,
                   className="border-b border-white/15 bg-gradient-to-r from-emerald-500/20 to-emerald-600/20 px-4 py-3"
                 >
                   <div className="flex items-center">
-                    <span className="text-2xl font-bold text-emerald-100">Total</span>
+                    <span className="text-2xl font-bold text-emerald-100">{t("salon", "total")}</span>
                     <span className="flex-1 text-center text-5xl font-black text-cyan-300" style={{ WebkitTextStroke: '0.5px black' }}>{currencyFormatter.format(total)}</span>
                   </div>
                 </motion.div>
@@ -217,7 +217,7 @@ export default function ServicesPicker({ onServiceSelect, onReset, externalOpen,
               {hasServices && (
                 <div className="space-y-2">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="text-lg font-light text-white/70 uppercase tracking-wide">Prestations</span>
+                    <span className="text-lg font-light text-white/70 uppercase tracking-wide">{t("salon", "services")}</span>
                   </div>
               {services.map((service) => {
                 const isSelected = selectedPrestations.has(service.id);
@@ -466,7 +466,7 @@ export default function ServicesPicker({ onServiceSelect, onReset, externalOpen,
               <div className="mt-4 pt-4 border-t border-white/10">
                 <div className="flex items-center gap-2 mb-3">
                   <Euro className="h-4 w-4 text-amber-400" />
-                  <span className="text-lg font-light text-amber-400 uppercase tracking-wide">Montant libre</span>
+                  <span className="text-lg font-light text-amber-400 uppercase tracking-wide">{t("salon", "customAmount")}</span>
                 </div>
                 <div className="relative w-full overflow-hidden rounded-2xl border border-amber-400/40 bg-slate-900/30 p-3 shadow-[0_10px_30px_rgba(15,23,42,0.15)] backdrop-blur-[2px]">
                   <div className="flex items-center gap-3">
