@@ -25,8 +25,24 @@ export interface IAdminUser extends Document {
     email: string;
     passwordHash: string;
     token?: string | null;
+    tokenExpiresAt?: number | null; // ✅ NOUVEAU: Expiration du token (1 heure)
+    passwordVersion?: number; // ✅ NOUVEAU: 1=SHA256, 2=bcrypt (migration progressive)
+    mfaEnabled?: boolean; // ✅ MFA: Activé ou non
+    mfaCode?: string | null; // ✅ MFA: Code temporaire (6 chiffres)
+    mfaCodeExpiresAt?: number | null; // ✅ MFA: Expiration du code (10 min)
     createdAt: Date;
     updatedAt: Date;
+}
+
+// ✅ NOUVEAU: Interface pour les logs d'audit super admin
+export interface IAdminLog extends Document {
+    action: string;
+    adminEmail: string;
+    ip: string;
+    userAgent?: string;
+    success: boolean;
+    details?: any;
+    timestamp: Date;
 }
 
 export interface IClient extends Document {
@@ -323,11 +339,34 @@ StylistDepositSchema.index({ salonId: 1, stylistId: 1, month: -1 });
 const AdminUserSchema = new Schema({
     email: { type: String, required: true, unique: true },
     passwordHash: { type: String, required: true },
-    token: { type: String, default: null }
+    token: { type: String, default: null },
+    tokenExpiresAt: { type: Number, default: null }, // ✅ NOUVEAU
+    passwordVersion: { type: Number, default: 1 }, // ✅ NOUVEAU: 1=SHA256, 2=bcrypt
+    mfaEnabled: { type: Boolean, default: false }, // ✅ MFA
+    mfaCode: { type: String, default: null }, // ✅ MFA
+    mfaCodeExpiresAt: { type: Number, default: null } // ✅ MFA
 }, {
     timestamps: true,
     id: false
 });
+
+// ✅ NOUVEAU: Schéma pour les logs d'audit
+const AdminLogSchema = new Schema({
+    action: { type: String, required: true, index: true },
+    adminEmail: { type: String, required: true, index: true },
+    ip: { type: String, required: true },
+    userAgent: { type: String },
+    success: { type: Boolean, required: true },
+    details: { type: Schema.Types.Mixed },
+    timestamp: { type: Date, default: Date.now, index: true }
+}, {
+    timestamps: false,
+    id: false
+});
+
+// Index composés pour requêtes fréquentes
+AdminLogSchema.index({ adminEmail: 1, timestamp: -1 });
+AdminLogSchema.index({ action: 1, timestamp: -1 });
 
 // Modèles Mongoose
 export const Stylist = (mongoose.models.Stylist || mongoose.model<IStylist>('Stylist', StylistSchema)) as mongoose.Model<IStylist>;
@@ -340,3 +379,4 @@ export const Product = (mongoose.models.Product || mongoose.model<IProduct>('Pro
 export const Settings = (mongoose.models.Settings || mongoose.model<ISettings>('Settings', SettingsSchema)) as mongoose.Model<ISettings>;
 export const AdminUser = (mongoose.models.AdminUser || mongoose.model<IAdminUser>('AdminUser', AdminUserSchema)) as mongoose.Model<IAdminUser>;
 export const StylistDeposit = (mongoose.models.StylistDeposit || mongoose.model<IStylistDeposit>('StylistDeposit', StylistDepositSchema)) as mongoose.Model<IStylistDeposit>;
+export const AdminLog = (mongoose.models.AdminLog || mongoose.model<IAdminLog>('AdminLog', AdminLogSchema)) as mongoose.Model<IAdminLog>;

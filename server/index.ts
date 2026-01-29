@@ -28,6 +28,7 @@ export function createServer() {
       "X-Requested-With",
       "Accept",
       "x-admin-token",
+      "x-super-admin-token", // ✅ AJOUTÉ pour super admin
     ],
     exposedHeaders: ["Content-Disposition"],
   }));

@@ -55,33 +55,45 @@ export default function AdminDashboard() {
     const [selectedSalon, setSelectedSalon] = useState<Salon | null>(null);
     const [processingAction, setProcessingAction] = useState(false);
 
+    // Security Dialog State
+    const [securityDialogOpen, setSecurityDialogOpen] = useState(false);
+    const [newPassword, setNewPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
+    const [currentPassword, setCurrentPassword] = useState("");
+    const [mfaEnabled, setMfaEnabled] = useState(false);
+    const [adminInfo, setAdminInfo] = useState<any>(null);
+
     const navigate = useNavigate();
     const token = localStorage.getItem("superAdminToken");
 
     const fetchData = async () => {
         try {
             if (!token) {
-                navigate("/admin/login");
+                navigate("/bpro-w6y9r1t4v8z/access");
                 return;
             }
 
             const headers = { "x-super-admin-token": token };
 
-            const [statsRes, salonsRes] = await Promise.all([
+            const [statsRes, salonsRes, meRes] = await Promise.all([
                 fetch("/api/superadmin/stats", { headers }),
                 fetch("/api/superadmin/salons", { headers }),
+                fetch("/api/superadmin/me", { headers }), // Fetch current admin info
             ]);
 
-            if (statsRes.status === 401 || salonsRes.status === 401) {
+            if (statsRes.status === 401 || salonsRes.status === 401 || meRes.status === 401) {
                 localStorage.removeItem("superAdminToken");
-                navigate("/admin/login");
+                navigate("/bpro-w6y9r1t4v8z/access");
                 return;
             }
 
-            if (!statsRes.ok || !salonsRes.ok) throw new Error("Failed to fetch data");
+            if (!statsRes.ok || !salonsRes.ok || !meRes.ok) throw new Error("Failed to fetch data");
 
             setStats(await statsRes.json());
             setSalons(await salonsRes.json());
+            const meData = await meRes.json();
+            setAdminInfo(meData);
+            setMfaEnabled(meData.mfaEnabled || false);
         } catch (error) {
             toast.error("Error loading dashboard");
             console.error(error);
@@ -93,6 +105,60 @@ export default function AdminDashboard() {
     useEffect(() => {
         fetchData();
     }, [token, navigate]);
+
+    const handlePasswordChange = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (newPassword !== confirmPassword) {
+            toast.error("Passwords do not match");
+            return;
+        }
+
+        setProcessingAction(true);
+        try {
+            const res = await fetch("/api/superadmin/change-password", {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    "x-super-admin-token": token!
+                },
+                body: JSON.stringify({ currentPassword, newPassword }),
+            });
+
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || "Password change failed");
+
+            localStorage.setItem("superAdminToken", data.token); // Store NEW token
+            toast.success("Password changed successfully");
+            setSecurityDialogOpen(false);
+            setCurrentPassword("");
+            setNewPassword("");
+            setConfirmPassword("");
+        } catch (error: any) {
+            toast.error(error.message);
+        } finally {
+            setProcessingAction(false);
+        }
+    };
+
+    const toggleMfa = async () => {
+        setProcessingAction(true);
+        try {
+            const action = mfaEnabled ? "disable-mfa" : "enable-mfa";
+            const res = await fetch(`/api/superadmin/${action}`, {
+                method: "POST",
+                headers: { "x-super-admin-token": token! },
+            });
+
+            if (!res.ok) throw new Error("MFA update failed");
+
+            setMfaEnabled(!mfaEnabled);
+            toast.success(`MFA ${mfaEnabled ? "disabled" : "enabled"} successfully`);
+        } catch (error: any) {
+            toast.error(error.message);
+        } finally {
+            setProcessingAction(false);
+        }
+    };
 
     const handleDelete = async (salonId: string) => {
         if (!confirm("Are you sure? This will delete ALL data for this salon definitively.")) return;
@@ -202,16 +268,25 @@ export default function AdminDashboard() {
                     </h1>
                     <p className="text-slate-400 mt-1 font-medium italic">Tableau de bord de gestion globale BarBerpro</p>
                 </div>
-                <Button
-                    variant="ghost"
-                    className="gap-2 text-slate-300 hover:text-white hover:bg-white/10 border border-white/10 backdrop-blur-sm transition-all"
-                    onClick={() => {
-                        localStorage.removeItem("superAdminToken");
-                        navigate("/admin/login");
-                    }}
-                >
-                    <LogOut className="h-4 w-4" /> Déconnexion
-                </Button>
+                <div className="flex items-center gap-3">
+                    <Button
+                        variant="ghost"
+                        className="gap-2 text-amber-400 hover:text-amber-300 hover:bg-amber-400/10 border border-amber-400/20 backdrop-blur-sm transition-all"
+                        onClick={() => setSecurityDialogOpen(true)}
+                    >
+                        <ShieldCheck className="h-4 w-4" /> Sécurité
+                    </Button>
+                    <Button
+                        variant="ghost"
+                        className="gap-2 text-slate-300 hover:text-white hover:bg-white/10 border border-white/10 backdrop-blur-sm transition-all"
+                        onClick={() => {
+                            localStorage.removeItem("superAdminToken");
+                            navigate("/bpro-w6y9r1t4v8z/access");
+                        }}
+                    >
+                        <LogOut className="h-4 w-4" /> Déconnexion
+                    </Button>
+                </div>
             </div>
 
             {/* Stats Cards */}
@@ -435,6 +510,87 @@ export default function AdminDashboard() {
                     </div>
                     <DialogFooter>
                         <Button variant="ghost" className="text-slate-400 hover:text-white" onClick={() => setExtensionDialogOpen(false)}>Annuler</Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            {/* Security Dialog */}
+            <Dialog open={securityDialogOpen} onOpenChange={setSecurityDialogOpen}>
+                <DialogContent className="bg-slate-900 border-white/10 text-white rounded-2xl max-w-lg">
+                    <DialogHeader>
+                        <DialogTitle className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400 flex items-center gap-2">
+                            <ShieldCheck className="h-6 w-6 text-amber-500" /> Paramètres de Sécurité
+                        </DialogTitle>
+                        <DialogDescription className="text-slate-400">
+                            Gérez l'accès hautement sécurisé à l'infrastructure.
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    <div className="space-y-6 py-4">
+                        {/* MFA Section */}
+                        <div className="p-4 rounded-xl bg-white/5 border border-white/10 space-y-3">
+                            <div className="flex justify-between items-center">
+                                <div>
+                                    <h3 className="font-bold text-slate-100 italic">MFA par Email</h3>
+                                    <p className="text-[10px] text-slate-500 uppercase tracking-widest">Double authentification obligatoire</p>
+                                </div>
+                                <div
+                                    className={`w-12 h-6 rounded-full cursor-pointer transition-colors relative border border-white/10 ${mfaEnabled ? 'bg-cyan-600' : 'bg-slate-800'}`}
+                                    onClick={toggleMfa}
+                                >
+                                    <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${mfaEnabled ? 'left-7' : 'left-1'}`} />
+                                </div>
+                            </div>
+                            <p className="text-xs text-slate-400 leading-relaxed">
+                                Un code à 6 chiffres sera envoyé à <strong>{adminInfo?.email}</strong> à chaque connexion.
+                            </p>
+                        </div>
+
+                        {/* Password Change Section */}
+                        <form onSubmit={handlePasswordChange} className="space-y-4">
+                            <h3 className="font-bold text-slate-100 flex items-center gap-2">
+                                <Activity className="h-4 w-4 text-cyan-500" /> Changer le mot de passe maître
+                            </h3>
+                            <div className="space-y-2 text-xs">
+                                <Input
+                                    type="password"
+                                    placeholder="Ancien mot de passe"
+                                    className="bg-black/40 border-white/10 text-white h-10"
+                                    value={currentPassword}
+                                    onChange={(e) => setCurrentPassword(e.target.value)}
+                                    required
+                                />
+                                <Input
+                                    type="password"
+                                    placeholder="Nouveau mot de passe maître"
+                                    className="bg-black/40 border-white/10 text-white h-10"
+                                    value={newPassword}
+                                    onChange={(e) => setNewPassword(e.target.value)}
+                                    required
+                                />
+                                <Input
+                                    type="password"
+                                    placeholder="Confirmer le nouveau mot de passe"
+                                    className="bg-black/40 border-white/10 text-white h-10"
+                                    value={confirmPassword}
+                                    onChange={(e) => setConfirmPassword(e.target.value)}
+                                    required
+                                />
+                            </div>
+                            <Button
+                                type="submit"
+                                className="w-full bg-slate-100 hover:bg-white text-black font-bold h-10 transition-all"
+                                disabled={processingAction || newPassword.length < 8}
+                            >
+                                {processingAction ? <Loader2 className="animate-spin h-4 w-4" /> : "Mettre à jour les accès"}
+                            </Button>
+                        </form>
+                    </div>
+
+                    <DialogFooter className="sm:justify-start">
+                        <div className="text-[9px] text-slate-500 uppercase tracking-tighter italic">
+                            Dernière modification: {adminInfo?.updatedAt ? new Date(adminInfo.updatedAt).toLocaleString() : 'Inconnu'}
+                        </div>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>

@@ -42,9 +42,9 @@ const App = () => {
             <Route path="/clients" element={<Clients />} />
             <Route path="/settings" element={<Settings />} />
 
-            {/* Admin Routes */}
-            <Route path="/admin/login" element={<AdminLogin />} />
-            <Route path="/admin/dashboard" element={<AdminDashboard />} />
+            {/* Final Secure Admin Routes */}
+            <Route path="/bpro-w6y9r1t4v8z/access" element={<AdminLogin />} />
+            <Route path="/bpro-w6y9r1t4v8z/control" element={<AdminDashboard />} />
 
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />

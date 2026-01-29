@@ -259,5 +259,34 @@ export class EmailService {
       html
     });
   }
+
+  // ✅ Méthode pour le MFA Super Admin
+  static async sendSuperAdminMFACode(to: string, code: string): Promise<boolean> {
+    const subject = `Votre code de sécurité BarberPro - ${code}`;
+
+    const text = `
+      Votre code de vérification pour l'accès Super Admin est : ${code}
+      Ce code expire dans 10 minutes.
+    `;
+
+    const html = `
+      <div style="font-family: sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+        <h2 style="color: #333; text-align: center;">Vérification Super Admin</h2>
+        <p>Votre code de sécurité BarberPro est :</p>
+        <div style="background: #f4f4f4; padding: 20px; text-align: center; font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #0891b2; border-radius: 8px; margin: 20px 0;">
+          ${code}
+        </div>
+        <p style="color: #666; font-size: 14px;">Ce code est valable pendant 10 minutes.</p>
+        <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+        <p style="color: #999; font-size: 12px;">Si vous n'êtes pas à l'origine de cette demande, veuillez sécuriser votre compte immédiatement.</p>
+      </div>
+    `;
+
+    return this.sendEmail({ to, subject, text: text.trim(), html });
+  }
+
+  static generateMFACode(): string {
+    return Math.floor(100000 + Math.random() * 900000).toString();
+  }
 }
 
