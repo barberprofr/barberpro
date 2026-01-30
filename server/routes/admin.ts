@@ -1,7 +1,7 @@
 import { IncomingMessage } from "node:http";
 import { Router } from "express";
 import { createHash, randomBytes } from "node:crypto";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import { AdminUser, Settings, Stylist, Client, Prestation, PointsRedemption, Service, ProductType, Product } from "./models.ts";
 import { rateLimitSuperAdmin, recordLoginAttempt } from "../middleware/rateLimitSuperAdmin.ts";
 import { logSuperAdminAction } from "../middleware/auditLog.ts";

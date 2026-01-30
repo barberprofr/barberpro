@@ -4,6 +4,8 @@
 
 [functions]
   directory = "netlify/functions"
+  node_bundle = true
+  external_node_modules = ["mongoose"]
 
 # Redirections API → Serverless Functions Netlify
 [[redirects]]
