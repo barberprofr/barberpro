@@ -1,7 +1,9 @@
 import { defineConfig } from "vite";
 import path from "path";
+import fs from "fs";
 
-// Server build configuration
+const pkg = JSON.parse(fs.readFileSync(path.resolve(__dirname, "package.json"), "utf-8"));
+
 export default defineConfig({
   build: {
     lib: {
@@ -11,29 +13,13 @@ export default defineConfig({
       formats: ["es"],
     },
     outDir: "dist/server",
-    target: "node22",
+    target: "node20",
     ssr: true,
     rollupOptions: {
       external: [
-        // Node.js built-ins
-        "fs",
-        "path",
-        "url",
-        "http",
-        "https",
-        "os",
-        "crypto",
-        "stream",
-        "util",
-        "events",
-        "buffer",
-        "querystring",
-        "child_process",
-        "express",
-        "cors",
-        "bcrypt",
-        "mongoose",
-        "nodemailer",
+        ...Object.keys(pkg.dependencies || {}),
+        ...Object.keys(pkg.devDependencies || {}),
+        "fs", "path", "url", "http", "https", "os", "crypto", "stream", "util", "events", "buffer", "querystring", "child_process"
       ],
       output: {
         format: "es",
