@@ -1,5 +1,5 @@
 import path from "path";
-import { createServer } from "./index";
+import { createServer, connectDatabase } from "./index";
 import * as express from "express";
 
 const app = createServer();
@@ -22,13 +22,15 @@ app.get("*", (req, res) => {
   res.sendFile(path.join(distPath, "index.html"));
 });
 
-const isMain = import.meta.url === `file://${process.argv[1]}` || process.env.NODE_ENV === 'production';
+const isMain = process.argv[1] && (process.argv[1].includes('node-build') || process.argv[1].endsWith('production.mjs'));
 
 if (isMain) {
-  app.listen(port, () => {
-    console.log(`🚀 Fusion Starter server running on port ${port}`);
-    console.log(`📱 Frontend: http://localhost:${port}`);
-    console.log(`🔧 API: http://localhost:${port}/api`);
+  connectDatabase().then(() => {
+    app.listen(port, () => {
+      console.log(`🚀 Fusion Starter server running on port ${port}`);
+      console.log(`📱 Frontend: http://localhost:${port}`);
+      console.log(`🔧 API: http://localhost:${port}/api`);
+    });
   });
 }
 
