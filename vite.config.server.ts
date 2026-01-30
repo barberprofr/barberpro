@@ -29,9 +29,11 @@ export default defineConfig({
         "buffer",
         "querystring",
         "child_process",
-        // External dependencies that should not be bundled
         "express",
         "cors",
+        "bcrypt",
+        "mongoose",
+        "nodemailer",
       ],
       output: {
         format: "es",
