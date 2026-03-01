@@ -285,6 +285,38 @@ export class EmailService {
     return this.sendEmail({ to, subject, text: text.trim(), html });
   }
 
+  static async sendSignupVerificationLink(to: string, token: string): Promise<boolean> {
+    const subject = "Vérifiez votre email pour activer votre compte BarberPro";
+    const verificationUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/api/admin/confirm-signup?token=${token}`;
+
+    const text = `
+      Bienvenue chez BarberPro !
+      
+      Cliquez sur le lien ci-dessous pour confirmer votre adresse email et créer votre compte :
+      ${verificationUrl}
+      
+      Ce lien expirera dans 24 heures.
+    `;
+
+    const html = `
+      <div style="font-family: sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+        <h2 style="color: #333; text-align: center;">Bienvenue chez BarberPro !</h2>
+        <p>Merci de vous être inscrit. Pour activer votre compte, veuillez cliquer sur le bouton ci-dessous :</p>
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${verificationUrl}" style="background-color: #0891b2; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">
+            Confirmer mon email
+          </a>
+        </div>
+        <p style="color: #666; font-size: 14px;">Ou copiez et collez ce lien dans votre navigateur :</p>
+        <p style="color: #0891b2; font-size: 12px; word-break: break-all;">${verificationUrl}</p>
+        <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+        <p style="color: #999; font-size: 12px;">Ce lien est valable pendant 24 heures. Si vous n'êtes pas à l'origine de cette demande, vous pouvez ignorer cet email.</p>
+      </div>
+    `;
+
+    return this.sendEmail({ to, subject, text: text.trim(), html });
+  }
+
   static generateMFACode(): string {
     return Math.floor(100000 + Math.random() * 900000).toString();
   }

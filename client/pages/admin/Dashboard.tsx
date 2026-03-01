@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Loader2, Trash2, Search, Users, Store, DollarSign, Calendar, LogOut, ShieldCheck, CreditCard, Activity, TrendingUp } from "lucide-react";
+import { Loader2, Trash2, Search, Users, Store, DollarSign, Calendar, LogOut, ShieldCheck, CreditCard, Activity, TrendingUp, Gift, XCircle } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import {
     AlertDialog,
@@ -38,6 +38,9 @@ interface Salon {
     salonPhone?: string;
     subscriptionStatus: string;
     trialEndsAt: number | null;
+    stripeSubscriptionId?: string | null;
+
+    isFreeAccess?: boolean | null;
 
     trialStartedAt: number | null;
     subscriptionStartedAt: number | null;
@@ -216,7 +219,7 @@ export default function AdminDashboard() {
     };
 
     const handleActivate = async (salonId: string) => {
-        if (!confirm("Grant permissions? This will give this salon full access ('active' status) without Stripe payment.")) return;
+        if (!confirm("Accorder les permissions ? Cela donnera à ce salon un accès complet (statut 'active') sans paiement Stripe.")) return;
 
         try {
             const res = await fetch(`/api/superadmin/salons/${salonId}`, {
@@ -226,16 +229,42 @@ export default function AdminDashboard() {
                     "x-super-admin-token": token!
                 },
                 body: JSON.stringify({
-                    subscriptionStatus: 'active'
+                    subscriptionStatus: 'active',
+                    isFreeAccess: true
                 })
             });
 
             if (!res.ok) throw new Error("Activation failed");
 
-            toast.success("Salon activated (Free Access granted)");
+            toast.success("Salon activé (Accès Gratuit Offert)");
             await fetchData();
         } catch (error) {
-            toast.error("Error activating salon");
+            toast.error("Erreur lors de l'activation");
+        }
+    };
+
+    const handleRevokeFreeAccess = async (salonId: string) => {
+        if (!confirm("Annuler l'accès gratuit ? Le salon repassera en mode essai ou expiré.")) return;
+
+        try {
+            const res = await fetch(`/api/superadmin/salons/${salonId}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    "x-super-admin-token": token!
+                },
+                body: JSON.stringify({
+                    subscriptionStatus: null,
+                    isFreeAccess: false
+                })
+            });
+
+            if (!res.ok) throw new Error("Revocation failed");
+
+            toast.success("Accès gratuit annulé");
+            await fetchData();
+        } catch (error) {
+            toast.error("Erreur lors de l'annulation");
         }
     };
 
@@ -393,6 +422,11 @@ export default function AdminDashboard() {
                                                     }`} variant="outline">
                                                     {salon.subscriptionStatus || 'Inactive'}
                                                 </Badge>
+                                                {salon.isFreeAccess && (
+                                                    <Badge className="w-fit font-black px-2 py-0.5 rounded-md text-[9px] uppercase tracking-widest bg-amber-500/20 text-amber-400 border-amber-500/20 animate-pulse" variant="outline">
+                                                        <Gift className="h-3 w-3 mr-1" /> Offert
+                                                    </Badge>
+                                                )}
                                                 {salon.trialEndsAt && (
                                                     <div className="flex items-center gap-1.5 text-[10px]">
                                                         <Calendar className="h-3 w-3 text-slate-500" />
@@ -425,9 +459,21 @@ export default function AdminDashboard() {
                                                     className="h-8 w-8 bg-emerald-500/10 hover:bg-emerald-500 text-emerald-500 hover:text-white border border-emerald-500/20 transition-all rounded-lg"
                                                     onClick={() => handleActivate(salon.salonId)}
                                                     title="Accès Gratuit"
+                                                    disabled={salon.isFreeAccess === true}
                                                 >
                                                     <ShieldCheck className="h-4 w-4" />
                                                 </Button>
+                                                {salon.isFreeAccess && (
+                                                    <Button
+                                                        size="icon"
+                                                        variant="secondary"
+                                                        className="h-8 w-8 bg-amber-500/10 hover:bg-amber-500 text-amber-500 hover:text-white border border-amber-500/20 transition-all rounded-lg"
+                                                        onClick={() => handleRevokeFreeAccess(salon.salonId)}
+                                                        title="Annuler l'accès gratuit"
+                                                    >
+                                                        <XCircle className="h-4 w-4" />
+                                                    </Button>
+                                                )}
                                                 <Button
                                                     size="sm"
                                                     variant="secondary"

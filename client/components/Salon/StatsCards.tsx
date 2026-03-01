@@ -13,17 +13,17 @@ import { StylistMonthly } from "@/components/Salon/StylistDailyStats";
 import { playSuccessSound } from "@/lib/sounds";
 
 // Composant Clavier Numérique
-function NumericKeypad({ 
-  value, 
-  onChange, 
+function NumericKeypad({
+  value,
+  onChange,
   onClose,
   onValidate,
   stylistName,
   error,
   isLoading
-}: { 
-  value: string; 
-  onChange: (val: string) => void; 
+}: {
+  value: string;
+  onChange: (val: string) => void;
   onClose: () => void;
   onValidate: () => void;
   stylistName?: string;
@@ -58,7 +58,7 @@ function NumericKeypad({
         className="w-[320px] max-h-[90vh] overflow-auto"
       >
         {/* Écran d'affichage - style orange/pêche semi-transparent */}
-        <div 
+        <div
           className="mb-4 flex h-10 items-center justify-center rounded-lg px-6 backdrop-blur-md"
           style={{
             background: 'linear-gradient(180deg, rgba(245,158,11,0.5) 0%, rgba(217,119,6,0.55) 100%)',
@@ -76,7 +76,7 @@ function NumericKeypad({
         )}
 
         {/* Cadre semi-transparent futuriste */}
-        <div 
+        <div
           className="rounded-2xl p-4 backdrop-blur-xl"
           style={{
             background: 'linear-gradient(180deg, rgba(26,26,46,0.4) 0%, rgba(15,15,26,0.5) 100%)',
@@ -114,9 +114,9 @@ function NumericKeypad({
                     background: 'rgba(168,85,247,0.3)'
                   }}
                 >
-                  <span 
-                    className="relative z-10" 
-                    style={{ 
+                  <span
+                    className="relative z-10"
+                    style={{
                       color: color.border,
                       textShadow: `0 0 10px ${color.glow}, 0 0 20px ${color.glow}`
                     }}
@@ -149,9 +149,9 @@ function NumericKeypad({
                 background: 'rgba(168,85,247,0.3)'
               }}
             >
-              <span 
-                className="relative z-10" 
-                style={{ 
+              <span
+                className="relative z-10"
+                style={{
                   color: 'rgba(34,211,238,0.9)',
                   textShadow: '0 0 10px rgba(34,211,238,0.5), 0 0 20px rgba(34,211,238,0.3)'
                 }}
@@ -179,9 +179,9 @@ function NumericKeypad({
                 background: 'rgba(6,182,212,0.3)'
               }}
             >
-              <span 
-                className="relative z-10" 
-                style={{ 
+              <span
+                className="relative z-10"
+                style={{
                   color: 'rgba(244,114,182,0.9)',
                   textShadow: '0 0 10px rgba(236,72,153,0.5), 0 0 20px rgba(236,72,153,0.3)'
                 }}
@@ -209,9 +209,9 @@ function NumericKeypad({
                 background: 'rgba(168,85,247,0.3)'
               }}
             >
-              <ChevronLeft 
-                className="h-6 w-6 relative z-10" 
-                style={{ 
+              <ChevronLeft
+                className="h-6 w-6 relative z-10"
+                style={{
                   color: 'rgba(192,132,252,0.9)',
                   filter: 'drop-shadow(0 0 8px rgba(168,85,247,0.5))'
                 }}
@@ -238,11 +238,11 @@ function NumericKeypad({
           style={{
             color: '#1a1a2e'
           }}
-          whileHover={{ 
+          whileHover={{
             scale: 1.25,
             boxShadow: '0 8px 40px rgba(245,158,11,0.7), 0 0 50px rgba(245,158,11,0.5), 0 0 70px rgba(251,191,36,0.3)'
           }}
-          whileTap={{ 
+          whileTap={{
             scale: 1.3,
             boxShadow: '0 0 50px rgba(245,158,11,0.9), 0 0 80px rgba(251,191,36,0.6)'
           }}
@@ -451,7 +451,7 @@ export default function StatsCards() {
   const { data: stylists } = useStylists();
   const { data: config } = useConfig();
   const { t } = useTranslation(config?.currency);
-  
+
   // Formateur de devise dynamique basé sur la configuration
   const eur = createCurrencyFormatter((config?.currency as CurrencyCode) || "EUR");
   const { data: products } = useProducts();
@@ -497,9 +497,9 @@ export default function StatsCards() {
               <span className="mt-2 text-[10px] font-semibold text-amber-400 uppercase tracking-wider">Coiffeurs</span>
             </motion.button>
           </PopoverTrigger>
-          <PopoverContent 
-            side="bottom" 
-            align="center" 
+          <PopoverContent
+            side="bottom"
+            align="center"
             className="w-[min(95vw,42rem)] max-h-[80vh] overflow-y-auto rounded-2xl border border-white/20 bg-white/5 p-4 shadow-[0_40px_95px_rgba(8,15,40,0.3)] backdrop-blur-sm [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']"
           >
             <StylistsList stylists={stylistsList} config={config} hasStylists={hasStylists} />
@@ -639,7 +639,11 @@ export default function StatsCards() {
               <div className="flex flex-col items-center text-center">
                 <span className="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-300/80 mb-1">PRESTATIONS</span>
                 <span className="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-300/80 mb-6">AUJOURD'HUI</span>
-                <div className="text-5xl font-bold text-white tracking-tight">{summary?.dailyCount ?? 0}</div>
+                {config?.hideTotalCA ? (
+                  <div className="text-5xl font-bold text-white/40 tracking-tight">••••••</div>
+                ) : (
+                  <div className="text-5xl font-bold text-white tracking-tight">{summary?.dailyCount ?? 0}</div>
+                )}
               </div>
             </motion.div>
           </motion.div>
@@ -675,7 +679,11 @@ export default function StatsCards() {
               <div className="flex flex-col items-center text-center">
                 <span className="text-xs font-semibold uppercase tracking-[0.2em] text-violet-300/80 mb-1">PRODUITS</span>
                 <span className="text-xs font-semibold uppercase tracking-[0.2em] text-violet-300/80 mb-6">AUJOURD'HUI</span>
-                <div className="text-5xl font-bold text-white tracking-tight">{dailyProductCount}</div>
+                {config?.hideTotalCA ? (
+                  <div className="text-5xl font-bold text-white/40 tracking-tight">••••••</div>
+                ) : (
+                  <div className="text-5xl font-bold text-white tracking-tight">{dailyProductCount}</div>
+                )}
               </div>
             </motion.div>
           </motion.div>
@@ -692,10 +700,10 @@ function StylistsList({ stylists, config, hasStylists }: { stylists: any[], conf
   const [secretCodeInput, setSecretCodeInput] = useState("");
   const [codeError, setCodeError] = useState("");
   const [showCodeDialog, setShowCodeDialog] = useState(false);
-  
+
   const selectedStylist = stylists.find(s => s.id === selectedId);
   const pendingStylist = stylists.find(s => s.id === pendingId);
-  
+
   const { data: hasSecretCode, isLoading: checkingSecretCode } = useStylistHasSecretCode(pendingId ?? undefined);
   const verifyCode = useVerifyStylistSecretCode();
 
@@ -707,7 +715,7 @@ function StylistsList({ stylists, config, hasStylists }: { stylists: any[], conf
 
   const handleVerifyCode = async () => {
     if (!pendingId || !secretCodeInput.trim()) return;
-    
+
     try {
       const result = await verifyCode.mutateAsync({ stylistId: pendingId, code: secretCodeInput });
       if (result.valid) {
@@ -789,7 +797,7 @@ function StylistsList({ stylists, config, hasStylists }: { stylists: any[], conf
           />
         )}
       </AnimatePresence>
-      
+
       <motion.div
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}

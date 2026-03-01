@@ -441,7 +441,8 @@ router.put("/salons/:id", requireSuperAdmin, async (req, res) => {
             "salonName",
             "adminEmail",
             "accountEmail",
-            "subscriptionStartedAt"
+            "subscriptionStartedAt",
+            "isFreeAccess"
         ];
 
         const safeUpdates: any = {};

@@ -2294,7 +2294,7 @@ export default function Settings() {
                     className="data-[state=checked]:bg-emerald-500"
                   />
                 </dd>
-                <dt className="font-semibold text-white/80">Cacher le CA total</dt>
+                <dt className="font-semibold text-white/80">Masquer CA, Prestations et Produits</dt>
                 <dd className="flex justify-end">
                   <Switch
                     checked={config?.hideTotalCA ?? false}

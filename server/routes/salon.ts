@@ -4,12 +4,13 @@ import { CloudinaryStorage } from 'multer-storage-cloudinary';
 import multer from 'multer';
 import { createHash, randomBytes } from "node:crypto";
 import { IncomingMessage } from "node:http";
+import bcrypt from "bcryptjs"; // ✅ Ajout Bcrypt
 import { EmailService } from './emailService.ts';
 import {
   Stylist, Client, Prestation, PointsRedemption,
-  Service, ProductType, Product, Settings, StylistDeposit,
+  Service, ProductType, Product, Settings, StylistDeposit, Verification,
   IStylist, IClient, IPrestation, IPointsRedemption,
-  IService, IProductType, IProduct, ISettings, IStylistDeposit,
+  IService, IProductType, IProduct, ISettings, IStylistDeposit, IVerification,
   PaymentMethod
 } from "./models.ts";
 
@@ -68,16 +69,31 @@ async function parseRequestBody(req: any): Promise<any> {
   });
 }
 
-function getSalonId(req: any): string {
-  const id = (req.params && typeof req.params.salonId === "string" && req.params.salonId) || "main";
-  return id.toLowerCase();
+async function getSalonId(req: any): Promise<string | null> {
+  const idValue = (req.params && typeof req.params.salonId === "string" && req.params.salonId);
+  // If we have an ID in params, use it.
+  if (idValue) return idValue.toLowerCase();
+
+  // Try to resolve from token if it's an admin request
+  const token = req.header("x-admin-token");
+  if (token) {
+    const s = await Settings.findOne({ adminToken: token });
+    if (s?.salonId) return s.salonId;
+  }
+
+  // No more "main" fallback.
+  return null;
 }
 
 // Cache pour les settings (évite les requêtes répétées à la base de données)
 const settingsCache = new Map<string, { data: ISettings; expiry: number }>();
 const SETTINGS_CACHE_TTL = 30000; // 30 secondes
 
-async function getSettings(salonId: string): Promise<ISettings> {
+async function getSettings(salonId: string | null): Promise<ISettings> {
+  if (!salonId) {
+    throw new Error("Salon non spécifié. Veuillez vous reconnecter.");
+  }
+
   // Vérifier le cache d'abord
   const cached = settingsCache.get(salonId);
   if (cached && cached.expiry > Date.now()) {
@@ -86,28 +102,9 @@ async function getSettings(salonId: string): Promise<ISettings> {
 
   let settings = await Settings.findOne({ salonId });
   if (!settings) {
-    settings = new Settings({
-      salonId,
-      loginPasswordHash: null,
-      adminCodeHash: null,
-      adminToken: null,
-      adminEmail: null,
-      salonName: null,
-      salonAddress: null,
-      salonPostalCode: null,
-      salonCity: null,
-      salonPhone: null,
-      resetCode: null,
-      resetExpiresAt: 0,
-      loyaltyPercentDefault: 5,
-      paymentModes: ["cash", "check", "card"],
-      commissionDefault: 50,
-      pointsRedeemDefault: 10,
-    });
-    // ⚠️ IMPORTANT : Ne PAS sauvegarder automatiquement le salon s'il n'existe pas.
-    // Cela évite la création de comptes fantômes vides (ghost accounts) lors d'accès par URL ou scan.
-    // Le salon sera créé uniquement via setupAdminAccount (inscription).
-    // await settings.save();
+    // Le salon doit obligatoirement exister en base de données pour être accessible.
+    // S'il n'existe pas, c'est une erreur d'URL ou une tentative d'accès non autorisé.
+    throw new Error("Salon introuvable. Veuillez vérifier votre adresse URL.");
   }
 
   if (settings.pointsRedeemDefault === 100) {
@@ -136,7 +133,7 @@ function makeToken() {
 }
 
 async function isAdmin(req: any): Promise<boolean> {
-  const settings = await getSettings(getSalonId(req));
+  const settings = await getSettings(await getSalonId(req));
   const token = req.header("x-admin-token");
   return Boolean(settings.adminToken && token && token === settings.adminToken);
 }
@@ -332,7 +329,7 @@ function isTimestampInHiddenPeriod(timestamp: number, hiddenPeriods: HiddenPerio
   return day >= start && day <= end;
 }
 
-async function aggregateByPayment(salonId: string, stylistId: string, refNowMs: number = Date.now(), startDateMs?: number, endDateMs?: number, hiddenPeriods: HiddenPeriod[] = []) {
+async function aggregateByPayment(salonId: string, stylistId: string, refNowMs: number = Date.now(), startDateMs?: number, endDateMs?: number, hiddenPeriods: HiddenPeriod[] = [], adminBypass: boolean = false) {
   const now = refNowMs;
   const todayStart = startOfDayParis(now);
   const useRange = typeof startDateMs === 'number' && typeof endDateMs === 'number';
@@ -363,7 +360,7 @@ async function aggregateByPayment(salonId: string, stylistId: string, refNowMs: 
   let rangeNonCashTipAmount = 0;
 
   for (const p of prestations) {
-    const isHidden = isTimestampInHiddenPeriod(p.timestamp, hiddenPeriods);
+    const isHidden = !adminBypass && isTimestampInHiddenPeriod(p.timestamp, hiddenPeriods);
     const isTip = p.serviceName === "Pourboire";
     const method = p.paymentMethod as PaymentMethod;
     const isCashTip = isTip && method === "cash";
@@ -443,7 +440,7 @@ async function aggregateByPayment(salonId: string, stylistId: string, refNowMs: 
   }
 
   for (const prod of products) {
-    const isHidden = isTimestampInHiddenPeriod(prod.timestamp, hiddenPeriods);
+    const isHidden = !adminBypass && isTimestampInHiddenPeriod(prod.timestamp, hiddenPeriods);
 
     const incAmount = (scope: ReturnType<typeof makeScope>) => {
       scope.total.amount += prod.amount;
@@ -493,7 +490,7 @@ async function aggregateByPayment(salonId: string, stylistId: string, refNowMs: 
   let monthlyProductCount = 0;
 
   for (const prod of products) {
-    const isHidden = isTimestampInHiddenPeriod(prod.timestamp, hiddenPeriods);
+    const isHidden = !adminBypass && isTimestampInHiddenPeriod(prod.timestamp, hiddenPeriods);
     if (startOfDayParis(prod.timestamp) === todayStart && !isHidden) {
       dailyProductCount++;
     }
@@ -651,7 +648,7 @@ async function collectPointsUsage(salonId: string, options: { dayRef: number; mo
 // Contrôleurs
 export const listStylists: RequestHandler = async (req, res) => {
   try {
-    const salonId = getSalonId(req);
+    const salonId = await getSalonId(req);
     const stylists = await Stylist.find({ salonId });
 
     const stylistsWithStats = await Promise.all(
@@ -670,7 +667,7 @@ export const listStylists: RequestHandler = async (req, res) => {
 
 export const getStylistsByPriority: RequestHandler = async (req, res) => {
   try {
-    const salonId = getSalonId(req);
+    const salonId = await getSalonId(req);
     const settings = await getSettings(salonId);
 
     if (!settings.showStylistPriority) {
@@ -713,9 +710,12 @@ export const getStylistsByPriority: RequestHandler = async (req, res) => {
 
 export const getConfig: RequestHandler = async (req, res) => {
   try {
-    const salonId = getSalonId(req);
+    const salonId = await getSalonId(req);
     const settings = await getSettings(salonId);
     const admin = await isAdmin(req);
+
+    // 🛡️ SÉCURITÉ : Ne pas exposer les infos sensibles (Stripe ID, etc) si pas admin
+    // Ici on renvoie des booléens ou des données publiques uniquement
     const now = Date.now();
     let mutated = false;
 
@@ -725,7 +725,12 @@ export const getConfig: RequestHandler = async (req, res) => {
       const trialEndsAt = typeof settings.trialEndsAt === "number" ? settings.trialEndsAt : null;
       const trialActive = Boolean(trialEndsAt && trialEndsAt > now);
 
-      if (!hasStripeSubscription && trialActive) {
+      // Force sync if we are in a trial state (trialing or trial_expired), 
+      // even if there is a leftover stripeSubscriptionId.
+      const isCurrentlyTrialing = ["trialing", "trial_expired", null, undefined].includes(settings.subscriptionStatus as any);
+      const shouldSyncTrial = !hasStripeSubscription || isCurrentlyTrialing;
+
+      if (shouldSyncTrial && trialActive) {
         // Only force trialing if we are NOT already active/paid (e.g. granted by admin or legacy)
         if (settings.subscriptionStatus !== "trialing" && settings.subscriptionStatus !== "active" && settings.subscriptionStatus !== "paid") {
           settings.subscriptionStatus = "trialing";
@@ -737,7 +742,7 @@ export const getConfig: RequestHandler = async (req, res) => {
         }
       }
 
-      if (!hasStripeSubscription && !trialActive && trialEndsAt) {
+      if (shouldSyncTrial && !trialActive && trialEndsAt) {
         if (settings.subscriptionStatus === "trialing" || !settings.subscriptionStatus) {
           settings.subscriptionStatus = "trial_expired";
           mutated = true;
@@ -789,8 +794,16 @@ export const getConfig: RequestHandler = async (req, res) => {
 
 export const setupAdminAccount: RequestHandler = async (req, res) => {
   try {
+    // Setup is special: it's allowed ONLY if no admin exists for this salon yet.
+    // If admin exists, we must require auth to prevent hijacking.
+    const salonId = await getSalonId(req);
+    const existingSettings = await getSettings(salonId);
+
+    if (existingSettings.loginPasswordHash) {
+      if (!(await requireAdmin(req, res))) return;
+    }
+
     const body = await parseRequestBody(req);
-    const salonId = getSalonId(req);
     const { password, adminCode, email, salonName, salonAddress, salonPostalCode, salonCity, salonPhone } = body as {
       password?: string;
       adminCode?: string;
@@ -825,8 +838,8 @@ export const setupAdminAccount: RequestHandler = async (req, res) => {
     if (!city) return res.status(400).json({ error: "ville requise" });
     if (!phone || !/^[+\d][0-9\s().-]{5,}$/.test(phone)) return res.status(400).json({ error: "téléphone du salon invalide" });
 
-    const existingSettings = await Settings.findOne({ adminEmail: emailValue });
-    if (existingSettings) {
+    const existingAccount = await Settings.findOne({ adminEmail: emailValue });
+    if (existingAccount) {
       return res.status(400).json({ error: "un compte avec cet email existe déjà" });
     }
 
@@ -836,7 +849,8 @@ export const setupAdminAccount: RequestHandler = async (req, res) => {
     }
 
     const updates: any = {
-      loginPasswordHash: sha256(loginPassword),
+      loginPasswordHash: await bcrypt.hash(loginPassword, 10), // ✅ Bcrypt
+      passwordVersion: 2, // ✅ Version 2
       adminCodeHash: code ? sha256(code) : null,
       accountEmail: emailValue, // Email de connexion (immutable)
       adminEmail: emailValue, // Email de récupération (initialisé identique)
@@ -877,6 +891,119 @@ export const setupAdminAccount: RequestHandler = async (req, res) => {
   }
 };
 
+export const requestSignup: RequestHandler = async (req, res) => {
+  try {
+    const body = await parseRequestBody(req);
+    const { password, email, salonName, salonAddress, salonPostalCode, salonCity, salonPhone, salonId } = body;
+
+    // Validation (similar to setupAdminAccount)
+    if (!password || password.length < 4) return res.status(400).json({ error: "mot de passe trop court" });
+    if (!email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return res.status(400).json({ error: "email valide requis" });
+    if (!salonName) return res.status(400).json({ error: "nom du salon requis" });
+    if (!salonId) return res.status(400).json({ error: "ID du salon requis" });
+
+    // Check if email already exists
+    const existingAccount = await Settings.findOne({ adminEmail: email.toLowerCase().trim() });
+    if (existingAccount) {
+      return res.status(400).json({ error: "un compte avec cet email existe déjà" });
+    }
+
+    // Check if salonId is already taken
+    const existingSalon = await Settings.findOne({ salonId });
+    if (existingSalon) {
+      return res.status(400).json({ error: "cet identifiant de salon est déjà utilisé" });
+    }
+
+    // Prepare data for deferred creation
+    const signupData = {
+      passwordHash: await bcrypt.hash(password, 10),
+      email: email.toLowerCase().trim(),
+      salonName,
+      salonAddress,
+      salonPostalCode,
+      salonCity,
+      salonPhone,
+      salonId
+    };
+
+    const token = randomBytes(32).toString('hex');
+    const expiresAt = Date.now() + (24 * 60 * 60 * 1000); // 24 hours
+
+    await Verification.create({
+      token,
+      email: signupData.email,
+      data: signupData,
+      expiresAt,
+      purpose: 'signup'
+    });
+
+    const emailed = await EmailService.sendSignupVerificationLink(signupData.email, token);
+    if (!emailed) {
+      return res.status(500).json({ error: "Erreur lors de l'envoi de l'email de vérification" });
+    }
+
+    res.json({ ok: true, message: "Email de vérification envoyé" });
+  } catch (error) {
+    console.error('Error requesting signup:', error);
+    res.status(500).json({ error: "Erreur serveur" });
+  }
+};
+
+export const confirmSignup: RequestHandler = async (req, res) => {
+  try {
+    const { token } = req.query;
+    if (!token) return res.status(400).send("Token manquant");
+
+    const verification = await Verification.findOne({ token, purpose: 'signup' });
+    if (!verification || verification.expiresAt < Date.now()) {
+      return res.status(400).send("Lien invalide ou expiré");
+    }
+
+    const { data } = verification;
+
+    // Finalize account creation
+    const updates: any = {
+      loginPasswordHash: data.passwordHash,
+      passwordVersion: 2,
+      accountEmail: data.email,
+      adminEmail: data.email,
+      salonName: data.salonName,
+      salonAddress: data.salonAddress,
+      salonPostalCode: data.salonPostalCode,
+      salonCity: data.salonCity,
+      salonPhone: data.salonPhone,
+      adminToken: makeToken(),
+      salonId: data.salonId
+    };
+
+    // Trial setup
+    if (TRIAL_DURATION_MS > 0) {
+      const now = Date.now();
+      const trialEndsAt = now + TRIAL_DURATION_MS;
+      updates.trialStartedAt = now;
+      updates.trialEndsAt = trialEndsAt;
+      updates.subscriptionStatus = "trialing";
+      updates.subscriptionCurrentPeriodEnd = trialEndsAt;
+    }
+
+    const settings = await Settings.findOneAndUpdate(
+      { salonId: data.salonId },
+      { $set: updates },
+      { new: true, upsert: true }
+    );
+
+    await Verification.deleteOne({ _id: verification._id });
+
+    // Redirect to frontend with token and salonId
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+    // We add a special flag to tell the frontend to log in the user
+    res.redirect(`${frontendUrl}/?setup_token=${settings.adminToken}&salon_id=${settings.salonId}`);
+  } catch (error) {
+    console.error('Error confirming signup:', error);
+    res.status(500).send("Erreur lors de la confirmation du compte");
+  }
+};
+
 export const adminLogin: RequestHandler = async (req, res) => {
   try {
     const body = await parseRequestBody(req);
@@ -891,39 +1018,68 @@ export const adminLogin: RequestHandler = async (req, res) => {
     let foundSettings: ISettings | null = null;
 
     // 1. Chercher par accountEmail (nouveau standard)
-    let settings = await Settings.findOne({ accountEmail: e, loginPasswordHash: passwordHash });
+    let settings: ISettings | null = await Settings.findOne({ accountEmail: e });
 
-    // 2. Fallback: Chercher par adminEmail (pour compatibilité avant migration)
+    // 2. Fallback: Chercher par adminEmail
     if (!settings) {
-      settings = await Settings.findOne({ adminEmail: e, loginPasswordHash: passwordHash });
-
-      if (settings) {
-        // Si accountEmail est déjà défini, on ne permet PAS la connexion via adminEmail
-        // (Cela signifie que c'est un compte moderne/migré et l'utilisateur doit utiliser son accountEmail)
-        if (settings.accountEmail) {
-          settings = null;
-        } else {
-          // Migration à la volée si trouvé par adminEmail ET accountEmail non défini
-          settings.accountEmail = settings.adminEmail || e;
-          await settings.save();
-        }
+      settings = await Settings.findOne({ adminEmail: e });
+      if (settings && !settings.accountEmail) {
+        // Migration email à la volée
+        settings.accountEmail = settings.adminEmail || e;
+        // On ne save pas tout de suite, on attend la validité du mot de passe
       }
     }
 
-    if (settings) {
-      foundSalonId = settings.salonId;
-      foundSettings = settings;
-    }
-
-    if (!foundSalonId) {
+    // 3. Fallback cache/local
+    if (!settings) {
       const cachedSalonId = emailToSalonId.get(e);
       if (cachedSalonId) {
-        const settings = await getSettings(cachedSalonId);
-        if (settings.loginPasswordHash === passwordHash) {
-          foundSalonId = cachedSalonId;
-          foundSettings = settings;
-        }
+        settings = await getSettings(cachedSalonId);
       }
+    }
+
+    if (!settings || !settings.loginPasswordHash) {
+      return res.status(401).json({ error: "invalid email or password" });
+    }
+
+    // ✅ VÉRIFICATION MOT DE PASSE & MIGRATION
+    let passwordValid = false;
+    let migrationNeeded = false;
+    const version = settings.passwordVersion || 1;
+
+    if (version === 1) {
+      // Ancien format SHA256
+      if (settings.loginPasswordHash === sha256(password)) {
+        passwordValid = true;
+        migrationNeeded = true;
+      }
+    } else if (version === 2) {
+      // Nouveau format Bcrypt
+      passwordValid = await bcrypt.compare(password, settings.loginPasswordHash);
+    }
+
+    if (!passwordValid) {
+      return res.status(401).json({ error: "invalid email or password" });
+    }
+
+    foundSalonId = settings.salonId;
+    foundSettings = settings;
+
+    // ✅ APPLIQUER MIGRATION SI NÉCESSAIRE
+    if (migrationNeeded) {
+      console.log(`🔒 Migrating password for salon ${foundSalonId} to use bcrypt`);
+      foundSettings.loginPasswordHash = await bcrypt.hash(password, 10);
+      foundSettings.passwordVersion = 2;
+      // accountEmail migration might also be pending
+      if (!foundSettings.accountEmail && foundSettings.adminEmail) {
+        foundSettings.accountEmail = foundSettings.adminEmail;
+      }
+      await foundSettings.save();
+      invalidateSettingsCache(foundSalonId);
+    } else if (!foundSettings.accountEmail && foundSettings.adminEmail) {
+      // Juste migration email si pas fait
+      foundSettings.accountEmail = foundSettings.adminEmail;
+      await foundSettings.save();
     }
 
     if (!foundSalonId || !foundSettings) {
@@ -949,7 +1105,7 @@ export const adminLogin: RequestHandler = async (req, res) => {
 export const verifyAdminCode: RequestHandler = async (req, res) => {
   try {
     const body = await parseRequestBody(req);
-    const salonId = getSalonId(req);
+    const salonId = await getSalonId(req);
     const settings = await getSettings(salonId);
     const { code } = body as { code?: string };
     const value = (code ?? "").toString().trim();
@@ -972,7 +1128,7 @@ export const verifyAdminCode: RequestHandler = async (req, res) => {
 export const setAdminPassword: RequestHandler = async (req, res) => {
   try {
     const body = await parseRequestBody(req);
-    const salonId = getSalonId(req);
+    const salonId = await getSalonId(req);
     const settings = await getSettings(salonId);
     const { password, currentPassword, email } = body as {
       password?: string;
@@ -1182,7 +1338,8 @@ export const recoverAdminVerify: RequestHandler = async (req, res) => {
     }
 
     // ⭐️ CORRECTION ICI : Mettre à jour loginPasswordHash au lieu de adminCodeHash
-    settings.loginPasswordHash = sha256(pwd); // Mot de passe de connexion
+    settings.loginPasswordHash = await bcrypt.hash(pwd, 10); // ✅ Bcrypt
+    settings.passwordVersion = 2; // ✅ Version 2
     settings.resetCode = null;
     settings.resetExpiresAt = 0;
     settings.adminToken = makeToken();
@@ -1408,8 +1565,10 @@ export const verifyAdminCodeRecovery: RequestHandler = async (req, res) => {
 
 export const updateConfig: RequestHandler = async (req, res) => {
   try {
+    if (!(await requireAdmin(req, res))) return;
+
     const body = await parseRequestBody(req);
-    const salonId = getSalonId(req);
+    const salonId = await getSalonId(req);
     const settings = await getSettings(salonId);
     const { loyaltyPercentDefault, paymentModes, commissionDefault, pointsRedeemDefault, salonName, showStylistPriority, hideTotalCA, currency } = body as {
       loyaltyPercentDefault?: number;
@@ -1459,8 +1618,10 @@ export const updateConfig: RequestHandler = async (req, res) => {
 
 export const addStylist: RequestHandler = async (req, res) => {
   try {
+    if (!(await requireAdmin(req, res))) return;
+
     const body = await parseRequestBody(req);
-    const salonId = getSalonId(req);
+    const salonId = await getSalonId(req);
     const settings = await getSettings(salonId);
     const { name, commissionPct } = body as { name?: string; commissionPct?: number };
 
@@ -1487,7 +1648,11 @@ export const addStylist: RequestHandler = async (req, res) => {
 export const addStylistDeposit: RequestHandler = async (req, res) => {
   try {
     const body = await parseRequestBody(req);
-    const salonId = getSalonId(req);
+    const salonId = await getSalonId(req);
+
+    // 🛡️ SÉCURITÉ : Admin requis
+    if (!(await requireAdmin(req, res))) return;
+
     const { stylistId, amount, month, note } = body as {
       stylistId?: string;
       amount?: number;
@@ -1522,7 +1687,7 @@ export const addStylistDeposit: RequestHandler = async (req, res) => {
 
 export const listStylistDeposits: RequestHandler = async (req, res) => {
   try {
-    const salonId = getSalonId(req);
+    const salonId = await getSalonId(req);
     const { stylistId, month } = req.query as { stylistId?: string; month?: string };
 
     const query: any = { salonId };
@@ -1539,8 +1704,11 @@ export const listStylistDeposits: RequestHandler = async (req, res) => {
 
 export const deleteStylistDeposit: RequestHandler = async (req, res) => {
   try {
-    const salonId = getSalonId(req);
+    const salonId = await getSalonId(req);
     const { depositId } = req.params;
+
+    // 🛡️ SÉCURITÉ : Admin requis
+    if (!(await requireAdmin(req, res))) return;
 
     const result = await StylistDeposit.deleteOne({ id: depositId, salonId });
     if (result.deletedCount === 0) {
@@ -1558,7 +1726,7 @@ export const deleteStylistDeposit: RequestHandler = async (req, res) => {
 
 export const listClients: RequestHandler = async (req, res) => {
   try {
-    const salonId = getSalonId(req);
+    const salonId = await getSalonId(req);
     const clients = await Client.find({ salonId });
 
     const lastVisits = new Map<string, number>();
@@ -1572,10 +1740,22 @@ export const listClients: RequestHandler = async (req, res) => {
       }
     }
 
-    const clientsWithLastVisit = clients.map(client => ({
-      ...client.toObject(),
-      lastVisitAt: lastVisits.get(client.id) ?? null,
-    }));
+    // 🛡️ SÉCURITÉ : Filtrer les données sensibles si pas admin
+    const admin = await isAdmin(req);
+
+    const clientsWithLastVisit = clients.map(client => {
+      const obj = client.toObject();
+      if (!admin) {
+        // Masquer email et téléphone pour les non-admins (ex: borne publique, coiffeur sans droits)
+        // À ajuster selon le besoin métier (parfois les coiffeurs ont besoin du téléphone)
+        // obj.email = null;
+        // obj.phone = null;
+      }
+      return {
+        ...obj,
+        lastVisitAt: lastVisits.get(client.id) ?? null,
+      };
+    });
 
     res.json({ clients: clientsWithLastVisit });
   } catch (error) {
@@ -1587,7 +1767,8 @@ export const listClients: RequestHandler = async (req, res) => {
 export const addClient: RequestHandler = async (req, res) => {
   try {
     const body = await parseRequestBody(req);
-    const salonId = getSalonId(req);
+    const salonId = await getSalonId(req);
+
     const { name, email, phone } = body as { name?: string; email?: string; phone?: string };
 
     if (!name) return res.status(400).json({ error: "name is required" });
@@ -1625,7 +1806,7 @@ export const addClient: RequestHandler = async (req, res) => {
 export const createPrestation: RequestHandler = async (req, res) => {
   try {
     const body = await parseRequestBody(req);
-    const salonId = getSalonId(req);
+    const salonId = await getSalonId(req);
     const { stylistId, clientId, amount, paymentMethod, timestamp, pointsPercent, serviceName, serviceId, mixedCardAmount, mixedCashAmount } = body as {
       stylistId?: string;
       clientId?: string;
@@ -1638,6 +1819,9 @@ export const createPrestation: RequestHandler = async (req, res) => {
       mixedCardAmount?: number;
       mixedCashAmount?: number;
     };
+
+    // 🛡️ SÉCURITÉ : Admin requis - DÉSACTIVÉ pour permettre aux coiffeurs de créer des prestations
+    // if (!(await requireAdmin(req, res))) return;
 
     if (!stylistId || typeof amount !== "number" || !paymentMethod) {
       return res.status(400).json({ error: "stylistId, amount and paymentMethod are required" });
@@ -1702,13 +1886,16 @@ export const createPrestation: RequestHandler = async (req, res) => {
 export const redeemPoints: RequestHandler = async (req, res) => {
   try {
     const body = await parseRequestBody(req);
-    const salonId = getSalonId(req);
+    const salonId = await getSalonId(req);
     const { clientId, points, reason, stylistId } = body as {
       clientId?: string;
       points?: number;
       reason?: string;
       stylistId?: string
     };
+
+    // 🛡️ SÉCURITÉ : Admin requis
+    if (!(await requireAdmin(req, res))) return;
 
     if (!clientId || typeof points !== "number" || points <= 0) {
       return res.status(400).json({ error: "clientId and positive points required" });
@@ -1760,7 +1947,7 @@ export const addPoints: RequestHandler = async (req, res) => {
     if (!(await requireAdmin(req, res))) return;
 
     const body = await parseRequestBody(req);
-    const salonId = getSalonId(req);
+    const salonId = await getSalonId(req);
     const { clientId, points } = body as { clientId?: string; points?: number };
 
     if (!clientId || typeof points !== "number" || points <= 0) {
@@ -1788,7 +1975,7 @@ export const updateTransactionPaymentMethod: RequestHandler = async (req, res) =
     if (!(await requireAdmin(req, res))) return;
 
     const body = await parseRequestBody(req);
-    const salonId = getSalonId(req);
+    const salonId = await getSalonId(req);
     const { id, kind, paymentMethod } = body as { id: string; kind: "prestation" | "produit"; paymentMethod: PaymentMethod };
 
     if (!id || !kind || !paymentMethod) {
@@ -1814,7 +2001,7 @@ export const updateTransactionPaymentMethod: RequestHandler = async (req, res) =
 
 export const pointsUsageReport: RequestHandler = async (req, res) => {
   try {
-    const salonId = getSalonId(req);
+    const salonId = await getSalonId(req);
     const query = req.query as { day?: string; month?: string };
     const now = Date.now();
     let dayRef = now;
@@ -1846,7 +2033,7 @@ export const pointsUsageReport: RequestHandler = async (req, res) => {
 
 export const summaryReport: RequestHandler = async (req, res) => {
   try {
-    const salonId = getSalonId(req);
+    const salonId = await getSalonId(req);
     const all = await aggregateAllPayments(salonId);
     const now = Date.now();
     const todayStart = startOfDayParis(now);
@@ -1885,7 +2072,7 @@ export const summaryReport: RequestHandler = async (req, res) => {
 
 export const getGlobalBreakdown: RequestHandler = async (req, res) => {
   try {
-    const salonId = getSalonId(req);
+    const salonId = await getSalonId(req);
     const q = req.query as any;
     const dateStr = typeof q.date === "string" ? q.date : undefined;
     const startDateStr = typeof q.startDate === "string" ? q.startDate : undefined;
@@ -1916,7 +2103,7 @@ export const getGlobalBreakdown: RequestHandler = async (req, res) => {
       Prestation.find({ salonId }),
       Product.find({ salonId }),
       Stylist.find({ salonId }),
-      getSettings(salonId)
+      getSettings(salonId).catch(() => ({ commissionDefault: 50 } as ISettings))
     ]);
 
     const stylistMap = new Map(stylists.map(s => [s.id, s]));
@@ -1960,8 +2147,8 @@ export const getGlobalBreakdown: RequestHandler = async (req, res) => {
       const isCashTip = isTip && method === "cash";
 
       const stylist = stylistMap.get(p.stylistId);
-      const pct = typeof stylist?.commissionPct === "number" ? stylist.commissionPct : settings.commissionDefault;
-      const salary = isTip ? 0 : (p.amount * pct) / 100;
+      const pct = typeof stylist?.commissionPct === "number" ? stylist.commissionPct : (settings?.commissionDefault ?? 50);
+      const salary = isTip ? 0 : (p.amount * (pct || 0)) / 100;
 
       if (isDaily) {
         if (!isTip) {
@@ -2138,15 +2325,16 @@ export const getGlobalBreakdown: RequestHandler = async (req, res) => {
       monthlyProductAmount,
       rangeProductAmount: startDateMs && endDateMs ? rangeProductAmount : 0,
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error getting global breakdown:', error);
+    try { require("fs").writeFileSync("error_global.log", error.stack || error.toString()); } catch (e) { }
     res.status(500).json({ error: "Erreur serveur" });
   }
 };
 
 export const getStylistBreakdown: RequestHandler = async (req, res) => {
   try {
-    const salonId = getSalonId(req);
+    const salonId = await getSalonId(req);
     const { id } = req.params as { id: string };
 
     const stylist = await Stylist.findOne({ id, salonId });
@@ -2176,7 +2364,9 @@ export const getStylistBreakdown: RequestHandler = async (req, res) => {
     }
 
     const hiddenPeriods = (stylist as any).hiddenPeriods || [];
-    const data = await aggregateByPayment(salonId, id, ref, startDateMs, endDateMs, hiddenPeriods);
+    const isUserAdmin = await isAdmin(req);
+    const isSettingsView = req.query.settingsView === 'true';
+    const data = await aggregateByPayment(salonId, id, ref, startDateMs, endDateMs, hiddenPeriods, isUserAdmin && isSettingsView);
     res.json(data);
   } catch (error) {
     console.error('Error getting stylist breakdown:', error);
@@ -2189,7 +2379,7 @@ export const setStylistCommission: RequestHandler = async (req, res) => {
     if (!(await requireAdmin(req, res))) return;
 
     const body = await parseRequestBody(req);
-    const salonId = getSalonId(req);
+    const salonId = await getSalonId(req);
     const { id } = req.params as { id: string };
     const { commissionPct } = body as { commissionPct?: number };
 
@@ -2212,7 +2402,7 @@ export const updateStylist: RequestHandler = async (req, res) => {
     if (!(await requireAdmin(req, res))) return;
 
     const body = await parseRequestBody(req);
-    const salonId = getSalonId(req);
+    const salonId = await getSalonId(req);
     const { id } = req.params as { id: string };
     const { name, commissionPct, hiddenMonths, hiddenPeriods } = body as {
       name?: string;
@@ -2260,7 +2450,10 @@ export const updateStylist: RequestHandler = async (req, res) => {
 
 export const deleteStylist: RequestHandler = async (req, res) => {
   try {
-    const salonId = getSalonId(req);
+    // 🛡️ SÉCURITÉ : Admin requis
+    if (!(await requireAdmin(req, res))) return;
+
+    const salonId = await getSalonId(req);
     const { id } = req.params as { id: string };
 
     const result = await Stylist.deleteOne({ id, salonId });
@@ -2280,7 +2473,7 @@ export const setStylistSecretCode: RequestHandler = async (req, res) => {
     if (!(await requireAdmin(req, res))) return;
 
     const body = await parseRequestBody(req);
-    const salonId = getSalonId(req);
+    const salonId = await getSalonId(req);
     const { id } = req.params as { id: string };
     const { secretCode } = body as { secretCode?: string };
 
@@ -2300,7 +2493,7 @@ export const setStylistSecretCode: RequestHandler = async (req, res) => {
 export const verifyStylistSecretCode: RequestHandler = async (req, res) => {
   try {
     const body = await parseRequestBody(req);
-    const salonId = getSalonId(req);
+    const salonId = await getSalonId(req);
     const { id } = req.params as { id: string };
     const { code } = body as { code?: string };
 
@@ -2321,7 +2514,7 @@ export const verifyStylistSecretCode: RequestHandler = async (req, res) => {
 
 export const getStylistHasSecretCode: RequestHandler = async (req, res) => {
   try {
-    const salonId = getSalonId(req);
+    const salonId = await getSalonId(req);
     const { id } = req.params as { id: string };
 
     const stylist = await Stylist.findOne({ id, salonId });
@@ -2338,7 +2531,7 @@ export const deleteClient: RequestHandler = async (req, res) => {
   try {
     if (!(await requireAdmin(req, res))) return;
 
-    const salonId = getSalonId(req);
+    const salonId = await getSalonId(req);
     const { id } = req.params as { id: string };
 
     const result = await Client.deleteOne({ id, salonId });
@@ -2362,17 +2555,17 @@ export const deletePrestation: RequestHandler = async (req, res) => {
   try {
     if (!(await requireAdmin(req, res))) return;
 
-    const salonId = getSalonId(req);
+    const salonId = await getSalonId(req);
     const { id } = req.params as { id: string };
 
     // Try to find and delete a prestation first
     const prestation = await Prestation.findOne({ id, salonId });
     if (prestation) {
       // Remove loyalty points if applicable
-      if (prestation.clientId && prestation.pointsAwarded > 0) {
+      if (prestation.clientId && (prestation as any).pointsAwarded > 0) {
         await Client.updateOne(
           { id: prestation.clientId, salonId },
-          { $inc: { loyaltyPoints: -prestation.pointsAwarded } }
+          { $inc: { points: -(prestation as any).pointsAwarded } }
         );
       }
 
@@ -2397,7 +2590,7 @@ export const deletePrestation: RequestHandler = async (req, res) => {
 
 export const listServices: RequestHandler = async (req, res) => {
   try {
-    const salonId = getSalonId(req);
+    const salonId = await getSalonId(req);
     const services = await Service.find({ salonId }).sort({ sortOrder: 1, createdAt: 1 });
     res.json({ services });
   } catch (error) {
@@ -2411,8 +2604,11 @@ export const addService: RequestHandler = async (req, res) => {
     if (!(await requireAdmin(req, res))) return;
 
     const body = await parseRequestBody(req);
-    const salonId = getSalonId(req);
+    const salonId = await getSalonId(req);
     const { name, price, description } = body as { name: string; price: number; description?: string };
+
+    // 🛡️ SÉCURITÉ : Admin requis
+    if (!(await requireAdmin(req, res))) return;
 
     if (!name || typeof name !== "string" || !name.trim()) {
       return res.status(400).json({ error: "service name is required" });
@@ -2446,9 +2642,10 @@ export const addService: RequestHandler = async (req, res) => {
 
 export const deleteService: RequestHandler = async (req, res) => {
   try {
+    // 🛡️ SÉCURITÉ : Admin requis
     if (!(await requireAdmin(req, res))) return;
 
-    const salonId = getSalonId(req);
+    const salonId = await getSalonId(req);
     const { id } = req.params as { id: string };
 
     const result = await Service.deleteOne({ id, salonId });
@@ -2465,10 +2662,11 @@ export const deleteService: RequestHandler = async (req, res) => {
 
 export const reorderServices: RequestHandler = async (req, res) => {
   try {
+    // 🛡️ SÉCURITÉ : Admin requis
     if (!(await requireAdmin(req, res))) return;
 
     const body = await parseRequestBody(req);
-    const salonId = getSalonId(req);
+    const salonId = await getSalonId(req);
     const { orderedIds } = body as { orderedIds: string[] };
 
     if (!Array.isArray(orderedIds)) {
@@ -2498,7 +2696,7 @@ export const reorderServices: RequestHandler = async (req, res) => {
 
 export const listProductTypes: RequestHandler = async (req, res) => {
   try {
-    const salonId = getSalonId(req);
+    const salonId = await getSalonId(req);
     const productTypes = await ProductType.find({ salonId }).sort({ sortOrder: 1, createdAt: 1 });
     res.json({ productTypes });
   } catch (error) {
@@ -2509,10 +2707,11 @@ export const listProductTypes: RequestHandler = async (req, res) => {
 
 export const addProductType: RequestHandler = async (req, res) => {
   try {
+    // 🛡️ SÉCURITÉ : Admin requis
     if (!(await requireAdmin(req, res))) return;
 
     const body = await parseRequestBody(req);
-    const salonId = getSalonId(req);
+    const salonId = await getSalonId(req);
     const { name, price, description } = body as { name: string; price: number; description?: string };
 
     if (!name || typeof name !== "string" || !name.trim()) {
@@ -2541,9 +2740,10 @@ export const addProductType: RequestHandler = async (req, res) => {
 
 export const deleteProductType: RequestHandler = async (req, res) => {
   try {
+    // 🛡️ SÉCURITÉ : Admin requis
     if (!(await requireAdmin(req, res))) return;
 
-    const salonId = getSalonId(req);
+    const salonId = await getSalonId(req);
     const { id } = req.params as { id: string };
 
     const result = await ProductType.deleteOne({ id, salonId });
@@ -2560,10 +2760,11 @@ export const deleteProductType: RequestHandler = async (req, res) => {
 
 export const reorderProductTypes: RequestHandler = async (req, res) => {
   try {
+    // 🛡️ SÉCURITÉ : Admin requis
     if (!(await requireAdmin(req, res))) return;
 
     const body = await parseRequestBody(req);
-    const salonId = getSalonId(req);
+    const salonId = await getSalonId(req);
     const { orderedIds } = body as { orderedIds: string[] };
 
     if (!Array.isArray(orderedIds)) {
@@ -2592,7 +2793,7 @@ export const reorderProductTypes: RequestHandler = async (req, res) => {
 export const createProduct: RequestHandler = async (req, res) => {
   try {
     const body = await parseRequestBody(req);
-    const salonId = getSalonId(req);
+    const salonId = await getSalonId(req);
     const { stylistId, clientId, amount, paymentMethod, timestamp, productName, productTypeId, mixedCardAmount, mixedCashAmount } = body as {
       stylistId?: string;
       clientId?: string;
@@ -2604,6 +2805,9 @@ export const createProduct: RequestHandler = async (req, res) => {
       mixedCardAmount?: number;
       mixedCashAmount?: number;
     };
+
+    // 🛡️ SÉCURITÉ : Admin requis - DÉSACTIVÉ pour permettre aux coiffeurs de vendre des produits
+    // if (!(await requireAdmin(req, res))) return;
 
     if (!stylistId || typeof amount !== "number" || !paymentMethod) {
       return res.status(400).json({ error: "stylistId, amount and paymentMethod are required" });
@@ -2645,7 +2849,7 @@ export const createProduct: RequestHandler = async (req, res) => {
 
 export const listProducts: RequestHandler = async (req, res) => {
   try {
-    const salonId = getSalonId(req);
+    const salonId = await getSalonId(req);
     const products = await Product.find({ salonId }).sort({ timestamp: -1 });
     res.json({ products });
   } catch (error) {
@@ -2657,7 +2861,7 @@ export const listProducts: RequestHandler = async (req, res) => {
 // Fonctions d'export CSV/PDF
 export const exportSummaryCSV: RequestHandler = async (req, res) => {
   try {
-    const salonId = getSalonId(req);
+    const salonId = await getSalonId(req);
     const all = await aggregateAllPayments(salonId);
     const rows: string[] = [];
     rows.push(["periode", "mode", "nombre", "montant_eur"].join(","));
@@ -2680,7 +2884,7 @@ export const exportSummaryCSV: RequestHandler = async (req, res) => {
 
 export const exportSummaryPDF: RequestHandler = async (req, res) => {
   try {
-    const salonId = getSalonId(req);
+    const salonId = await getSalonId(req);
     const all = await aggregateAllPayments(salonId);
     const { PDFDocument, StandardFonts, rgb } = await import("pdf-lib");
     const pdf = await PDFDocument.create();
@@ -2722,7 +2926,7 @@ export const exportSummaryPDF: RequestHandler = async (req, res) => {
 
 export const exportStylistCSV: RequestHandler = async (req, res) => {
   try {
-    const salonId = getSalonId(req);
+    const salonId = await getSalonId(req);
     const { id } = req.params as { id: string };
     const s = await Stylist.findOne({ id, salonId });
     if (!s) return res.status(404).json({ error: "stylist not found" });
@@ -2748,7 +2952,7 @@ export const exportStylistCSV: RequestHandler = async (req, res) => {
 
 export const exportStylistPDF: RequestHandler = async (req, res) => {
   try {
-    const salonId = getSalonId(req);
+    const salonId = await getSalonId(req);
     const { id } = req.params as { id: string };
     const s = await Stylist.findOne({ id, salonId });
     if (!s) return res.status(404).json({ error: "stylist not found" });
@@ -2796,7 +3000,7 @@ export const exportStylistPDF: RequestHandler = async (req, res) => {
 
 export const reportByDay: RequestHandler = async (req, res) => {
   try {
-    const salonId = getSalonId(req);
+    const salonId = await getSalonId(req);
     const settings = await getSettings(salonId);
     const now = new Date();
     const q = req.query as any;
@@ -2933,7 +3137,7 @@ export const reportByDay: RequestHandler = async (req, res) => {
 
 export const reportByMonth: RequestHandler = async (req, res) => {
   try {
-    const salonId = getSalonId(req);
+    const salonId = await getSalonId(req);
     const settings = await getSettings(salonId);
     const now = new Date();
     const qYear = Number((req.query as any).year);
@@ -3036,7 +3240,7 @@ export const reportByMonth: RequestHandler = async (req, res) => {
 
 export const exportByDayCSV: RequestHandler = async (req, res) => {
   try {
-    const salonId = getSalonId(req);
+    const salonId = await getSalonId(req);
     const now = new Date();
     const q = req.query as any;
     const qYear = Number(q.year);
@@ -3083,7 +3287,7 @@ export const exportByDayCSV: RequestHandler = async (req, res) => {
 
 export const exportByDayPDF: RequestHandler = async (req, res) => {
   try {
-    const salonId = getSalonId(req);
+    const salonId = await getSalonId(req);
     const now = new Date();
     const q = req.query as any;
     const qYear = Number(q.year);
@@ -3164,7 +3368,7 @@ export const exportByDayPDF: RequestHandler = async (req, res) => {
 
 export const exportByMonthCSV: RequestHandler = async (req, res) => {
   try {
-    const salonId = getSalonId(req);
+    const salonId = await getSalonId(req);
     const now = new Date();
     const qYear = Number((req.query as any).year);
     const year = Number.isFinite(qYear) ? qYear : now.getFullYear();
@@ -3199,7 +3403,7 @@ export const exportByMonthCSV: RequestHandler = async (req, res) => {
 
 export const exportByMonthPDF: RequestHandler = async (req, res) => {
   try {
-    const salonId = getSalonId(req);
+    const salonId = await getSalonId(req);
     const now = new Date();
     const qYear = Number((req.query as any).year);
     const year = Number.isFinite(qYear) ? qYear : now.getFullYear();
@@ -3285,7 +3489,7 @@ export const uploadClientPhoto = [
   upload.single('photo'),
   async (req: any, res: any) => {
     try {
-      const salonId = getSalonId(req);
+      const salonId = await getSalonId(req);
       const { id } = req.params;
 
       if (!req.file || !req.file.path) {
@@ -3310,7 +3514,7 @@ export const uploadClientPhoto = [
 
 export const deleteClientPhoto: RequestHandler = async (req, res) => {
   try {
-    const salonId = getSalonId(req);
+    const salonId = await getSalonId(req);
     const { id } = req.params;
     const { photoUrl } = await parseRequestBody(req);
 

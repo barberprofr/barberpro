@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useAdminLogin, useAdminRecover, useAdminRecoverVerify, useAdminSetupAccount } from "@/lib/api";
+import { useAdminLogin, useAdminRecover, useAdminRecoverVerify, useAdminRequestSignup, useAdminSetupAccount } from "@/lib/api";
 import { Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { normalizeSalonId, setSelectedSalon, addKnownSalon, getSelectedSalon } from "@/lib/salon";
@@ -16,6 +16,29 @@ type AuthMode = "login" | "signup" | "recover-ask" | "recover-verify";
 
 export default function AuthGate() {
   const [mode, setMode] = useState<AuthMode>("login");
+  const navigate = useNavigate();
+  const qc = useQueryClient();
+
+  // Handle Magic Link redirect (auto-login after email verification)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get("setup_token");
+    const salonId = params.get("salon_id");
+
+    if (token && salonId) {
+      console.log("🔗 Magic Link detected! Logging in...");
+      setAdminToken(token);
+      addKnownSalon(salonId);
+      setSelectedSalon(salonId);
+
+      // Clear URL params
+      window.history.replaceState({}, document.title, "/app");
+
+      // Invalidate and go to app
+      qc.invalidateQueries({ queryKey: ["config"] });
+      window.location.href = "/app";
+    }
+  }, [qc]);
 
   return (
     <div className="mx-auto max-w-sm">
@@ -27,20 +50,21 @@ export default function AuthGate() {
           </svg>
         </div>
         <h1 className="text-2xl font-extrabold tracking-tight text-white">
-          BarBerpro<svg viewBox="0 0 16 16" className="inline-block h-4 w-4 ml-0.5 -mt-1" aria-hidden><path d="M13.5 2L6 12l-3.5-3.5" fill="none" stroke="#dc2626" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+          BarBerpro<svg viewBox="0 0 16 16" className="inline-block h-4 w-4 ml-0.5 -mt-1" aria-hidden><path d="M13.5 2L6 12l-3.5-3.5" fill="none" stroke="#dc2626" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
         </h1>
       </div>
-      {mode === "signup" && <Signup onSwitchLogin={()=>setMode("login")} />}
-      {mode === "login" && <Login onSwitchSignup={()=>setMode("signup")} onRecover={()=>setMode("recover-ask")} />}
-      {mode === "recover-ask" && <RecoverAsk onNext={()=>setMode("recover-verify")} onBack={()=>setMode("login")} />}
-      {mode === "recover-verify" && <RecoverVerify onBack={()=>setMode("login")} />}
+      {mode === "signup" && <Signup onSwitchLogin={() => setMode("login")} />}
+      {mode === "login" && <Login onSwitchSignup={() => setMode("signup")} onRecover={() => setMode("recover-ask")} />}
+      {mode === "recover-ask" && <RecoverAsk onNext={() => setMode("recover-verify")} onBack={() => setMode("login")} />}
+      {mode === "recover-verify" && <RecoverVerify onBack={() => setMode("login")} />}
       <p className="text-center text-xs text-white mt-16">plateforme de gestion de salon de coiffure</p>
     </div>
   );
 }
 
 function Signup({ onSwitchLogin }: { onSwitchLogin: () => void }) {
-  const setup = useAdminSetupAccount();
+  const requestSignup = useAdminRequestSignup();
+  const [isEmailSent, setIsEmailSent] = useState(false);
   const { toast } = useToast();
   const [email, setEmail] = useState("");
   const [emailConfirm, setEmailConfirm] = useState("");
@@ -121,166 +145,180 @@ function Signup({ onSwitchLogin }: { onSwitchLogin: () => void }) {
     <div className="relative">
       <Card className="relative overflow-hidden rounded-[2rem] border border-white/20 bg-white/8 backdrop-blur-sm shadow-[0_24px_68px_rgba(15,23,42,0.3)] text-gray-100">
         <CardHeader>
-          <CardTitle className="text-center">Créer un compte</CardTitle>
+          <CardTitle className="text-center">{isEmailSent ? "Vérifiez votre boîte mail" : "Créer un compte"}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          <div>
-            <label className="inline-flex items-center gap-2 rounded-full border border-blue-400/50 bg-gradient-to-r from-blue-500/20 to-blue-400/10 backdrop-blur-sm px-3.5 py-1.5 text-[11px] font-semibold text-blue-100 shadow-[0_8px_16px_rgba(59,130,246,0.1),inset_0_1px_1px_rgba(255,255,255,0.2)]">
-              <span className="h-1.5 w-1.5 rounded-full bg-blue-300" />
-              Email
-            </label>
-            <Input type="email" value={email} onChange={(e)=>{ setEmail(e.target.value); setSignupError(""); }} placeholder="vous@exemple.com" autoComplete="email" className="mt-2 bg-slate-900/70 border-white/25 text-gray-100 placeholder:text-gray-400" />
-          </div>
-          <div>
-            <label className="inline-flex items-center gap-2 rounded-full border border-blue-400/50 bg-gradient-to-r from-blue-500/20 to-blue-400/10 backdrop-blur-sm px-3.5 py-1.5 text-[11px] font-semibold text-blue-100 shadow-[0_8px_16px_rgba(59,130,246,0.1),inset_0_1px_1px_rgba(255,255,255,0.2)]">
-              <span className="h-1.5 w-1.5 rounded-full bg-blue-300" />
-              Confirmer l'email
-            </label>
-            <Input type="email" value={emailConfirm} onChange={(e)=>{ setEmailConfirm(e.target.value); setSignupError(""); }} placeholder="répéter votre email" autoComplete="email" className="mt-2 bg-slate-900/70 border-white/25 text-gray-100 placeholder:text-gray-400" />
-            {emailConfirm && !emailsMatch && <p className="text-xs text-destructive mt-1">Les emails ne correspondent pas</p>}
-          </div>
-          <div>
-            <label className="inline-flex items-center gap-2 rounded-full border border-purple-400/50 bg-gradient-to-r from-purple-500/20 to-purple-400/10 backdrop-blur-sm px-3.5 py-1.5 text-[11px] font-semibold text-purple-100 shadow-[0_8px_16px_rgba(168,85,247,0.1),inset_0_1px_1px_rgba(255,255,255,0.2)]">
-              <span className="h-1.5 w-1.5 rounded-full bg-purple-300" />
-              Mot de passe
-            </label>
-            <PasswordInput value={pwd} onChange={(e)=>{ setPwdVal(e.target.value); setSignupError(""); }} placeholder="min 4 caractères" autoComplete="new-password" className="mt-2 bg-slate-900/70 border-white/25 text-gray-100 placeholder:text-gray-400" />
-            {pwd && !passwordValid && <p className="text-xs text-destructive mt-1">Mot de passe invalide</p>}
-          </div>
-          <div>
-            <label className="inline-flex items-center gap-2 rounded-full border border-purple-400/50 bg-gradient-to-r from-purple-500/20 to-purple-400/10 backdrop-blur-sm px-3.5 py-1.5 text-[11px] font-semibold text-purple-100 shadow-[0_8px_16px_rgba(168,85,247,0.1),inset_0_1px_1px_rgba(255,255,255,0.2)]">
-              <span className="h-1.5 w-1.5 rounded-full bg-purple-300" />
-              Confirmer le mot de passe
-            </label>
-            <PasswordInput value={confirm} onChange={(e)=>{ setConfirm(e.target.value); setSignupError(""); }} autoComplete="new-password" className="mt-2 bg-slate-900/70 border-white/25 text-gray-100 placeholder:text-gray-400" />
-            {confirm && !passwordsMatch && <p className="text-xs text-destructive mt-1">Les mots de passe ne correspondent pas</p>}
-          </div>
-          <div>
-            <label className="inline-flex items-center gap-2 rounded-full border border-emerald-400/50 bg-gradient-to-r from-emerald-500/20 to-emerald-400/10 backdrop-blur-sm px-3.5 py-1.5 text-[11px] font-semibold text-emerald-100 shadow-[0_8px_16px_rgba(16,185,129,0.1),inset_0_1px_1px_rgba(255,255,255,0.2)]">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-300" />
-              Nom du salon
-            </label>
-            <Input value={salonName} onChange={(e)=>{ setSalonName(e.target.value); setSignupError(""); }} placeholder="Salon Barber.Pro" autoComplete="organization" className="mt-2 bg-slate-900/70 border-white/25 text-gray-100 placeholder:text-gray-400" />
-          </div>
-          <div>
-            <label className="inline-flex items-center gap-2 rounded-full border border-emerald-400/50 bg-gradient-to-r from-emerald-500/20 to-emerald-400/10 backdrop-blur-sm px-3.5 py-1.5 text-[11px] font-semibold text-emerald-100 shadow-[0_8px_16px_rgba(16,185,129,0.1),inset_0_1px_1px_rgba(255,255,255,0.2)]">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-300" />
-              Adresse du salon
-            </label>
-            <Input value={salonAddress} onChange={(e)=>{ setSalonAddress(e.target.value); setSignupError(""); }} placeholder="123 rue de Paris" autoComplete="street-address" className="mt-2 bg-slate-900/70 border-white/25 text-gray-100 placeholder:text-gray-400" />
-          </div>
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div>
-              <label className="inline-flex items-center gap-2 rounded-full border border-amber-400/50 bg-gradient-to-r from-amber-500/20 to-amber-400/10 backdrop-blur-sm px-3.5 py-1.5 text-[11px] font-semibold text-amber-100 shadow-[0_8px_16px_rgba(217,119,6,0.1),inset_0_1px_1px_rgba(255,255,255,0.2)]">
-                <span className="h-1.5 w-1.5 rounded-full bg-amber-300" />
-                Code postal
-              </label>
-              <Input
-                value={postalCode}
-                onChange={(e)=> {
-                  const next = e.target.value.replace(/[^0-9]/g, "").slice(0, 5);
-                  setPostalCode(next);
-                  setSignupError("");
-                }}
-                inputMode="numeric"
-                pattern="[0-9]*"
-                autoComplete="postal-code"
-                placeholder="75001"
-                className="mt-2 bg-slate-900/70 border-white/25 text-gray-100 placeholder:text-gray-400"
-              />
-              {postalCode && !postalValid && <p className="text-xs text-destructive mt-1">Code postal invalide</p>}
+          {isEmailSent ? (
+            <div className="text-center space-y-4 py-4 px-2">
+              <div className="mx-auto w-16 h-16 bg-blue-500/20 rounded-full flex items-center justify-center mb-4">
+                <svg viewBox="0 0 24 24" className="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </div>
+              <p className="text-sm text-gray-200">
+                Un lien de confirmation a été envoyé à :<br />
+                <strong className="text-blue-300 font-medium">{email}</strong>
+              </p>
+              <p className="text-xs text-gray-400 leading-relaxed">
+                Cliquez sur le lien dans l'email pour finaliser la création de votre salon.
+              </p>
+              <div className="pt-4">
+                <Button variant="outline" className="w-full border-white/20 text-white hover:bg-white/10" onClick={() => setIsEmailSent(false)}>
+                  Modifier l'email ou recommencer
+                </Button>
+              </div>
             </div>
-            <div>
-              <label className="inline-flex items-center gap-2 rounded-full border border-amber-400/50 bg-gradient-to-r from-amber-500/20 to-amber-400/10 backdrop-blur-sm px-3.5 py-1.5 text-[11px] font-semibold text-amber-100 shadow-[0_8px_16px_rgba(217,119,6,0.1),inset_0_1px_1px_rgba(255,255,255,0.2)]">
-                <span className="h-1.5 w-1.5 rounded-full bg-amber-300" />
-                Ville
-              </label>
-              <Select
-                value={cityOptions.length ? city : undefined}
-                onValueChange={(val)=> { setCity(val); setSignupError(""); }}
-                disabled={!postalValid || cityLoading || cityOptions.length === 0}
-              >
-                <SelectTrigger className="mt-2 bg-slate-900/70 border-white/25 text-gray-100">
-                  <SelectValue placeholder={postalValid ? (cityLoading ? "Chargement..." : "Sélectionner") : "Entrer un code postal"} />
-                </SelectTrigger>
-                <SelectContent>
-                  {cityOptions.map((option) => (
-                    <SelectItem key={option} value={option}>{option}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {cityLoading && <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1"><Loader2 className="h-3.5 w-3.5 animate-spin" /> Chargement des villes…</p>}
-              {cityFetchError && !cityLoading && <p className="text-xs text-destructive mt-1">{cityFetchError}</p>}
-            </div>
-          </div>
-          <div>
-            <label className="inline-flex items-center gap-2 rounded-full border border-rose-400/50 bg-gradient-to-r from-rose-500/20 to-rose-400/10 backdrop-blur-sm px-3.5 py-1.5 text-[11px] font-semibold text-rose-100 shadow-[0_8px_16px_rgba(244,63,94,0.1),inset_0_1px_1px_rgba(255,255,255,0.2)]">
-              <span className="h-1.5 w-1.5 rounded-full bg-rose-300" />
-              Numéro de téléphone
-            </label>
-            <Input type="tel" value={salonPhone} onChange={(e)=>{ setSalonPhone(e.target.value); setSignupError(""); }} placeholder="06 12 34 56 78" autoComplete="off" inputMode="tel" className="mt-2 bg-slate-900/70 border-white/25 text-gray-100 placeholder:text-gray-400" />
-            {salonPhone && !phoneValid && <p className="text-xs text-destructive mt-1">Numéro de téléphone invalide</p>}
-          </div>
-          <Button
-            className="w-full mt-2"
-            disabled={!can || setup.isPending}
-            onClick={()=> {
-              if (!can) return;
-              // Générer un salonId unique en combinant le nom normalisé avec un identifiant unique
-              // Cela permet à plusieurs salons d'avoir le même nom
-              const normalizedName = normalizeSalonId(salonName.trim());
-              const uniqueId = Math.random().toString(36).slice(2, 8); // 6 caractères aléatoires
-              const newSalonId = `${normalizedName}-${uniqueId}`;
-              setup.mutate(
-                {
-                  salonId: newSalonId,
-                  password: pwd.trim(),
-                  email: email.trim(),
-                  salonName: salonName.trim(),
-                  salonAddress: salonAddress.trim(),
-                  salonPostalCode: postalCode.trim(),
-                  salonCity: city.trim(),
-                  salonPhone: salonPhone.trim(),
-                },
-                {
-                  onSuccess: () => {
-                    addKnownSalon(newSalonId);
-                    setSelectedSalon(newSalonId);
-                    toast({
-                      title: "Compte créé avec succès",
-                      description: "Votre compte a été créé. Vous pouvez maintenant vous connecter.",
-                    });
-                    // Basculer vers le formulaire de login après un court délai pour que l'utilisateur voie le toast
-                    setTimeout(() => {
-                      onSwitchLogin();
-                    }, 1500);
-                  },
-                  onError: async (err: any) => {
-                    try {
-                      const raw = typeof err?.message === "string" ? err.message : "";
-                      const parsed = (()=>{ try { return JSON.parse(raw); } catch { return null; } })();
-                      setSignupError(parsed?.error || raw || "Impossible de créer le compte");
-                    } catch {
-                      setSignupError("Impossible de créer le compte");
+          ) : (
+            <>
+              <div>
+                <label className="inline-flex items-center gap-2 rounded-full border border-blue-400/50 bg-gradient-to-r from-blue-500/20 to-blue-400/10 backdrop-blur-sm px-3.5 py-1.5 text-[11px] font-semibold text-blue-100 shadow-[0_8px_16px_rgba(59,130,246,0.1),inset_0_1px_1px_rgba(255,255,255,0.2)]">
+                  <span className="h-1.5 w-1.5 rounded-full bg-blue-300" />
+                  Email
+                </label>
+                <Input type="email" value={email} onChange={(e) => { setEmail(e.target.value); setSignupError(""); }} placeholder="vous@exemple.com" autoComplete="email" className="mt-2 bg-slate-900/70 border-white/25 text-gray-100 placeholder:text-gray-400" />
+              </div>
+              <div>
+                <label className="inline-flex items-center gap-2 rounded-full border border-blue-400/50 bg-gradient-to-r from-blue-500/20 to-blue-400/10 backdrop-blur-sm px-3.5 py-1.5 text-[11px] font-semibold text-blue-100 shadow-[0_8px_16px_rgba(59,130,246,0.1),inset_0_1px_1px_rgba(255,255,255,0.2)]">
+                  <span className="h-1.5 w-1.5 rounded-full bg-blue-300" />
+                  Confirmer l'email
+                </label>
+                <Input type="email" value={emailConfirm} onChange={(e) => { setEmailConfirm(e.target.value); setSignupError(""); }} placeholder="répéter votre email" autoComplete="email" className="mt-2 bg-slate-900/70 border-white/25 text-gray-100 placeholder:text-gray-400" />
+                {emailConfirm && !emailsMatch && <p className="text-xs text-destructive mt-1">Les emails ne correspondent pas</p>}
+              </div>
+              <div>
+                <label className="inline-flex items-center gap-2 rounded-full border border-purple-400/50 bg-gradient-to-r from-purple-500/20 to-purple-400/10 backdrop-blur-sm px-3.5 py-1.5 text-[11px] font-semibold text-purple-100 shadow-[0_8px_16px_rgba(168,85,247,0.1),inset_0_1px_1px_rgba(255,255,255,0.2)]">
+                  <span className="h-1.5 w-1.5 rounded-full bg-purple-300" />
+                  Mot de passe
+                </label>
+                <PasswordInput value={pwd} onChange={(e) => { setPwdVal(e.target.value); setSignupError(""); }} placeholder="min 4 caractères" autoComplete="new-password" className="mt-2 bg-slate-900/70 border-white/25 text-gray-100 placeholder:text-gray-400" />
+                {pwd && !passwordValid && <p className="text-xs text-destructive mt-1">Mot de passe invalide</p>}
+              </div>
+              <div>
+                <label className="inline-flex items-center gap-2 rounded-full border border-purple-400/50 bg-gradient-to-r from-purple-500/20 to-purple-400/10 backdrop-blur-sm px-3.5 py-1.5 text-[11px] font-semibold text-purple-100 shadow-[0_8px_16px_rgba(168,85,247,0.1),inset_0_1px_1px_rgba(255,255,255,0.2)]">
+                  <span className="h-1.5 w-1.5 rounded-full bg-purple-300" />
+                  Confirmer le mot de passe
+                </label>
+                <PasswordInput value={confirm} onChange={(e) => { setConfirm(e.target.value); setSignupError(""); }} autoComplete="new-password" className="mt-2 bg-slate-900/70 border-white/25 text-gray-100 placeholder:text-gray-400" />
+                {confirm && !passwordsMatch && <p className="text-xs text-destructive mt-1">Les mots de passe ne correspondent pas</p>}
+              </div>
+              <div>
+                <label className="inline-flex items-center gap-2 rounded-full border border-emerald-400/50 bg-gradient-to-r from-emerald-500/20 to-emerald-400/10 backdrop-blur-sm px-3.5 py-1.5 text-[11px] font-semibold text-emerald-100 shadow-[0_8px_16px_rgba(16,185,129,0.1),inset_0_1px_1px_rgba(255,255,255,0.2)]">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-300" />
+                  Nom du salon
+                </label>
+                <Input value={salonName} onChange={(e) => { setSalonName(e.target.value); setSignupError(""); }} placeholder="Salon Barber.Pro" autoComplete="organization" className="mt-2 bg-slate-900/70 border-white/25 text-gray-100 placeholder:text-gray-400" />
+              </div>
+              <div>
+                <label className="inline-flex items-center gap-2 rounded-full border border-emerald-400/50 bg-gradient-to-r from-emerald-500/20 to-emerald-400/10 backdrop-blur-sm px-3.5 py-1.5 text-[11px] font-semibold text-emerald-100 shadow-[0_8px_16px_rgba(16,185,129,0.1),inset_0_1px_1px_rgba(255,255,255,0.2)]">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-300" />
+                  Adresse du salon
+                </label>
+                <Input value={salonAddress} onChange={(e) => { setSalonAddress(e.target.value); setSignupError(""); }} placeholder="123 rue de Paris" autoComplete="street-address" className="mt-2 bg-slate-900/70 border-white/25 text-gray-100 placeholder:text-gray-400" />
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div>
+                  <label className="inline-flex items-center gap-2 rounded-full border border-amber-400/50 bg-gradient-to-r from-amber-500/20 to-amber-400/10 backdrop-blur-sm px-3.5 py-1.5 text-[11px] font-semibold text-amber-100 shadow-[0_8px_16px_rgba(217,119,6,0.1),inset_0_1px_1px_rgba(255,255,255,0.2)]">
+                    <span className="h-1.5 w-1.5 rounded-full bg-amber-300" />
+                    Code postal
+                  </label>
+                  <Input
+                    value={postalCode}
+                    onChange={(e) => {
+                      const next = e.target.value.replace(/[^0-9]/g, "").slice(0, 5);
+                      setPostalCode(next);
+                      setSignupError("");
+                    }}
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    autoComplete="postal-code"
+                    placeholder="75001"
+                    className="mt-2 bg-slate-900/70 border-white/25 text-gray-100 placeholder:text-gray-400"
+                  />
+                  {postalCode && !postalValid && <p className="text-xs text-destructive mt-1">Code postal invalide</p>}
+                </div>
+                <div>
+                  <label className="inline-flex items-center gap-2 rounded-full border border-amber-400/50 bg-gradient-to-r from-amber-500/20 to-amber-400/10 backdrop-blur-sm px-3.5 py-1.5 text-[11px] font-semibold text-amber-100 shadow-[0_8px_16px_rgba(217,119,6,0.1),inset_0_1px_1px_rgba(255,255,255,0.2)]">
+                    <span className="h-1.5 w-1.5 rounded-full bg-amber-300" />
+                    Ville
+                  </label>
+                  <Select
+                    value={cityOptions.length ? city : undefined}
+                    onValueChange={(val) => { setCity(val); setSignupError(""); }}
+                    disabled={!postalValid || cityLoading || cityOptions.length === 0}
+                  >
+                    <SelectTrigger className="mt-2 bg-slate-900/70 border-white/25 text-gray-100">
+                      <SelectValue placeholder={postalValid ? (cityLoading ? "Chargement..." : "Sélectionner") : "Entrer un code postal"} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {cityOptions.map((option) => (
+                        <SelectItem key={option} value={option}>{option}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {cityLoading && <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1"><Loader2 className="h-3.5 w-3.5 animate-spin" /> Chargement des villes…</p>}
+                  {cityFetchError && !cityLoading && <p className="text-xs text-destructive mt-1">{cityFetchError}</p>}
+                </div>
+              </div>
+              <div>
+                <label className="inline-flex items-center gap-2 rounded-full border border-rose-400/50 bg-gradient-to-r from-rose-500/20 to-rose-400/10 backdrop-blur-sm px-3.5 py-1.5 text-[11px] font-semibold text-rose-100 shadow-[0_8px_16px_rgba(244,63,94,0.1),inset_0_1px_1px_rgba(255,255,255,0.2)]">
+                  <span className="h-1.5 w-1.5 rounded-full bg-rose-300" />
+                  Numéro de téléphone
+                </label>
+                <Input type="tel" value={salonPhone} onChange={(e) => { setSalonPhone(e.target.value); setSignupError(""); }} placeholder="06 12 34 56 78" autoComplete="off" inputMode="tel" className="mt-2 bg-slate-900/70 border-white/25 text-gray-100 placeholder:text-gray-400" />
+                {salonPhone && !phoneValid && <p className="text-xs text-destructive mt-1">Numéro de téléphone invalide</p>}
+              </div>
+              <Button
+                className="w-full mt-2"
+                disabled={!can || requestSignup.isPending}
+                onClick={() => {
+                  if (!can) return;
+                  const normalizedName = normalizeSalonId(salonName.trim());
+                  const uniqueId = Math.random().toString(36).slice(2, 8);
+                  const newSalonId = `${normalizedName}-${uniqueId}`;
+
+                  requestSignup.mutate(
+                    {
+                      salonId: newSalonId,
+                      password: pwd.trim(),
+                      email: email.trim(),
+                      salonName: salonName.trim(),
+                      salonAddress: salonAddress.trim(),
+                      salonPostalCode: postalCode.trim(),
+                      salonCity: city.trim(),
+                      salonPhone: salonPhone.trim(),
+                    },
+                    {
+                      onSuccess: () => {
+                        setIsEmailSent(true);
+                      },
+                      onError: async (err: any) => {
+                        try {
+                          const raw = typeof err?.message === "string" ? err.message : "";
+                          const parsed = (() => { try { return JSON.parse(raw); } catch { return null; } })();
+                          setSignupError(parsed?.error || raw || "Impossible de demander la création du compte");
+                        } catch {
+                          setSignupError("Impossible de demander la création du compte");
+                        }
+                      }
                     }
-                  }
-                }
-              );
-            }}
-          >
-            {setup.isPending ? (
-              <span className="flex items-center justify-center gap-2">
-                <Loader2 className="h-4 w-4 animate-spin" />
-                Création…
-              </span>
-            ) : (
-              "S'enregistrer"
-            )}
-          </Button>
-          {signupError && <p className="text-xs text-destructive text-center">{signupError}</p>}
-          <div className="text-center text-xs text-muted-foreground">
-            Déjà un compte ? <button className="underline" onClick={onSwitchLogin}>Se connecter</button>
-          </div>
+                  );
+                }}
+              >
+                {requestSignup.isPending ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Demande…
+                  </span>
+                ) : (
+                  "Envoyer le lien de vérification"
+                )}
+              </Button>
+              {signupError && <p className="text-xs text-destructive text-center">{signupError}</p>}
+              <div className="text-center text-xs text-muted-foreground">
+                Déjà un compte ? <button className="underline" onClick={onSwitchLogin}>Se connecter</button>
+              </div>
+            </>
+          )}
         </CardContent>
       </Card>
     </div>
@@ -303,16 +341,16 @@ function Login({ onSwitchSignup, onRecover }: { onSwitchSignup: () => void; onRe
       <CardContent className="space-y-4">
         <div className="relative">
           <label className="absolute top-1 left-4 text-xs font-medium text-cyan-300 z-10">Email</label>
-          <Input type="email" value={email} onChange={(e)=>{ setEmail(e.target.value); setLoginError(""); }} autoComplete="email" className="pt-8 pb-6 px-5 bg-gray-700/70 border-gray-500 rounded-2xl text-gray-100 placeholder:text-gray-300" />
+          <Input type="email" value={email} onChange={(e) => { setEmail(e.target.value); setLoginError(""); }} autoComplete="email" className="pt-8 pb-6 px-5 bg-gray-700/70 border-gray-500 rounded-2xl text-gray-100 placeholder:text-gray-300" />
         </div>
         <div className="relative">
           <label className="absolute top-1 left-4 text-xs font-medium text-cyan-300 z-10">Mot de passe personnalisé</label>
-          <PasswordInput value={pwd} onChange={(e)=>{ setPwd(e.target.value); setLoginError(""); }} autoComplete="current-password" className="pt-8 pb-6 px-5 bg-gray-700/70 border-gray-500 rounded-2xl text-gray-100" />
+          <PasswordInput value={pwd} onChange={(e) => { setPwd(e.target.value); setLoginError(""); }} autoComplete="current-password" className="pt-8 pb-6 px-5 bg-gray-700/70 border-gray-500 rounded-2xl text-gray-100" />
         </div>
         <Button
           className="w-full"
           disabled={!can || login.isPending}
-          onClick={()=> can && login.mutate(
+          onClick={() => can && login.mutate(
             { email, password: pwd },
             {
               onSuccess: (data: any) => {
@@ -338,7 +376,7 @@ function Login({ onSwitchSignup, onRecover }: { onSwitchSignup: () => void; onRe
               onError: async (err: any) => {
                 try {
                   const raw = typeof err?.message === "string" ? err.message : "";
-                  const parsed = (()=>{ try { return JSON.parse(raw); } catch { return null; } })();
+                  const parsed = (() => { try { return JSON.parse(raw); } catch { return null; } })();
                   setLoginError(parsed?.error || raw || "Connexion impossible");
                 } catch {
                   setLoginError("Connexion impossible");
@@ -369,11 +407,11 @@ function RecoverAsk({ onNext, onBack }: { onNext: () => void; onBack: () => void
       <CardContent className="space-y-3">
         <div>
           <label className="text-sm font-medium">Email</label>
-          <Input type="email" value={email} onChange={(e)=>setEmail(e.target.value)} placeholder="vous@exemple.com" className="mt-1 bg-gray-800 border-gray-700 text-gray-100 placeholder:text-gray-400" />
+          <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="vous@exemple.com" className="mt-1 bg-gray-800 border-gray-700 text-gray-100 placeholder:text-gray-400" />
         </div>
         <div className="flex gap-2">
           <Button variant="outline" className="w-1/3" onClick={onBack}>Retour</Button>
-          <Button className="flex-1" disabled={!can || recover.isPending} onClick={()=> recover.mutate(email, { onSuccess: onNext })}>Envoyer le code</Button>
+          <Button className="flex-1" disabled={!can || recover.isPending} onClick={() => recover.mutate(email, { onSuccess: onNext })}>Envoyer le code</Button>
         </div>
       </CardContent>
     </Card>
@@ -395,25 +433,27 @@ function RecoverVerify({ onBack }: { onBack: () => void }) {
       <CardContent className="space-y-3">
         <div>
           <label className="text-sm font-medium">Email</label>
-          <Input type="email" value={email} onChange={(e)=>setEmail(e.target.value)} className="mt-1 bg-gray-800 border-gray-700 text-gray-100 placeholder:text-gray-400" />
+          <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="mt-1 bg-gray-800 border-gray-700 text-gray-100 placeholder:text-gray-400" />
         </div>
         <div>
           <label className="text-sm font-medium">Code reçu</label>
-          <Input type="text" value={code} onChange={(e)=>setCode(e.target.value.replace(/[^0-9]/g, ""))} inputMode="numeric" className="mt-1 bg-gray-800 border-gray-700 text-gray-100 placeholder:text-gray-400" />
+          <Input type="text" value={code} onChange={(e) => setCode(e.target.value.replace(/[^0-9]/g, ""))} inputMode="numeric" className="mt-1 bg-gray-800 border-gray-700 text-gray-100 placeholder:text-gray-400" />
         </div>
         <div>
           <label className="text-sm font-medium">Nouveau mot de passe</label>
-          <PasswordInput value={pwd} onChange={(e)=>setPwd(e.target.value)} className="mt-1 bg-gray-800 border-gray-700 text-gray-100 placeholder:text-gray-400" />
+          <PasswordInput value={pwd} onChange={(e) => setPwd(e.target.value)} className="mt-1 bg-gray-800 border-gray-700 text-gray-100 placeholder:text-gray-400" />
         </div>
         <div className="flex gap-2">
           <Button variant="outline" className="w-1/3" onClick={onBack}>Retour</Button>
-          <Button className="flex-1" disabled={!can || verify.isPending} onClick={()=> can && verify.mutate({ email, code, newPassword: pwd }, { onSuccess: (data: any) => {
-            if (data?.salonId) {
-              addKnownSalon(data.salonId);
-              setSelectedSalon(data.salonId);
+          <Button className="flex-1" disabled={!can || verify.isPending} onClick={() => can && verify.mutate({ email, code, newPassword: pwd }, {
+            onSuccess: (data: any) => {
+              if (data?.salonId) {
+                addKnownSalon(data.salonId);
+                setSelectedSalon(data.salonId);
+              }
+              navigate("/app");
             }
-            navigate("/app");
-          } })}>Valider</Button>
+          })}>Valider</Button>
         </div>
       </CardContent>
     </Card>

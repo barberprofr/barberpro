@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 import { useConfig, createCheckoutSession, useStylistsByPriority } from "@/lib/api";
 import AuthGate from "./auth/AuthGate";
 import { setAdminToken } from "@/lib/admin";
-import { clearSalonCache } from "@/lib/salon";
+import { clearSalonCache, getSelectedSalon } from "@/lib/salon";
 import { useQueryClient } from "@tanstack/react-query";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -29,7 +29,7 @@ export default function SharedLayout({ children }: PropsWithChildren) {
   const [showSubPrompt, setShowSubPrompt] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const retryTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  
+
   const handleLogout = async () => {
     try {
       qc.clear();
@@ -112,6 +112,17 @@ export default function SharedLayout({ children }: PropsWithChildren) {
     // Show subscription prompt when user is admin but subscription not active/trialing/paid
     // Always ensure showSubPrompt is false when subscription is valid
     const hasValidSubscription = config?.subscriptionStatus === "active" || config?.subscriptionStatus === "trialing" || config?.subscriptionStatus === "paid";
+
+    // Safety check: if we are logged in as admin BUT have no salonId in storage, 
+    // we must force a re-login to restore identity.
+    const salon = getSelectedSalon();
+    if (config?.isAdmin && !salon) {
+      console.warn("⚠️ Salon ID missing in local storage. Clearing cache and redirecting to login.");
+      localStorage.clear();
+      window.location.href = "/?error=salon_missing";
+      return;
+    }
+
     if (hasValidSubscription) {
       setShowSubPrompt(false);
     } else if (config?.isAdmin) {
@@ -122,11 +133,11 @@ export default function SharedLayout({ children }: PropsWithChildren) {
     }
   }, [config]);
   return (
-    <div 
+    <div
       className="relative min-h-screen bg-gradient-to-br from-blue-950 via-sky-800 to-amber-700"
       data-viewport={`${viewport.width}x${viewport.height}`}
     >
-      <div 
+      <div
         className="fixed inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-40 pointer-events-none"
         style={{ backgroundImage: `url(${barberBg})` }}
       />
@@ -141,7 +152,7 @@ export default function SharedLayout({ children }: PropsWithChildren) {
                 </svg>
               </div>
               <h1 className="text-lg font-bold tracking-tight" style={{ color: '#ffffff' }}>
-                BarBerpro<svg viewBox="0 0 16 16" className="inline-block h-3.5 w-3.5 ml-0.5 -mt-0.5" aria-hidden><path d="M13.5 2L6 12l-3.5-3.5" fill="none" stroke="#dc2626" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                BarBerpro<svg viewBox="0 0 16 16" className="inline-block h-3.5 w-3.5 ml-0.5 -mt-0.5" aria-hidden><path d="M13.5 2L6 12l-3.5-3.5" fill="none" stroke="#dc2626" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
               </h1>
             </Link>
             <div className="flex items-center gap-2">
@@ -325,7 +336,7 @@ export default function SharedLayout({ children }: PropsWithChildren) {
                 className="w-[220px] rounded-2xl border border-slate-200 bg-slate-900/95 px-4 py-3 text-[11px] leading-snug text-white shadow-lg"
               >
                 <p className="font-semibold">
-                  Assistance BarBerpro<svg viewBox="0 0 16 16" className="inline-block h-3 w-3 ml-0.5" aria-hidden><path d="M13.5 2L6 12l-3.5-3.5" fill="none" stroke="#dc2626" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                  Assistance BarBerpro<svg viewBox="0 0 16 16" className="inline-block h-3 w-3 ml-0.5" aria-hidden><path d="M13.5 2L6 12l-3.5-3.5" fill="none" stroke="#dc2626" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
                 </p>
                 <p className="mt-1 text-white/80">
                   Email : <span className="font-medium text-white">barberpro.fr@hotmail.com</span>

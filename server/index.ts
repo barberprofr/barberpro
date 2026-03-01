@@ -1,18 +1,41 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
+import helmet from "helmet"; // ✅ Ajout Helmet
+// import rateLimit from "express-rate-limit"; // ❌ RATE LIMIT DÉSACTIVÉ
 import { handleDemo } from "./routes/demo";
 import { adminRouter } from "./routes/admin";
 export { connectDatabase } from './db';
-import { addClient, addStylist, adminLogin, createPrestation, createProduct, listProducts, exportSummaryCSV, exportSummaryPDF, getConfig, getStylistBreakdown, getGlobalBreakdown, listClients, listStylists, getStylistsByPriority, pointsUsageReport, redeemPoints, reportByDay, reportByMonth, setAdminPassword, setStylistCommission, summaryReport, updateConfig, deleteStylist, deleteClient, recoverAdminPassword, recoverAdminVerify, exportStylistCSV, exportStylistPDF, exportByDayCSV, exportByDayPDF, exportByMonthCSV, exportByMonthPDF, setupAdminAccount, verifyAdminCode, updateStylist, listServices, addService, deleteService, reorderServices, listProductTypes, addProductType, deleteProductType, reorderProductTypes, recoverAdminCode, verifyAdminCodeRecovery, addPoints, updateTransactionPaymentMethod, uploadClientPhoto, deleteClientPhoto, setStylistSecretCode, verifyStylistSecretCode, getStylistHasSecretCode, addStylistDeposit, listStylistDeposits, deleteStylistDeposit, deletePrestation } from "./routes/salon";
+import { addClient, addStylist, adminLogin, createPrestation, createProduct, listProducts, exportSummaryCSV, exportSummaryPDF, getConfig, getStylistBreakdown, getGlobalBreakdown, listClients, listStylists, getStylistsByPriority, pointsUsageReport, redeemPoints, reportByDay, reportByMonth, setAdminPassword, setStylistCommission, summaryReport, updateConfig, deleteStylist, deleteClient, recoverAdminPassword, recoverAdminVerify, exportStylistCSV, exportStylistPDF, exportByDayCSV, exportByDayPDF, exportByMonthCSV, exportByMonthPDF, setupAdminAccount, verifyAdminCode, updateStylist, listServices, addService, deleteService, reorderServices, listProductTypes, addProductType, deleteProductType, reorderProductTypes, recoverAdminCode, verifyAdminCodeRecovery, addPoints, updateTransactionPaymentMethod, uploadClientPhoto, deleteClientPhoto, setStylistSecretCode, verifyStylistSecretCode, getStylistHasSecretCode, addStylistDeposit, listStylistDeposits, deleteStylistDeposit, deletePrestation, requestSignup, confirmSignup } from "./routes/salon";
 import { createCheckoutSession, createPortalSession, webhookHandler } from "./routes/payment";
 
 export function createServer() {
   const app = express();
 
+  // ✅ SÉCURITÉ : HELMET (En-têtes HTTP sécurisés)
+  app.use(helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://js.stripe.com"],
+        connectSrc: ["'self'", "http://localhost:5173", "https://api.stripe.com", "https://fonts.googleapis.com", "https://fonts.gstatic.com", "https://geo.api.gouv.fr", "https://res.cloudinary.com"],
+        imgSrc: ["'self'", "data:", "https:", "blob:"],
+        styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+        fontSrc: ["'self'", "data:", "https://fonts.gstatic.com"],
+        workerSrc: ["'self'", "blob:"],
+        frameSrc: ["'self'", "https://js.stripe.com", "https://hooks.stripe.com"],
+      },
+    },
+  }));
+
+  // ✅ SÉCURITÉ : RATE LIMITING GLOBAL - DÉSACTIVÉ
+  // app.use(limiter);
+
   // Middleware
+  // ✅ SÉCURITÉ : CORS RESTRICTIF (ou géré par Netlify)
+  // On garde une config minimale pour le dev local, mais en prod Netlify écrase souvent ça.
   app.use(cors({
-    origin: true,
+    origin: process.env.FRONTEND_URL || "*", // Idéalement définir FRONTEND_URL en prod
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: [
@@ -21,7 +44,7 @@ export function createServer() {
       "X-Requested-With",
       "Accept",
       "x-admin-token",
-      "x-super-admin-token", // ✅ AJOUTÉ pour super admin
+      "x-super-admin-token",
     ],
     exposedHeaders: ["Content-Disposition"],
   }));
@@ -118,6 +141,8 @@ export function createServer() {
   // Multi-salon namespace (data shared for now; salonId ignored by handlers)
   app.get("/api/salons/:salonId/config", getConfig);
   app.post("/api/salons/:salonId/admin/setup", setupAdminAccount);
+  app.post("/api/admin/request-signup", requestSignup);
+  app.get("/api/admin/confirm-signup", confirmSignup);
   app.post("/api/salons/:salonId/admin/set-password", setAdminPassword);
   app.post("/api/salons/:salonId/admin/code/verify", verifyAdminCode);
   app.post("/api/salons/:salonId/admin/login", adminLogin);

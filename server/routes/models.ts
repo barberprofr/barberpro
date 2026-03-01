@@ -161,6 +161,18 @@ export interface ISettings extends Document {
     subscriptionStartedAt?: number | null;
     trialStartedAt?: number | null;
     trialEndsAt?: number | null;
+    isFreeAccess?: boolean | null;
+    passwordVersion: number; // ✅ 1=SHA256, 2=bcrypt
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+export interface IVerification extends mongoose.Document {
+    token: string;
+    email: string;
+    data: any;
+    expiresAt: number;
+    purpose: 'signup' | 'recovery';
     createdAt: Date;
     updatedAt: Date;
 }
@@ -311,11 +323,25 @@ const SettingsSchema = new Schema({
     subscriptionCurrentPeriodEnd: { type: Number, default: null },
     subscriptionStartedAt: { type: Number, default: null },
     trialStartedAt: { type: Number, default: null },
-    trialEndsAt: { type: Number, default: null }
+    trialStartsAt: { type: Number, default: null },
+    trialEndsAt: { type: Number, default: null },
+    isFreeAccess: { type: Boolean, default: false },
+    passwordVersion: { type: Number, default: 1 } // ✅ 1=SHA256, 2=bcrypt
 }, {
-    timestamps: true,
-    id: false
+    timestamps: true
 });
+
+const VerificationSchema = new Schema({
+    token: { type: String, required: true, unique: true },
+    email: { type: String, required: true, index: true },
+    data: { type: Schema.Types.Mixed, required: true },
+    expiresAt: { type: Number, required: true, index: { expires: 0 } }, // TTL index
+    purpose: { type: String, required: true, enum: ['signup', 'recovery'] }
+}, {
+    timestamps: true
+});
+
+SettingsSchema.index({ adminToken: 1 });
 
 const StylistDepositSchema = new Schema({
     id: { type: String, required: true, unique: true },
@@ -380,3 +406,4 @@ export const Settings = (mongoose.models.Settings || mongoose.model<ISettings>('
 export const AdminUser = (mongoose.models.AdminUser || mongoose.model<IAdminUser>('AdminUser', AdminUserSchema)) as mongoose.Model<IAdminUser>;
 export const StylistDeposit = (mongoose.models.StylistDeposit || mongoose.model<IStylistDeposit>('StylistDeposit', StylistDepositSchema)) as mongoose.Model<IStylistDeposit>;
 export const AdminLog = (mongoose.models.AdminLog || mongoose.model<IAdminLog>('AdminLog', AdminLogSchema)) as mongoose.Model<IAdminLog>;
+export const Verification = (mongoose.models.Verification || mongoose.model<IVerification>('Verification', VerificationSchema)) as mongoose.Model<IVerification>;

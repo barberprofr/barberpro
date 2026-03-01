@@ -3,16 +3,31 @@ import { useSyncExternalStore } from "react";
 export type SalonId = string;
 
 const KEY = "selectedSalonId";
-const DEFAULT_SALON: SalonId = "main";
+// DEPRECATED: We no longer use "main" as a fallback.
+// const DEFAULT_SALON: SalonId = "main";
 
 let cachedSalonId: SalonId | null = null;
 let salonChangeListeners: (() => void)[] = [];
 
-export function getSelectedSalon(): SalonId {
-  if (typeof window === "undefined") return DEFAULT_SALON;
+export function getSelectedSalon(): SalonId | null {
+  if (typeof window === "undefined") return null;
   if (cachedSalonId) return cachedSalonId;
   const v = window.localStorage.getItem(KEY);
-  cachedSalonId = (v && /^[a-z0-9-]{1,40}$/i.test(v)) ? v : DEFAULT_SALON;
+  cachedSalonId = (v && /^[a-z0-9-]{1,64}$/i.test(v)) ? v : null;
+
+  // If no salon in localStorage, try to get it from the URL mapping if it's there
+  if (!cachedSalonId) {
+    const pathParts = window.location.pathname.split('/');
+    const salonIndex = pathParts.indexOf('salons');
+    if (salonIndex !== -1 && pathParts[salonIndex + 1]) {
+      const idFromUrl = pathParts[salonIndex + 1];
+      if (/^[a-z0-9-]{1,64}$/i.test(idFromUrl)) {
+        cachedSalonId = idFromUrl.toLowerCase();
+        window.localStorage.setItem(KEY, cachedSalonId);
+      }
+    }
+  }
+
   return cachedSalonId;
 }
 
@@ -43,11 +58,11 @@ function getSnapshot(): SalonId {
   return getSelectedSalon();
 }
 
-function getServerSnapshot(): SalonId {
-  return DEFAULT_SALON;
+function getServerSnapshot(): SalonId | null {
+  return null;
 }
 
-export function useSalonId(): SalonId {
+export function useSalonId(): SalonId | null {
   return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 }
 
@@ -59,13 +74,12 @@ export function onSalonChange(listener: () => void): () => void {
 }
 
 export function normalizeSalonId(nameOrId: string): SalonId {
-  return (nameOrId || "").toLowerCase().normalize("NFKD").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 40) || DEFAULT_SALON;
+  return (nameOrId || "").toLowerCase().normalize("NFKD").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 64);
 }
 
 export function listKnownSalons(): SalonId[] {
-  // Demo: persist a CSV list in localStorage. Real app should fetch from backend.
-  if (typeof window === "undefined") return [DEFAULT_SALON];
-  const raw = window.localStorage.getItem("salons:list") || DEFAULT_SALON;
+  if (typeof window === "undefined") return [];
+  const raw = window.localStorage.getItem("salons:list") || "";
   return Array.from(new Set(raw.split(",").map(s => s.trim()).filter(Boolean)));
 }
 

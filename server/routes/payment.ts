@@ -17,9 +17,10 @@ function getStripe(): Stripe {
 // Create a Checkout Session for subscriptions
 export const createCheckoutSession: RequestHandler = async (req, res) => {
   try {
-    const salonId = (req.params && typeof req.params.salonId === "string" && req.params.salonId) || "main";
+    const salonId = (req.params && typeof req.params.salonId === "string" && req.params.salonId);
+    if (!salonId) return res.status(400).json({ error: "Identifiant du salon requis. Veuillez recharger la page." });
+
     const settings = await Settings.findOne({ salonId });
-    if (!settings) return res.status(400).json({ error: "settings not found" });
 
     const priceId = process.env.STRIPE_PRICE_ID;
     if (!priceId) return res.status(500).json({ error: "STRIPE_PRICE_ID not configured" });
@@ -64,9 +65,11 @@ export const createCheckoutSession: RequestHandler = async (req, res) => {
 // Create a Customer Portal session (optional)
 export const createPortalSession: RequestHandler = async (req, res) => {
   try {
-    const salonId = (req.params && typeof req.params.salonId === "string" && req.params.salonId) || "main";
+    const salonId = (req.params && typeof req.params.salonId === "string" && req.params.salonId);
+    if (!salonId) return res.status(400).json({ error: "Identifiant du salon requis" });
+
     const settings = await Settings.findOne({ salonId });
-    if (!settings || !settings.stripeCustomerId) return res.status(404).json({ error: "customer not found" });
+    if (!settings || !settings.stripeCustomerId) return res.status(404).json({ error: "Client Stripe non trouvé" });
 
     if (!process.env.STRIPE_PORTAL_RETURN_URL) return res.status(500).json({ error: "STRIPE_PORTAL_RETURN_URL not configured" });
 
@@ -108,7 +111,12 @@ export const webhookHandler: RequestHandler = async (req, res) => {
       // Attach customer and subscription to settings
       const customerId = session.customer;
       const subscriptionId = session.subscription;
-      const salonId = session.metadata?.salonId ?? "main";
+      const salonId = session.metadata?.salonId;
+
+      if (!salonId) {
+        console.error('❌ Webhook error: No salonId in session metadata');
+        return res.status(400).send("No salonId in metadata");
+      }
 
       console.log('📦 Webhook: checkout.session.completed', {
         customerId,
@@ -135,16 +143,30 @@ export const webhookHandler: RequestHandler = async (req, res) => {
 
     if (type === "invoice.payment_succeeded" || type === "customer.subscription.updated") {
       const sub = data;
-      const subscriptionId = sub.id || sub.subscription?.id;
+      // In invoice events, the subscription ID is in 'subscription'. In subscription events, it's in 'id'.
+      const subscriptionId = (sub.subscription && typeof sub.subscription === 'string' ? sub.subscription : sub.id);
       const customerId = sub.customer;
       const status = sub.status ?? (data?.status);
       const currentPeriodEnd = (sub.current_period_end ? Number(sub.current_period_end) * 1000 : (sub.currentPeriodEnd ? Number(sub.currentPeriodEnd) : null));
 
-      // Try to locate settings by stripeCustomerId or by metadata
+      // Locate settings by salonId (metadata) OR stripeCustomerId
+      const salonIdFromMetadata = sub.metadata?.salonId;
       let settings = null;
-      if (customerId) settings = await Settings.findOne({ stripeCustomerId: customerId });
-      if (!settings && sub.metadata && sub.metadata.salonId) settings = await Settings.findOne({ salonId: sub.metadata.salonId });
+
+      if (salonIdFromMetadata) {
+        settings = await Settings.findOne({ salonId: salonIdFromMetadata });
+      } else if (customerId) {
+        settings = await Settings.findOne({ stripeCustomerId: customerId });
+      }
+
       if (settings) {
+        // SAFETY CHECK: Only update if this event concerns the current active subscription
+        // OR if the salon currently has no subscription ID locked in.
+        if (settings.stripeSubscriptionId && subscriptionId !== settings.stripeSubscriptionId) {
+          console.log(`ℹ️ Ignoring event for old subscription: ${subscriptionId} (Current: ${settings.stripeSubscriptionId})`);
+          return res.json({ received: true });
+        }
+
         settings.stripeSubscriptionId = subscriptionId ?? settings.stripeSubscriptionId;
         // If status is 'paid' (from invoice), normalize to 'active'
         const normalizedStatus = status === 'paid' ? 'active' : status;
@@ -159,9 +181,25 @@ export const webhookHandler: RequestHandler = async (req, res) => {
 
     if (type === "invoice.payment_failed") {
       const inv = data;
+      const eventSubscriptionId = inv.subscription;
       const customerId = inv.customer;
-      const settings = customerId ? await Settings.findOne({ stripeCustomerId: customerId }) : null;
+
+      // Try finding by metadata first
+      const salonIdFromMetadata = inv.metadata?.salonId;
+      let settings = null;
+      if (salonIdFromMetadata) {
+        settings = await Settings.findOne({ salonId: salonIdFromMetadata });
+      } else if (customerId) {
+        settings = await Settings.findOne({ stripeCustomerId: customerId });
+      }
+
       if (settings) {
+        // SAFETY CHECK: Only block if this failure concerns the current active subscription
+        if (settings.stripeSubscriptionId && eventSubscriptionId !== settings.stripeSubscriptionId) {
+          console.log(`ℹ️ Ignoring payment failure for old subscription: ${eventSubscriptionId}`);
+          return res.json({ received: true });
+        }
+
         settings.subscriptionStatus = "past_due";
         await settings.save();
       }

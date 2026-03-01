@@ -11,8 +11,36 @@ const API_BASES: string[] = envApiBaseUrl ? [envApiBaseUrl] : ["/api"];
 export function apiPath(input: string): string {
   const salon = getSelectedSalon();
   const path = input.startsWith("/api") ? input.slice(4) : input;
-  // If already targeting /salons/:id, keep it; else prefix
-  if (path.startsWith("/salons/")) return path;
+
+  // List of global routes that don't need a salon prefix.
+  const isGlobalRoute =
+    path === "/admin/login" ||
+    path === "/admin/setup" ||
+    path === "/admin/recover" ||
+    path === "/admin/recover-code" ||
+    path === "/admin/request-signup" ||
+    path === "/admin/confirm-signup" ||
+    path.startsWith("/admin/recover/") ||
+    path.startsWith("/admin/recover-code/") ||
+    path.startsWith("/superadmin/") ||
+    path === "/ping" ||
+    path === "/demo";
+
+  // If it's already a salon-specific path, don't re-prefix it.
+  if (path.startsWith("/salons/")) {
+    return path;
+  }
+
+  if (!salon && !isGlobalRoute) {
+    // If no salon is selected and it's not a global route, 
+    // we return a path that won't match any legacy root route.
+    return `/unspecified-salon${path}`;
+  }
+
+  if (isGlobalRoute) {
+    return path;
+  }
+
   return `/salons/${encodeURIComponent(salon)}${path}`;
 }
 
@@ -278,7 +306,14 @@ export function useAddClient() {
       const payload: Record<string, unknown> = { name };
       if (email) payload.email = email;
       if (phone) payload.phone = phone;
-      const res = await apiFetch("/api/clients", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+      const res = await apiFetch("/api/clients", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-admin-token": getAdminToken() || "",
+        },
+        body: JSON.stringify(payload),
+      });
       if (!res.ok) await throwResponseError(res);
       return res.json() as Promise<{ client: Client }>;
     },
@@ -367,18 +402,23 @@ export interface StylistBreakdown {
   rangeEntries?: { id: string; amount: number; paymentMethod: MethodKey; timestamp: number; kind: "prestation" | "produit"; name?: string }[];
 }
 
-export function useStylistBreakdown(stylistId?: string, date?: string, startDate?: string, endDate?: string) {
+export function useStylistBreakdown(stylistId?: string, date?: string, startDate?: string, endDate?: string, isSettingsView?: boolean) {
   const salonId = getSelectedSalon();
   return useQuery({
-    queryKey: ["stylist-breakdown", salonId, stylistId, date || "today", startDate, endDate],
+    queryKey: ["stylist-breakdown", salonId, stylistId, date || "today", startDate, endDate, isSettingsView],
     enabled: !!stylistId,
     queryFn: async () => {
       const params = new URLSearchParams();
       if (date) params.set("date", date);
       if (startDate) params.set("startDate", startDate);
       if (endDate) params.set("endDate", endDate);
+      if (isSettingsView) params.set("settingsView", "true");
       const qs = params.toString();
-      const res = await apiFetch(`/api/stylists/${stylistId}/breakdown${qs ? `?${qs}` : ""}`);
+      const headers: Record<string, string> = {};
+      const token = getAdminToken();
+      if (token) headers["x-admin-token"] = token;
+
+      const res = await apiFetch(`/api/stylists/${stylistId}/breakdown${qs ? `?${qs}` : ""}`, { headers });
       if (!res.ok) throw new Error("Failed to load breakdown");
       return res.json() as Promise<StylistBreakdown>;
     }
@@ -409,7 +449,11 @@ export function useGlobalBreakdown(date?: string, startDate?: string, endDate?: 
       if (startDate) params.set("startDate", startDate);
       if (endDate) params.set("endDate", endDate);
       const qs = params.toString();
-      const res = await apiFetch(`/api/salons/${salonId}/reports/global-breakdown${qs ? `?${qs}` : ""}`);
+      const headers: Record<string, string> = {};
+      const token = getAdminToken();
+      if (token) headers["x-admin-token"] = token;
+
+      const res = await apiFetch(`/api/salons/${salonId}/reports/global-breakdown${qs ? `?${qs}` : ""}`, { headers });
       if (!res.ok) throw new Error("Failed to load global breakdown");
       return res.json() as Promise<GlobalBreakdown>;
     }
@@ -499,6 +543,20 @@ export function useAdminSetupAccount() {
     onSuccess: (data) => {
       setAdminToken(data.token);
       qc.invalidateQueries({ queryKey: ["config"] });
+    }
+  });
+}
+
+export function useAdminRequestSignup() {
+  return useMutation({
+    mutationFn: async (input: { salonId: string; password: string; email: string; salonName: string; salonAddress: string; salonPostalCode: string; salonCity: string; salonPhone: string }) => {
+      const res = await apiFetch("/api/admin/request-signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(input)
+      });
+      if (!res.ok) await throwResponseError(res);
+      return res.json() as Promise<{ ok: true; message: string }>;
     }
   });
 }
@@ -848,6 +906,7 @@ export function useUploadClientPhoto() {
       formData.append('photo', file);
       const res = await apiFetch(`/api/clients/${clientId}/photos`, {
         method: 'POST',
+        headers: { 'x-admin-token': getAdminToken() || '' },
         body: formData,
       });
       if (!res.ok) await throwResponseError(res);
@@ -866,7 +925,10 @@ export function useDeleteClientPhoto() {
     mutationFn: async ({ clientId, photoUrl }: { clientId: string; photoUrl: string }) => {
       const res = await apiFetch(`/api/clients/${clientId}/photos`, {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-token': getAdminToken() || '',
+        },
         body: JSON.stringify({ photoUrl }),
       });
       if (!res.ok) await throwResponseError(res);
@@ -938,7 +1000,7 @@ export function useUpdateStylistHiddenMonths() {
       const previousStylists = qc.getQueryData(queryKey);
       qc.setQueryData(queryKey, (old: Stylist[] | undefined) => {
         if (!old) return old;
-        return old.map((s) => 
+        return old.map((s) =>
           s.id === stylistId ? { ...s, hiddenMonths } : s
         );
       });
@@ -974,7 +1036,7 @@ export function useUpdateStylistHiddenPeriods() {
       const previousStylists = qc.getQueryData(queryKey);
       qc.setQueryData(queryKey, (old: Stylist[] | undefined) => {
         if (!old) return old;
-        return old.map((s) => 
+        return old.map((s) =>
           s.id === stylistId ? { ...s, hiddenPeriods } : s
         );
       });
