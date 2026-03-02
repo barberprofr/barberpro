@@ -1064,7 +1064,9 @@ export function useStylistDeposits(stylistId?: string, month?: number) {
       const params = new URLSearchParams();
       if (stylistId) params.set('stylistId', stylistId);
       if (month) params.set('month', String(month));
-      const res = await apiFetch(`/api/stylist-deposits?${params.toString()}`);
+      const res = await apiFetch(`/api/stylist-deposits?${params.toString()}`, {
+        headers: { 'x-admin-token': getAdminToken() || '' }
+      });
       if (!res.ok) throw new Error('Failed to load deposits');
       const data = await res.json() as { deposits: StylistDeposit[] };
       return data.deposits;
@@ -1079,7 +1081,9 @@ export function useAllDepositsForMonth(month: number) {
     queryFn: async () => {
       const params = new URLSearchParams();
       params.set('month', String(month));
-      const res = await apiFetch(`/api/stylist-deposits?${params.toString()}`);
+      const res = await apiFetch(`/api/stylist-deposits?${params.toString()}`, {
+        headers: { 'x-admin-token': getAdminToken() || '' }
+      });
       if (!res.ok) throw new Error('Failed to load deposits');
       const data = await res.json() as { deposits: StylistDeposit[] };
       return data.deposits;
@@ -1093,7 +1097,10 @@ export function useAddStylistDeposit() {
     mutationFn: async (input: { stylistId: string; amount: number; month: number; note?: string }) => {
       const res = await apiFetch('/api/stylist-deposits', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-token': getAdminToken() || '',
+        },
         body: JSON.stringify(input),
       });
       if (!res.ok) await throwResponseError(res);
@@ -1111,6 +1118,7 @@ export function useDeleteStylistDeposit() {
     mutationFn: async (depositId: string) => {
       const res = await apiFetch(`/api/stylist-deposits/${depositId}`, {
         method: 'DELETE',
+        headers: { 'x-admin-token': getAdminToken() || '' },
       });
       if (!res.ok) await throwResponseError(res);
       return res.json() as Promise<{ ok: boolean }>;

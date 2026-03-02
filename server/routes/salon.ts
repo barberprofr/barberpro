@@ -1650,9 +1650,6 @@ export const addStylistDeposit: RequestHandler = async (req, res) => {
     const body = await parseRequestBody(req);
     const salonId = await getSalonId(req);
 
-    // 🛡️ SÉCURITÉ : Admin requis
-    if (!(await requireAdmin(req, res))) return;
-
     const { stylistId, amount, month, note } = body as {
       stylistId?: string;
       amount?: number;
@@ -1706,9 +1703,6 @@ export const deleteStylistDeposit: RequestHandler = async (req, res) => {
   try {
     const salonId = await getSalonId(req);
     const { depositId } = req.params;
-
-    // 🛡️ SÉCURITÉ : Admin requis
-    if (!(await requireAdmin(req, res))) return;
 
     const result = await StylistDeposit.deleteOne({ id: depositId, salonId });
     if (result.deletedCount === 0) {
